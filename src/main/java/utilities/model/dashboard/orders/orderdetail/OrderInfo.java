@@ -5,7 +5,7 @@ import lombok.Data;
 
 import java.util.List;
 
-@JsonInclude(JsonInclude.Include.NON_DEFAULT)
+//@JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @Data
 public class OrderInfo {
     private String orderId;

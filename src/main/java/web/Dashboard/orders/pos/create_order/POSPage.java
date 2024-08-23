@@ -1,5 +1,6 @@
 package web.Dashboard.orders.pos.create_order;
 
+import api.Seller.customers.APICustomerDetail;
 import api.Seller.marketing.LoyaltyPoint;
 import api.Seller.products.all_products.APIProductConversionUnit;
 import api.Seller.products.all_products.APIProductConversionUnit.ConversionUnitItem;
@@ -12,11 +13,15 @@ import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.testng.annotations.Optional;
 import utilities.assert_customize.AssertCustomize;
 import utilities.commons.UICommonAction;
+import utilities.constant.Constant;
 import utilities.data.DataGenerator;
 import utilities.data.GetDataByRegex;
+import utilities.enums.PaymentMethod;
 import utilities.enums.pos.ReceivedAmountType;
+import utilities.model.dashboard.customer.CustomerInfoFull;
 import utilities.model.dashboard.marketing.loyaltyPoint.LoyaltyPointInfo;
 import utilities.model.dashboard.orders.orderdetail.*;
 import utilities.model.dashboard.setting.branchInformation.BranchInfo;
@@ -64,7 +69,7 @@ public class POSPage extends POSElement {
 
     private String branchName;
 
-    void selectBranch(String branchName) {
+    public void selectBranch(String branchName) {
         // Get branchName for calculate stock in branch
         this.branchName = branchName;
 
@@ -118,9 +123,9 @@ public class POSPage extends POSElement {
                 unitItems.forEach(unit -> {
                     // Get current stock
                     int currentStock = infoV2.getProductStockQuantityMap()
-                                               .get(infoV2.isHasModel() ? unit.getModelId() : infoV2.getId())
-                                               .get(new BranchManagement(loginInformation).getInfo().getBranchName().indexOf(branchName))
-                                       / unit.getQuantity();
+                            .get(infoV2.isHasModel() ? unit.getModelId() : infoV2.getId())
+                            .get(new BranchManagement(loginInformation).getInfo().getBranchName().indexOf(branchName))
+                            / unit.getQuantity();
 
                     // Add conversion unit to cart
                     addProductToCart(loginInformation, infoV2, unit.getBarcode(), currentStock, infoV2.getVariationModelList().indexOf(unit.getModelId()), unit.getConversionUnitName());
@@ -134,7 +139,7 @@ public class POSPage extends POSElement {
         if (currentStock > 0) {
             // Add conversion unit to cart
             commonAction.clickJS(loc_lstProductResult(barcode));
-
+            
             // Wait API response
             commonAction.sleepInMiliSecond(500, "Wait product/variation/conversion unit is added to cart");
 
@@ -147,8 +152,8 @@ public class POSPage extends POSElement {
             // Get variation value
             String variationValue = infoV2.isHasModel()
                     ? infoV2.getVariationValuesMap()
-                        .get(new StoreInformation(loginInformation).getInfo().getDefaultLanguage())
-                        .get(varIndex).replace("|", " | ")
+                    .get(new StoreInformation(loginInformation).getInfo().getDefaultLanguage())
+                    .get(varIndex).replace("|", " | ")
                     : "";
 
             // Get quantity
@@ -228,10 +233,10 @@ public class POSPage extends POSElement {
         commonAction.click(loc_lstCustomerResult(name));
         return this;
     }
-    
+
     public DeliveryDialog tickDelivery() {
-    	commonAction.click(loc_chkDelivery);
-    	return new DeliveryDialog(driver);
+        commonAction.click(loc_chkDelivery);
+        return new DeliveryDialog(driver);
     }
 
     public void createPOSOrder(LoginInformation loginInformation, BranchInfo branchInfo, List<Integer> productIds) {
@@ -250,6 +255,7 @@ public class POSPage extends POSElement {
 
     public Double getTotalAmount() {
         String total = commonAction.getText(loc_lblTotalAmount);
+        logger.info("Total amount: " + total);
         return GetDataByRegex.getAmountByRegex(total);
     }
 
@@ -373,16 +379,17 @@ public class POSPage extends POSElement {
         // Log
         logger.info("Close Discount popup");
     }
-    public void inputUsePoint(int point){
-        if(!commonAction.getAttribute(loc_chkUsePointValue,"class").contains("checked"))
-        {
+
+    public void inputUsePoint(int point) {
+        if (!commonAction.getAttribute(loc_chkUsePointValue, "class").contains("checked")) {
             commonAction.click(loc_chkUsePointAction);
             logger.info("Click on Use point.");
         }
-        commonAction.inputText(loc_txtInputPoint,String.valueOf(point));
-        logger.info("Input point = {}",point);
+        commonAction.inputText(loc_txtInputPoint, String.valueOf(point));
+        logger.info("Input point = {}", point);
     }
-    public enum UsePointType{
+
+    public enum UsePointType {
         SERVERAL, MAX_ORDER, MAX_AVAILABLE
     }
 
@@ -391,14 +398,15 @@ public class POSPage extends POSElement {
         Long exchangeAmount = loyaltyPointInfo.getExchangeAmount();
         return (int) (getTotalAmount() / exchangeAmount);
     }
+
     @SneakyThrows
-    public int inputUsePoint(UsePointType usePointType){
+    public int inputUsePoint(UsePointType usePointType) {
         int point = 0;
         int availablePoint = Integer.parseInt(commonAction.getText(loc_lblAvailablePoint));
         if (availablePoint == 0) throw new Exception("Customer don't have any available point");
-        switch (usePointType){
-            case SERVERAL -> point = availablePoint > 1 ? DataGenerator.generatNumberInBound(1,availablePoint-1): 1;
-            case MAX_AVAILABLE,MAX_ORDER ->{
+        switch (usePointType) {
+            case SERVERAL -> point = availablePoint > 1 ? DataGenerator.generatNumberInBound(1, availablePoint - 1) : 1;
+            case MAX_AVAILABLE, MAX_ORDER -> {
                 int redeemPointNeed = redeemPointNeedForTotal();
                 point = availablePoint > redeemPointNeed ? redeemPointNeed : availablePoint;
             }
@@ -419,82 +427,99 @@ public class POSPage extends POSElement {
         } else commonAction.uncheckTheCheckboxOrRadio(loc_btnPrintReceiptValue, loc_btnPrintnReceiptAction);
         new ConfirmationDialog(driver).clickGreenBtn();
     }
-    public double getTotalDiscountAmount(){
+
+    public double getTotalDiscountAmount() {
         String discountText = commonAction.getText(loc_lblPromotionValue);
-        logger.info("Get total discount: "+discountText);
+        logger.info("Get total discount: " + discountText);
         return GetDataByRegex.getAmountByRegex(discountText);
     }
-    public double getTaxAmount(){
+
+    public double getTaxAmount() {
         String taxValue = commonAction.getText(loc_lblTaxValue);
-        logger.info("Get tax amount: "+taxValue);
+        logger.info("Get tax amount: " + taxValue);
         return GetDataByRegex.getAmountByRegex(taxValue);
     }
-    public long getShippingFee(){
+
+    public double getShippingFee() {
         String shippingFee = commonAction.getText(loc_lblShippingFee);
-        logger.info("Get shipping fee: "+shippingFee);
-        return (long)GetDataByRegex.getAmountByRegex(shippingFee);
+        logger.info("Get shipping fee: " + shippingFee);
+        return GetDataByRegex.getAmountByRegex(shippingFee);
     }
 
     /**
-     *
-     * @param actionlocator : locator that user hover or click on it.
+     * @param actionlocator  : locator that user hover or click on it.
      * @param tooltipLocator
      * @return List<ItemTotalDiscount> with fields: Name and Value
      */
-    public Map<String,Double> getPromotionDetailApply(By actionlocator, By tooltipLocator){
-        List<WebElement> infoIcon = commonAction.getElements(actionlocator,1);
-        Map<String,Double> itemDiscountList = new HashMap<>();
-        if(!infoIcon.isEmpty()){
-            commonAction.click(actionlocator);
-            List<WebElement> promotionList = commonAction.getElements(tooltipLocator,1);
+    public Map<String, Double> getPromotionDetailApply(By actionlocator, By tooltipLocator) {
+        List<WebElement> infoIcon = commonAction.getElements(actionlocator, 1);
+        Map<String, Double> itemDiscountList = new HashMap<>();
+        if (!infoIcon.isEmpty()) {
+            commonAction.sleepInMiliSecond(1000);
+            commonAction.clickActions(actionlocator);
+            List<WebElement> promotionList = commonAction.getElements(tooltipLocator, 2);
             promotionList.stream().forEach(i -> {
+                logger.info("Promotion: "+i.getText());
                 String[] promoItem = i.getText().split("\n");
-                itemDiscountList.put(promoItem[0], GetDataByRegex.getAmountByRegex(promoItem[1]));
+                itemDiscountList.put(promoItem[0], Double.valueOf(promoItem[1].replaceAll("[^\\d-]", "")));
             });
         }
         return itemDiscountList;
     }
-    public List<SummaryDiscount> getTotalPromotionDetailApply(){
-        Map<String,Double> promotionDetail =  getPromotionDetailApply(loc_icnPromotionInfo,loc_lst_tltTotalPromotionApply);
+
+    public List<SummaryDiscount> getTotalPromotionDetailApply() {
+        Map<String, Double> promotionDetail = getPromotionDetailApply(loc_icnPromotionInfo, loc_lst_tltTotalPromotionApply);
         List<SummaryDiscount> itemTotalDiscountList = new ArrayList<>();
-        for(Map.Entry<String,Double> entry : promotionDetail.entrySet()){
+        for (Map.Entry<String, Double> entry : promotionDetail.entrySet()) {
             SummaryDiscount itemTotalDiscount = new SummaryDiscount();
             itemTotalDiscount.setLabel(entry.getKey());
             itemTotalDiscount.setValue(entry.getValue());
             itemTotalDiscountList.add(itemTotalDiscount);
         }
+        logger.info("itemTotalDiscountList: {}",itemTotalDiscountList);
         return itemTotalDiscountList;
     }
-    public double getSubTotalValue(){
+
+    public double getSubTotalValue() {
         String subtotalText = commonAction.getText(loc_lblSubTotalValue);
-        logger.info("Get Subtotal value: {}",subtotalText);
+        logger.info("Get Subtotal value: {}", subtotalText);
         return GetDataByRegex.getAmountByRegex(subtotalText);
     }
-    public List<ItemOrderInfo> getItemDiscountInfo(){
+
+    public List<ItemOrderInfo> getItemDiscountInfo() {
         List<ItemOrderInfo> itemDiscountList = new ArrayList<>();
-        List<WebElement> productList = new ArrayList<>();
-        for (int i = 0; i< productList.size(); i++){
+        List<WebElement> productList = commonAction.getElements(loc_lst_lblProductName, 1);
+        for (int i = 0; i < productList.size(); i++) {
+            System.out.println("iiiiiiiiiiii: "+i);
             ItemOrderInfo itemOrderInfo = new ItemOrderInfo();
             String productName = productList.get(i).getText();
             itemOrderInfo.setName(productName);
-            if(!commonAction.getElements(loc_lblVariationName(productName)).isEmpty())
-                    itemOrderInfo.setVariationName(commonAction.getText(loc_lblVariationName(productName)));
-            if(!commonAction.getElements(loc_lblGift(productName)).isEmpty()){
-                GsOrderBXGYDTO gsOrderBXGYDTO  = new GsOrderBXGYDTO();
+            //ConversionUnit
+            String conversionUnit = commonAction.getElements(loc_lblUnit).get(i).getText();
+            if (!conversionUnit.equals("-"))
+                itemOrderInfo.setConversionUnitName(conversionUnit);
+            //Variation
+            if (!commonAction.getElements(loc_lblVariationByProductIndex(i+1)).isEmpty()){
+                itemOrderInfo.setVariationName(commonAction.getText(loc_lblVariationByProductIndex(i+1)).replaceAll(" ",""));
+                System.out.println(itemOrderInfo.getVariationName());
+                itemOrderInfo.setQuantity(Integer.parseInt(commonAction.getValue(loc_txtProductQuantity(productName, itemOrderInfo.getVariationName(),conversionUnit))));
+            }else itemOrderInfo.setQuantity(Integer.parseInt(commonAction.getValue(loc_txtProductQuantity(productName,conversionUnit))));
+
+            if (!commonAction.getElements(loc_lblGift(productName)).isEmpty()) {
+                GsOrderBXGYDTO gsOrderBXGYDTO = new GsOrderBXGYDTO();
                 gsOrderBXGYDTO.setGiftType("BUY_X_GET_Y");
                 itemOrderInfo.setGsOrderBXGYDTO(gsOrderBXGYDTO);
             }
-            itemOrderInfo.setPrice(GetDataByRegex.getAmountByRegex(commonAction.getText(loc_lblSellingPriceForOne(productName))));
-            itemOrderInfo.setPriceDiscount(GetDataByRegex.getAmountByRegex(commonAction.getText(loc_lblSellingPriceAfterDiscountForOne(productName))));
-            itemOrderInfo.setTotalAmount(GetDataByRegex.getAmountByRegex(commonAction.getText(loc_lblSellingPriceTotal(productName))));
-            if(!commonAction.getText(loc_lblUnit(productName)).equals("-"))
-                itemOrderInfo.setConversionUnitName(commonAction.getText(loc_lblUnit(productName)));
-            itemOrderInfo.setQuantity(Integer.parseInt(commonAction.getText(loc_txtProductQuantity(productName,"-"))));
+            itemOrderInfo.setPrice(GetDataByRegex.getAmountByRegex(commonAction.getText(loc_lblSellingPriceForOne(i+1))));
+            itemOrderInfo.setPriceDiscount(GetDataByRegex.getAmountByRegex(commonAction.getText(loc_lblSellingPriceAfterDiscountForOne(i+1))));
+            itemOrderInfo.setTotalAmount(GetDataByRegex.getAmountByRegex(commonAction.getText(loc_lblPriceTotalAfterDiscount(i+1))));
+
             //Set promotion info of each item
-            commonAction.click(loc_ddlPromotion(productName));
-            Map<String,Double> itemTotalDiscountMap = getPromotionDetailApply(loc_ddlPromotion(productName),loc_tltPromotionApplyOnItem);
+            commonAction.sleepInMiliSecond(1000);
+            commonAction.click(loc_ddlPromotion(i+1));
+            Map<String, Double> itemTotalDiscountMap = getPromotionDetailApply(loc_ddlPromotion(i+1), loc_tltPromotionApplyOnItem);
             List<ItemTotalDiscount> itemTotalDiscountList = new ArrayList<>();
-            for(Map.Entry<String,Double> entry : itemTotalDiscountMap.entrySet()){
+            for (Map.Entry<String, Double> entry : itemTotalDiscountMap.entrySet()) {
                 ItemTotalDiscount itemTotalDiscount = new ItemTotalDiscount();
                 itemTotalDiscount.setLabel(entry.getKey());
                 itemTotalDiscount.setValue(entry.getValue());
@@ -503,10 +528,182 @@ public class POSPage extends POSElement {
             itemOrderInfo.setItemTotalDiscounts(itemTotalDiscountList);
             itemDiscountList.add(itemOrderInfo);
         }
+        logger.info("itemDiscountList: " + itemDiscountList);
         return itemDiscountList;
     }
-//    public OrderDetailInfo getOrderInfoBeforeCheckOut(){
-//        OrderDetailInfo orderDetailInfo = new OrderDetailInfo();
-//        orderDetailInfo.setItems(getItemDiscountInfo());
-//    }
+
+    public double getShippingFeeDiscount() {
+        Map<String, Double> shippingDiscountMap = getPromotionDetailApply(loc_ddlShippingPromotion, loc_tltShippingPromotion);
+        double discountAmount =  shippingDiscountMap.values().stream().mapToDouble(Double::doubleValue).sum();
+        logger.info("Shipping fee discount amount: "+discountAmount);
+        return discountAmount;
+    }
+
+    public double getReceiveAmount() {
+        return GetDataByRegex.getAmountByRegex(commonAction.getValue(loc_txtReceiveAmount));
+    }
+
+    public EarningPoint getEarnPoint() {
+        EarningPoint earningPoint = new EarningPoint();
+        LoyaltyPointInfo loyaltyPointInfo = new LoyaltyPoint(loginInformation).getLoyaltyPointSetting();
+        Long rateAmount = loyaltyPointInfo.getRateAmount();
+
+        if ((double) rateAmount < getTotalAmount())
+            if (commonAction.getElements(loc_lblTotalEarningPoint).size() > 0) {
+                earningPoint.setValue((int) GetDataByRegex.getAmountByRegex(commonAction.getText(loc_lblTotalEarningPoint)));
+            } else earningPoint.setValue(0);
+        else earningPoint.setValue(0);
+        logger.info("earningPoint: " + earningPoint);
+        return earningPoint;
+    }
+
+    public int getTotalQuantity() {
+        return (int) GetDataByRegex.getAmountByRegex(commonAction.getText(loc_lblTotalQuantity));
+    }
+
+    public ShippingInfo getShippingInfo() {
+        ShippingInfo shippingInfo = new ShippingInfo();
+        List<WebElement> editDelivery = commonAction.getElements(loc_icnEditDelivery, 1);
+        if (!editDelivery.isEmpty()) {
+            commonAction.click(loc_icnEditDelivery);
+            DeliveryDialog deliveryDialog = new DeliveryDialog(driver);
+            shippingInfo.setContactName(deliveryDialog.getCustomerName());
+            shippingInfo.setPhone(deliveryDialog.getCustomerPhone());
+            shippingInfo.setEmail(deliveryDialog.getCustomerEmail());
+            shippingInfo.setCountry(deliveryDialog.getCountry());
+            if (shippingInfo.getCountry().equals(Constant.VIETNAM)) {
+                shippingInfo.setFullAddress(deliveryDialog.getAddress() + ", " + deliveryDialog.getWard() + ", " + deliveryDialog.getDistrict()
+                        + ", " + deliveryDialog.getProvince() + ", " + deliveryDialog.getCountry());
+                shippingInfo.setFullAddressEn(deliveryDialog.getAddress() + ", " + deliveryDialog.getWard() + ", " + deliveryDialog.getDistrict()
+                        + ", " + deliveryDialog.getProvince() + ", " + deliveryDialog.getCountry());
+            } else {
+                shippingInfo.setFullAddress(deliveryDialog.getAddress() + ", " + deliveryDialog.getAddress2() + ", " + deliveryDialog.getCity() + ", " + deliveryDialog.getProvince()
+                        + ", " + deliveryDialog.getZipcode() + ", " + deliveryDialog.getCountry());
+                shippingInfo.setFullAddressEn(deliveryDialog.getAddress() + ", " + deliveryDialog.getAddress2() + ", " + deliveryDialog.getCity() + ", " + deliveryDialog.getProvince()
+                        + ", " + deliveryDialog.getZipcode() + ", " + deliveryDialog.getCountry());
+            }
+            new ConfirmationDialog(driver).clickCancelBtn();
+        }
+        logger.info("shippingInfo: " + shippingInfo);
+        return shippingInfo;
+    }
+    public POSPaymentMethod getSelectedPaymentMethod(){
+        String paymentMethod = commonAction.getText(loc_lblSelectedPaymentMethod);
+        return (paymentMethod.equalsIgnoreCase("cash")||paymentMethod.equalsIgnoreCase("tiền mặt"))? POSPaymentMethod.CASH:
+                (paymentMethod.equalsIgnoreCase("bank transfer")||paymentMethod.equalsIgnoreCase("chuyển khoản"))? POSPaymentMethod.BANKTRANSFER: POSPaymentMethod.POS;
+    }
+
+    /**
+     * @param isGuest    don't select customer or select
+     * @param customerId = 0 when isGuest = true
+     * @return
+     */
+    public BillingInfo getBillingInfo(boolean isGuest, int customerId) {
+        BillingInfo billingInfo = new BillingInfo();
+        List<WebElement> editDelivery = commonAction.getElements(loc_icnEditDelivery, 1);
+
+        if (isGuest == false && editDelivery.isEmpty()) { //Account + no delivery : billing get from customer info
+            CustomerInfoFull customerInfo = new APICustomerDetail(loginInformation).getFullInfo(customerId);
+
+            billingInfo.setContactName(customerInfo.getFullName());
+            billingInfo.setPhone(customerInfo.getPhone());
+
+            if (billingInfo.getCountry().equals(Constant.VIETNAM)) {
+                billingInfo.setFullAddress(customerInfo.getCustomerAddress().getAddress() + ", " + customerInfo.getCustomerAddressFull().getWard() + ", " + customerInfo.getCustomerAddressFull().getDistrict()
+                        + ", " + customerInfo.getCustomerAddressFull().getCity() + ", " + customerInfo.getCustomerAddressFull().getCountry());
+                billingInfo.setFullAddressEn(customerInfo.getCustomerAddress().getAddress() + ", " + customerInfo.getCustomerAddressFull().getWard() + ", " + customerInfo.getCustomerAddressFull().getDistrict()
+                        + ", " + customerInfo.getCustomerAddressFull().getCity() + ", " + customerInfo.getCustomerAddressFull().getCountry());
+            } else {
+                billingInfo.setFullAddress(customerInfo.getCustomerAddress().getAddress() + ", " + customerInfo.getCustomerAddress().getAddress2() + ", " + customerInfo.getCustomerAddress().getCity()
+                        + ", " + customerInfo.getCustomerAddress().getCity() + ", " + customerInfo.getCustomerAddress().getZipCode() + ", " + customerInfo.getCustomerAddressFull().getCountry());
+                billingInfo.setFullAddressEn(customerInfo.getCustomerAddress().getAddress() + ", " + customerInfo.getCustomerAddress().getAddress2() + ", " + customerInfo.getCustomerAddress().getCity()
+                        + ", " + customerInfo.getCustomerAddress().getCity() + ", " + customerInfo.getCustomerAddress().getZipCode() + ", " + customerInfo.getCustomerAddressFull().getCountry());
+            }
+        } else if (!editDelivery.isEmpty()) { //Account or Guest + has delivery : billing get from delivery info
+            commonAction.clickJS(loc_icnEditDelivery);
+            DeliveryDialog deliveryDialog = new DeliveryDialog(driver);
+            billingInfo.setContactName(deliveryDialog.getCustomerName());
+            billingInfo.setPhone(deliveryDialog.getCustomerPhone());
+            billingInfo.setEmail(deliveryDialog.getCustomerEmail());
+            billingInfo.setCountry(deliveryDialog.getCountry());
+            if (billingInfo.getCountry().equals(Constant.VIETNAM)) {
+                billingInfo.setFullAddress(deliveryDialog.getAddress() + ", " + deliveryDialog.getWard() + ", " + deliveryDialog.getDistrict()
+                        + ", " + deliveryDialog.getProvince() + ", " + deliveryDialog.getCountry());
+                billingInfo.setFullAddressEn(deliveryDialog.getAddress() + ", " + deliveryDialog.getWard() + ", " + deliveryDialog.getDistrict()
+                        + ", " + deliveryDialog.getProvince() + ", " + deliveryDialog.getCountry());
+            } else {
+                billingInfo.setFullAddress(deliveryDialog.getAddress() + ", " + deliveryDialog.getCity() + ", " + deliveryDialog.getProvince()
+                        + ", " + deliveryDialog.getZipcode() + ", " + deliveryDialog.getCountry());
+                billingInfo.setFullAddressEn(deliveryDialog.getAddress() + ", " + deliveryDialog.getCity() + ", " + deliveryDialog.getProvince()
+                        + ", " + deliveryDialog.getZipcode() + ", " + deliveryDialog.getCountry());
+            }
+            new ConfirmationDialog(driver).clickCancelBtn();
+        }
+        logger.info("billingInfo: " + billingInfo);
+        return billingInfo;
+    }
+
+    public CustomerOrderInfo getCustomerOderInfo() {
+        CustomerOrderInfo customerOrderInfo = new CustomerOrderInfo();
+        if (commonAction.getElements(loc_lblCustomerNameAndPhone, 1).size() > 0) {
+            String customerNameAndPhone = commonAction.getText(loc_lblCustomerNameAndPhone);
+            String[] namePhoneSplit = customerNameAndPhone.split("-");
+            customerOrderInfo.setName(namePhoneSplit[0]);
+            if (namePhoneSplit.length > 1) customerOrderInfo.setPhone(namePhoneSplit[1]);
+            double currentDebt = Double.parseDouble(commonAction.getText(loc_lblDebt).replaceAll("[^\\d-]", ""));
+            double debtFromThisOrder;
+            if (commonAction.getElements(loc_icnEditDelivery).size() > 0) {
+                debtFromThisOrder = -getReceiveAmount();
+            } else debtFromThisOrder = getTotalAmount() - getReceiveAmount();
+            //debt format: -1111 or 1111
+            customerOrderInfo.setDebtAmount(currentDebt + debtFromThisOrder);
+        }
+        logger.info("customerOrderInfo: " + customerOrderInfo);
+        return customerOrderInfo;
+    }
+
+    /**
+     * @param customerId = 0 when no select customer
+     * @return
+     */
+    public OrderDetailInfo getOrderInfoBeforeCheckOut(int customerId) {
+        OrderInfo orderInfo = new OrderInfo();
+        orderInfo.setTotalTaxAmount(getTaxAmount());
+        orderInfo.setTotalPrice(getTotalAmount());
+        orderInfo.setSubTotal(getSubTotalValue());
+        if(getShippingFee()>0) {
+            orderInfo.setOriginalShippingFee(getShippingFee());
+            double shippingFee = getShippingFee() > getShippingFeeDiscount() ? getShippingFee() - getShippingFeeDiscount() : 0;
+            System.out.println("Shipping fee" + shippingFee);
+            orderInfo.setShippingFee(getShippingFee() > getShippingFeeDiscount() ? getShippingFee() - getShippingFeeDiscount() : 0);
+        }
+
+        orderInfo.setTotalQuantity(getTotalQuantity());
+        orderInfo.setTotalAmount(getTotalAmount());
+        orderInfo.setTotalDiscount(getTotalDiscountAmount());
+        orderInfo.setPaymentMethod(getSelectedPaymentMethod().toString());
+        orderInfo.setPaid(getReceiveAmount()==getTotalAmount());
+
+        OrderDetailInfo orderDetailInfo = new OrderDetailInfo();
+        orderDetailInfo.setOrderInfo(orderInfo);
+        orderDetailInfo.setItems(getItemDiscountInfo());
+        orderDetailInfo.setSummaryDiscounts(getTotalPromotionDetailApply());
+
+        orderDetailInfo.setTotalSummaryDiscounts(-getTotalDiscountAmount());
+        CustomerOrderInfo customerOrderInfo = getCustomerOderInfo();
+        orderDetailInfo.setCustomerInfo(getCustomerOderInfo());
+        orderDetailInfo.setBillingInfo(getBillingInfo(customerOrderInfo.getName() == null, customerId));
+        orderDetailInfo.setShippingInfo(getShippingInfo());
+        orderDetailInfo.setEarningPoint(getEarnPoint());
+        StoreBranch storeBranch  = new StoreBranch();
+        storeBranch.setName(branchName);
+        orderDetailInfo.setStoreBranch(storeBranch);
+        System.out.println(orderDetailInfo);
+        return orderDetailInfo;
+    }
+    public POSPage clickCompleteCheckout(){
+        commonAction.click(loc_btnComplete);
+        logger.info("Click on Complete button");
+        return this;
+    }
 }

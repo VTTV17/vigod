@@ -32,7 +32,7 @@ public class POSElement {
     }
 
     By loc_txtProductQuantity(String productName, String variationValue, String unitName) {
-        return By.xpath("//tr[td//div[text() ='%s'] and td//span[text() ='%s'] and td//div[text()='%s']]//input".formatted(productName, variationValue, unitName));
+        return By.xpath("//tr[td//div[text() ='%s'] and //td//span[text() ='%s'] and td//div[text()='%s']]//input".formatted(productName, variationValue, unitName));
     }
 
     By loc_btnSelectIMEI(String productName, String unitName) {
@@ -90,30 +90,38 @@ public class POSElement {
     By loc_lblVariationName (String productName){
         return By.xpath("//div[contains(@class,'product-list')]//div[text() = '%s']//following-sibling::span".formatted(productName));
     }
-    By loc_lblSellingPriceForOne(String productName){
-        return By.xpath("(//div[contains(@class,'product-list')]//div[text() = '%s']//ancestor::tr//div[@class = 'selling-price'])[1]".formatted(productName));
+    By loc_lblSellingPriceForOne(int index){
+        return By.xpath("((//div[@class='order-in-store-purchase-cart-product-list__product-name'])[%s]//ancestor::tr//div[@class = 'selling-price'])[1]".formatted(index));
     }
-    By loc_lblSellingPriceAfterDiscountForOne(String productName){
-        return By.xpath("//div[contains(@class,'product-list')]//div[text() = '%s']//ancestor::tr//div[@class = 'price']".formatted(productName));
-    }
-    By loc_lblUnit(String productName){
-        return By.xpath("//div[contains(@class,'product-list')]//div[text() = '%s']//ancestor::tr//div[contains(@class,'unit')]".formatted(productName));
+    By loc_lblSellingPriceAfterDiscountForOne(int index){
+        return By.xpath("(//div[@class='order-in-store-purchase-cart-product-list__product-name'])[%s]//ancestor::tr//div[@class = 'price']".formatted(index));
     }
     By loc_lblSellingPriceTotal(String productName){
         return By.xpath("(//div[contains(@class,'product-list')]//div[text() = '%s']//ancestor::tr//div[@class = 'selling-price'])[2]".formatted(productName));
     }
-    By loc_lblPriceTotalAfterDiscount(String productName){
-        return By.xpath("//div[contains(@class,'product-list')]//div[text() = '%s']//ancestor::tr//div[@class='total-price']".formatted(productName));
+    By loc_lblPriceTotalAfterDiscount(int index){
+        return By.xpath("(//div[@class='order-in-store-purchase-cart-product-list__product-name'])[%s]//ancestor::tr//div[@class='total-price']".formatted(index));
     }
     By loc_lblGift(String productName){
         return By.xpath("//div[contains(@class,'product-list')]//div[text() = '%s']//preceding-sibling::div[@class='text-gift']".formatted(productName));
     }
-    By loc_ddlPromotion(String productName){
-        return By.xpath("//div[contains(@class,'product-list')]//div[text() = '%s']//ancestor::tr//span[@class='group-promotion-item']".formatted(productName));
+    By loc_ddlPromotion(int index){
+        return By.xpath("(//div[@class='order-in-store-purchase-cart-product-list__product-name'])[%s]//ancestor::tr//span[@class='group-promotion-item']".formatted(index));
     }
     By loc_tltPromotionApplyOnItem = By.cssSelector(".tippy-tooltip-content .align-items-center");
     
     By loc_chkDelivery = By.cssSelector(".delivery-group-info .form-check");
-    
-    
+    By loc_lblTotalEarningPoint = By.cssSelector(".group-view-loyaltyPoint");
+    By loc_lblTotalQuantity = By.cssSelector(".count-product");
+    By loc_icnEditDelivery = By.cssSelector(".edit-icon");
+    By loc_lblCustomerNameAndPhone = By.cssSelector(".show-profile");
+    By loc_lblDebt = By.xpath("//div[contains(@class,'show-profile')]/following-sibling::div//span[@class='color-blue']");
+    By loc_ddlShippingPromotion = By.cssSelector(".group-discount-shipping");
+    By loc_tltShippingPromotion = By.cssSelector("#popover-promotion-discount .align-items-center");
+    By loc_btnComplete = By.cssSelector(".order-pos__btn-create-order");
+    By loc_lblSelectedPaymentMethod = By.cssSelector(".payment-method-list-wrapper .selected-item span");
+    By loc_lblUnit = By.cssSelector(".order-in-store-purchase-cart-product-list__product-row .unit");
+    By loc_lblVariationByProductIndex(int index){
+        return By.xpath("(//div[@class='order-in-store-purchase-cart-product-list__product-name'])[%s]//following-sibling::span[contains(@class, 'text-variation')]".formatted(index));
+    }
 }
