@@ -120,6 +120,7 @@ public class Cashbook {
 			for (WebElement column : commonAction.getElement(elements.loc_tblCashbookRecord, index).findElements(By.xpath("./td"))) {
 				rowData.add(column.getText());
 			}
+			logger.debug("Table row {}: {}", index, rowData); //Debug flaky tests on CI env
 			return rowData;
 		} catch (StaleElementReferenceException ex) {
 			logger.debug("StaleElementReferenceException caught in getSpecificRecord(). Retrying...");
@@ -127,6 +128,7 @@ public class Cashbook {
 			for (WebElement column : commonAction.getElement(elements.loc_tblCashbookRecord, index).findElements(By.xpath("./td"))) {
 				rowData.add(column.getText());
 			}
+			logger.debug("Table row {}: {}", index, rowData); //Debug flaky tests on CI env
 			return rowData;
 		}
 	}
