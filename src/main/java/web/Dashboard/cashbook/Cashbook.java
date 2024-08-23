@@ -139,7 +139,6 @@ public class Cashbook {
 		for (int i=0; i<commonAction.getElements(elements.loc_tblCashbookRecord).size(); i++) {
 			table.add(getSpecificRecord(i));
 		}
-		System.out.println(table.toString());
 		return table;
 	}
 
@@ -665,12 +664,12 @@ public class Cashbook {
 		return this;
 	}	
 	
-	
 	public Cashbook clickFilterDoneBtn() {
 		commonAction.click(elements.loc_btnFilterDone);
 		logger.info("Clicked on Filter Done button.");
+		commonAction.sleepInMiliSecond(3000, "Wait after clicking Done button"); //This is needed on CI env
 		return this;
-	}    
+	}
 
 	public Cashbook deleteRecord(String recordID) {
 		commonAction.click(By.xpath("//td[text()='%s']/following-sibling::td[7]//img".formatted(recordID)));
