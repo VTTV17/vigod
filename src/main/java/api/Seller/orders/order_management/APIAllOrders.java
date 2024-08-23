@@ -11,6 +11,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import utilities.api.API;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
+import utilities.model.dashboard.orders.orderdetail.OrderDetailInfo;
 import utilities.model.dashboard.orders.ordermanagement.OrderInManagement;
 import utilities.model.dashboard.orders.ordermanagement.OrderListInfo;
 import utilities.model.sellerApp.login.LoginInformation;
@@ -405,5 +406,9 @@ public class APIAllOrders {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+    public void verifyOrderInManagement(OrderDetailInfo orderDetailExpected, long orderId){
+        OrderInManagement orderInManagement = getOrderInfoInManagement(getOrderListInfo(GOSELL),orderId);
+
     }
 }

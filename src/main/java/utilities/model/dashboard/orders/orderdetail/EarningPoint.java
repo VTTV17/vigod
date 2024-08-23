@@ -7,7 +7,7 @@ import lombok.Data;
 @Data
 public class EarningPoint {
     private int id;
-    private double value;
+    private int value;
     private String event;
     private int storeId;
     private int buyerId;

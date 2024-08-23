@@ -3,16 +3,17 @@ package utilities.model.dashboard.orders.orderdetail;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.util.List;
 
-@JsonInclude(JsonInclude.Include.NON_DEFAULT)
+//@JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @Data
 public class ItemOrderInfo {
     private Long id;
     private Long itemId;
     private String name;
-    private double price;
-    private double totalAmount;
+    private Double price;
+    private Double totalAmount;
     private String currency;
     private String imageUrl;
     private int quantity;
@@ -30,7 +31,7 @@ public class ItemOrderInfo {
     private Boolean isOrderCreatedBeforeItemEnabledLotDate;
     private List<Object> lstReturnedImei;
     private double totalDiscount;
-    private double priceDiscount;
+    private Double priceDiscount;
     private int totalQuantity;
     private List<ItemTotalDiscount> itemTotalDiscounts;
     private Boolean deposit;
