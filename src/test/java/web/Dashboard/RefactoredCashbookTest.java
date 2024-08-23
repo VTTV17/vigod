@@ -468,7 +468,6 @@ public class RefactoredCashbookTest extends BaseTest {
 		cashbookPage.selectFilteredAccounting(accounting);
 		cashbookPage.clickFilterDoneBtn();
 		
-		commonAction.sleepInMiliSecond(1000);
 		records = cashbookPage.getRecords();
 		
 		Assert.assertNotEquals(records.size(), 0);
@@ -486,7 +485,6 @@ public class RefactoredCashbookTest extends BaseTest {
 		cashbookPage.selectFilteredBranch(branch);
 		cashbookPage.clickFilterDoneBtn();
 		
-		commonAction.sleepInMiliSecond(1000);
 		records = cashbookPage.getRecords();
 		
 		Assert.assertNotEquals(records.size(), 0);
@@ -502,7 +500,6 @@ public class RefactoredCashbookTest extends BaseTest {
 		cashbookPage.selectFilteredTransaction(transactions("allExpenses"));
 		cashbookPage.clickFilterDoneBtn();
 		
-		commonAction.sleepInMiliSecond(1000);
 		records = cashbookPage.getRecords();
 		
 		Assert.assertNotEquals(records.size(), 0);
@@ -514,7 +511,6 @@ public class RefactoredCashbookTest extends BaseTest {
 		cashbookPage.selectFilteredTransaction(transactions("allRevenues"));
 		cashbookPage.clickFilterDoneBtn();
 		
-		commonAction.sleepInMiliSecond(1000);
 		records = cashbookPage.getRecords();
 		
 		Assert.assertNotEquals(records.size(), 0);
@@ -531,7 +527,6 @@ public class RefactoredCashbookTest extends BaseTest {
 		cashbookPage.selectFilteredExpenseType(filteredExpenseType);
 		cashbookPage.clickFilterDoneBtn();
 		
-		commonAction.sleepInMiliSecond(1000);
 		records = cashbookPage.getRecords();
 		
 		Assert.assertNotEquals(records.size(), 0);
@@ -548,7 +543,6 @@ public class RefactoredCashbookTest extends BaseTest {
 		cashbookPage.selectFilteredRevenueType(filteredRevenueType);
 		cashbookPage.clickFilterDoneBtn();
 		
-		commonAction.sleepInMiliSecond(1000);
 		records = cashbookPage.getRecords();
 		
 		Assert.assertNotEquals(records.size(), 0);
@@ -565,7 +559,6 @@ public class RefactoredCashbookTest extends BaseTest {
 		cashbookPage.selectFilteredCreatedBy(filteredStaff);
 		cashbookPage.clickFilterDoneBtn();
 		
-		commonAction.sleepInMiliSecond(1000);
 		records = cashbookPage.getRecords();
 		
 		Assert.assertNotEquals(records.size(), 0);
@@ -578,7 +571,6 @@ public class RefactoredCashbookTest extends BaseTest {
 		cashbookPage.selectFilteredCreatedBy(filteredStaff);
 		cashbookPage.clickFilterDoneBtn();
 		
-		commonAction.sleepInMiliSecond(1000);
 		records = cashbookPage.getRecords();
 		
 		Assert.assertNotEquals(records.size(), 0);
@@ -595,7 +587,6 @@ public class RefactoredCashbookTest extends BaseTest {
 		cashbookPage.selectFilteredGroup(filteredGroup);
 		cashbookPage.clickFilterDoneBtn();
 		
-		commonAction.sleepInMiliSecond(1000);
 		records = cashbookPage.getRecords();
 		
 		Assert.assertNotEquals(records.size(), 0);
@@ -635,7 +626,6 @@ public class RefactoredCashbookTest extends BaseTest {
 		cashbookPage.selectFilteredPaymentMethod(filteredPaymentMethod);
 		cashbookPage.clickFilterDoneBtn();
 		
-		commonAction.sleepInMiliSecond(1000);
 		records = cashbookPage.getRecords();
 		
 		Assert.assertNotEquals(records.size(), 0);
@@ -695,7 +685,7 @@ public class RefactoredCashbookTest extends BaseTest {
 		//cashbookPage.selectFilteredName(name);
 		cashbookPage.selectFilteredPaymentMethod(payment);
 		cashbookPage.clickFilterDoneBtn();
-		commonAction.sleepInMiliSecond(4000, "Wait till the table is regenerated after the filter conditions are input");
+//		commonAction.sleepInMiliSecond(4000, "Wait till the table is regenerated after the filter conditions are input");
 
 		records = cashbookPage.getRecords();
 		
