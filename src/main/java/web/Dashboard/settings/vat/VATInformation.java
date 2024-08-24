@@ -9,7 +9,6 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.testng.Assert;
 
-import utilities.account.AccountTest;
 import utilities.commons.UICommonAction;
 import utilities.data.DataGenerator;
 import utilities.enums.Domain;
@@ -74,9 +73,9 @@ public class VATInformation {
 	 */
 	public boolean waitForVATEntries() {
 		
-    	for (int i=0; i<6; i++) {
+    	for (int i=0; i<5; i++) {
     		if (!commonAction.getElements(elements.loc_tblVATRows).isEmpty()) return true;
-    		commonAction.sleepInMiliSecond(500, "Wait until there are VATs in VAT table");
+    		commonAction.sleepInMiliSecond(1000, "Wait until there are VATs in VAT table");
     	}
 		
 		return false;
