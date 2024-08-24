@@ -136,6 +136,7 @@ public class VATPermissionTest extends BaseTest {
 		
 		commonAction.refreshPage();
 		commonAction.sleepInMiliSecond(2000, "OMG");
+		commonAction.refreshPage();
 		
 		String deletedTax = (allPermissionDTO.getSetting().getTAX().isDeleteTAX()) ? createSellingVAT().getName() : latestTaxName;
 		

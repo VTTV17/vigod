@@ -226,19 +226,35 @@ public class RefactoredCashbookTest extends BaseTest {
 	}	
 	
 	public void verifySummaryDataAfterReceiptCreated(List<BigDecimal> originalSummary, List<BigDecimal> laterSummary, String amount, boolean isAccountingChecked) {
-		BigDecimal revenue = (isAccountingChecked) ? originalSummary.get(Cashbook.TOTALREVENUE_IDX).add(new BigDecimal(amount)) : originalSummary.get(Cashbook.TOTALREVENUE_IDX);
-		Assert.assertEquals(laterSummary.get(Cashbook.TOTALREVENUE_IDX), revenue, "Revenue");
-		Assert.assertEquals(laterSummary.get(Cashbook.TOTALEXPENDITURE_IDX), originalSummary.get(Cashbook.TOTALEXPENDITURE_IDX), "Expenditure");
-		Assert.assertEquals(laterSummary.get(Cashbook.ENDINGBALANCE_IDX), laterSummary.get(Cashbook.OPENINGBALANCE_IDX).add(laterSummary.get(Cashbook.TOTALREVENUE_IDX)).subtract(laterSummary.get(Cashbook.TOTALEXPENDITURE_IDX)),
-				"Ending Opening");
-	}
-
+	    BigDecimal revenue = (isAccountingChecked) ? originalSummary.get(Cashbook.TOTALREVENUE_IDX).add(new BigDecimal(amount)) : originalSummary.get(Cashbook.TOTALREVENUE_IDX);
+	    
+	    Assert.assertTrue(laterSummary.get(Cashbook.TOTALREVENUE_IDX).compareTo(revenue) == 0, 
+	        "Revenue mismatch: expected " + revenue + " but found " + laterSummary.get(Cashbook.TOTALREVENUE_IDX));
+	    Assert.assertTrue(laterSummary.get(Cashbook.TOTALEXPENDITURE_IDX).compareTo(originalSummary.get(Cashbook.TOTALEXPENDITURE_IDX)) == 0, 
+	        "Expenditure mismatch: expected " + originalSummary.get(Cashbook.TOTALEXPENDITURE_IDX) + " but found " + laterSummary.get(Cashbook.TOTALEXPENDITURE_IDX));
+	    
+	    BigDecimal expectedEndingBalance = laterSummary.get(Cashbook.OPENINGBALANCE_IDX)
+	        .add(laterSummary.get(Cashbook.TOTALREVENUE_IDX))
+	        .subtract(laterSummary.get(Cashbook.TOTALEXPENDITURE_IDX));
+	    
+	    Assert.assertTrue(laterSummary.get(Cashbook.ENDINGBALANCE_IDX).compareTo(expectedEndingBalance) == 0, 
+	        "Ending Balance mismatch: expected " + expectedEndingBalance + " but found " + laterSummary.get(Cashbook.ENDINGBALANCE_IDX));
+	}	
+	
 	public void verifySummaryDataAfterPaymentCreated(List<BigDecimal> originalSummary, List<BigDecimal> laterSummary, String amount, boolean isAccountingChecked) {
-		BigDecimal expenditure = (isAccountingChecked) ? originalSummary.get(Cashbook.TOTALEXPENDITURE_IDX).add(new BigDecimal(amount)) : originalSummary.get(Cashbook.TOTALEXPENDITURE_IDX);
-		Assert.assertEquals(laterSummary.get(Cashbook.TOTALREVENUE_IDX), originalSummary.get(Cashbook.TOTALREVENUE_IDX), "Revenue");
-		Assert.assertEquals(laterSummary.get(Cashbook.TOTALEXPENDITURE_IDX), expenditure, "Expenditure");
-		Assert.assertEquals(laterSummary.get(Cashbook.ENDINGBALANCE_IDX), laterSummary.get(Cashbook.OPENINGBALANCE_IDX).add(laterSummary.get(Cashbook.TOTALREVENUE_IDX)).subtract(laterSummary.get(Cashbook.TOTALEXPENDITURE_IDX)),
-				"Ending Opening");
+	    BigDecimal expenditure = (isAccountingChecked) ? originalSummary.get(Cashbook.TOTALEXPENDITURE_IDX).add(new BigDecimal(amount)) : originalSummary.get(Cashbook.TOTALEXPENDITURE_IDX);
+	    
+	    Assert.assertTrue(laterSummary.get(Cashbook.TOTALREVENUE_IDX).compareTo(originalSummary.get(Cashbook.TOTALREVENUE_IDX)) == 0, 
+	        "Revenue mismatch: expected " + originalSummary.get(Cashbook.TOTALREVENUE_IDX) + " but found " + laterSummary.get(Cashbook.TOTALREVENUE_IDX));
+	    Assert.assertTrue(laterSummary.get(Cashbook.TOTALEXPENDITURE_IDX).compareTo(expenditure) == 0, 
+	        "Expenditure mismatch: expected " + expenditure + " but found " + laterSummary.get(Cashbook.TOTALEXPENDITURE_IDX));
+	    
+	    BigDecimal expectedEndingBalance = laterSummary.get(Cashbook.OPENINGBALANCE_IDX)
+	        .add(laterSummary.get(Cashbook.TOTALREVENUE_IDX))
+	        .subtract(laterSummary.get(Cashbook.TOTALEXPENDITURE_IDX));
+	    
+	    Assert.assertTrue(laterSummary.get(Cashbook.ENDINGBALANCE_IDX).compareTo(expectedEndingBalance) == 0, 
+	        "Ending Balance mismatch: expected " + expectedEndingBalance + " but found " + laterSummary.get(Cashbook.ENDINGBALANCE_IDX));
 	}
 
 	public void verifyRecordDataAfterReceiptCreated(List<String> record, String branch, String source,
