@@ -64,6 +64,7 @@ public class InitAndroidDriver {
 
 
     public AndroidDriver getAndroidDriver(String udid, String appPath) throws MalformedURLException {
+        LogManager.getLogger().info("Appium port: {}", System.getProperty("appiumPort"));
         DesiredCapabilities capabilities = new DesiredCapabilities();
         capabilities.setCapability("udid", udid);
         capabilities.setCapability("platformName", "ANDROID");

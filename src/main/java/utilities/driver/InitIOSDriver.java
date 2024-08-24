@@ -2,6 +2,7 @@ package utilities.driver;
 
 import io.appium.java_client.ios.IOSDriver;
 import lombok.SneakyThrows;
+import org.apache.logging.log4j.LogManager;
 import org.openqa.selenium.remote.DesiredCapabilities;
 
 import java.net.MalformedURLException;
@@ -10,9 +11,10 @@ import java.net.URL;
 import static utilities.environment.goSELLEREnvironment.goSELLERBundleId;
 
 public class InitIOSDriver {
-    private final static String url = "http://localhost:%s/wd/hub".formatted(System.getProperty("appiumPort"));
+    String url = "http://127.0.0.1:%s/wd/hub".formatted(System.getProperty("appiumPort"));
 
     public IOSDriver getIOSDriver(String udid) throws MalformedURLException {
+        LogManager.getLogger().info("Appium port: {}", System.getProperty("appiumPort"));
         DesiredCapabilities capabilities = new DesiredCapabilities();
         capabilities.setCapability("udid", udid);
         capabilities.setCapability("platformName", "iOS");
