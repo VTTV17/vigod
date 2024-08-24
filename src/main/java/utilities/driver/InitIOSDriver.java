@@ -1,6 +1,7 @@
 package utilities.driver;
 
 import io.appium.java_client.ios.IOSDriver;
+import io.appium.java_client.ios.options.XCUITestOptions;
 import lombok.SneakyThrows;
 import org.apache.logging.log4j.LogManager;
 import org.openqa.selenium.remote.DesiredCapabilities;
@@ -24,14 +25,25 @@ public class InitIOSDriver {
         return new IOSDriver(new URL(url), capabilities);
     }
 
+    public IOSDriver getIOSDriver(String udid, String appPath) throws MalformedURLException {
+        XCUITestOptions options = new XCUITestOptions();
+        options.setCapability("appium:udid", udid);
+        options.setCapability("platformName", "iOS");
+        options.setCapability("appium:newCommandTimeout", 300000);
+        options.setCapability("appium:wdaLaunchTimeout", 180000);
+        options.setCapability("appium:wdaConnectionTimeout", 180000);
+        options.setCapability("appium:automationName", "XCUITest");
+        options.setCapability("appium:app", appPath);
+        return new IOSDriver(new URL(url), options);
+    }
+
 
     public IOSDriver getSellerDriver(String udid) {
         try {
             // Init driver
-            IOSDriver driver = getIOSDriver(udid);
+            IOSDriver driver = getIOSDriver(udid, System.getProperty("user.dir") + "/src/main/resources/app/GoSeller STG.zip");
 
             // Open GoSeller app
-            driver.installApp(System.getProperty("user.dir") + "/src/main/resources/app/GoSeller STG.zip");
             driver.terminateApp(goSELLERBundleId);
             driver.activateApp(goSELLERBundleId);
 

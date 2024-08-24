@@ -50,7 +50,7 @@ public class InitAndroidDriver {
         options.setCapability("platformName", "Android");
         options.setCapability("appium:platformVersion", "12.0");
         options.setCapability("appium:automationName", "uiautomator2");
-        options.setCapability("autoGrantPermissions", "true");
+        options.setCapability("appium:autoGrantPermissions", "true");
         options.setCapability("appium:appWaitActivity", "");
         options.setCapability("appium:resetOnSessionStartOnly", "true");
         options.setCapability("appium:appWaitForLaunch", "false");
