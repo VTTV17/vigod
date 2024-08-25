@@ -64,7 +64,7 @@ public class UICommonIOS {
             return driver.findElement(locator);
         } catch (TimeoutException ex) {
             System.out.println(driver.getPageSource());
-            throw new TimeoutException("Can not found element");
+            throw new TimeoutException("Can not find element");
         }
     }
 
