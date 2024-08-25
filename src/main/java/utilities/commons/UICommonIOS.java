@@ -62,6 +62,9 @@ public class UICommonIOS {
             return wait.until(ExpectedConditions.presenceOfElementLocated(locator));
         } catch (StaleElementReferenceException ex) {
             return driver.findElement(locator);
+        } catch (TimeoutException ex) {
+            System.out.println(driver.getPageSource());
+            throw new TimeoutException("Can not found element");
         }
     }
 
