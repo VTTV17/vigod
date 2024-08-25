@@ -5,14 +5,14 @@
         <classes>
             <class name="web.StoreFront.ProductDetailTest">
                 <methods>
-<!--                    <include name="G2_07_HideStockAndInStock" />-->
-<!--                    <include name="G2_08_ShowStockAndInStock" />-->
-<!--                    <include name="G2_09_SettingDisplayAndProductInStock" />-->
-<!--                    <include name="G2_10_SettingDisplayAndProductOutOfStock" />-->
-<!--                    <include name="G2_11_SettingHiddenAndProductInStock" />-->
-<!--                    <include name="G2_12_SettingHiddenAndProductOutOfStock" />-->
-<!--                    <include name="G2_13_OneBranchActiveAndHideBranchOnStoreFront" />-->
-<!--                    <include name="G2_14_AllBranchesActiveAndHideBranchOnStoreFront" />-->
+                    <include name="G2_07_HideStockAndInStock" />
+                    <include name="G2_08_ShowStockAndInStock" />
+                    <include name="G2_09_SettingDisplayAndProductInStock" />
+                    <include name="G2_10_SettingDisplayAndProductOutOfStock" />
+                    <include name="G2_11_SettingHiddenAndProductInStock" />
+                    <include name="G2_12_SettingHiddenAndProductOutOfStock" />
+                    <include name="G2_13_OneBranchActiveAndHideBranchOnStoreFront" />
+                    <include name="G2_14_AllBranchesActiveAndHideBranchOnStoreFront" />
                     <include name="G2_15_AllBranchesActiveAndShowBranchOnStoreFront" />
                 </methods>
             </class>

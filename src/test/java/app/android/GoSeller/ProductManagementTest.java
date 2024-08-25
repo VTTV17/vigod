@@ -9,6 +9,7 @@ import utilities.model.sellerApp.login.LoginInformation;
 import utilities.utils.PropertiesUtil;
 
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.util.Optional;
 
 import static utilities.account.AccountTest.ADMIN_ACCOUNT_THANG;
@@ -19,7 +20,7 @@ public class ProductManagementTest extends BaseTest {
     ProductManagementScreen productManagementScreen;
 
     @BeforeClass
-    void setup() throws MalformedURLException {
+    void setup() throws MalformedURLException, URISyntaxException {
         // init WebDriver
         String uuid = Optional.ofNullable(System.getProperty("udidAndroid")).orElse(PropertiesUtil.getEnvironmentData("udidAndroidThang"));
         driver = new InitAndroidDriver().getSellerDriver(uuid);

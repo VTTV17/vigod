@@ -11,6 +11,7 @@ import utilities.model.sellerApp.login.LoginInformation;
 import utilities.utils.PropertiesUtil;
 
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.util.Optional;
 
 import static org.apache.commons.lang.math.RandomUtils.nextBoolean;
@@ -24,7 +25,7 @@ public class EditProductTest extends BaseTest {
     int productId;
 
     @BeforeClass
-    void setupAndroid() throws MalformedURLException {
+    void setupAndroid() throws MalformedURLException, URISyntaxException {
         // init WebDriver
         String uuid = Optional.ofNullable(System.getProperty("udidAndroid")).orElse(PropertiesUtil.getEnvironmentData("udidAndroidThang"));
         driver = new InitAndroidDriver().getSellerDriver(uuid);

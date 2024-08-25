@@ -24,6 +24,7 @@ import utilities.utils.PropertiesUtil;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static java.lang.Thread.sleep;
 import static utilities.account.AccountTest.*;
@@ -56,7 +57,7 @@ public class ProductDetailTest extends BaseTest {
         conditions.setCustomerId(customerId);
 
         // Init driver
-        String udid = PropertiesUtil.getEnvironmentData("udidIOSThang");
+        String udid = Optional.ofNullable(System.getProperty("udidIOS")).orElse(PropertiesUtil.getEnvironmentData("udidIOSThang"));
         driver = new InitIOSDriver().getBuyerDriver(udid, goBUYERBundleId);
 
         // Init precondition
