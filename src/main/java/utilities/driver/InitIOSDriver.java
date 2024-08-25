@@ -30,8 +30,8 @@ public class InitIOSDriver {
         options.setCapability("appium:udid", udid);
         options.setCapability("platformName", "iOS");
         options.setCapability("appium:newCommandTimeout", 300000);
-        options.setCapability("appium:wdaLaunchTimeout", 180000);
-        options.setCapability("appium:wdaConnectionTimeout", 180000);
+        options.setCapability("appium:wdaLaunchTimeout", 300000);
+        options.setCapability("appium:wdaConnectionTimeout", 300000);
         options.setCapability("appium:automationName", "XCUITest");
         options.setCapability("appium:app", appPath);
         return new IOSDriver(new URL(url), options);
