@@ -29,12 +29,16 @@ public class InitWebdriver {
                     WebDriverManager.firefoxdriver().setup();
                     FirefoxOptions firefoxOptions = new FirefoxOptions();
                     if (headless) firefoxOptions.addArguments("--headless");
+                    firefoxOptions.addArguments("start-maximized");
+                    firefoxOptions.addArguments("--no-sandbox");
                     driver = new FirefoxDriver(firefoxOptions);
                 }
                 case "edge" -> {
                     WebDriverManager.edgedriver().setup();
                     EdgeOptions edgeOptions = new EdgeOptions();
                     if (headless) edgeOptions.addArguments("--headless");
+                    edgeOptions.addArguments("start-maximized");
+                    edgeOptions.addArguments("--no-sandbox");
                     driver = new EdgeDriver(edgeOptions);
                 }
                 case "safari" -> {
@@ -44,20 +48,19 @@ public class InitWebdriver {
                 default -> {
                     WebDriverManager.chromedriver().setup();
                     ChromeOptions chromeOptions = new ChromeOptions();
+                    chromeOptions.addArguments("--start-maximized");
                     if (headless) chromeOptions.addArguments("--headless");
                     chromeOptions.addArguments("--disable-site-isolation-trials");
+                    chromeOptions.addArguments("--disable-dev-shm-usage");
                     chromeOptions.addArguments("--remote-allow-origins=*");
+                    chromeOptions.addArguments("--no-sandbox");
                     Map<String, Object> prefs = new HashMap<>();
                     prefs.put("download.default_directory", FileNameAndPath.downloadFolder);
                     chromeOptions.setExperimentalOption("prefs", prefs);
                     driver = new ChromeDriver(chromeOptions);
+                    if (headless) driver.manage().window().setSize(new Dimension(1920, 1080));
                 }
             }
-        }
-        if (headless) {
-            driver.manage().window().setSize(new Dimension(1920, 1080));
-        } else {
-            driver.manage().window().maximize();
         }
         return driver;
     }

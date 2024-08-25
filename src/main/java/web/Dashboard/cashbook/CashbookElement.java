@@ -35,4 +35,5 @@ public class CashbookElement {
 	String searchResultXpath = "//div[contains(@class,'search-item') %s]";
 	String conditionFilterDropdownXpath = "//div[contains(@class,'undefined')]//div[@class='uik-select__label' and text()=\"%s\"]";
 	
+	By loc_icnEmptyWallet = By.xpath("//img[contains(@src,'cashbook_empty.svg')]");
 }

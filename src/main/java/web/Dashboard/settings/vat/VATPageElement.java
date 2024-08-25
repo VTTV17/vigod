@@ -21,7 +21,7 @@ public class VATPageElement {
 	By loc_chkShowInWebApp = By.xpath("(//*[@class='uik-checkbox__wrapper custom-check-box'])[1]");
 	By loc_chkApplyAfterDiscount = By.xpath("(//*[@class='uik-checkbox__wrapper custom-check-box'])[2]");
 	
-	String VATRowLocator = "//div[contains(@class,'VAT')]//tbody/tr/td[position()=1 %s]";
+	String VATRowLocator = "//div[contains(@class,'VAT')]//tbody/tr/td[position()=2 %s]";
 	
 	String specificVATDeleteIconLocator = VATRowLocator + "/parent::*/td[last()]//*[contains(@style,'icon-delete')]";
 	

@@ -18,6 +18,7 @@ import utilities.thirdparty.Facebook;
 import utilities.utils.PropertiesUtil;
 import utilities.commons.UICommonAction;
 import utilities.enums.DisplayLanguage;
+import utilities.enums.Domain;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 
@@ -27,10 +28,16 @@ public class LoginPage {
 
     WebDriver driver;
     UICommonAction commonAction;
+    
+    Domain domain;
 
     public LoginPage(WebDriver driver) {
         this.driver = driver;
         commonAction = new UICommonAction(driver);
+    }
+    public LoginPage(WebDriver driver, Domain domain) {
+    	this(driver);
+    	this.domain = domain;
     }
 
     //Will move these locators to a separate file later
@@ -61,9 +68,16 @@ public class LoginPage {
         driver.get(DOMAIN + LOGIN_PATH);
         return this;
     }
-    
     public LoginPage navigate(String url) {
     	driver.get(url);
+    	return this;
+    }
+    public LoginPage navigate(Domain domain) {
+    	switch (domain) {
+			case VN -> navigate();
+			case BIZ -> navigateBiz();
+			default -> throw new IllegalArgumentException("Unexpected value: " + domain);
+    	}
     	return this;
     }
 

@@ -1,6 +1,5 @@
 package web.Dashboard;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -11,12 +10,16 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import com.mifmif.common.regex.Generex;
+
 import api.Seller.login.Login;
 import api.Seller.setting.PermissionAPI;
 import api.Seller.setting.VAT;
+import utilities.account.AccountTest;
 import utilities.commons.UICommonAction;
 import utilities.data.DataGenerator;
 import utilities.driver.InitWebdriver;
+import utilities.enums.Domain;
 import utilities.model.dashboard.setting.Tax.TaxEntity;
 import utilities.model.sellerApp.login.LoginInformation;
 import utilities.model.staffPermission.AllPermissions;
@@ -41,8 +44,6 @@ public class VATPermissionTest extends BaseTest {
 	
 	TaxEntity originalTax;
 	
-	DataGenerator randomData;
-	
 	LoginPage loginPage;
 	HomePage homePage;
 	VATInformation vatPage;
@@ -54,12 +55,17 @@ public class VATPermissionTest extends BaseTest {
 	
 	@BeforeClass
 	void precondition() {
-		ownerCredentials = new Login().setLoginInformation("+84", "automation0-shop74053@mailnesia.com", "fortesting!1").getLoginInformation();
-		staffCredentials = new Login().setLoginInformation("+84", "staff74053@mailnesia.com", "fortesting!1").getLoginInformation();
+		
+		if(Domain.valueOf(domain).equals(Domain.VN)) {
+			ownerCredentials = new Login().setLoginInformation(DataGenerator.getPhoneCode(AccountTest.ADMIN_COUNTRY_TIEN), AccountTest.ADMIN_USERNAME_TIEN, AccountTest.ADMIN_PASSWORD_TIEN).getLoginInformation();
+			staffCredentials = new Login().setLoginInformation(DataGenerator.getPhoneCode(AccountTest.ADMIN_COUNTRY_TIEN), AccountTest.STAFF_VN_USERNAME, AccountTest.STAFF_VN_PASSWORD).getLoginInformation();
+		} else {
+			ownerCredentials = new Login().setLoginInformation(DataGenerator.getPhoneCode(AccountTest.ADMIN_PHONE_BIZ_COUNTRY), AccountTest.ADMIN_PHONE_BIZ_USERNAME, AccountTest.ADMIN_PHONE_BIZ_PASSWORD).getLoginInformation();
+			staffCredentials = new Login().setLoginInformation(DataGenerator.getPhoneCode(AccountTest.ADMIN_PHONE_BIZ_COUNTRY), AccountTest.STAFF_BIZ_USERNAME, AccountTest.STAFF_BIZ_PASSWORD).getLoginInformation();
+		}
+		
 		permissionAPI = new PermissionAPI(ownerCredentials);
 		vatAPI = new VAT(ownerCredentials);
-		
-		randomData = new DataGenerator();
 		
 		originalTax = createSellingVAT();
 		latestTaxId = originalTax.getId();
@@ -68,15 +74,24 @@ public class VATPermissionTest extends BaseTest {
     	permissionGroupId = permissionAPI.createPermissionGroupThenGrantItToStaff(ownerCredentials, staffCredentials);
     	
 		driver = new InitWebdriver().getDriver(browser, headless);
-		loginPage = new LoginPage(driver);
+		loginPage = new LoginPage(driver, Domain.valueOf(domain));
 		homePage = new HomePage(driver);
 		commonAction = new UICommonAction(driver);
-		vatPage = new VATInformation(driver);
+		vatPage = new VATInformation(driver, Domain.valueOf(domain));
 		
-		loginPage.staffLogin(staffCredentials.getEmail(), staffCredentials.getPassword());
-		homePage.waitTillSpinnerDisappear1().selectLanguage(language).hideFacebookBubble();
+		navigateToPage(Domain.valueOf(domain));
+		loginPage.switchToStaffTab().performLogin(staffCredentials.getEmail(), staffCredentials.getPassword());
+		homePage.waitTillSpinnerDisappear1().hideFacebookBubble();
 	}	
 
+	void navigateToPage(Domain domain) {
+		loginPage.navigate(domain);
+		
+		if (domain.equals(Domain.BIZ)) return;
+		
+		loginPage.selectDisplayLanguage(language);
+	}	
+	
 	@AfterClass
 	void rollback() {
 		permissionAPI.deleteGroupPermission(permissionGroupId);
@@ -94,7 +109,7 @@ public class VATPermissionTest extends BaseTest {
     }    
     
     TaxEntity createSellingVAT() {
-    	String name = "Auto Tax " + randomData.randomNumberGeneratedFromEpochTime(5);
+    	String name = "Auto Tax " + new Generex("\\d{5}").random();
     	return vatAPI.createSellingTax(name, "Test Permission", 50, false);
     }
     
@@ -121,6 +136,7 @@ public class VATPermissionTest extends BaseTest {
 		
 		commonAction.refreshPage();
 		commonAction.sleepInMiliSecond(2000, "OMG");
+		commonAction.refreshPage();
 		
 		String deletedTax = (allPermissionDTO.getSetting().getTAX().isDeleteTAX()) ? createSellingVAT().getName() : latestTaxName;
 		
