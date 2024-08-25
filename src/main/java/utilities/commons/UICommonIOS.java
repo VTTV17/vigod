@@ -30,6 +30,7 @@ public class UICommonIOS {
         args.put("action", "accept");
         args.put("buttonLabel", optionText);
         ((IOSDriver) driver).executeScript("mobile: alert", args);
+        logger.info("Allow permission, option: {}", optionText);
     }
 
     void hidKeyboard() {
