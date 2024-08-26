@@ -235,8 +235,23 @@ public class POSPage extends POSElement {
     }
 
     public DeliveryDialog tickDelivery() {
-        commonAction.click(loc_chkDelivery);
+        commonAction.click(loc_chkDelivery);	
+        logger.info("Ticked Delivery check box");
         return new DeliveryDialog(driver);
+    }
+    
+    public DeliveryDialog clickShippingProviderDropdown() {
+    	commonAction.click(loc_ddlDelivery);
+    	
+	    int maxRetries = 10;
+	    int sleepDuration = 500;
+	    int retries = 0;
+    	
+    	while (retries < maxRetries && !commonAction.getElements(loc_iconLoadingDeliveryProvider).isEmpty()) {
+    		logger.debug("Loading icon still appears. Retrying after {} ms", sleepDuration);
+    		commonAction.sleepInMiliSecond(500);
+    	}
+    	return new DeliveryDialog(driver);
     }
 
     public void createPOSOrder(LoginInformation loginInformation, BranchInfo branchInfo, List<Integer> productIds) {
