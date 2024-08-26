@@ -49,5 +49,5 @@ public class OrderInfo {
     private String shippingServiceNameEn;
     private DeliveryOrder deliveryOrder;
     private Double orgTotalPrice;
-    private Long usePoint;
+    private int usePoint;
 }

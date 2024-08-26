@@ -29,10 +29,16 @@ public class APIOrderDetail {
     API api = new API();
     LoginDashboardInfo loginInfo;
     LoginInformation loginInformation;
+    String language = "vi";
 
     public APIOrderDetail(LoginInformation loginInformation) {
         this.loginInformation = loginInformation;
         loginInfo = new Login().getInfo(loginInformation);
+    }
+    public APIOrderDetail(LoginInformation loginInformation, String language) {
+        this.loginInformation = loginInformation;
+        loginInfo = new Login().getInfo(loginInformation);
+        this.language = language.substring(0,2);
     }
 
     @Data
@@ -49,11 +55,12 @@ public class APIOrderDetail {
         List<Integer> itemQuantity;
     }
 
-    String getOrderDetailPath = "/orderservice3/api/gs/order-details/ids/%s?getLoyaltyEarningPoint=true&langKey=vi";
+    String getOrderDetailPath = "/orderservice3/api/gs/order-details/ids/%s?getLoyaltyEarningPoint=true&langKey=%s";
     String getPaymentHistoryPath = "/orderservices2/api/payment-histories/bc-order/%s";
 
     Response getDetailOfOrderResponse(long orderId) {
-        return api.get(getOrderDetailPath.formatted(orderId), loginInfo.getAccessToken(), Map.of("langkey", "vi"));
+        System.out.println(language);
+        return api.get(getOrderDetailPath.formatted(orderId,language), loginInfo.getAccessToken(), Map.of("langkey", language));
     }
 
     public OrderStatus getOrderStatus(int orderId) {
@@ -95,25 +102,29 @@ public class APIOrderDetail {
         List<PaymentHistoryInfo> paymentHistoryInfos = Arrays.asList(response.as(PaymentHistoryInfo[].class));
         return paymentHistoryInfos;
     }
-    public void verifyOrderDetailAPI(OrderDetailInfo expectedInfo, long orderId){
+    public APIOrderDetail verifyOrderDetailAPI(OrderDetailInfo expectedInfo, long orderId){
         OrderDetailInfo actualInfo = getOrderDetail(orderId);
         //Verify Customer info
         if(expectedInfo.getCustomerInfo().getName() != null){
-            Assert.assertEquals(actualInfo.getCustomerInfo().getName(),expectedInfo.getCustomerInfo().getName());
+            Assert.assertEquals(actualInfo.getCustomerInfo().getName().trim(),expectedInfo.getCustomerInfo().getName().trim());
             Assert.assertEquals(actualInfo.getCustomerInfo().getPhone(),expectedInfo.getCustomerInfo().getPhone());
             Assert.assertEquals(actualInfo.getCustomerInfo().getDebtAmount(),expectedInfo.getCustomerInfo().getDebtAmount());
         }
-        //Verify Shipping Addres
+        //Verify Shipping Address
         if(expectedInfo.getShippingInfo().getContactName()!=null){
             Assert.assertEquals(actualInfo.getShippingInfo().getContactName(),expectedInfo.getShippingInfo().getContactName());
             Assert.assertEquals(actualInfo.getShippingInfo().getPhone(),expectedInfo.getShippingInfo().getPhone());
-            Assert.assertEquals(actualInfo.getShippingInfo().getFullAddress(),expectedInfo.getShippingInfo().getFullAddress());
+            if(language.equalsIgnoreCase("vi"))
+                Assert.assertEquals(actualInfo.getShippingInfo().getFullAddress(),expectedInfo.getShippingInfo().getFullAddress());
+            else Assert.assertEquals(actualInfo.getShippingInfo().getFullAddressEn(),expectedInfo.getShippingInfo().getFullAddressEn());
         }
-        //Verify Billing Address
+        //Verify Billing Addresss
         if(expectedInfo.getBillingInfo().getContactName()!=null){
             Assert.assertEquals(actualInfo.getBillingInfo().getContactName(),expectedInfo.getBillingInfo().getContactName());
             Assert.assertEquals(actualInfo.getBillingInfo().getPhone(),expectedInfo.getBillingInfo().getPhone());
-            Assert.assertEquals(actualInfo.getBillingInfo().getFullAddress(),expectedInfo.getBillingInfo().getFullAddress());
+            if(language.equalsIgnoreCase("vi"))
+                Assert.assertEquals(actualInfo.getBillingInfo().getFullAddress(),expectedInfo.getBillingInfo().getFullAddress());
+            else Assert.assertEquals(actualInfo.getBillingInfo().getFullAddressEn(),expectedInfo.getBillingInfo().getFullAddressEn());
         }
         //Verify payment method
         Assert.assertEquals(actualInfo.getOrderInfo().getPaymentMethod(),expectedInfo.getOrderInfo().getPaymentMethod());
@@ -123,7 +134,7 @@ public class APIOrderDetail {
         }else Assert.assertEquals(new EarningPoint(),expectedInfo.getEarningPoint());
         //Verify order summary
         Assert.assertEquals(actualInfo.getOrderInfo().getSubTotal(),expectedInfo.getOrderInfo().getSubTotal());
-        Assert.assertEquals(actualInfo.getOrderInfo().getOriginalShippingFee(),actualInfo.getOrderInfo().getOriginalShippingFee());
+        Assert.assertEquals(actualInfo.getOrderInfo().getOriginalShippingFee(),expectedInfo.getOrderInfo().getOriginalShippingFee());
         Assert.assertEquals(actualInfo.getOrderInfo().getShippingFee(),expectedInfo.getOrderInfo().getShippingFee());
         Assert.assertEquals(actualInfo.getOrderInfo().getTotalDiscount(),expectedInfo.getOrderInfo().getTotalDiscount());
         Assert.assertEquals(actualInfo.getOrderInfo().getTotalAmount(),expectedInfo.getOrderInfo().getTotalAmount());
@@ -132,6 +143,12 @@ public class APIOrderDetail {
         Assert.assertEquals(actualInfo.getOrderInfo().getTotalQuantity(),expectedInfo.getOrderInfo().getTotalQuantity());
         Assert.assertEquals(actualInfo.getOrderInfo().getPaymentMethod(),expectedInfo.getOrderInfo().getPaymentMethod());
         Assert.assertEquals(actualInfo.getOrderInfo().getPaid(),expectedInfo.getOrderInfo().getPaid());
+        Assert.assertEquals(actualInfo.getOrderInfo().getPayType(),expectedInfo.getOrderInfo().getPayType());
+        Assert.assertEquals(actualInfo.getOrderInfo().getUsePoint(),expectedInfo.getOrderInfo().getUsePoint());
+        Assert.assertEquals(actualInfo.getOrderInfo().getStatus(), expectedInfo.getOrderInfo().getStatus());
+        Assert.assertEquals(actualInfo.getOrderInfo().getDebtAmount(), expectedInfo.getOrderInfo().getDebtAmount());
+        Assert.assertEquals(actualInfo.getOrderInfo().getReceivedAmount(), expectedInfo.getOrderInfo().getReceivedAmount());
+
         //Verify Discount Summary
         List<SummaryDiscount> actualSummaryDiscount = actualInfo.getSummaryDiscounts();
         List<SummaryDiscount> expectedSummaryDiscount = expectedInfo.getSummaryDiscounts();
@@ -184,5 +201,11 @@ public class APIOrderDetail {
         Assert.assertEquals(actualItemListUpdateModel,expectedItemList);
         //Verify branch name
         Assert.assertEquals(actualInfo.getStoreBranch().getName(),expectedInfo.getStoreBranch().getName());
+        return this;
+    }
+    public APIOrderDetail verifyPaymentHistoryAfterCreateOrder(long orderId, double receiveAmount){
+        List<PaymentHistoryInfo> paymentHistoryInfo = getPaymentHistory(orderId);
+        Assert.assertEquals(paymentHistoryInfo.get(0).getPaymentAmount(),receiveAmount);
+        return this;
     }
 }

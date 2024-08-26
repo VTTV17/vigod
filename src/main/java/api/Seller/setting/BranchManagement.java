@@ -172,7 +172,7 @@ public class BranchManagement {
         brInfo = getInfo();
 
         // hide free branch on shop online
-        updateBranchInfo(brInfo.getBranchID().getFirst(), true, true, "ACTIVE");
+        updateBranchInfo(brInfo.getBranchID().get(0), true, true, "ACTIVE");
         return this;
     }
 
@@ -181,7 +181,7 @@ public class BranchManagement {
         brInfo = getInfo();
 
         // show free branch on shop online
-        updateBranchInfo(brInfo.getBranchID().getFirst(), true, false, "ACTIVE");
+        updateBranchInfo(brInfo.getBranchID().get(0), true, false, "ACTIVE");
         return this;
     }
 
@@ -223,6 +223,6 @@ public class BranchManagement {
     public int getFreeBranch() {
         Response response = api.get(GET_BRANCH_FREE.formatted(loginInfo.getStoreID()), loginInfo.getAccessToken());
         response.then().statusCode(200);
-        return (int) response.jsonPath().getList("id").getFirst();
+        return (int) response.jsonPath().getList("id").get(0);
     }
 }
