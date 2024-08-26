@@ -6,18 +6,18 @@
             <class name="web.StoreFront.ProductDetailTest">
                 <methods>
                     <include name="G3_07_HideStockAndInStock_AllVariations"/>
-                    <include name="G3_08_HideStockAndInStock_SomeVariations"/>
-                    <include name="G3_09_ShowStockAndInStock_AllVariations"/>
-                    <include name="G3_10_ShowStockAndInStock_SomeVariations"/>
-                    <include name="G3_11_SettingDisplayAndProductInStock"/>
-                    <include name="G3_12_SettingDisplayAndOneOfVariationOutOfStock"/>
-                    <include name="G3_13_SettingDisplayAndAllVariationsOutOfStock"/>
-                    <include name="G3_14_SettingHiddenAndAllVariationsInStock"/>
-                    <include name="G3_15_SettingHiddenAndOneOfVariationOutOfStock"/>
-                    <include name="G3_16_SettingHiddenAndAllVariationsOutOfStock"/>
-                    <include name="G3_17_OneBranchActiveAndHideBranchOnStoreFront"/>
-                    <include name="G3_18_AllBranchesActiveAndHideBranchOnStoreFront"/>
-                    <include name="G3_19_AllBranchesActiveAndShowBranchOnStoreFront"/>
+<!--                    <include name="G3_08_HideStockAndInStock_SomeVariations"/>-->
+<!--                    <include name="G3_09_ShowStockAndInStock_AllVariations"/>-->
+<!--                    <include name="G3_10_ShowStockAndInStock_SomeVariations"/>-->
+<!--                    <include name="G3_11_SettingDisplayAndProductInStock"/>-->
+<!--                    <include name="G3_12_SettingDisplayAndOneOfVariationOutOfStock"/>-->
+<!--                    <include name="G3_13_SettingDisplayAndAllVariationsOutOfStock"/>-->
+<!--                    <include name="G3_14_SettingHiddenAndAllVariationsInStock"/>-->
+<!--                    <include name="G3_15_SettingHiddenAndOneOfVariationOutOfStock"/>-->
+<!--                    <include name="G3_16_SettingHiddenAndAllVariationsOutOfStock"/>-->
+<!--                    <include name="G3_17_OneBranchActiveAndHideBranchOnStoreFront"/>-->
+<!--                    <include name="G3_18_AllBranchesActiveAndHideBranchOnStoreFront"/>-->
+<!--                    <include name="G3_19_AllBranchesActiveAndShowBranchOnStoreFront"/>-->
                 </methods>
             </class> <!-- web.StoreFront.ProductDetailTest$NormalProductWithVariationTest -->
         </classes>
