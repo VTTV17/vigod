@@ -101,15 +101,12 @@ public class UICommonAndroid {
 
             // Get and return element
             return wait.until(ExpectedConditions.presenceOfElementLocated(locator));
-        } catch (StaleElementReferenceException ex) {
+        } catch (StaleElementReferenceException | TimeoutException ex) {
             // Close notification screen
             closeNotificationScreen();
 
             // Find again
             return driver.findElement(locator);
-        } catch (TimeoutException ex) {
-            logger.debug(driver.getPageSource());
-            throw new TimeoutException("Can not find element");
         }
     }
 

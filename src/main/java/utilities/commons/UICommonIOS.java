@@ -34,7 +34,8 @@ public class UICommonIOS {
             ((IOSDriver) driver).executeScript("mobile: alert", args);
             logger.info("Allow permission, option: {}", optionText);
             return true;
-        } catch (TimeoutException ignored) {}
+        } catch (TimeoutException ignored) {
+        }
         return false;
     }
 
@@ -65,11 +66,8 @@ public class UICommonIOS {
     public WebElement getElement(By locator) {
         try {
             return wait.until(ExpectedConditions.presenceOfElementLocated(locator));
-        } catch (StaleElementReferenceException ex) {
+        } catch (StaleElementReferenceException | TimeoutException ex) {
             return driver.findElement(locator);
-        } catch (TimeoutException ex) {
-            System.out.println(driver.getPageSource());
-            throw new TimeoutException("Can not find element");
         }
     }
 
