@@ -13,4 +13,5 @@ public class OrderListSummaryVM {
     private double customerDebt;
     private double sellerDebt;
     private double receivedAmount;
+    private double totalAmount;
 }

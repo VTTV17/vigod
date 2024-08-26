@@ -126,4 +126,7 @@ public class POSElement {
     By loc_lblVariationByProductIndex(int index){
         return By.xpath("(//div[@class='order-in-store-purchase-cart-product-list__product-name'])[%s]//following-sibling::span[contains(@class, 'text-variation')]".formatted(index));
     }
+    By loc_txtProductQuantity(int productIndex) {
+        return By.xpath("(//div[@class='order-in-store-purchase-cart-product-list__product-name'])[%s]//ancestor::tr//input".formatted(productIndex));
+    }
 }

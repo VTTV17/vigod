@@ -3,17 +3,23 @@ package api.Seller.orders.order_management;
 import api.Seller.login.Login;
 import api.Seller.orders.delivery.APIPartialDeliveryOrders;
 import api.Seller.orders.return_order.APIGetListReturnOrderByOrderId;
+import io.restassured.http.Header;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import io.restassured.response.ResponseBodyExtractionOptions;
 import lombok.Data;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.testng.Assert;
 import utilities.api.API;
+import utilities.data.GetDataByRegex;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
+import utilities.model.dashboard.orders.orderdetail.ItemOrderInfo;
 import utilities.model.dashboard.orders.orderdetail.OrderDetailInfo;
+import utilities.model.dashboard.orders.ordermanagement.ItemOrderListInfo;
 import utilities.model.dashboard.orders.ordermanagement.OrderInManagement;
 import utilities.model.dashboard.orders.ordermanagement.OrderListInfo;
+import utilities.model.dashboard.orders.ordermanagement.OrderListSummaryVM;
 import utilities.model.sellerApp.login.LoginInformation;
 
 import java.util.*;
@@ -37,10 +43,15 @@ public class APIAllOrders {
     API api = new API();
     LoginDashboardInfo loginInfo;
     LoginInformation loginInformation;
-
+    String language ="vi";
     public APIAllOrders(LoginInformation loginInformation) {
         this.loginInformation = loginInformation;
         loginInfo = new Login().getInfo(loginInformation);
+    }
+    public APIAllOrders(LoginInformation loginInformation,String language) {
+        this.loginInformation = loginInformation;
+        loginInfo = new Login().getInfo(loginInformation);
+        this.language = language.substring(0,2);
     }
 
     @Data
@@ -87,12 +98,12 @@ public class APIAllOrders {
 
     }
 
-    String getAllOrderPath = "/beehiveservices/api/orders/gosell-store/v2/%s?page=%s&size=100&%s&channel=%s&status=%s&view=COMPACT";
+    String getAllOrderPath = "/beehiveservices/api/orders/gosell-store/v2/%s?page=%s&size=100&%s&channel=%s&status=%s&view=COMPACT&langKey=%s";
     OrderStatus orderStatus;
 
-    Response getAllOrderResponse(int pageIndex, String branchQuery, Channel channel) {
+    public Response getAllOrderResponse(int pageIndex, String branchQuery, Channel channel) {
         String status = Optional.ofNullable(orderStatus).map(Enum::toString).orElse("");
-        return api.get(getAllOrderPath.formatted(loginInfo.getStoreID(), pageIndex, branchQuery, channel, status), loginInfo.getAccessToken());
+        return api.get(getAllOrderPath.formatted(loginInfo.getStoreID(), pageIndex, branchQuery, channel, status,language), loginInfo.getAccessToken());
     }
 
     public AllOrdersInformation getAllOrderInformation(Channel channel) {
@@ -409,6 +420,81 @@ public class APIAllOrders {
     }
     public void verifyOrderInManagement(OrderDetailInfo orderDetailExpected, long orderId){
         OrderInManagement orderInManagement = getOrderInfoInManagement(getOrderListInfo(GOSELL),orderId);
+        // orderId, customerId, createDate, createBy, Staff, delivery method skip
+        //Order status
+        Assert.assertEquals(orderInManagement.getStatus(),orderDetailExpected.getOrderInfo().getStatus());
+        //customer name
+        if(orderDetailExpected.getCustomerInfo().getName()!=null){
+            Assert.assertEquals(orderInManagement.getCustomerFullName(),orderDetailExpected.getCustomerInfo().getName());
+            Assert.assertEquals(orderInManagement.getCustomerPhone(),orderDetailExpected.getCustomerInfo().getPhoneWithZero());
+            Assert.assertEquals(orderInManagement.getPhone(),orderDetailExpected.getCustomerInfo().getPhoneWithoutPhoneCode());
 
+        }else Assert.assertTrue(orderInManagement.getCustomerFullName().startsWith("guest"));
+        //Verify Shipping Address, receive name and phone
+        if(orderDetailExpected.getShippingInfo().getFullAddress()!=null){
+            System.out.println(language);
+            if(language.equalsIgnoreCase("vi"))
+                Assert.assertEquals(orderInManagement.getFullShippingAddress(),orderDetailExpected.getShippingInfo().getFullAddress());
+            else Assert.assertEquals(orderInManagement.getFullShippingAddressEn(),orderDetailExpected.getShippingInfo().getFullAddressEn());
+            Assert.assertEquals(orderInManagement.getReceiverDisplayName(),orderDetailExpected.getShippingInfo().getContactName());
+            Assert.assertEquals(orderInManagement.getReceiverPhone(),orderDetailExpected.getShippingInfo().getPhone());
+        }
+        //isPaid
+        Assert.assertEquals(orderInManagement.getIsPaid(),orderDetailExpected.getOrderInfo().getPaid());
+        //Items
+        List<ItemOrderInfo> itemExpectedList= orderDetailExpected.getItems();
+        List<ItemOrderListInfo> itemActualList = orderInManagement.getItems();
+        Assert.assertEquals(itemActualList.size(),itemExpectedList.size());
+        itemExpectedList.sort(Comparator.comparing(ItemOrderInfo::getName)
+                .thenComparing(ItemOrderInfo::getVariationName));
+        itemActualList.sort(Comparator.comparing(ItemOrderListInfo::getName)
+                .thenComparing(ItemOrderListInfo::getModelName));
+        for (int i=0;i<itemExpectedList.size();i++){
+            Assert.assertEquals(itemActualList.get(i).getName(),itemExpectedList.get(i).getName());
+            Assert.assertEquals(itemActualList.get(i).getModelName(),itemExpectedList.get(i).getVariationName());
+            Assert.assertEquals(itemActualList.get(i).getQuantity(),itemExpectedList.get(i).getQuantity());
+        }
+        //Total Amount
+        Assert.assertEquals(orderInManagement.getTotal(),orderDetailExpected.getOrderInfo().getTotalAmount());
+        //Payment method
+        Assert.assertEquals(orderInManagement.getPaymentMethod(),orderDetailExpected.getOrderInfo().getPaymentMethod());
+        //Shipping fee
+        if(orderDetailExpected.getOrderInfo().getOriginalShippingFee()!= null)
+            Assert.assertEquals(orderInManagement.getShippingFee(),orderDetailExpected.getOrderInfo().getOriginalShippingFee());
+        else Assert.assertEquals(orderInManagement.getShippingFee(),0);
+        //Earning point
+        Assert.assertEquals(orderInManagement.getEarningPoint(),orderDetailExpected.getEarningPoint().getValue());
+        //Redeem point
+        Assert.assertEquals(orderInManagement.getRedeemPoint(),orderDetailExpected.getOrderInfo().getUsePoint());
+        //Discount amount
+        Assert.assertEquals(orderInManagement.getDiscountAmount(), -orderDetailExpected.getTotalSummaryDiscounts());
+        //Branch name
+        Assert.assertEquals(orderInManagement.getBranchName(),orderDetailExpected.getStoreBranch().getName());
+        //Paymen status
+        Assert.assertEquals(orderInManagement.getPayType(),orderDetailExpected.getOrderInfo().getPayType());
+        //debt
+        Assert.assertEquals(orderInManagement.getDebtAmount(),orderDetailExpected.getOrderInfo().getDebtAmount());
+
+    }
+    public OrderListSummaryVM getOrderListSummary(Channel channel){
+        Response response = new APIAllOrders(loginInformation).getAllOrderResponse(0,"branch=", channel);
+        OrderListSummaryVM orderListSummaryVM = response.as(OrderListInfo.class).getOrderListSummaryVM();
+        orderListSummaryVM.setTotalAmount(GetDataByRegex.getAmountByRegex(response.getHeader("x-total-revenue")));
+        return orderListSummaryVM;
+    }
+    public void verifyOrderListSummary(OrderListSummaryVM orderListSummaryBefore, OrderDetailInfo newOrderInfo){
+        OrderListSummaryVM orderListSummaryExpected = orderListSummaryBefore;
+
+        orderListSummaryExpected.setTotalAmount(orderListSummaryBefore.getTotalAmount() + newOrderInfo.getOrderInfo().getTotalAmount());
+        if(newOrderInfo.getOrderInfo().getDebtAmount()>0){
+            orderListSummaryExpected.setCustomerDebt(orderListSummaryBefore.getCustomerDebt() + newOrderInfo.getOrderInfo().getDebtAmount());
+        }else orderListSummaryExpected.setSellerDebt(orderListSummaryBefore.getSellerDebt() + newOrderInfo.getOrderInfo().getDebtAmount());
+        double receiveAmount = orderListSummaryBefore.getReceivedAmount() + newOrderInfo.getOrderInfo().getReceivedAmount();
+        orderListSummaryExpected.setReceivedAmount(receiveAmount);
+        if(newOrderInfo.getOrderInfo().getStatus().equals(DELIVERED.toString()))
+            orderListSummaryExpected.setDeliveredCount(orderListSummaryBefore.getDeliveredCount() + 1);
+        else orderListSummaryExpected.setToConfirmCount(orderListSummaryBefore.getToConfirmCount() + 1);
+
+        Assert.assertEquals(getOrderListSummary(GOSELL),orderListSummaryExpected);
     }
 }
