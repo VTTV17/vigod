@@ -592,7 +592,7 @@ public class POSPage extends POSElement {
             shippingInfo.setPhone(deliveryDialog.getCustomerPhone());
             shippingInfo.setEmail(deliveryDialog.getCustomerEmail());
             shippingInfo.setCountry(deliveryDialog.getCountry());
-            if (shippingInfo.getCountry().equals(Constant.VIETNAM)) {
+            if (shippingInfo.getCountry().equals("Vietnam")) {
                 shippingInfo.setFullAddress(deliveryDialog.getAddress() + ", " + deliveryDialog.getWard() + ", " + deliveryDialog.getDistrict()
                         + ", " + deliveryDialog.getProvince() + ", " + Constant.VIETNAM);
                 shippingInfo.setFullAddressEn(deliveryDialog.getAddress() + ", " + deliveryDialog.getWard() + ", " + deliveryDialog.getDistrict()
@@ -628,7 +628,7 @@ public class POSPage extends POSElement {
 
             billingInfo.setContactName(customerInfo.getFullName());
             billingInfo.setPhone(customerInfo.getPhone());
-
+            billingInfo.setCountry(customerInfo.getCustomerAddressFull().getCountry());
             if (billingInfo.getCountry().equals(Constant.VIETNAM)) {
                 billingInfo.setFullAddress(customerInfo.getCustomerAddress().getAddress() + ", " + customerInfo.getCustomerAddressFull().getWard() + ", " + customerInfo.getCustomerAddressFull().getDistrict()
                         + ", " + customerInfo.getCustomerAddressFull().getCity() + ", " + Constant.VIETNAM);
@@ -647,7 +647,7 @@ public class POSPage extends POSElement {
             billingInfo.setPhone(deliveryDialog.getCustomerPhone());
             billingInfo.setEmail(deliveryDialog.getCustomerEmail());
             billingInfo.setCountry(deliveryDialog.getCountry());
-            if (billingInfo.getCountry().equals(Constant.VIETNAM)) {
+            if (billingInfo.getCountry().equals("Vietnam")) {
                 billingInfo.setFullAddress(deliveryDialog.getAddress() + ", " + deliveryDialog.getWard() + ", " + deliveryDialog.getDistrict()
                         + ", " + deliveryDialog.getProvince() + ", " + Constant.VIETNAM);
                 billingInfo.setFullAddressEn(deliveryDialog.getAddress() + ", " + deliveryDialog.getWard() + ", " + deliveryDialog.getDistrict()
