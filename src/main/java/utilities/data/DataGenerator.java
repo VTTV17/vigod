@@ -8,7 +8,6 @@ import io.restassured.path.json.JsonPath;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.RandomStringUtils;
 
-import utilities.api.thirdparty.DotrandAPI;
 import utilities.enums.newpackage.NewPackage;
 import utilities.model.dashboard.setting.plan.PlanNameAndPrice;
 import utilities.model.dashboard.setupstore.CountryData;
@@ -122,7 +121,17 @@ public class DataGenerator {
         JsonNode data = jsonFileUtility.readJsonFile("CountryCodes.json").findValue(country).findValue("countryCode");
         return data.asText();
     }
-
+    
+    /**
+     * Returns the phone regex for a given country name as a String
+     * @param country the name of the country to get the phone regex for
+     * @return the phone regex for the given country, or null if it is not found
+     */
+    public static String getPhoneRegex(String country) {
+    	JsonNode data = jsonFileUtility.readJsonFile("CountryCodes.json").findValue(country).findValue("phoneRegex");
+    	return data.asText();
+    }
+    
     public static class UniqueRng implements Iterator<Integer> {
         private List<Integer> numbers = new ArrayList<>();
 
@@ -339,8 +348,8 @@ public class DataGenerator {
     	return phone;
     }	    
 
-	public static String randomValidPhoneByCountry(String countryCode) {
-		return generatePhoneFromRegex(DotrandAPI.getPhoneRegexJsonPath(countryCode));
+	public static String randomValidPhoneByCountry(String country) {
+		return generatePhoneFromRegex(getPhoneRegex(country));
 	}	    
     
     public static <T> T getRandomListElement(List<T> list) {

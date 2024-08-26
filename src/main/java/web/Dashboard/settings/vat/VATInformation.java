@@ -72,15 +72,29 @@ public class VATInformation {
 	 * @return true if there are VATs in the table
 	 */
 	public boolean waitForVATEntries() {
-		
     	for (int i=0; i<5; i++) {
     		if (!commonAction.getElements(elements.loc_tblVATRows).isEmpty()) return true;
     		commonAction.sleepInMiliSecond(1000, "Wait until there are VATs in VAT table");
     	}
-		
 		return false;
 	}	
-
+	public boolean refreshUntilTableEmpty() {
+    	for (int i=0; i<3; i++) {
+    		if (!waitForVATEntries()) return true;
+    		logger.debug("Table not empty, refreshing page...");
+    		commonAction.refreshPage();
+    	}
+		return false;
+	}		
+	public boolean refreshUntilTableNotEmpty() {
+		for (int i=0; i<3; i++) {
+			if (waitForVATEntries()) return true;
+			logger.debug("Table empty, refreshing page...");
+			commonAction.refreshPage();
+		}
+		return false;
+	}		
+	
     /**
      * A temporary function that helps get rid of the annoying try catch block when reading text from property file
      * @param propertyKey
@@ -234,13 +248,10 @@ public class VATInformation {
     		return;
     	}
     	
-    	boolean flag = waitForVATEntries();
-    	String error = "VAT list not is empty";
-    	
     	if (staffPermission.getSetting().getTAX().isViewTAXList()) {
-    		Assert.assertTrue(flag, error);
+    		Assert.assertTrue(refreshUntilTableNotEmpty(), "There are VAT entries in table");
     	} else {
-    		Assert.assertFalse(flag, error);
+    		Assert.assertTrue(refreshUntilTableEmpty(), "VAT table is empty");
     	}
     	logger.info("Finished checkPermissionToViewVATList");
     }    
