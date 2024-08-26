@@ -12,6 +12,7 @@ public class HomeScreen extends HomeElement {
     AssertCustomize assertCustomize;
     UICommonIOS commonIOS;
     Logger logger = LogManager.getLogger();
+
     public HomeScreen(WebDriver driver) {
         // Get driver
         this.driver = driver;
@@ -23,14 +24,10 @@ public class HomeScreen extends HomeElement {
         commonIOS = new UICommonIOS(driver);
 
         // Accept permission
-        try {
-            // Switch to notification permission and accept
-            commonIOS.allowPermission("Allow");
+        boolean isAlertPresent = commonIOS.allowPermission("Allow");
 
-            // Log
-            logger.info("Accept notification permission");
-        } catch (NoAlertPresentException ignored) {
-        }
+        // Log
+        if (isAlertPresent) logger.info("Accept notification permission");
     }
 
     public void navigateToAccountScreen() {

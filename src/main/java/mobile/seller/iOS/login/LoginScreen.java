@@ -32,14 +32,11 @@ public class LoginScreen extends LoginElement {
     }
 
     void allowNotificationPermission() {
-        try {
-            // Switch to notification permission and accept
-            commonIOS.allowPermission("Allow");
+        // Switch to notification permission and accept
+        boolean isAlertPresent = commonIOS.allowPermission("Allow");
 
-            // Log
-            logger.info("Accept notification permission");
-        } catch (NoAlertPresentException ignored) {
-        }
+        // Log
+        if (isAlertPresent) logger.info("Accept notification permission");
     }
 
     void inputUsername(String username) {

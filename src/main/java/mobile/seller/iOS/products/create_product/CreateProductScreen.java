@@ -156,14 +156,10 @@ public class CreateProductScreen extends CreateProductElement {
         commonIOS.click(loc_icnProductImage);
 
         // Allow access all photo library
-        try {
-            // Allow permission
-            commonIOS.allowPermission("Allow Full Access");
+        boolean isAlertPresent = commonIOS.allowPermission("Allow Full Access");
 
-            // Log
-            logger.info("Accept full access photo library permission");
-        } catch (NoAlertPresentException ignored) {
-        }
+        // Log
+        if (isAlertPresent) logger.info("Accept full access photo library permission");
 
         // Select images
         new SelectImagePopup(driver).selectImages();

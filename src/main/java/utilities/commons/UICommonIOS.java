@@ -25,12 +25,17 @@ public class UICommonIOS {
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
     }
 
-    public void allowPermission(String optionText) {
-        HashMap<String, Object> args = new HashMap<>();
-        args.put("action", "accept");
-        args.put("buttonLabel", optionText);
-        ((IOSDriver) driver).executeScript("mobile: alert", args);
-        logger.info("Allow permission, option: {}", optionText);
+    public boolean allowPermission(String optionText) {
+        try {
+            customWait(3000).until(ExpectedConditions.alertIsPresent());
+            HashMap<String, Object> args = new HashMap<>();
+            args.put("action", "accept");
+            args.put("buttonLabel", optionText);
+            ((IOSDriver) driver).executeScript("mobile: alert", args);
+            logger.info("Allow permission, option: {}", optionText);
+            return true;
+        } catch (TimeoutException ignored) {}
+        return false;
     }
 
     void hidKeyboard() {

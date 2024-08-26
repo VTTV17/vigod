@@ -180,6 +180,12 @@ public class EditProductScreen extends EditProductElement {
         // Open select image popup
         commonIOS.click(loc_icnProductImage);
 
+        // Allow access all photo library
+        boolean isAlertPresent = commonIOS.allowPermission("Allow Full Access");
+
+        // Log
+        if (isAlertPresent) logger.info("Accept full access photo library permission");
+
         // Select images
         new SelectImagePopup(driver).selectImages();
 
