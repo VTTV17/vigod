@@ -9,9 +9,11 @@ import utilities.data.DataGenerator;
 import utilities.utils.FileUtils;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Base64;
 
 
 public class AppiumRecording {
@@ -25,23 +27,29 @@ public class AppiumRecording {
         // Stop screen recording and get the recorded video
         String video = ((CanRecordScreen) driver).stopRecordingScreen();
 
-        // Save the video to a file when test is failed
+        // Save the video to a file when the test fails
         if (!result.isSuccess()) {
-            java.util.Base64.Decoder decoder = java.util.Base64.getDecoder();
+            Base64.Decoder decoder = Base64.getDecoder();
             byte[] decodedBytes = decoder.decode(video);
 
-            // Delete old recording
-            String fileName = "%s.mp4".formatted(result.getName());
-            new FileUtils().deleteFileInDownloadFolder(fileName);
+            // Create recording_video directory if it doesn't exist
+            Path videoDir = Paths.get("recording_video");
+            if (!Files.exists(videoDir)) {
+                boolean created = new File(videoDir.toString()).mkdirs();
+                LogManager.getLogger().info(created ? "Created 'recording_video' folder" : "Could not create 'recording_video' folder");
+            }
 
-            // Create recording_video if that not available
-            File theDir = new File("./recording_video/");
-            if (!theDir.exists())
-                LogManager.getLogger().info(theDir.mkdirs() ? "Create folder 'recording_video' folder" : "Can not create 'recording_video' folder");
+            // Generate unique file name
+            String fileName = "%s_%d.mp4".formatted(result.getName(), System.currentTimeMillis());
+            Path videoPath = videoDir.resolve(fileName);
 
-            // Save recording
-            Path path = Paths.get(new DataGenerator().getPathOfFolder("recording_video") + File.separator + fileName);
-            Files.write(path, decodedBytes);
+            // Write video file
+            try {
+                Files.write(videoPath, decodedBytes);
+                LogManager.getLogger().info("Saved video recording: {}", videoPath);
+            } catch (IOException e) {
+                LogManager.getLogger().error("Failed to save video recording", e);
+            }
         }
     }
 }
