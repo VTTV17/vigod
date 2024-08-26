@@ -28,7 +28,7 @@ public class InitIOSDriver {
     public IOSDriver getSellerDriver(String udid) {
         try {
             // Init driver
-            IOSDriver driver = getIOSDriver(udid, System.getProperty("user.dir") + "/src/main/resources/app/GoSELLER_STG.zip");
+            IOSDriver driver = getIOSDriver(udid, System.getProperty("user.dir") + "/src/main/resources/app/GoSELLER_STAG.zip");
 
             // Open GoSeller app
             driver.terminateApp(goSELLERBundleId);
@@ -44,7 +44,7 @@ public class InitIOSDriver {
     public IOSDriver getBuyerDriver(String udid, String goBuyerBundleId) {
         try {
             // Init driver
-            IOSDriver driver = getIOSDriver(udid, System.getProperty("user.dir") + "/src/main/resources/app/GoBUYER_STG.zip");
+            IOSDriver driver = getIOSDriver(udid, System.getProperty("user.dir") + "/src/main/resources/app/GoBUYER_STAG.zip");
 
             // Open GoSeller app
             driver.terminateApp(goBuyerBundleId);
