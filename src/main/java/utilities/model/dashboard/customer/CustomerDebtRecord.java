@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import lombok.Data;
+import utilities.enums.DebtActionEnum;
 
 /**
  * Used for deserialization of JSON into POJOs 
@@ -16,7 +17,7 @@ import lombok.Data;
 public class CustomerDebtRecord {
     public Integer id;
     public Integer customerId;
-    public String action;
+    public DebtActionEnum action;
     public BigDecimal amount;
     public BigDecimal debt;
     public String refId;
