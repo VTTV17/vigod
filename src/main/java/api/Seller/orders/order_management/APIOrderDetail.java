@@ -104,57 +104,66 @@ public class APIOrderDetail {
                 .as(PaymentHistoryInfo[].class));
     }
 
-    public void verifyOrderDetailAPI(OrderDetailInfo expectedInfo, long orderId) {
+    public APIOrderDetail verifyOrderDetailAPI(OrderDetailInfo expectedInfo, long orderId){
         OrderDetailInfo actualInfo = getOrderDetail(orderId);
         //Verify Customer info
-        if (expectedInfo.getCustomerInfo().getName() != null) {
-            Assert.assertEquals(actualInfo.getCustomerInfo().getName(), expectedInfo.getCustomerInfo().getName());
-            Assert.assertEquals(actualInfo.getCustomerInfo().getPhone(), expectedInfo.getCustomerInfo().getPhone());
-            Assert.assertEquals(actualInfo.getCustomerInfo().getDebtAmount(), expectedInfo.getCustomerInfo().getDebtAmount());
+        if(expectedInfo.getCustomerInfo().getName() != null){
+            Assert.assertEquals(actualInfo.getCustomerInfo().getName().trim(),expectedInfo.getCustomerInfo().getName().trim());
+            Assert.assertEquals(actualInfo.getCustomerInfo().getPhone(),expectedInfo.getCustomerInfo().getPhone());
+            Assert.assertEquals(actualInfo.getCustomerInfo().getDebtAmount(),expectedInfo.getCustomerInfo().getDebtAmount());
         }
-        //Verify Shipping Addres
-        if (expectedInfo.getShippingInfo().getContactName() != null) {
-            Assert.assertEquals(actualInfo.getShippingInfo().getContactName(), expectedInfo.getShippingInfo().getContactName());
-            Assert.assertEquals(actualInfo.getShippingInfo().getPhone(), expectedInfo.getShippingInfo().getPhone());
-            Assert.assertEquals(actualInfo.getShippingInfo().getFullAddress(), expectedInfo.getShippingInfo().getFullAddress());
+        //Verify Shipping Address
+        if(expectedInfo.getShippingInfo().getContactName()!=null){
+            Assert.assertEquals(actualInfo.getShippingInfo().getContactName(),expectedInfo.getShippingInfo().getContactName());
+            Assert.assertEquals(actualInfo.getShippingInfo().getPhone(),expectedInfo.getShippingInfo().getPhone());
+            if(language.equalsIgnoreCase("vi"))
+                Assert.assertEquals(actualInfo.getShippingInfo().getFullAddress(),expectedInfo.getShippingInfo().getFullAddress());
+            else Assert.assertEquals(actualInfo.getShippingInfo().getFullAddressEn(),expectedInfo.getShippingInfo().getFullAddressEn());
         }
-        //Verify Billing Address
-        if (expectedInfo.getBillingInfo().getContactName() != null) {
-            Assert.assertEquals(actualInfo.getBillingInfo().getContactName(), expectedInfo.getBillingInfo().getContactName());
-            Assert.assertEquals(actualInfo.getBillingInfo().getPhone(), expectedInfo.getBillingInfo().getPhone());
-            Assert.assertEquals(actualInfo.getBillingInfo().getFullAddress(), expectedInfo.getBillingInfo().getFullAddress());
+        //Verify Billing Addresss
+        if(expectedInfo.getBillingInfo().getContactName()!=null){
+            Assert.assertEquals(actualInfo.getBillingInfo().getContactName(),expectedInfo.getBillingInfo().getContactName());
+            Assert.assertEquals(actualInfo.getBillingInfo().getPhone(),expectedInfo.getBillingInfo().getPhone());
+            if(language.equalsIgnoreCase("vi"))
+                Assert.assertEquals(actualInfo.getBillingInfo().getFullAddress(),expectedInfo.getBillingInfo().getFullAddress());
+            else Assert.assertEquals(actualInfo.getBillingInfo().getFullAddressEn(),expectedInfo.getBillingInfo().getFullAddressEn());
         }
         //Verify payment method
-        Assert.assertEquals(actualInfo.getOrderInfo().getPaymentMethod(), expectedInfo.getOrderInfo().getPaymentMethod());
+        Assert.assertEquals(actualInfo.getOrderInfo().getPaymentMethod(),expectedInfo.getOrderInfo().getPaymentMethod());
         //Verify earning point
-        if (expectedInfo.getEarningPoint().getValue() > 0) {
-            Assert.assertEquals(actualInfo.getEarningPoint().getValue(), expectedInfo.getEarningPoint().getValue());
-        } else Assert.assertEquals(new EarningPoint(), expectedInfo.getEarningPoint());
+        if(expectedInfo.getEarningPoint().getValue()>0){
+            Assert.assertEquals(actualInfo.getEarningPoint().getValue(),expectedInfo.getEarningPoint().getValue());
+        }else Assert.assertEquals(new EarningPoint(),expectedInfo.getEarningPoint());
         //Verify order summary
-        Assert.assertEquals(actualInfo.getOrderInfo().getSubTotal(), expectedInfo.getOrderInfo().getSubTotal());
-        Assert.assertEquals(actualInfo.getOrderInfo().getOriginalShippingFee(), expectedInfo.getOrderInfo().getOriginalShippingFee());
-        Assert.assertEquals(actualInfo.getOrderInfo().getShippingFee(), expectedInfo.getOrderInfo().getShippingFee());
-        Assert.assertEquals(actualInfo.getOrderInfo().getTotalDiscount(), expectedInfo.getOrderInfo().getTotalDiscount());
-        Assert.assertEquals(actualInfo.getOrderInfo().getTotalAmount(), expectedInfo.getOrderInfo().getTotalAmount());
-        Assert.assertEquals(actualInfo.getOrderInfo().getTotalTaxAmount(), expectedInfo.getOrderInfo().getTotalTaxAmount());
-        Assert.assertEquals(actualInfo.getOrderInfo().getTotalPrice(), expectedInfo.getOrderInfo().getTotalPrice());
-        Assert.assertEquals(actualInfo.getOrderInfo().getTotalQuantity(), expectedInfo.getOrderInfo().getTotalQuantity());
-        Assert.assertEquals(actualInfo.getOrderInfo().getPaymentMethod(), expectedInfo.getOrderInfo().getPaymentMethod());
-        Assert.assertEquals(actualInfo.getOrderInfo().getPaid(), expectedInfo.getOrderInfo().getPaid());
+        Assert.assertEquals(actualInfo.getOrderInfo().getSubTotal(),expectedInfo.getOrderInfo().getSubTotal());
+        Assert.assertEquals(actualInfo.getOrderInfo().getOriginalShippingFee(),expectedInfo.getOrderInfo().getOriginalShippingFee());
+        Assert.assertEquals(actualInfo.getOrderInfo().getShippingFee(),expectedInfo.getOrderInfo().getShippingFee());
+        Assert.assertEquals(actualInfo.getOrderInfo().getTotalDiscount(),expectedInfo.getOrderInfo().getTotalDiscount());
+        Assert.assertEquals(actualInfo.getOrderInfo().getTotalAmount(),expectedInfo.getOrderInfo().getTotalAmount());
+        Assert.assertEquals(actualInfo.getOrderInfo().getTotalTaxAmount(),expectedInfo.getOrderInfo().getTotalTaxAmount());
+        Assert.assertEquals(actualInfo.getOrderInfo().getTotalPrice(),expectedInfo.getOrderInfo().getTotalPrice());
+        Assert.assertEquals(actualInfo.getOrderInfo().getTotalQuantity(),expectedInfo.getOrderInfo().getTotalQuantity());
+        Assert.assertEquals(actualInfo.getOrderInfo().getPaymentMethod(),expectedInfo.getOrderInfo().getPaymentMethod());
+        Assert.assertEquals(actualInfo.getOrderInfo().getPaid(),expectedInfo.getOrderInfo().getPaid());
+        Assert.assertEquals(actualInfo.getOrderInfo().getPayType(),expectedInfo.getOrderInfo().getPayType());
+        Assert.assertEquals(actualInfo.getOrderInfo().getUsePoint(),expectedInfo.getOrderInfo().getUsePoint());
+        Assert.assertEquals(actualInfo.getOrderInfo().getStatus(), expectedInfo.getOrderInfo().getStatus());
+        Assert.assertEquals(actualInfo.getOrderInfo().getDebtAmount(), expectedInfo.getOrderInfo().getDebtAmount());
+        Assert.assertEquals(actualInfo.getOrderInfo().getReceivedAmount(), expectedInfo.getOrderInfo().getReceivedAmount());
+
         //Verify Discount Summary
         List<SummaryDiscount> actualSummaryDiscount = actualInfo.getSummaryDiscounts();
         List<SummaryDiscount> expectedSummaryDiscount = expectedInfo.getSummaryDiscounts();
-        System.out.println("expectedSummaryDiscount: " + expectedSummaryDiscount);
         List<SummaryDiscount> actualSummaryDiscountUpdateModel = new ArrayList<>();
-        actualSummaryDiscount.forEach(i -> {
-            SummaryDiscount summaryDiscount = new SummaryDiscount();
-            summaryDiscount.setLabel(i.getLabel().equals("Giảm giá phí vận chuyển") ? "Giảm phí vận chuyển" : i.getLabel());
+        actualSummaryDiscount.forEach(i->{
+            SummaryDiscount summaryDiscount  = new SummaryDiscount();
+            summaryDiscount.setLabel(i.getLabel().equals("Giảm giá phí vận chuyển")?"Giảm phí vận chuyển":i.getLabel());
             summaryDiscount.setValue(i.getValue());
             actualSummaryDiscountUpdateModel.add(summaryDiscount);
         });
         actualSummaryDiscountUpdateModel.sort(Comparator.comparing(SummaryDiscount::getLabel));
         expectedSummaryDiscount.sort(Comparator.comparing(SummaryDiscount::getLabel));
-        Assert.assertEquals(actualSummaryDiscountUpdateModel, expectedSummaryDiscount);
+        Assert.assertEquals(actualSummaryDiscountUpdateModel,expectedSummaryDiscount);
 
         //Verify item order
         List<ItemOrderInfo> actualItemList = actualInfo.getItems();
@@ -164,37 +173,43 @@ public class APIOrderDetail {
             ItemOrderInfo itemOrderInfo = new ItemOrderInfo();
             itemOrderInfo.setName(i.getName());
             itemOrderInfo.setVariationName(i.getVariationName());
-            if (i.getGsOrderBXGYDTO() != null) {
+            if(i.getGsOrderBXGYDTO()!=null){
                 itemOrderInfo.setGsOrderBXGYDTO(i.getGsOrderBXGYDTO());
             }
             itemOrderInfo.setPrice(i.getPrice());
             itemOrderInfo.setPriceDiscount(i.getPriceDiscount());
             itemOrderInfo.setTotalAmount(i.getTotalAmount());
+
             List<ItemTotalDiscount> itemTotalDiscountList = new ArrayList<>();
-            i.getItemTotalDiscounts().forEach(j -> {
+            i.getItemTotalDiscounts().forEach(j ->{
                 ItemTotalDiscount itemTotalDiscount = new ItemTotalDiscount();
                 itemTotalDiscount.setLabel(j.getLabel());
                 itemTotalDiscount.setValue(j.getValue());
                 itemTotalDiscountList.add(itemTotalDiscount);
             });
+            if(itemTotalDiscountList.size()>0) itemTotalDiscountList.sort(Comparator.comparing(ItemTotalDiscount::getLabel));
             itemOrderInfo.setItemTotalDiscounts(itemTotalDiscountList);
+
             itemOrderInfo.setQuantity(i.getQuantity());
-            if (i.getConversionUnitName() != null) {
+            if(i.getConversionUnitName()!=null){
                 itemOrderInfo.setConversionUnitName(i.getConversionUnitName());
             }
             actualItemListUpdateModel.add(itemOrderInfo);
         });
+        expectedItemList.forEach(i->i.getItemTotalDiscounts().sort(Comparator.comparing(ItemTotalDiscount::getLabel)));
         actualItemListUpdateModel.sort(Comparator.comparing(ItemOrderInfo::getName)
                 .thenComparing(ItemOrderInfo::getVariationName)
                 .thenComparing(ItemOrderInfo::getConversionUnitName));
         expectedItemList.sort(Comparator.comparing(ItemOrderInfo::getName)
                 .thenComparing(ItemOrderInfo::getVariationName)
                 .thenComparing(ItemOrderInfo::getConversionUnitName));
-        Assert.assertEquals(actualItemListUpdateModel, expectedItemList);
+
+        Assert.assertEquals(actualItemListUpdateModel,expectedItemList);
         //Verify branch name
-        Assert.assertEquals(actualInfo.getStoreBranch().getName(), expectedInfo.getStoreBranch().getName());
         Assert.assertEquals(actualInfo.getStoreBranch().getName(),expectedInfo.getStoreBranch().getName());
+        return this;
     }
+
     public APIOrderDetail verifyPaymentHistoryAfterCreateOrder(long orderId, double receiveAmount){
         List<PaymentHistoryInfo> paymentHistoryInfo = getPaymentHistory(orderId);
         Assert.assertEquals(paymentHistoryInfo.get(0).getPaymentAmount(),receiveAmount);
