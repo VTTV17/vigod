@@ -1,6 +1,7 @@
 package web.Dashboard.settings.account;
 
 import static utilities.links.Links.DOMAIN;
+import static utilities.links.Links.DOMAIN_BIZ;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,10 +13,12 @@ import org.openqa.selenium.WebDriver;
 import org.testng.Assert;
 
 import utilities.commons.UICommonAction;
+import utilities.enums.Domain;
 import utilities.model.staffPermission.AllPermissions;
 import utilities.permission.CheckPermission;
 import utilities.utils.PropertiesUtil;
 import web.Dashboard.home.HomePage;
+import web.Dashboard.settings.vat.VATInformation;
 
 public class AccountPage {
 
@@ -26,13 +29,19 @@ public class AccountPage {
 	HomePage homePage;
 	AccountPageElement elements;
 
+	Domain domain;
+	
 	public AccountPage (WebDriver driver) {
 		this.driver = driver;
 		commonAction = new UICommonAction(driver);
 		homePage = new HomePage(driver);
 		elements = new AccountPageElement();
 	}
-
+	public AccountPage(WebDriver driver, Domain domain) {
+		this(driver);
+		this.domain = domain;
+	}
+	
 	/**
 	 * A temporary function that helps get rid of the annoying try catch block when reading text from property file
 	 * @param propertyKey
@@ -58,7 +67,7 @@ public class AccountPage {
 		driver.get(url);
 		logger.info("Navigated to: " + url);
 		commonAction.removeFbBubble();
-		homePage.waitTillSpinnerDisappear1();
+		homePage.waitTillSpinnerDisappear1().waitTillLoadingDotsDisappear();
 		return this;
 	}		
 
@@ -66,6 +75,17 @@ public class AccountPage {
 		navigateByURL(DOMAIN + "/setting?tabId=1");
 		return this;
 	}		
+	
+	public AccountPage navigateByURL() {
+		if (domain.equals(Domain.VN)) {
+			navigateByURL(DOMAIN + "/setting/account");
+		} else {
+			navigateByURL(DOMAIN_BIZ + "/setting/account");
+		}
+		
+    	commonAction.sleepInMiliSecond(500, "Wait a little after navigation");
+		return this;
+	}	
 	
 	public AccountPage clickAccountTab() {
 		commonAction.click(elements.loc_tabAccount);
