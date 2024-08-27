@@ -2,23 +2,20 @@ package api.Seller.products.inventory;
 
 import api.Seller.login.Login;
 import api.Seller.orders.order_management.APIOrderDetail;
-import api.Seller.products.all_products.APIProductConversionUnit;
-import app.Buyer.account.myorders.orderdetail.OrderDetails;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import lombok.Data;
-import org.testng.Assert;
 import utilities.api.API;
 import utilities.assert_customize.AssertCustomize;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.dashboard.orders.orderdetail.OrderDetailInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.IntStream;
-
-import static api.Seller.products.all_products.APIProductConversionUnit.ConversionUnitItem;
 
 public class APIInventoryV2 {
     API api = new API();
