@@ -2,6 +2,7 @@ package web.Dashboard.orders.pos.create_order;
 
 import api.Seller.customers.APICustomerDetail;
 import api.Seller.marketing.LoyaltyPoint;
+import api.Seller.orders.order_management.APIAllOrders;
 import api.Seller.products.all_products.APIProductConversionUnit;
 import api.Seller.products.all_products.APIProductConversionUnit.ConversionUnitItem;
 import api.Seller.products.all_products.APIProductDetailV2;
@@ -18,7 +19,10 @@ import utilities.commons.UICommonAction;
 import utilities.constant.Constant;
 import utilities.data.DataGenerator;
 import utilities.data.GetDataByRegex;
+import utilities.enums.PaymentMethod;
+import utilities.enums.PaymentStatus;
 import utilities.enums.pos.ReceivedAmountType;
+import utilities.model.dashboard.customer.CustomerInfo;
 import utilities.model.dashboard.customer.CustomerInfoFull;
 import utilities.model.dashboard.marketing.loyaltyPoint.LoyaltyPointInfo;
 import utilities.model.dashboard.orders.orderdetail.*;
@@ -234,7 +238,22 @@ public class POSPage extends POSElement {
 
     public DeliveryDialog tickDelivery() {
         commonAction.click(loc_chkDelivery);
+        logger.info("Ticked Delivery check box");
         return new DeliveryDialog(driver);
+    }
+
+    public DeliveryDialog clickShippingProviderDropdown() {
+    	commonAction.click(loc_ddlDelivery);
+
+	    int maxRetries = 10;
+	    int sleepDuration = 500;
+	    int retries = 0;
+
+    	while (retries < maxRetries && !commonAction.getElements(loc_iconLoadingDeliveryProvider).isEmpty()) {
+    		logger.debug("Loading icon still appears. Retrying after {} ms", sleepDuration);
+    		commonAction.sleepInMiliSecond(500);
+    	}
+    	return new DeliveryDialog(driver);
     }
 
     public void createPOSOrder(LoginInformation loginInformation, BranchInfo branchInfo, List<Integer> productIds) {
@@ -311,7 +330,7 @@ public class POSPage extends POSElement {
             if (!isApply)
                 commonAction.checkTheCheckBoxOrRadio(loc_chkNotApplyEarningPoint, loc_lblNotApplyEarningPoint);
             else commonAction.uncheckTheCheckboxOrRadio(loc_chkNotApplyEarningPoint, loc_lblNotApplyEarningPoint);
-            logger.info("Config apply earning point: {}", isApply);
+            logger.info("Config apply earning point: " + isApply);
         } else try {
             throw new Exception("Not apply earning point checkbox not show.");
         } catch (Exception e) {
@@ -404,7 +423,10 @@ public class POSPage extends POSElement {
         if (availablePoint == 0) throw new Exception("Customer don't have any available point");
         switch (usePointType) {
             case SERVERAL -> point = availablePoint > 1 ? DataGenerator.generatNumberInBound(1, availablePoint - 1) : 1;
-            case MAX_AVAILABLE, MAX_ORDER -> point = Math.min(availablePoint, redeemPointNeedForTotal());
+            case MAX_AVAILABLE, MAX_ORDER -> {
+                int redeemPointNeed = redeemPointNeedForTotal();
+                point = availablePoint > redeemPointNeed ? redeemPointNeed : availablePoint;
+            }
         }
         inputUsePoint(point);
         return point;
@@ -425,19 +447,19 @@ public class POSPage extends POSElement {
 
     public double getTotalDiscountAmount() {
         String discountText = commonAction.getText(loc_lblPromotionValue);
-        logger.info("Get total discount: {}", discountText);
+        logger.info("Get total discount: " + discountText);
         return GetDataByRegex.getAmountByRegex(discountText);
     }
 
     public double getTaxAmount() {
         String taxValue = commonAction.getText(loc_lblTaxValue);
-        logger.info("Get tax amount: {}", taxValue);
+        logger.info("Get tax amount: " + taxValue);
         return GetDataByRegex.getAmountByRegex(taxValue);
     }
 
     public double getShippingFee() {
         String shippingFee = commonAction.getText(loc_lblShippingFee);
-        logger.info("Get shipping fee: {}", shippingFee);
+        logger.info("Get shipping fee: " + shippingFee);
         return GetDataByRegex.getAmountByRegex(shippingFee);
     }
 
@@ -453,8 +475,8 @@ public class POSPage extends POSElement {
             commonAction.sleepInMiliSecond(1000);
             commonAction.clickActions(actionlocator);
             List<WebElement> promotionList = commonAction.getElements(tooltipLocator, 2);
-            promotionList.forEach(i -> {
-                logger.info("Promotion: {}", i.getText());
+            promotionList.stream().forEach(i -> {
+                logger.info("Promotion: "+i.getText());
                 String[] promoItem = i.getText().split("\n");
                 itemDiscountList.put(promoItem[0], Double.valueOf(promoItem[1].replaceAll("[^\\d-]", "")));
             });
@@ -523,14 +545,14 @@ public class POSPage extends POSElement {
             itemOrderInfo.setItemTotalDiscounts(itemTotalDiscountList);
             itemDiscountList.add(itemOrderInfo);
         }
-        logger.info("itemDiscountList: {}", itemDiscountList);
+        logger.info("itemDiscountList: " + itemDiscountList);
         return itemDiscountList;
     }
 
     public double getShippingFeeDiscount() {
         Map<String, Double> shippingDiscountMap = getPromotionDetailApply(loc_ddlShippingPromotion, loc_tltShippingPromotion);
         double discountAmount =  shippingDiscountMap.values().stream().mapToDouble(Double::doubleValue).sum();
-        logger.info("Shipping fee discount amount: {}", discountAmount);
+        logger.info("Shipping fee discount amount: "+discountAmount);
         return discountAmount;
     }
 
@@ -544,11 +566,11 @@ public class POSPage extends POSElement {
         Long rateAmount = loyaltyPointInfo.getRateAmount();
 
         if ((double) rateAmount < getTotalAmount())
-            if (!commonAction.getElements(loc_lblTotalEarningPoint).isEmpty()) {
+            if (commonAction.getElements(loc_lblTotalEarningPoint).size() > 0) {
                 earningPoint.setValue((int) GetDataByRegex.getAmountByRegex(commonAction.getText(loc_lblTotalEarningPoint)));
             } else earningPoint.setValue(0);
         else earningPoint.setValue(0);
-        logger.info("earningPoint: {}", earningPoint);
+        logger.info("earningPoint: " + earningPoint);
         return earningPoint;
     }
 
@@ -579,7 +601,7 @@ public class POSPage extends POSElement {
             }
             new ConfirmationDialog(driver).clickCancelBtn();
         }
-        logger.info("shippingInfo: {}", shippingInfo);
+        logger.info("shippingInfo: " + shippingInfo);
         return shippingInfo;
     }
     public POSPaymentMethod getSelectedPaymentMethod(){
@@ -597,7 +619,7 @@ public class POSPage extends POSElement {
         BillingInfo billingInfo = new BillingInfo();
         List<WebElement> editDelivery = commonAction.getElements(loc_icnEditDelivery, 1);
 
-        if (!isGuest && editDelivery.isEmpty()) { //Account + no delivery : billing get from customer info
+        if (isGuest == false && editDelivery.isEmpty()) { //Account + no delivery : billing get from customer info
             CustomerInfoFull customerInfo = new APICustomerDetail(loginInformation).getFullInfo(customerId);
 
             billingInfo.setContactName(customerInfo.getFullName());
@@ -634,26 +656,26 @@ public class POSPage extends POSElement {
             }
             new ConfirmationDialog(driver).clickCancelBtn();
         }
-        logger.info("billingInfo: {}", billingInfo);
+        logger.info("billingInfo: " + billingInfo);
         return billingInfo;
     }
 
     public CustomerOrderInfo getCustomerOderInfo() {
         CustomerOrderInfo customerOrderInfo = new CustomerOrderInfo();
-        if (!commonAction.getElements(loc_lblCustomerNameAndPhone, 1).isEmpty()) {
+        if (commonAction.getElements(loc_lblCustomerNameAndPhone, 1).size() > 0) {
             String customerNameAndPhone = commonAction.getText(loc_lblCustomerNameAndPhone);
             String[] namePhoneSplit = customerNameAndPhone.split("-");
             customerOrderInfo.setName(namePhoneSplit[0]);
             if (namePhoneSplit.length > 1) customerOrderInfo.setPhone(namePhoneSplit[1]);
             double currentDebt = Double.parseDouble(commonAction.getText(loc_lblDebt).replaceAll("[^\\d-]", ""));
             double debtFromThisOrder;
-            if (!commonAction.getElements(loc_icnEditDelivery).isEmpty()) {
+            if (commonAction.getElements(loc_icnEditDelivery).size() > 0) {
                 debtFromThisOrder = -getReceiveAmount();
             } else debtFromThisOrder = getTotalAmount() - getReceiveAmount();
             //debt format: -1111 or 1111
             customerOrderInfo.setDebtAmount(currentDebt + debtFromThisOrder);
         }
-        logger.info("customerOrderInfo: {}", customerOrderInfo);
+        logger.info("customerOrderInfo: " + customerOrderInfo);
         return customerOrderInfo;
     }
 

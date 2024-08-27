@@ -103,7 +103,7 @@ public class CreateCustomerTDG {
 		String country = CountryTDG.randomCustomerCountry().getOut_country();
 		String countryCode = DataGenerator.getCountryCode(country);
 		String phoneCode = DataGenerator.getPhoneCode(country);
-		String customerPhone = DataGenerator.randomValidPhoneByCountry(countryCode);
+		String customerPhone = DataGenerator.randomValidPhoneByCountry(country);
 		String customerName = "Auto Buyer " + customerPhone;
 		String customerEmail = "auto-buyer%s@mailnesia.com".formatted(customerPhone);
 
@@ -151,7 +151,7 @@ public class CreateCustomerTDG {
 		String country = CountryTDG.randomCustomerCountry().getOut_country();
 		String countryCode = DataGenerator.getCountryCode(country);
 		String phoneCode = DataGenerator.getPhoneCode(country);
-		String customerPhone = DataGenerator.randomValidPhoneByCountry(countryCode);
+		String customerPhone = DataGenerator.randomValidPhoneByCountry(country);
 		String customerName = "Auto Buyer " + customerPhone;
 		String customerEmail = "auto-buyer%s@mailnesia.com".formatted(customerPhone);
 
@@ -200,7 +200,7 @@ public class CreateCustomerTDG {
 	public static UICreateCustomerData buildVNCustomerUIData(DisplayLanguage dashboardDisplayLang) {
 		String country = "Vietnam";
 		String countryCode = DataGenerator.getCountryCode(country);
-		String phoneNumber = "0" + DataGenerator.generatePhoneFromRegex("(?:5(?:2[238]|59)|89[6-9]|99[013-9])\\d{6}|(?:3\\d|5[689]|7[06-9]|8[1-8]|9[0-8])\\d{7}");
+		String phoneNumber = "0" + DataGenerator.randomValidPhoneByCountry(country);
 		String customerName = "Auto Buyer " + phoneNumber;
 		String customerEmail = "auto-buyer%s@mailnesia.com".formatted(phoneNumber);
 
@@ -237,7 +237,7 @@ public class CreateCustomerTDG {
 		
 		String country = CountryTDG.randomCustomerCountry().getOut_country();
 		String countryCode = DataGenerator.getCountryCode(country);
-		String phoneNumber = DataGenerator.randomValidPhoneByCountry(countryCode);
+		String phoneNumber = DataGenerator.randomValidPhoneByCountry(country);
 		String customerName = "Auto Buyer " + phoneNumber;
 		String customerEmail = "auto-buyer%s@mailnesia.com".formatted(phoneNumber);
 		

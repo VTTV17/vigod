@@ -2,26 +2,26 @@ package api.Seller.orders.order_management;
 
 import api.Seller.login.Login;
 import api.Seller.orders.order_management.APIAllOrderTags.OrderTags;
-import api.Seller.products.all_products.APIProductConversionUnit;
+import io.opentelemetry.exporter.logging.SystemOutLogRecordExporter;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.testng.Assert;
 import utilities.api.API;
+import utilities.assert_customize.AssertCustomize;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
+import utilities.model.dashboard.marketing.affiliate.PayoutByProductInfo;
 import utilities.model.dashboard.orders.orderdetail.*;
 import utilities.model.sellerApp.login.LoginInformation;
 
 import java.util.*;
 
-import static api.Seller.orders.order_management.APIAllOrderCosts.OrderCosts;
+import static api.Seller.orders.order_management.APIAllOrderCosts.*;
 import static api.Seller.orders.order_management.APIAllOrders.*;
-import static api.Seller.orders.order_management.APIAllOrders.ShippingMethod.selfdelivery;
-import static api.Seller.orders.order_management.APIAllOrders.ShippingMethod.valueOf;
-
+import static api.Seller.orders.order_management.APIAllOrders.ShippingMethod.*;
 @Slf4j
 public class APIOrderDetail {
 //    Logger logger = LogManager.getLogger(APIOrderDetail.class);
@@ -29,10 +29,16 @@ public class APIOrderDetail {
     API api = new API();
     LoginDashboardInfo loginInfo;
     LoginInformation loginInformation;
+    String language = "vi";
 
     public APIOrderDetail(LoginInformation loginInformation) {
         this.loginInformation = loginInformation;
         loginInfo = new Login().getInfo(loginInformation);
+    }
+    public APIOrderDetail(LoginInformation loginInformation, String language) {
+        this.loginInformation = loginInformation;
+        loginInfo = new Login().getInfo(loginInformation);
+        this.language = language.substring(0,2);
     }
 
     @Data
@@ -49,11 +55,12 @@ public class APIOrderDetail {
         List<Integer> itemQuantity;
     }
 
-    String getOrderDetailPath = "/orderservice3/api/gs/order-details/ids/%s?getLoyaltyEarningPoint=true&langKey=vi";
+    String getOrderDetailPath = "/orderservice3/api/gs/order-details/ids/%s?getLoyaltyEarningPoint=true&langKey=%s";
     String getPaymentHistoryPath = "/orderservices2/api/payment-histories/bc-order/%s";
 
     Response getDetailOfOrderResponse(long orderId) {
-        return api.get(getOrderDetailPath.formatted(orderId), loginInfo.getAccessToken(), Map.of("langkey", "vi"));
+        System.out.println(language);
+        return api.get(getOrderDetailPath.formatted(orderId,language), loginInfo.getAccessToken(), Map.of("langkey", language));
     }
 
     public OrderStatus getOrderStatus(int orderId) {
@@ -189,6 +196,13 @@ public class APIOrderDetail {
         Assert.assertEquals(actualItemListUpdateModel, expectedItemList);
         //Verify branch name
         Assert.assertEquals(actualInfo.getStoreBranch().getName(), expectedInfo.getStoreBranch().getName());
+        Assert.assertEquals(actualInfo.getStoreBranch().getName(),expectedInfo.getStoreBranch().getName());
+        return this;
+    }
+    public APIOrderDetail verifyPaymentHistoryAfterCreateOrder(long orderId, double receiveAmount){
+        List<PaymentHistoryInfo> paymentHistoryInfo = getPaymentHistory(orderId);
+        Assert.assertEquals(paymentHistoryInfo.get(0).getPaymentAmount(),receiveAmount);
+        return this;
     }
 
 

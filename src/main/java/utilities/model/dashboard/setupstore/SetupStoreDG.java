@@ -48,7 +48,7 @@ public class SetupStoreDG {
 		country = countryEntity.getOut_country();
 		countryCode = countryEntity.getCode();
 		phoneCode = countryEntity.getPhone_code();
-		phone = country.contentEquals("Vietnam") ? "0" + DataGenerator.randomValidPhoneByCountry(countryCode) : DataGenerator.randomValidPhoneByCountry(countryCode);
+		phone = country.contentEquals("Vietnam") ? "0" + DataGenerator.randomValidPhoneByCountry(country) : DataGenerator.randomValidPhoneByCountry(country);
 		email = "auto0-shop%s@mailnesia.com".formatted(phone);	
 		name = "Automation Shop %s".formatted(getPhone());
 

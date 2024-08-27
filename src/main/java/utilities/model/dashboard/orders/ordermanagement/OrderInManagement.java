@@ -32,7 +32,7 @@ public class OrderInManagement {
     private String appInstall;
     private String location;
     private String orderType;
-    private List<Item> items;
+    private List<ItemOrderListInfo> items;
     private int customerId;
     private String customerFullName;
     private String customerCountry;
@@ -53,7 +53,7 @@ public class OrderInManagement {
     private String userName;
     private String wholesaleId;
     private String discountCode;
-    private double discountAmount;
+    private Double discountAmount;
     private double shippingFee;
     private double feeDeduction;
     private double totalTaxAmount;

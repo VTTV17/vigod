@@ -94,16 +94,26 @@ public class Cashbook {
 	}
 
 	public void waitTillRecordsAppear() {
-		for (int i=0; i<10; i++) {
-			if (!commonAction.getElements(elements.loc_tblCashbookRecord).isEmpty()) break;
-			commonAction.sleepInMiliSecond(500, "Waiting for records to appear");
-		}
+	    int maxRetries = 10;
+	    int sleepDuration = 500;
+	    int retries = 0;
+
+	    while (retries < maxRetries && commonAction.getElements(elements.loc_tblCashbookRecord).isEmpty()) {
+	    	logger.debug("Table empty. Retrying after {} ms", sleepDuration);
+	        commonAction.sleepInMiliSecond(sleepDuration);
+	        retries++;
+	    }
 	}	
 	public void waitTillTableEmpty() {
-		for (int i=0; i<10; i++) {
-			if (!commonAction.getElements(elements.loc_icnEmptyWallet).isEmpty()) break;
-			commonAction.sleepInMiliSecond(500, "Waiting for records to disappear");
-		}
+	    int maxRetries = 10;
+	    int sleepDuration = 500;
+	    int retries = 0;
+
+	    while (retries < maxRetries && commonAction.getElements(elements.loc_icnEmptyWallet).isEmpty()) {
+	    	logger.debug("Table not empty. Retrying after {} ms", sleepDuration);
+	        commonAction.sleepInMiliSecond(sleepDuration);
+	        retries++;
+	    }
 	}	
 	
 	public List<String> getSpecificRecord(int index) {
@@ -135,10 +145,15 @@ public class Cashbook {
 
 	public List<List<String>> getRecords() {
 		waitTillRecordsAppear();
+		
+		int recordCount = commonAction.getElements(elements.loc_tblCashbookRecord).size();
+		logger.debug("{} cashbook record(s) found", recordCount);
+		
 		List<List<String>> table = new ArrayList<>();
-		for (int i=0; i<commonAction.getElements(elements.loc_tblCashbookRecord).size(); i++) {
+		for (int i=0; i<recordCount; i++) {
 			table.add(getSpecificRecord(i));
 		}
+		
 		return table;
 	}
 

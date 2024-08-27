@@ -111,6 +111,8 @@ public class POSElement {
     By loc_tltPromotionApplyOnItem = By.cssSelector(".tippy-tooltip-content .align-items-center");
     
     By loc_chkDelivery = By.cssSelector(".delivery-group-info .form-check");
+    By loc_ddlDelivery = By.cssSelector(".delivery-select-pos__selected-value");
+    By loc_iconLoadingDeliveryProvider = By.cssSelector(".menu-list .loading-icon-wrapper");
     By loc_lblTotalEarningPoint = By.cssSelector(".group-view-loyaltyPoint");
     By loc_lblTotalQuantity = By.cssSelector(".count-product");
     By loc_icnEditDelivery = By.cssSelector(".edit-icon");
@@ -123,5 +125,8 @@ public class POSElement {
     By loc_lblUnit = By.cssSelector(".order-in-store-purchase-cart-product-list__product-row .unit");
     By loc_lblVariationByProductIndex(int index){
         return By.xpath("(//div[@class='order-in-store-purchase-cart-product-list__product-name'])[%s]//following-sibling::span[contains(@class, 'text-variation')]".formatted(index));
+    }
+    By loc_txtProductQuantity(int productIndex) {
+        return By.xpath("(//div[@class='order-in-store-purchase-cart-product-list__product-name'])[%s]//ancestor::tr//input".formatted(productIndex));
     }
 }
