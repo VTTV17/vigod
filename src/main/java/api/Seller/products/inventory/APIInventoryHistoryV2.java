@@ -70,8 +70,8 @@ public class APIInventoryHistoryV2 {
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class ProductInventoryHistory {
         private String productName;
-        private int stockChange;
-        private int remainingStock;
+        private long stockChange;
+        private long remainingStock;
         private String inventoryType;
         private InventoryActionType actionType;
         private String orderId;
@@ -80,13 +80,26 @@ public class APIInventoryHistoryV2 {
         private boolean hasConversion;
     }
 
-    public void checkInventoryAfterOrder(long orderId) {
+    public void checkInventoryAfterOrder(long orgStock, long orderId) {
         OrderDetailInfo info = new APIOrderDetail(loginInformation).getOrderDetail(orderId);
         Map<String, Long> map = new APIOrderDetail(loginInformation).getOrderItems(info);
-        map.keySet().parallelStream().forEach(key -> {
-            long expectedQuantity = map.get(key);
-            long actualQuantity = getInventoryHistory(key, String.valueOf(info.getStoreBranch().getId())).get(0).getStockChange();
-            new AssertCustomize().assertEquals(actualQuantity, -expectedQuantity, "Stock change must be %d, but found %d".formatted(expectedQuantity, actualQuantity));
+        map.keySet().forEach(barcode -> {
+            // Get product/variation inventory history
+            ProductInventoryHistory history = getInventoryHistory(barcode, String.valueOf(info.getStoreBranch().getId())).parallelStream()
+                    .filter(hst -> String.valueOf(orderId).equals(hst.getOrderId())).findAny().orElse(null);
+
+            // Check inventory available
+            if (history != null) {
+                // Check stock change
+                long expectedQuantity = map.get(barcode);
+                long actualQuantity = history.getStockChange();
+                new AssertCustomize().assertEquals(actualQuantity, -expectedQuantity, "[Item barcode: %s] Stock change must be %d, but found %d".formatted(barcode, expectedQuantity, actualQuantity));
+
+                // Check remaining stock
+                long expectedRemainingStock = orgStock - expectedQuantity;
+                long actualRemainingStock = history.getRemainingStock();
+                new AssertCustomize().assertEquals(actualRemainingStock, expectedRemainingStock, "[Item barcode: %s] Stock change must be %d, but found %d".formatted(barcode, expectedRemainingStock, actualRemainingStock));
+            } else throw new RuntimeException("No inventory history with barcode: %s".formatted(barcode));
         });
     }
 }

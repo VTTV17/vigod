@@ -73,8 +73,8 @@ public class APIInventoryV2 {
         private String status;
         private long newPrice;
         private long orgPrice;
-        private int remainingItem;
-        private int soldItem;
+        private long remainingItem;
+        private long soldItem;
         private int transactionItem;
         private int priority;
         private int totalBranches;
@@ -82,14 +82,26 @@ public class APIInventoryV2 {
         private boolean hasConversion;
     }
 
-    public void checkInventoryAfterOrder(long orderId) {
+    public void checkInventoryAfterOrder(long orgStock, long orderId) {
         OrderDetailInfo info = new APIOrderDetail(loginInformation).getOrderDetail(orderId);
         Map<String, Long> map = new APIOrderDetail(loginInformation).getOrderItems(info);
-        System.out.println(map);
-        map.keySet().parallelStream().forEach(key -> {
-            long expectedQuantity = map.get(key);
-            long actualQuantity = getProductInventory(key, String.valueOf(info.getStoreBranch().getId())).get(0).getSoldItem();
-            new AssertCustomize().assertEquals(actualQuantity, expectedQuantity, "Sold out must be %d, but found %d".formatted(expectedQuantity, actualQuantity));
+        map.keySet().forEach(barcode -> {
+            // Get product/variation inventory
+            ProductInventory inventory = getProductInventory(barcode, String.valueOf(info.getStoreBranch().getId())).parallelStream()
+                    .filter(inv -> barcode.equals(inv.getId())).findFirst().orElse(null);
+
+            // Check inventory available
+            if (inventory != null) {
+                // Check sold quantity
+                long expectedSoldQuantity = map.get(barcode);
+                long actualSoldQuantity = inventory.getSoldItem();
+                new AssertCustomize().assertEquals(actualSoldQuantity, expectedSoldQuantity, "[Item barcode: %s] Sold out must be %d, but found %d".formatted(barcode, expectedSoldQuantity, actualSoldQuantity));
+
+                // Check remaining stock
+                long expectedRemainingStock = orgStock - expectedSoldQuantity;
+                long actualRemainingStock = inventory.getRemainingItem();
+                new AssertCustomize().assertEquals(actualRemainingStock, expectedRemainingStock, "[Item barcode: %s] Remaining stock must be %d, but found %d".formatted(barcode, expectedRemainingStock, actualRemainingStock));
+            } else throw new RuntimeException("No inventory with barcode: %s".formatted(barcode));
         });
     }
 }
