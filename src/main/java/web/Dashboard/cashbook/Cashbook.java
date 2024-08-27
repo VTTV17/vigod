@@ -1,6 +1,7 @@
 package web.Dashboard.cashbook;
 
 import static utilities.links.Links.DOMAIN;
+import static utilities.links.Links.DOMAIN_BIZ;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -20,12 +21,14 @@ import org.testng.Assert;
 
 import utilities.commons.UICommonAction;
 import utilities.data.DataGenerator;
+import utilities.enums.Domain;
 import utilities.enums.cashbook.CashbookGroup;
 import utilities.model.staffPermission.AllPermissions;
 import utilities.permission.CheckPermission;
 import utilities.utils.PropertiesUtil;
 import web.Dashboard.confirmationdialog.ConfirmationDialog;
 import web.Dashboard.home.HomePage;
+import web.Dashboard.settings.vat.VATInformation;
 
 public class Cashbook {
 
@@ -33,8 +36,11 @@ public class Cashbook {
 
 	WebDriver driver;
 	UICommonAction commonAction;
+	HomePage homePage;
 	CashbookElement elements;
 
+	Domain domain;
+	
 	public static final int OPENINGBALANCE_IDX = 0;
 	public static final int TOTALREVENUE_IDX = 1;
 	public static final int TOTALEXPENDITURE_IDX = 2;
@@ -52,7 +58,12 @@ public class Cashbook {
 	public Cashbook(WebDriver driver) {
 		this.driver = driver;
 		commonAction = new UICommonAction(driver);
+		homePage = new HomePage(driver);
 		elements = new CashbookElement();
+	}
+	public Cashbook(WebDriver driver, Domain domain) {
+		this(driver);
+		this.domain = domain;
 	}
 
 	public Cashbook navigate() {
@@ -61,6 +72,14 @@ public class Cashbook {
 		commonAction.removeFbBubble();
 		return this;
 	}
+
+	Cashbook navigateByURL(String url) {
+		driver.get(url);
+		logger.info("Navigated to: " + url);
+		commonAction.removeFbBubble();
+		homePage.waitTillSpinnerDisappear1();
+		return this;
+	}		
 	
 	public Cashbook navigateByURL() {
 		driver.get(DOMAIN + "/cashbook/management");
@@ -69,6 +88,17 @@ public class Cashbook {
 		return this;
 	}
 
+	public Cashbook navigateUsingURL() {
+		if (domain.equals(Domain.VN)) {
+			navigateByURL(DOMAIN + "/cashbook/management");
+		} else {
+			navigateByURL(DOMAIN_BIZ + "/cashbook/management");
+		}
+		
+    	commonAction.sleepInMiliSecond(500, "Wait a little after navigation");
+		return this;
+	}		
+	
 	public List<Long> getCashbookSummary() {
 		List<Long> summary = new ArrayList<>();
 		for (int i = 0; i < 4; i++) {
