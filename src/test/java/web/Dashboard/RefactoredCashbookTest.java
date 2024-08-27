@@ -92,7 +92,7 @@ public class RefactoredCashbookTest extends BaseTest {
         
         driver = new InitWebdriver().getDriver(browser, headless);
         loginPage = new LoginPage(driver);
-        cashbookPage = new Cashbook(driver);
+        cashbookPage = new Cashbook(driver, Domain.valueOf(domain));
 		homePage = new HomePage(driver);
 		commonAction = new UICommonAction(driver);
 		generate = new DataGenerator();
@@ -100,7 +100,8 @@ public class RefactoredCashbookTest extends BaseTest {
 		navigateToPage(Domain.valueOf(domain));
 		loginPage.performLogin(country, username, password);
 		homePage.waitTillSpinnerDisappear1().hideFacebookBubble();
-		cashbookPage.navigate();
+		homePage.verifyPageLoaded();
+		cashbookPage.navigateUsingURL();
 	}	
 
 	void navigateToPage(Domain domain) {
