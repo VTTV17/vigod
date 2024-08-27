@@ -47,4 +47,5 @@ public class CustomerInfoFull {
     private String birthday;
     private Integer partnerId;
     private String userStatus;
+    private Integer customerDropshipId;
 }

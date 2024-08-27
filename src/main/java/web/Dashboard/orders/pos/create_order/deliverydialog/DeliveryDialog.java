@@ -127,5 +127,10 @@ public class DeliveryDialog {
 		String city = commonAction.getAttribute(elements.txtZipcode, "value");
 		logger.info("Retrieved customer Zipcode: {}", city);
 		return city;
-	}	
+	}
+	public String getPhoneCode(){
+		String phoneCode = commonAction.getText(elements.ddlPhoneCodeValue);
+		logger.info("Retrieved phone code: {}",phoneCode);
+		return phoneCode;
+	}
 }

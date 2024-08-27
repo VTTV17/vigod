@@ -2,6 +2,7 @@ package web.Dashboard.orders.pos.create_order;
 
 import api.Seller.customers.APICustomerDetail;
 import api.Seller.marketing.LoyaltyPoint;
+import api.Seller.orders.order_management.APIAllOrders;
 import api.Seller.products.all_products.APIProductConversionUnit;
 import api.Seller.products.all_products.APIProductConversionUnit.ConversionUnitItem;
 import api.Seller.products.all_products.APIProductDetailV2;
@@ -18,8 +19,10 @@ import utilities.commons.UICommonAction;
 import utilities.constant.Constant;
 import utilities.data.DataGenerator;
 import utilities.data.GetDataByRegex;
+import utilities.enums.PaymentStatus;
 import utilities.enums.pos.ReceivedAmountType;
 import utilities.model.dashboard.customer.CustomerInfoFull;
+import utilities.model.dashboard.customer.CustomerPhone;
 import utilities.model.dashboard.marketing.loyaltyPoint.LoyaltyPointInfo;
 import utilities.model.dashboard.orders.orderdetail.*;
 import utilities.model.dashboard.setting.branchInformation.BranchInfo;
@@ -137,7 +140,7 @@ public class POSPage extends POSElement {
         if (currentStock > 0) {
             // Add conversion unit to cart
             commonAction.clickJS(loc_lstProductResult(barcode));
-            
+
             // Wait API response
             commonAction.sleepInMiliSecond(500, "Wait product/variation/conversion unit is added to cart");
 
@@ -239,17 +242,17 @@ public class POSPage extends POSElement {
     }
 
     public DeliveryDialog clickShippingProviderDropdown() {
-    	commonAction.click(loc_ddlDelivery);
+        commonAction.click(loc_ddlDelivery);
 
-	    int maxRetries = 10;
-	    int sleepDuration = 500;
-	    int retries = 0;
+        int maxRetries = 10;
+        int sleepDuration = 500;
+        int retries = 0;
 
-    	while (retries < maxRetries && !commonAction.getElements(loc_iconLoadingDeliveryProvider).isEmpty()) {
-    		logger.debug("Loading icon still appears. Retrying after {} ms", sleepDuration);
-    		commonAction.sleepInMiliSecond(500);
-    	}
-    	return new DeliveryDialog(driver);
+        while (retries < maxRetries && !commonAction.getElements(loc_iconLoadingDeliveryProvider).isEmpty()) {
+            logger.debug("Loading icon still appears. Retrying after {} ms", sleepDuration);
+            commonAction.sleepInMiliSecond(500);
+        }
+        return new DeliveryDialog(driver);
     }
 
     public void createPOSOrder(LoginInformation loginInformation, BranchInfo branchInfo, List<Integer> productIds) {
@@ -471,7 +474,7 @@ public class POSPage extends POSElement {
             promotionList.forEach(i -> {
                 logger.info("Promotion: {}", i.getText());
                 String[] promoItem = i.getText().split("\n");
-                itemDiscountList.put(promoItem[0], Double.valueOf(promoItem[1].replaceAll("[^\\d-]", "")));
+                itemDiscountList.put(promoItem[0].replaceAll("\\.00(?=%)", ""), Double.valueOf(promoItem[promoItem.length - 1].replaceAll("[^\\d-]", "")));
             });
         }
         return itemDiscountList;
@@ -486,7 +489,7 @@ public class POSPage extends POSElement {
             itemTotalDiscount.setValue(entry.getValue());
             itemTotalDiscountList.add(itemTotalDiscount);
         }
-        logger.info("itemTotalDiscountList: {}",itemTotalDiscountList);
+        logger.info("itemTotalDiscountList: {}", itemTotalDiscountList);
         return itemTotalDiscountList;
     }
 
@@ -511,41 +514,45 @@ public class POSPage extends POSElement {
             //Variation
             if (!commonAction.getElements(loc_lblVariationByProductIndex(i+1)).isEmpty()){
                 itemOrderInfo.setVariationName(commonAction.getText(loc_lblVariationByProductIndex(i+1)).replaceAll(" ",""));
-                System.out.println(itemOrderInfo.getVariationName());
-                itemOrderInfo.setQuantity(Integer.parseInt(commonAction.getValue(loc_txtProductQuantity(productName, itemOrderInfo.getVariationName(),conversionUnit))));
-            }else itemOrderInfo.setQuantity(Integer.parseInt(commonAction.getValue(loc_txtProductQuantity(productName,conversionUnit))));
+            }
+            itemOrderInfo.setQuantity(Integer.parseInt(commonAction.getValue(loc_txtProductQuantity(i+1))));
 
             if (!commonAction.getElements(loc_lblGift(productName)).isEmpty()) {
                 GsOrderBXGYDTO gsOrderBXGYDTO = new GsOrderBXGYDTO();
                 gsOrderBXGYDTO.setGiftType("BUY_X_GET_Y");
                 itemOrderInfo.setGsOrderBXGYDTO(gsOrderBXGYDTO);
             }
-            itemOrderInfo.setPrice(GetDataByRegex.getAmountByRegex(commonAction.getText(loc_lblSellingPriceForOne(i+1))));
+            if(commonAction.getElements(loc_lblSellingPriceForOne(i+1)).size()>0)
+                itemOrderInfo.setPrice(GetDataByRegex.getAmountByRegex(commonAction.getText(loc_lblSellingPriceForOne(i+1))));
+            else itemOrderInfo.setPrice(GetDataByRegex.getAmountByRegex(commonAction.getText(loc_lblSellingPriceAfterDiscountForOne(i+1))));
             itemOrderInfo.setPriceDiscount(GetDataByRegex.getAmountByRegex(commonAction.getText(loc_lblSellingPriceAfterDiscountForOne(i+1))));
             itemOrderInfo.setTotalAmount(GetDataByRegex.getAmountByRegex(commonAction.getText(loc_lblPriceTotalAfterDiscount(i+1))));
 
             //Set promotion info of each item
             commonAction.sleepInMiliSecond(1000);
-            commonAction.click(loc_ddlPromotion(i+1));
-            Map<String, Double> itemTotalDiscountMap = getPromotionDetailApply(loc_ddlPromotion(i+1), loc_tltPromotionApplyOnItem);
             List<ItemTotalDiscount> itemTotalDiscountList = new ArrayList<>();
-            for (Map.Entry<String, Double> entry : itemTotalDiscountMap.entrySet()) {
-                ItemTotalDiscount itemTotalDiscount = new ItemTotalDiscount();
-                itemTotalDiscount.setLabel(entry.getKey());
-                itemTotalDiscount.setValue(entry.getValue());
-                itemTotalDiscountList.add(itemTotalDiscount);
+            if(commonAction.getElements(loc_ddlPromotion(i+1)).size()>0) {
+                commonAction.click(loc_ddlPromotion(i+1));
+                Map<String, Double> itemTotalDiscountMap = getPromotionDetailApply(loc_ddlPromotion(i + 1), loc_tltPromotionApplyOnItem);
+                for (Map.Entry<String, Double> entry : itemTotalDiscountMap.entrySet()) {
+                    ItemTotalDiscount itemTotalDiscount = new ItemTotalDiscount();
+                    itemTotalDiscount.setLabel(entry.getKey());
+                    itemTotalDiscount.setValue(entry.getValue());
+                    itemTotalDiscountList.add(itemTotalDiscount);
+                }
             }
             itemOrderInfo.setItemTotalDiscounts(itemTotalDiscountList);
             itemDiscountList.add(itemOrderInfo);
         }
-        logger.info("itemDiscountList: {}", itemDiscountList);
+        logger.info("itemDiscountList: {}",itemDiscountList);
         return itemDiscountList;
     }
+
 
     public double getShippingFeeDiscount() {
         Map<String, Double> shippingDiscountMap = getPromotionDetailApply(loc_ddlShippingPromotion, loc_tltShippingPromotion);
         double discountAmount =  shippingDiscountMap.values().stream().mapToDouble(Double::doubleValue).sum();
-        logger.info("Shipping fee discount amount: {}", discountAmount);
+        logger.info("Shipping fee discount amount: {}",discountAmount);
         return discountAmount;
     }
 
@@ -573,19 +580,19 @@ public class POSPage extends POSElement {
 
     public ShippingInfo getShippingInfo() {
         ShippingInfo shippingInfo = new ShippingInfo();
-        List<WebElement> editDelivery = commonAction.getElements(loc_icnEditDelivery, 1);
-        if (!editDelivery.isEmpty()) {
+        if (isDeliveryOpted()) {
             commonAction.click(loc_icnEditDelivery);
             DeliveryDialog deliveryDialog = new DeliveryDialog(driver);
             shippingInfo.setContactName(deliveryDialog.getCustomerName());
             shippingInfo.setPhone(deliveryDialog.getCustomerPhone());
+            shippingInfo.setPhoneCode(deliveryDialog.getPhoneCode());
             shippingInfo.setEmail(deliveryDialog.getCustomerEmail());
             shippingInfo.setCountry(deliveryDialog.getCountry());
-            if (shippingInfo.getCountry().equals(Constant.VIETNAM)) {
+            if (shippingInfo.getCountry().equals("Vietnam")) {
                 shippingInfo.setFullAddress(deliveryDialog.getAddress() + ", " + deliveryDialog.getWard() + ", " + deliveryDialog.getDistrict()
-                        + ", " + deliveryDialog.getProvince() + ", " + deliveryDialog.getCountry());
+                        + ", " + deliveryDialog.getProvince() + ", " + Constant.VIETNAM);
                 shippingInfo.setFullAddressEn(deliveryDialog.getAddress() + ", " + deliveryDialog.getWard() + ", " + deliveryDialog.getDistrict()
-                        + ", " + deliveryDialog.getProvince() + ", " + deliveryDialog.getCountry());
+                        + ", " + deliveryDialog.getProvince() + ", " + Constant.VIETNAM);
             } else {
                 shippingInfo.setFullAddress(deliveryDialog.getAddress() + ", " + deliveryDialog.getAddress2() + ", " + deliveryDialog.getCity() + ", " + deliveryDialog.getProvince()
                         + ", " + deliveryDialog.getZipcode() + ", " + deliveryDialog.getCountry());
@@ -597,10 +604,11 @@ public class POSPage extends POSElement {
         logger.info("shippingInfo: {}", shippingInfo);
         return shippingInfo;
     }
-    public POSPaymentMethod getSelectedPaymentMethod(){
+
+    public POSPaymentMethod getSelectedPaymentMethod() {
         String paymentMethod = commonAction.getText(loc_lblSelectedPaymentMethod);
-        return (paymentMethod.equalsIgnoreCase("cash")||paymentMethod.equalsIgnoreCase("tiền mặt"))? POSPaymentMethod.CASH:
-                (paymentMethod.equalsIgnoreCase("bank transfer")||paymentMethod.equalsIgnoreCase("chuyển khoản"))? POSPaymentMethod.BANKTRANSFER: POSPaymentMethod.POS;
+        return (paymentMethod.equalsIgnoreCase("cash") || paymentMethod.equalsIgnoreCase("tiền mặt")) ? POSPaymentMethod.CASH :
+                (paymentMethod.equalsIgnoreCase("bank transfer") || paymentMethod.equalsIgnoreCase("chuyển khoản")) ? POSPaymentMethod.BANKTRANSFER : POSPaymentMethod.POS;
     }
 
     /**
@@ -610,9 +618,8 @@ public class POSPage extends POSElement {
      */
     public BillingInfo getBillingInfo(boolean isGuest, int customerId) {
         BillingInfo billingInfo = new BillingInfo();
-        List<WebElement> editDelivery = commonAction.getElements(loc_icnEditDelivery, 1);
 
-        if (!isGuest && editDelivery.isEmpty()) { //Account + no delivery : billing get from customer info
+        if (!isGuest && !isDeliveryOpted()) { //Account + no delivery : billing get from customer info
             CustomerInfoFull customerInfo = new APICustomerDetail(loginInformation).getFullInfo(customerId);
 
             billingInfo.setContactName(customerInfo.getFullName());
@@ -629,46 +636,52 @@ public class POSPage extends POSElement {
                 billingInfo.setFullAddressEn(customerInfo.getCustomerAddress().getAddress() + ", " + customerInfo.getCustomerAddress().getAddress2() + ", " + customerInfo.getCustomerAddress().getCity()
                         + ", " + customerInfo.getCustomerAddress().getCity() + ", " + customerInfo.getCustomerAddress().getZipCode() + ", " + customerInfo.getCustomerAddressFull().getCountry());
             }
-        } else if (!editDelivery.isEmpty()) { //Account or Guest + has delivery : billing get from delivery info
+        } else if (isDeliveryOpted()) { //Account or Guest + has delivery : billing get from delivery info
             commonAction.clickJS(loc_icnEditDelivery);
             DeliveryDialog deliveryDialog = new DeliveryDialog(driver);
             billingInfo.setContactName(deliveryDialog.getCustomerName());
             billingInfo.setPhone(deliveryDialog.getCustomerPhone());
             billingInfo.setEmail(deliveryDialog.getCustomerEmail());
             billingInfo.setCountry(deliveryDialog.getCountry());
-            if (billingInfo.getCountry().equals(Constant.VIETNAM)) {
+            if (billingInfo.getCountry().equals("Vietnam")) {
                 billingInfo.setFullAddress(deliveryDialog.getAddress() + ", " + deliveryDialog.getWard() + ", " + deliveryDialog.getDistrict()
-                        + ", " + deliveryDialog.getProvince() + ", " + deliveryDialog.getCountry());
+                        + ", " + deliveryDialog.getProvince() + ", " + Constant.VIETNAM);
                 billingInfo.setFullAddressEn(deliveryDialog.getAddress() + ", " + deliveryDialog.getWard() + ", " + deliveryDialog.getDistrict()
-                        + ", " + deliveryDialog.getProvince() + ", " + deliveryDialog.getCountry());
+                        + ", " + deliveryDialog.getProvince() + ", " + Constant.VIETNAM);
             } else {
                 billingInfo.setFullAddress(deliveryDialog.getAddress() + ", " + deliveryDialog.getCity() + ", " + deliveryDialog.getProvince()
                         + ", " + deliveryDialog.getZipcode() + ", " + deliveryDialog.getCountry());
                 billingInfo.setFullAddressEn(deliveryDialog.getAddress() + ", " + deliveryDialog.getCity() + ", " + deliveryDialog.getProvince()
                         + ", " + deliveryDialog.getZipcode() + ", " + deliveryDialog.getCountry());
             }
+
             new ConfirmationDialog(driver).clickCancelBtn();
         }
         logger.info("billingInfo: {}", billingInfo);
         return billingInfo;
     }
 
-    public CustomerOrderInfo getCustomerOderInfo() {
+    public CustomerOrderInfo getCustomerOderInfo(int customerId) {
         CustomerOrderInfo customerOrderInfo = new CustomerOrderInfo();
+        double currentDebt=0;
         if (!commonAction.getElements(loc_lblCustomerNameAndPhone, 1).isEmpty()) {
-            String customerNameAndPhone = commonAction.getText(loc_lblCustomerNameAndPhone);
-            String[] namePhoneSplit = customerNameAndPhone.split("-");
-            customerOrderInfo.setName(namePhoneSplit[0]);
-            if (namePhoneSplit.length > 1) customerOrderInfo.setPhone(namePhoneSplit[1]);
-            double currentDebt = Double.parseDouble(commonAction.getText(loc_lblDebt).replaceAll("[^\\d-]", ""));
-            double debtFromThisOrder;
-            if (!commonAction.getElements(loc_icnEditDelivery).isEmpty()) {
-                debtFromThisOrder = -getReceiveAmount();
-            } else debtFromThisOrder = getTotalAmount() - getReceiveAmount();
+            CustomerInfoFull customerDetail = new APICustomerDetail(loginInformation).getFullInfo(customerId);
+            customerOrderInfo.setName(customerDetail.getFullName());
+            Optional<String> mainPhoneNumber = customerDetail.getPhones().stream()
+                    .filter(phone -> "main".equalsIgnoreCase(phone.getPhoneType()))
+                    .map(CustomerPhone::getPhoneNumber)
+                    .findFirst();
+            if(mainPhoneNumber.isPresent()){
+                customerOrderInfo.setMainPhone(mainPhoneNumber.get());
+                customerOrderInfo.setPhone(customerDetail.getPhoneNumberWithPhoneCode());
+                customerOrderInfo.setPhoneWithoutPhoneCode(customerDetail.getPhone());
+                customerOrderInfo.setPhoneWithZero(customerDetail.getPhoneNumberWithZero());
+            }
             //debt format: -1111 or 1111
-            customerOrderInfo.setDebtAmount(currentDebt + debtFromThisOrder);
+            currentDebt = Double.parseDouble(commonAction.getText(loc_lblDebt).replaceAll("[^\\d-]", ""));
         }
-        logger.info("customerOrderInfo: {}", customerOrderInfo);
+        customerOrderInfo.setDebtAmount(currentDebt + getDebtAmount());
+        logger.info("customerOrderInfo: " + customerOrderInfo);
         return customerOrderInfo;
     }
 
@@ -679,41 +692,76 @@ public class POSPage extends POSElement {
     public OrderDetailInfo getOrderInfoBeforeCheckOut(int customerId) {
         OrderInfo orderInfo = new OrderInfo();
         orderInfo.setTotalTaxAmount(getTaxAmount());
-        orderInfo.setTotalPrice(getTotalAmount());
+        double totalAmount = getTotalAmount();
+        double receiveAmount = getReceiveAmount();
+        orderInfo.setTotalPrice(totalAmount);
         orderInfo.setSubTotal(getSubTotalValue());
         if(getShippingFee()>0) {
             orderInfo.setOriginalShippingFee(getShippingFee());
-            double shippingFee = getShippingFee() > getShippingFeeDiscount() ? getShippingFee() - getShippingFeeDiscount() : 0;
-            System.out.println("Shipping fee" + shippingFee);
             orderInfo.setShippingFee(getShippingFee() > getShippingFeeDiscount() ? getShippingFee() - getShippingFeeDiscount() : 0);
         }
 
         orderInfo.setTotalQuantity(getTotalQuantity());
-        orderInfo.setTotalAmount(getTotalAmount());
+        orderInfo.setTotalAmount(totalAmount);
         orderInfo.setTotalDiscount(getTotalDiscountAmount());
         orderInfo.setPaymentMethod(getSelectedPaymentMethod().toString());
-        orderInfo.setPaid(getReceiveAmount()==getTotalAmount());
+        orderInfo.setPaid(receiveAmount==totalAmount);
+        orderInfo.setUsePoint(getUsePoint());
+        orderInfo.setPayType(getPayType(receiveAmount,totalAmount).toString());
+        orderInfo.setStatus(getOrderStatusAfterCreated().toString());
+        orderInfo.setDebtAmount(getDebtAmount());
+        orderInfo.setReceivedAmount(receiveAmount);
 
         OrderDetailInfo orderDetailInfo = new OrderDetailInfo();
         orderDetailInfo.setOrderInfo(orderInfo);
         orderDetailInfo.setItems(getItemDiscountInfo());
         orderDetailInfo.setSummaryDiscounts(getTotalPromotionDetailApply());
-
         orderDetailInfo.setTotalSummaryDiscounts(-getTotalDiscountAmount());
-        CustomerOrderInfo customerOrderInfo = getCustomerOderInfo();
-        orderDetailInfo.setCustomerInfo(getCustomerOderInfo());
+        CustomerOrderInfo customerOrderInfo = getCustomerOderInfo(customerId);
         orderDetailInfo.setBillingInfo(getBillingInfo(customerOrderInfo.getName() == null, customerId));
         orderDetailInfo.setShippingInfo(getShippingInfo());
+        if(customerOrderInfo.getMainPhone()==null) {
+            customerOrderInfo.setMainPhone(orderDetailInfo.getShippingInfo().getPhone());
+            customerOrderInfo.setPhone(orderDetailInfo.getShippingInfo().getPhoneCode() + orderDetailInfo.getShippingInfo().getPhone().replaceFirst("^0", ""));
+        }
+        orderDetailInfo.setCustomerInfo(customerOrderInfo);
+
         orderDetailInfo.setEarningPoint(getEarnPoint());
         StoreBranch storeBranch  = new StoreBranch();
         storeBranch.setName(branchName);
         orderDetailInfo.setStoreBranch(storeBranch);
-        System.out.println(orderDetailInfo);
+        logger.info("orderDetailInfo: "+orderDetailInfo);
         return orderDetailInfo;
     }
-    public POSPage clickCompleteCheckout(){
+
+    public POSPage clickCompleteCheckout() {
         commonAction.click(loc_btnComplete);
         logger.info("Click on Complete button");
         return this;
+    }
+    public int getUsePoint(){
+        int usePoint = commonAction.getElements(loc_txtInputPoint).isEmpty()
+                ? 0 :Integer.parseInt(commonAction.getValue(loc_txtInputPoint));
+        logger.info("Use point: "+usePoint);
+        return usePoint;
+    }
+    public PaymentStatus getPayType(double receiveAmount, double totalAmount){
+        PaymentStatus paymentStatus = receiveAmount==totalAmount ? PaymentStatus.PAID
+                : receiveAmount == 0? PaymentStatus.UNPAID : PaymentStatus.PARTIAL;
+        logger.info("Payment status: "+paymentStatus);
+        return paymentStatus;
+    }
+    public APIAllOrders.OrderStatus getOrderStatusAfterCreated(){
+        if(isDeliveryOpted()) return APIAllOrders.OrderStatus.TO_SHIP;
+        return APIAllOrders.OrderStatus.DELIVERED;
+    }
+    public double getDebtAmount(){
+        if (isDeliveryOpted()) return -getReceiveAmount();
+        return getTotalAmount() - getReceiveAmount();
+    }
+    public boolean isDeliveryOpted() {
+        boolean isDisplayed = !commonAction.getElements(loc_icnEditDelivery).isEmpty();
+        logger.info("Is Edit Delivery icon present: {}",isDisplayed);
+        return isDisplayed;
     }
 }

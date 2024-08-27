@@ -10,4 +10,5 @@ public class ItemTotalDiscount {
     private String label;
     private int referenceId;
     private String name;
+    private Double maximumMembershipAmount;
 }

@@ -16,6 +16,7 @@ public class CustomerOrderInfo {
     private Avatar avatar;
     private String phoneWithoutPhoneCode;   // API not response this field. use it when phone show with difference format
     private String phoneWithZero;           // API not response this field. use it when phone show with difference format
+    private String mainPhone;
 }
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @Data
