@@ -2,26 +2,32 @@ package api.Seller.products.inventory;
 
 import api.Seller.login.Login;
 import api.Seller.orders.order_management.APIOrderDetail;
+import api.Seller.products.all_products.APIProductConversionUnit;
+import app.Buyer.account.myorders.orderdetail.OrderDetails;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import lombok.Data;
+import org.testng.Assert;
 import utilities.api.API;
+import utilities.assert_customize.AssertCustomize;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
-import utilities.model.dashboard.orders.orderdetail.ItemOrderInfo;
+import utilities.model.dashboard.orders.orderdetail.OrderDetailInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.IntStream;
+
+import static api.Seller.products.all_products.APIProductConversionUnit.ConversionUnitItem;
 
 public class APIInventoryV2 {
     API api = new API();
     LoginDashboardInfo loginInfo;
     LoginInformation loginInformation;
-    public APIInventoryV2 (LoginInformation loginInformation) {
+
+    public APIInventoryV2(LoginInformation loginInformation) {
         this.loginInformation = loginInformation;
-    	loginInfo = new Login().getInfo(loginInformation);
+        loginInfo = new Login().getInfo(loginInformation);
     }
 
     String getInventoryPath(int storeId, int pageIndex, String keyword, String branchId) {
@@ -37,7 +43,7 @@ public class APIInventoryV2 {
     }
 
     public List<ProductInventory> getProductInventory(String keyword, String branchId) {
-        return getInventoryResponse(0, keyword, branchId).jsonPath().getList(".",ProductInventory.class);
+        return getInventoryResponse(0, keyword, branchId).jsonPath().getList(".", ProductInventory.class);
     }
 
     public List<ProductInventory> getAllProductInventory() {
@@ -79,8 +85,14 @@ public class APIInventoryV2 {
         private boolean hasConversion;
     }
 
-    public void checkInventoryAfterOrder(int currentQuantity, long orderId) {
-        List<ItemOrderInfo> items = new APIOrderDetail(loginInformation).getOrderDetail(orderId).getItems();
-
+    public void checkInventoryAfterOrder(long orderId) {
+        OrderDetailInfo info = new APIOrderDetail(loginInformation).getOrderDetail(orderId);
+        Map<String, Long> map = new APIOrderDetail(loginInformation).getOrderItems(info);
+        System.out.println(map);
+        map.keySet().parallelStream().forEach(key -> {
+            long expectedQuantity = map.get(key);
+            long actualQuantity = getProductInventory(key, String.valueOf(info.getStoreBranch().getId())).get(0).getSoldItem();
+            new AssertCustomize().assertEquals(actualQuantity, expectedQuantity, "Sold out must be %d, but found %d".formatted(expectedQuantity, actualQuantity));
+        });
     }
 }

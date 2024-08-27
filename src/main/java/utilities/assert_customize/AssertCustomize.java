@@ -14,6 +14,9 @@ public class AssertCustomize {
     @Setter
     static int countFalse;
 
+    public AssertCustomize() {
+    }
+
     public AssertCustomize(WebDriver driver) {
         this.driver = driver;
     }
@@ -24,7 +27,7 @@ public class AssertCustomize {
         try {
             Assert.assertEquals(actual, expected, mess);
         } catch (AssertionError ex) {
-            new Screenshot().takeScreenshot(driver);
+            if (driver != null) new Screenshot().takeScreenshot(driver);
             countFalse += 1;
             logger.error(ex.toString().split("java.lang.AssertionError: ")[1].split(" expected ")[0]);
         }
@@ -34,7 +37,7 @@ public class AssertCustomize {
         try {
             Assert.assertNotEquals(actual, expected, mess);
         } catch (AssertionError ex) {
-            new Screenshot().takeScreenshot(driver);
+            if (driver != null) new Screenshot().takeScreenshot(driver);
             countFalse += 1;
             logger.error(ex.toString().split("java.lang.AssertionError: ")[1].split(" expected ")[0]);
         }
@@ -44,7 +47,7 @@ public class AssertCustomize {
         try {
             Assert.assertTrue(actual, mess);
         } catch (AssertionError ex) {
-            new Screenshot().takeScreenshot(driver);
+            if (driver != null) new Screenshot().takeScreenshot(driver);
             countFalse += 1;
             logger.error(ex.toString().split("java.lang.AssertionError: ")[1].split(" expected ")[0]);
         }
@@ -54,7 +57,7 @@ public class AssertCustomize {
         try {
             Assert.assertFalse(actual, mess);
         } catch (AssertionError ex) {
-            new Screenshot().takeScreenshot(driver);
+            if (driver != null) new Screenshot().takeScreenshot(driver);
             countFalse += 1;
             logger.error(ex.toString().split("java.lang.AssertionError: ")[1].split(" expected ")[0]);
         }

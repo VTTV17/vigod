@@ -1,13 +1,16 @@
 package api.Seller.products.inventory;
 
 import api.Seller.login.Login;
+import api.Seller.orders.order_management.APIOrderDetail;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import lombok.Data;
 import lombok.SneakyThrows;
 import utilities.api.API;
+import utilities.assert_customize.AssertCustomize;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
+import utilities.model.dashboard.orders.orderdetail.OrderDetailInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 
 import java.util.ArrayList;
@@ -75,5 +78,15 @@ public class APIInventoryHistoryV2 {
         private String operator;
         private String id;
         private boolean hasConversion;
+    }
+
+    public void checkInventoryAfterOrder(long orderId) {
+        OrderDetailInfo info = new APIOrderDetail(loginInformation).getOrderDetail(orderId);
+        Map<String, Long> map = new APIOrderDetail(loginInformation).getOrderItems(info);
+        map.keySet().parallelStream().forEach(key -> {
+            long expectedQuantity = map.get(key);
+            long actualQuantity = getInventoryHistory(key, String.valueOf(info.getStoreBranch().getId())).get(0).getStockChange();
+            new AssertCustomize().assertEquals(actualQuantity, -expectedQuantity, "Stock change must be %d, but found %d".formatted(expectedQuantity, actualQuantity));
+        });
     }
 }
