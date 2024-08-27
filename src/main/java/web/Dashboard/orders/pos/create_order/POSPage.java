@@ -250,7 +250,8 @@ public class POSPage extends POSElement {
 
         while (retries < maxRetries && !commonAction.getElements(loc_iconLoadingDeliveryProvider).isEmpty()) {
             logger.debug("Loading icon still appears. Retrying after {} ms", sleepDuration);
-            commonAction.sleepInMiliSecond(500);
+            commonAction.sleepInMiliSecond(sleepDuration);
+            retries++;
         }
         return new DeliveryDialog(driver);
     }
