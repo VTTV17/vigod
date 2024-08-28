@@ -22,9 +22,9 @@ public class ForgotPasswordPage {
     //Will move these locators to a separate file later
     By loc_txtUsername = By.id("phoneOrEmail"); 
     By loc_txtPassword = By.id("password");
-    By loc_btnContinue = By.cssSelector(".forgot-password-container .continue-button"); 
+    By loc_btnContinue = By.cssSelector(".forgot-password-container [type='submit']"); 
     By loc_txtVerificationCode = By.cssSelector("input#code"); 
-    By loc_btnConfirm = By.cssSelector(".reset-password-container .confirm-button"); 
+    By loc_btnConfirm = By.cssSelector(".reset-password-container [type='submit']"); 
     By loc_lnkResendOTP = By.cssSelector(".btn-resend");
     By loc_lblVerificationCodeError = By.cssSelector(".reset-password-container .invalid-feedback");
 

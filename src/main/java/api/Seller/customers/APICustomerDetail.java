@@ -102,6 +102,9 @@ public class APICustomerDetail {
     	Response response = api.get(basePath, token).then().statusCode(200).extract().response();
     	return response;
     }
+    public int getEarningPoint(int userId) {
+    	return getPoint(userId).jsonPath().getInt("findAll { it.'event' == 'EARN' }.value[0]");
+    }
     
     /**
      * Retrieve the orders belonging to a customer

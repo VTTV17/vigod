@@ -313,16 +313,17 @@ public class LoginDashboard extends BaseTest {
 		// Login
 		navigateToPage(Domain.valueOf(domain));
 		loginPage.performLogin(country, username, password);
+		homePage.verifyPageLoaded();
 
 		// Change password
-		homePage.navigateToPage("Settings");
-		new AccountPage(driver).navigate().changePassword(password, newPassword, newPassword);
+		new AccountPage(driver, Domain.valueOf(domain)).navigateByURL().changePassword(password, newPassword, newPassword);
 		homePage.getToastMessage();
 		new ConfirmationDialog(driver).clickOKBtn();
 
 		// Re-login
 		navigateToPage(Domain.valueOf(domain));
 		loginPage.performLogin(country, username, newPassword);
+		homePage.verifyPageLoaded();
 
 		// Change password back to the first password
 		String currentPassword = "";
@@ -362,7 +363,7 @@ public class LoginDashboard extends BaseTest {
 		forgotPasswordPage.inputVerificationCode(code).clickConfirmBtn();
 
 		// Logout
-		homePage.waitTillSpinnerDisappear1().clickLogout();
+		homePage.waitTillSpinnerDisappear1().waitTillLoadingDotsDisappear().clickLogout();
 
 		// Re-login with new password
 		navigateToPage(Domain.valueOf(domain));
