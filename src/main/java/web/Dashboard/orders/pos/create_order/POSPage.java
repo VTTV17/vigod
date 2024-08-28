@@ -1,6 +1,7 @@
 package web.Dashboard.orders.pos.create_order;
 
 import api.Seller.customers.APICustomerDetail;
+import api.Seller.login.Login;
 import api.Seller.marketing.LoyaltyPoint;
 import api.Seller.orders.order_management.APIAllOrders;
 import api.Seller.products.all_products.APIProductConversionUnit;
@@ -23,6 +24,7 @@ import utilities.enums.PaymentStatus;
 import utilities.enums.pos.ReceivedAmountType;
 import utilities.model.dashboard.customer.CustomerInfoFull;
 import utilities.model.dashboard.customer.CustomerPhone;
+import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.dashboard.marketing.loyaltyPoint.LoyaltyPointInfo;
 import utilities.model.dashboard.orders.orderdetail.*;
 import utilities.model.dashboard.setting.branchInformation.BranchInfo;
@@ -475,7 +477,7 @@ public class POSPage extends POSElement {
             promotionList.forEach(i -> {
                 logger.info("Promotion: {}", i.getText());
                 String[] promoItem = i.getText().split("\n");
-                itemDiscountList.put(promoItem[0].replaceAll("\\.00(?=%)", ""), Double.valueOf(promoItem[promoItem.length - 1].replaceAll("[^\\d-]", "")));
+                itemDiscountList.put(promoItem[0].replaceAll("\\.00(?=%)", ""), Double.valueOf(DataGenerator.extractDigits(promoItem[promoItem.length - 1])));
             });
         }
         return itemDiscountList;
@@ -678,7 +680,7 @@ public class POSPage extends POSElement {
                 customerOrderInfo.setPhoneWithZero(customerDetail.getPhoneNumberWithZero());
             }
             //debt format: -1111 or 1111
-            currentDebt = Double.parseDouble(commonAction.getText(loc_lblDebt).replaceAll("[^\\d-]", ""));
+            currentDebt = Double.parseDouble(DataGenerator.extractDigits(commonAction.getText(loc_lblDebt)));
         }
         customerOrderInfo.setDebtAmount(currentDebt + getDebtAmount());
         logger.info("customerOrderInfo: {}",customerOrderInfo);
@@ -711,6 +713,8 @@ public class POSPage extends POSElement {
         orderInfo.setStatus(getOrderStatusAfterCreated().toString());
         orderInfo.setDebtAmount(getDebtAmount());
         orderInfo.setReceivedAmount(receiveAmount);
+        orderInfo.setCreateDate(DataGenerator.getCurrentDate("yyyy-MM-dd"));
+        orderInfo.setCreatedBy(getCreatedBy());
 
         OrderDetailInfo orderDetailInfo = new OrderDetailInfo();
         orderDetailInfo.setOrderInfo(orderInfo);
@@ -763,5 +767,11 @@ public class POSPage extends POSElement {
         boolean isDisplayed = !commonAction.getElements(loc_icnEditDelivery).isEmpty();
         logger.info("Is Edit Delivery icon present: {}",isDisplayed);
         return isDisplayed;
+    }
+    public String getCreatedBy(){
+        LoginDashboardInfo loginInfo = new Login().getInfo(loginInformation);
+        if(loginInfo.getUserRole().contains("ROLE_STORE"))
+            return "[shop0wner]";
+        return loginInfo.getUserName();
     }
 }

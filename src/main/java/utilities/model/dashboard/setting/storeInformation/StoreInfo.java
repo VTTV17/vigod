@@ -12,4 +12,5 @@ public class StoreInfo {
     private List<String> storeLanguageList;
     private List<String> storeLanguageName;
     private List<String> sFLangList;
+    private String timeZone;
 }

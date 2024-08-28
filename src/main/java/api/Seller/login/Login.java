@@ -125,6 +125,9 @@ public class Login {
         // get assigned branch names
         info.setAssignedBranchesNames(branchInfo.getBranchName());
 
+        //get role
+        info.setUserRole(jPath.getList("authorities"));
+
         // return login dashboard info
         return info;
     }

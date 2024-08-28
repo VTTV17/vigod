@@ -55,6 +55,9 @@ public class StoreInformation {
         // set published language
         storeInfo.setSFLangList(IntStream.range(0, publishLangList.size()).filter(publishLangList::get).mapToObj(storeInfo.getStoreLanguageList()::get).toList());
 
+        // set timezone
+        storeInfo.setTimeZone(storeRes.jsonPath().getString("storeBranches[0].zoneOffset"));
+
         // return store information
         return storeInfo;
     }
