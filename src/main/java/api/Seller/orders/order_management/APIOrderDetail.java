@@ -187,7 +187,7 @@ public class APIOrderDetail {
                 itemTotalDiscount.setValue(j.getValue());
                 itemTotalDiscountList.add(itemTotalDiscount);
             });
-            if(itemTotalDiscountList.size()>0) itemTotalDiscountList.sort(Comparator.comparing(ItemTotalDiscount::getLabel));
+            if(!itemTotalDiscountList.isEmpty()) itemTotalDiscountList.sort(Comparator.comparing(ItemTotalDiscount::getLabel));
             itemOrderInfo.setItemTotalDiscounts(itemTotalDiscountList);
 
             itemOrderInfo.setQuantity(i.getQuantity());
