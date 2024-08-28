@@ -18,7 +18,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -482,5 +485,17 @@ public class DataGenerator {
 	 */
 	public static String extractDigits(String rawAmount) {
 		return rawAmount.replaceAll("[^\\d+\\.-]","");
-	}    
+	}
+    public static String getDateByTimeZone(String timeZone, String utcDate){
+        // Parse the text to a ZonedDateTime in UTC
+        ZonedDateTime utcDateTime = ZonedDateTime.parse(utcDate, DateTimeFormatter.ISO_DATE_TIME);
+
+        // Convert to timezone
+        ZonedDateTime utcPlusTimeZoneDateTime = utcDateTime.withZoneSameInstant(ZoneId.of(timeZone));
+
+        // Extract only the date part
+        LocalDate utcPlusTimeZoneDate = utcPlusTimeZoneDateTime.toLocalDate();
+
+        return utcPlusTimeZoneDate.toString();
+    }
 }

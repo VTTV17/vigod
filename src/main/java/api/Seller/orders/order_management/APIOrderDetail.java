@@ -3,12 +3,14 @@ package api.Seller.orders.order_management;
 import api.Seller.login.Login;
 import api.Seller.orders.order_management.APIAllOrderTags.OrderTags;
 import api.Seller.products.all_products.APIProductConversionUnit;
+import api.Seller.setting.StoreInformation;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.testng.Assert;
 import utilities.api.API;
+import utilities.data.DataGenerator;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.dashboard.orders.orderdetail.*;
 import utilities.model.sellerApp.login.LoginInformation;
@@ -150,6 +152,9 @@ public class APIOrderDetail {
         Assert.assertEquals(actualInfo.getOrderInfo().getStatus(), expectedInfo.getOrderInfo().getStatus());
         Assert.assertEquals(actualInfo.getOrderInfo().getDebtAmount(), expectedInfo.getOrderInfo().getDebtAmount());
         Assert.assertEquals(actualInfo.getOrderInfo().getReceivedAmount(), expectedInfo.getOrderInfo().getReceivedAmount());
+        Assert.assertEquals(DataGenerator.getDateByTimeZone(new StoreInformation(loginInformation).getInfo().getTimeZone(),actualInfo.getOrderInfo().getCreateDate())
+                ,expectedInfo.getOrderInfo().getCreateDate());
+        Assert.assertEquals(actualInfo.getOrderInfo().getCreatedBy(),expectedInfo.getOrderInfo().getCreatedBy());
 
         //Verify Discount Summary
         List<SummaryDiscount> actualSummaryDiscount = actualInfo.getSummaryDiscounts();
