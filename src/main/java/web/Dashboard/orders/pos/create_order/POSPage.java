@@ -621,22 +621,24 @@ public class POSPage extends POSElement {
     public BillingInfo getBillingInfo(boolean isGuest, int customerId) {
         BillingInfo billingInfo = new BillingInfo();
 
-        if (!isGuest && !isDeliveryOpted()) { //Account + no delivery : billing get from customer info
+        if (!isGuest && !isDeliveryOpted()) { //isCustomer (Account+Contact) + no delivery : billing get from customer info
             CustomerInfoFull customerInfo = new APICustomerDetail(loginInformation).getFullInfo(customerId);
-
             billingInfo.setContactName(customerInfo.getFullName());
-            billingInfo.setPhone(customerInfo.getPhone());
-
+            Optional<String> mainPhoneNumber = customerInfo.getPhones().stream()
+                    .filter(phone -> "main".equalsIgnoreCase(phone.getPhoneType()))
+                    .map(CustomerPhone::getPhoneNumber)
+                    .findFirst();
+            if(mainPhoneNumber.isPresent())billingInfo.setPhone(mainPhoneNumber.get());
+            billingInfo.setCountry(customerInfo.getCustomerAddressFull().getCountry());
+            billingInfo.setAddress1(customerInfo.getCustomerAddress().getAddress());
             if (billingInfo.getCountry().equals(Constant.VIETNAM)) {
-                billingInfo.setFullAddress(customerInfo.getCustomerAddress().getAddress() + ", " + customerInfo.getCustomerAddressFull().getWard() + ", " + customerInfo.getCustomerAddressFull().getDistrict()
+                billingInfo.setFullAddress( customerInfo.getCustomerAddressFull().getWard() + ", " + customerInfo.getCustomerAddressFull().getDistrict()
                         + ", " + customerInfo.getCustomerAddressFull().getCity() + ", " + customerInfo.getCustomerAddressFull().getCountry());
-                billingInfo.setFullAddressEn(customerInfo.getCustomerAddress().getAddress() + ", " + customerInfo.getCustomerAddressFull().getWard() + ", " + customerInfo.getCustomerAddressFull().getDistrict()
+                billingInfo.setFullAddressEn(customerInfo.getCustomerAddressFull().getWard() + ", " + customerInfo.getCustomerAddressFull().getDistrict()
                         + ", " + customerInfo.getCustomerAddressFull().getCity() + ", " + customerInfo.getCustomerAddressFull().getCountry());
             } else {
-                billingInfo.setFullAddress(customerInfo.getCustomerAddress().getAddress() + ", " + customerInfo.getCustomerAddress().getAddress2() + ", " + customerInfo.getCustomerAddress().getCity()
-                        + ", " + customerInfo.getCustomerAddress().getCity() + ", " + customerInfo.getCustomerAddress().getZipCode() + ", " + customerInfo.getCustomerAddressFull().getCountry());
-                billingInfo.setFullAddressEn(customerInfo.getCustomerAddress().getAddress() + ", " + customerInfo.getCustomerAddress().getAddress2() + ", " + customerInfo.getCustomerAddress().getCity()
-                        + ", " + customerInfo.getCustomerAddress().getCity() + ", " + customerInfo.getCustomerAddress().getZipCode() + ", " + customerInfo.getCustomerAddressFull().getCountry());
+                billingInfo.setFullAddress(customerInfo.getCustomerAddressFull().getCity() + ", " + customerInfo.getCustomerAddressFull().getCountry());
+                billingInfo.setFullAddressEn(customerInfo.getCustomerAddressFull().getCity() + ", " + customerInfo.getCustomerAddressFull().getCountry());
             }
         } else if (isDeliveryOpted()) { //Account or Guest + has delivery : billing get from delivery info
             commonAction.clickJS(loc_icnEditDelivery);
