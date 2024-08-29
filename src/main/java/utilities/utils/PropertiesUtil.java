@@ -109,6 +109,13 @@ public class PropertiesUtil {
                     throw new RuntimeException(e);
                 }
             }
+            case "PREPROD" -> {
+                try {
+                    value = getPropertyValue(initProperties(projectLocation + getDirectorySlash("src") + getDirectorySlash("main") + getDirectorySlash("resources") + getDirectorySlash("environment") + FILE_DATA_PREPROD), propertyName);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
             default -> Assert.fail("Environment not match: " + environment);
         }
         return value;

@@ -14,6 +14,7 @@ public class FileNameAndPath {
     public static final String FILE_DATA_CA = "ca.properties";
     public static final String FILE_DATA_PROD = "prod.properties";
     public static final String FILE_DATA_STAG = "stag.properties";
+    public static final String FILE_DATA_PREPROD = "preprod.properties";
     public static final String FILE_CREATE_SERVICE_TCS = "CreateService.xlsx";
     public static final String FILE_PERMISSION_PLAN_TCS = "PlanPermissionTcs.xlsx";
     public static final String FILE_PRODUCT_COLLECTION_TCS = "ProductCollection.xlsx";
