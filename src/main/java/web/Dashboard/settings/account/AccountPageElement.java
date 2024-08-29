@@ -18,9 +18,9 @@ public class AccountPageElement {
 	By loc_txtLastName = By.id("lastName");
 	By loc_txtEmail = By.id("email");
 	By loc_txtPhone = By.id("phoneNumber");
-	By loc_btnSaveAccountInfo = By.cssSelector(".account__information .setting_btn_save");
+	By loc_btnSaveAccountInfo = By.cssSelector(".account__information [type='submit']");
 	By loc_txtCurrentPassword = By.id("currentPassword");
 	By loc_txtNewPassword = By.id("newPassword");
 	By loc_txtConfirmPassword = By.id("confirmPassword");
-	By loc_btnSaveResetPassword = By.cssSelector(".reset-password__information .setting_btn_save");
+	By loc_btnSaveResetPassword = By.cssSelector(".reset-password__information [type='submit']");
 }

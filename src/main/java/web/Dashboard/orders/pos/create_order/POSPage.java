@@ -1,6 +1,7 @@
 package web.Dashboard.orders.pos.create_order;
 
 import api.Seller.customers.APICustomerDetail;
+import api.Seller.login.Login;
 import api.Seller.marketing.LoyaltyPoint;
 import api.Seller.orders.order_management.APIAllOrders;
 import api.Seller.products.all_products.APIProductConversionUnit;
@@ -23,6 +24,7 @@ import utilities.enums.PaymentStatus;
 import utilities.enums.pos.ReceivedAmountType;
 import utilities.model.dashboard.customer.CustomerInfoFull;
 import utilities.model.dashboard.customer.CustomerPhone;
+import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.dashboard.marketing.loyaltyPoint.LoyaltyPointInfo;
 import utilities.model.dashboard.orders.orderdetail.*;
 import utilities.model.dashboard.setting.branchInformation.BranchInfo;
@@ -250,7 +252,8 @@ public class POSPage extends POSElement {
 
         while (retries < maxRetries && !commonAction.getElements(loc_iconLoadingDeliveryProvider).isEmpty()) {
             logger.debug("Loading icon still appears. Retrying after {} ms", sleepDuration);
-            commonAction.sleepInMiliSecond(500);
+            commonAction.sleepInMiliSecond(sleepDuration);
+            retries++;
         }
         return new DeliveryDialog(driver);
     }
@@ -461,7 +464,7 @@ public class POSPage extends POSElement {
 
     /**
      * @param actionlocator  : locator that user hover or click on it.
-     * @param tooltipLocator
+     * @param tooltipLocator : tooltip content
      * @return List<ItemTotalDiscount> with fields: Name and Value
      */
     public Map<String, Double> getPromotionDetailApply(By actionlocator, By tooltipLocator) {
@@ -474,7 +477,7 @@ public class POSPage extends POSElement {
             promotionList.forEach(i -> {
                 logger.info("Promotion: {}", i.getText());
                 String[] promoItem = i.getText().split("\n");
-                itemDiscountList.put(promoItem[0].replaceAll("\\.00(?=%)", ""), Double.valueOf(promoItem[promoItem.length - 1].replaceAll("[^\\d-]", "")));
+                itemDiscountList.put(promoItem[0].replaceAll("\\.00(?=%)", ""), Double.valueOf(DataGenerator.extractDigits(promoItem[promoItem.length - 1])));
             });
         }
         return itemDiscountList;
@@ -503,7 +506,6 @@ public class POSPage extends POSElement {
         List<ItemOrderInfo> itemDiscountList = new ArrayList<>();
         List<WebElement> productList = commonAction.getElements(loc_lst_lblProductName, 1);
         for (int i = 0; i < productList.size(); i++) {
-            System.out.println("iiiiiiiiiiii: "+i);
             ItemOrderInfo itemOrderInfo = new ItemOrderInfo();
             String productName = productList.get(i).getText();
             itemOrderInfo.setName(productName);
@@ -522,7 +524,7 @@ public class POSPage extends POSElement {
                 gsOrderBXGYDTO.setGiftType("BUY_X_GET_Y");
                 itemOrderInfo.setGsOrderBXGYDTO(gsOrderBXGYDTO);
             }
-            if(commonAction.getElements(loc_lblSellingPriceForOne(i+1)).size()>0)
+            if(!commonAction.getElements(loc_lblSellingPriceForOne(i+1)).isEmpty())
                 itemOrderInfo.setPrice(GetDataByRegex.getAmountByRegex(commonAction.getText(loc_lblSellingPriceForOne(i+1))));
             else itemOrderInfo.setPrice(GetDataByRegex.getAmountByRegex(commonAction.getText(loc_lblSellingPriceAfterDiscountForOne(i+1))));
             itemOrderInfo.setPriceDiscount(GetDataByRegex.getAmountByRegex(commonAction.getText(loc_lblSellingPriceAfterDiscountForOne(i+1))));
@@ -531,7 +533,7 @@ public class POSPage extends POSElement {
             //Set promotion info of each item
             commonAction.sleepInMiliSecond(1000);
             List<ItemTotalDiscount> itemTotalDiscountList = new ArrayList<>();
-            if(commonAction.getElements(loc_ddlPromotion(i+1)).size()>0) {
+            if(!commonAction.getElements(loc_ddlPromotion(i+1)).isEmpty()) {
                 commonAction.click(loc_ddlPromotion(i+1));
                 Map<String, Double> itemTotalDiscountMap = getPromotionDetailApply(loc_ddlPromotion(i + 1), loc_tltPromotionApplyOnItem);
                 for (Map.Entry<String, Double> entry : itemTotalDiscountMap.entrySet()) {
@@ -566,7 +568,7 @@ public class POSPage extends POSElement {
         Long rateAmount = loyaltyPointInfo.getRateAmount();
 
         if ((double) rateAmount < getTotalAmount())
-            if (commonAction.getElements(loc_lblTotalEarningPoint).size() > 0) {
+            if (!commonAction.getElements(loc_lblTotalEarningPoint).isEmpty()) {
                 earningPoint.setValue((int) GetDataByRegex.getAmountByRegex(commonAction.getText(loc_lblTotalEarningPoint)));
             } else earningPoint.setValue(0);
         else earningPoint.setValue(0);
@@ -678,10 +680,10 @@ public class POSPage extends POSElement {
                 customerOrderInfo.setPhoneWithZero(customerDetail.getPhoneNumberWithZero());
             }
             //debt format: -1111 or 1111
-            currentDebt = Double.parseDouble(commonAction.getText(loc_lblDebt).replaceAll("[^\\d-]", ""));
+            currentDebt = Double.parseDouble(DataGenerator.extractDigits(commonAction.getText(loc_lblDebt)));
         }
         customerOrderInfo.setDebtAmount(currentDebt + getDebtAmount());
-        logger.info("customerOrderInfo: " + customerOrderInfo);
+        logger.info("customerOrderInfo: {}",customerOrderInfo);
         return customerOrderInfo;
     }
 
@@ -711,6 +713,8 @@ public class POSPage extends POSElement {
         orderInfo.setStatus(getOrderStatusAfterCreated().toString());
         orderInfo.setDebtAmount(getDebtAmount());
         orderInfo.setReceivedAmount(receiveAmount);
+        orderInfo.setCreateDate(DataGenerator.getCurrentDate("yyyy-MM-dd"));
+        orderInfo.setCreatedBy(getCreatedBy());
 
         OrderDetailInfo orderDetailInfo = new OrderDetailInfo();
         orderDetailInfo.setOrderInfo(orderInfo);
@@ -730,7 +734,7 @@ public class POSPage extends POSElement {
         StoreBranch storeBranch  = new StoreBranch();
         storeBranch.setName(branchName);
         orderDetailInfo.setStoreBranch(storeBranch);
-        logger.info("orderDetailInfo: "+orderDetailInfo);
+        logger.info("orderDetailInfo: {}",orderDetailInfo);
         return orderDetailInfo;
     }
 
@@ -742,13 +746,13 @@ public class POSPage extends POSElement {
     public int getUsePoint(){
         int usePoint = commonAction.getElements(loc_txtInputPoint).isEmpty()
                 ? 0 :Integer.parseInt(commonAction.getValue(loc_txtInputPoint));
-        logger.info("Use point: "+usePoint);
+        logger.info("Use point: {}",usePoint);
         return usePoint;
     }
     public PaymentStatus getPayType(double receiveAmount, double totalAmount){
         PaymentStatus paymentStatus = receiveAmount==totalAmount ? PaymentStatus.PAID
                 : receiveAmount == 0? PaymentStatus.UNPAID : PaymentStatus.PARTIAL;
-        logger.info("Payment status: "+paymentStatus);
+        logger.info("Payment status: {}",paymentStatus);
         return paymentStatus;
     }
     public APIAllOrders.OrderStatus getOrderStatusAfterCreated(){
@@ -763,5 +767,11 @@ public class POSPage extends POSElement {
         boolean isDisplayed = !commonAction.getElements(loc_icnEditDelivery).isEmpty();
         logger.info("Is Edit Delivery icon present: {}",isDisplayed);
         return isDisplayed;
+    }
+    public String getCreatedBy(){
+        LoginDashboardInfo loginInfo = new Login().getInfo(loginInformation);
+        if(loginInfo.getUserRole().contains("ROLE_STORE"))
+            return "[shop0wner]";
+        return loginInfo.getUserName();
     }
 }

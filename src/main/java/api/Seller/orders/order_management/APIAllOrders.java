@@ -427,11 +427,9 @@ public class APIAllOrders {
         if(orderDetailExpected.getCustomerInfo().getName()!=null){
             Assert.assertEquals(orderInManagement.getCustomerFullName(),orderDetailExpected.getCustomerInfo().getName());
             Assert.assertEquals(orderInManagement.getPhone(),orderDetailExpected.getCustomerInfo().getMainPhone());
-
         }else Assert.assertTrue(orderInManagement.getCustomerFullName().startsWith("guest"));
         //Verify Shipping Address, receive name and phone
         if(orderDetailExpected.getShippingInfo().getFullAddress()!=null){
-            System.out.println(language);
             if(language.equalsIgnoreCase("vi"))
                 Assert.assertEquals(orderInManagement.getFullShippingAddress(),orderDetailExpected.getShippingInfo().getFullAddress());
             else Assert.assertEquals(orderInManagement.getFullShippingAddressEn(),orderDetailExpected.getShippingInfo().getFullAddressEn());

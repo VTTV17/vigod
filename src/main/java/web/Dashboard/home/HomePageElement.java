@@ -21,7 +21,7 @@ public class HomePageElement {
     By loc_lblDeliveredOrders = By.xpath("(//div[@class='statistic-title'])[2]");
     By loc_lblToConfirmReservations = By.xpath("(//div[@class='statistic-title'])[3]");
     By loc_lblCompletedReservations = By.xpath("(//div[@class='statistic-title'])[4]");
-    By loc_lblWhatToDoNextTitle = By.xpath("//h3[@class='title']");
+    By loc_lblWhatToDoNextTitle = By.xpath("//div[@class='what-to-do-next']//h3[@class='title']");
     By loc_lblWhatToDoNextDescription = By.xpath("//span[@class='subTitle']");
     By loc_lblAddOrImportProduct = By.xpath("(//div[contains(@class,'uik-widget-title__wrapper')]//h3)[1]");
     By loc_lblCustomizeAppearance = By.xpath("(//div[contains(@class,'uik-widget-title__wrapper')]//h3)[2]");
