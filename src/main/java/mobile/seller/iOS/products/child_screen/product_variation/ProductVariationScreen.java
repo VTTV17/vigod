@@ -146,7 +146,7 @@ public class ProductVariationScreen extends ProductVariationElement {
 
             // Input product description
             String description = "[%s][%s] Variation description %s".formatted(defaultLanguage, variationValue, getCurrentEpoch());
-            new ProductDescriptionScreen(driver).inputDescription(description);
+            new ProductDescriptionScreen(driver).updateDescription(productInfo.getMainProductDescriptionMap().get(defaultLanguage),description);
 
             // Get variation description
             variationInfo.setDescription(description);

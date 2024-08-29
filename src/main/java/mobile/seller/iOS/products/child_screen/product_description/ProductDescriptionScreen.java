@@ -17,7 +17,18 @@ public class ProductDescriptionScreen extends ProductDescriptionElement {
 
     public void inputDescription(String description) {
         // Input product description
-        commonIOS.sendKeys(loc_txtContent, description);
+        commonIOS.sendKeys(loc_rtfDescription, description);
+
+        // Save changes
+        commonIOS.click(loc_btnSave);
+    }
+
+    public void updateDescription(String oldDescription, String newDescription) {
+        // Clear old description
+        commonIOS.getElement(loc_txtContent(oldDescription)).clear();
+
+        // Input product description
+        commonIOS.sendKeys(loc_rtfDescription, newDescription);
 
         // Save changes
         commonIOS.click(loc_btnSave);

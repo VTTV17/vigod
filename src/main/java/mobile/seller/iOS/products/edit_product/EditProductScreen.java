@@ -213,7 +213,7 @@ public class EditProductScreen extends EditProductElement {
 
         // Input product description
         String description = "[%s] Product description %s".formatted(defaultLanguage, getCurrentEpoch());
-        new ProductDescriptionScreen(driver).inputDescription(description);
+        new ProductDescriptionScreen(driver).updateDescription(productInfo.getMainProductDescriptionMap().get(defaultLanguage), description);
 
         // Get new product description
         Map<String, String> mainDescriptionMap = new HashMap<>(productInfo.getMainProductDescriptionMap());
