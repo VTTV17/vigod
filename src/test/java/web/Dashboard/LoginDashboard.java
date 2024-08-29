@@ -206,11 +206,11 @@ public class LoginDashboard extends BaseTest {
 		
 		// Email account
 		loginPage.performLogin(mailCountry, mailUsername, mailPassword);
-		homePage.clickLogout();
+		homePage.verifyPageLoaded().clickLogout();
 
 		// Phone account
 		loginPage.performLogin(phoneCountry, phoneUsername, phonePassword);
-		homePage.clickLogout();
+		homePage.verifyPageLoaded().clickLogout();
 	}
 
 //	@Test
