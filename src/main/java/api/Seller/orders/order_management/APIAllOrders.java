@@ -420,7 +420,7 @@ public class APIAllOrders {
     }
     public void verifyOrderInManagement(OrderDetailInfo orderDetailExpected, long orderId){
         OrderInManagement orderInManagement = getOrderInfoInManagement(getOrderListInfo(GOSELL),orderId);
-        // orderId, customerId, createDate, createBy, Staff, delivery method skip
+        // skip: orderId, customerId, updatedDate, Return status, Staff, delivery method, approved commission date
         //Order status
         Assert.assertEquals(orderInManagement.getStatus(),orderDetailExpected.getOrderInfo().getStatus());
         //customer name
@@ -471,6 +471,8 @@ public class APIAllOrders {
         Assert.assertEquals(orderInManagement.getPayType(),orderDetailExpected.getOrderInfo().getPayType());
         //debt
         Assert.assertEquals(orderInManagement.getDebtAmount(),orderDetailExpected.getOrderInfo().getDebtAmount());
+        //Created by
+        Assert.assertEquals(orderInManagement.getMadeBy(),orderDetailExpected.getOrderInfo().getCreatedBy());
 
     }
     public OrderListSummaryVM getOrderListSummary(Channel channel){

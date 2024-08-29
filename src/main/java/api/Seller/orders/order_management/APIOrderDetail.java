@@ -126,6 +126,7 @@ public class APIOrderDetail {
         if(expectedInfo.getBillingInfo().getContactName()!=null){
             Assert.assertEquals(actualInfo.getBillingInfo().getContactName(),expectedInfo.getBillingInfo().getContactName());
             Assert.assertEquals(actualInfo.getBillingInfo().getPhone(),expectedInfo.getBillingInfo().getPhone());
+            Assert.assertEquals(actualInfo.getBillingInfo().getAddress1(),expectedInfo.getBillingInfo().getAddress1());
             if(language.equalsIgnoreCase("vi"))
                 Assert.assertEquals(actualInfo.getBillingInfo().getFullAddress(),expectedInfo.getBillingInfo().getFullAddress());
             else Assert.assertEquals(actualInfo.getBillingInfo().getFullAddressEn(),expectedInfo.getBillingInfo().getFullAddressEn());
