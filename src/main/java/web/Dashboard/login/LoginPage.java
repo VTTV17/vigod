@@ -144,7 +144,6 @@ public class LoginPage {
     public LoginPage performLogin(String country, String username, String password) {
         selectCountry(country);
         performLogin(username, password);
-        waitTillDotSpinnerDisappear();
         new HomePage(driver).waitTillSpinnerDisappear1(); //Not sure if it's still needed as UI behavior has changed
         return this;
     }
