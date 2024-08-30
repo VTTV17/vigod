@@ -73,7 +73,7 @@ public class POSElement {
     By loc_dlgDiscount_txtDiscountAmountValue = By.cssSelector("[name='fixAmount']");
     By loc_dlgDiscount_tabDiscountPercentage = By.cssSelector(".box-promotion-title:nth-child(3)");
     By loc_dlgDiscount_txtDiscountPercentValue = By.cssSelector("[name='percentage']");
-    By loc_dlgDiscount_btnApply = By.cssSelector(".modal-content .color--gradient-blue");
+    By loc_dlgDiscount_btnApply = By.xpath("//div[contains(@class,'order-instore-purchase-discount-modal')]//div[@class='modal-content']//button[2]");
     By loc_dlgToast = By.cssSelector(".Toastify__toast--success");
     By loc_chkUsePointValue = By.cssSelector(".order-in-store-use-point .form-check-label");
     By loc_chkUsePointAction = By.cssSelector(".order-in-store-use-point .new-ui-checkbox-square");
