@@ -130,6 +130,7 @@
         <maven.compiler.target>22</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <headless>false</headless>
+        <browser>chrome</browser>
         <environment>STAG</environment>
         <suiteXmlFiles>test_config/web/run_all.xml</suiteXmlFiles>
         <udidAndroid>emulator-5554</udidAndroid>
@@ -150,6 +151,7 @@
                     </suiteXmlFiles>
                     <systemPropertyVariables>
                         <headless>${headless}</headless>
+                        <browser>${browser}</browser>
                         <environment>${environment}</environment>
                         <udidAndroid>${udidAndroid}</udidAndroid>
                         <appiumPort>${appiumPort}</appiumPort>
