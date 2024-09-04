@@ -50,6 +50,7 @@ public class VAT {
         List<String> taxName = taxResponse.jsonPath().getList("name");
         // set tax name
         info.setTaxName(taxName);
+        info.setTaxType(taxResponse.jsonPath().getList("taxType"));
         return info;
     }
 

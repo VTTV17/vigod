@@ -26,10 +26,9 @@ public class InitAndroidDriver {
         UiAutomator2Options options = new UiAutomator2Options();
         options.setUdid(udid);
         options.setCapability("platformName", "Android");
-        options.setCapability("appium:platformVersion", "12.0");
         options.setCapability("appium:automationName", "uiautomator2");
         options.setCapability("appium:autoGrantPermissions", "true");
-        options.setCapability("appium:appWaitActivity", "");
+        options.setCapability("appium:appWaitActivity", "*");
         options.setCapability("appium:resetOnSessionStartOnly", "true");
         options.setCapability("appium:appWaitForLaunch", "false");
         options.setCapability("appium:fastReset", "true");
@@ -48,7 +47,7 @@ public class InitAndroidDriver {
 
     @SneakyThrows
     public AndroidDriver getBuyerDriver(String udid, String goBuyerBundleId) {
-        AndroidDriver driver = getAndroidDriver(udid, System.getProperty("user.dir") + "/src/main/resources/app/" +  ANDROID_GoBUYER_APP);
+        AndroidDriver driver = getAndroidDriver(udid, System.getProperty("user.dir") + "/src/main/resources/app/" +  "GoBUYER_PREPROD.apk");
         new UICommonAndroid(driver).relaunchApp(goBuyerBundleId);
         return driver;
     }

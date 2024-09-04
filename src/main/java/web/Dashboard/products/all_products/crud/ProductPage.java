@@ -17,6 +17,7 @@ import utilities.assert_customize.AssertCustomize;
 import utilities.commons.UICommonAction;
 import utilities.data.DataGenerator;
 import utilities.model.dashboard.products.productInfomation.ProductInfo;
+import utilities.model.dashboard.setting.Tax.TaxInfo;
 import utilities.model.dashboard.setting.branchInformation.BranchInfo;
 import utilities.model.dashboard.setting.storeInformation.StoreInfo;
 import utilities.model.sellerApp.login.LoginInformation;
@@ -27,6 +28,7 @@ import web.Dashboard.home.HomePage;
 import web.Dashboard.products.all_products.crud.conversion_unit.ConversionUnitPage;
 import web.Dashboard.products.all_products.crud.variation_detail.VariationDetailPage;
 import web.Dashboard.products.all_products.crud.wholesale_price.WholesaleProductPage;
+import web.Dashboard.settings.vat.VATInformation;
 
 import java.time.Instant;
 import java.util.*;
@@ -413,7 +415,8 @@ public class ProductPage extends ProductPageElement {
         logger.info("Open VAT dropdown.");
 
         // get VAT name
-        List<String> vatList = new VAT(loginInformation).getInfo().getTaxName();
+        TaxInfo info = new VAT(loginInformation).getInfo();
+        List<String> vatList = new ArrayList<>(info.getTaxName().stream().filter(vatName -> info.getTaxType().get(info.getTaxName().indexOf(vatName)).equals("SELL")).toList());
         if (vatList.size() > 1) {
             if ((productInfo != null)) vatList.remove(productInfo.getTaxName());
             String vatName = vatList.get(nextInt(vatList.size()));

@@ -67,6 +67,12 @@ public class ProductDetailTest extends BaseTest {
         new NavigationBar(driver).tapOnAccountIcon().changeLanguage(language);
     }
 
+    @AfterMethod
+    void teardown() {
+        // Relaunch
+        commonAndroid.relaunchApp(goBUYERBundleId);
+    }
+
     @BeforeGroups(groups = "[ANDROID - PRODUCT DETAIL] Normal product - Without variation")
     void preCondition_G1() {
         // create product for test
@@ -1015,12 +1021,6 @@ public class ProductDetailTest extends BaseTest {
 
         productDetailScreen
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
-    }
-
-    @AfterMethod
-    void teardown() {
-        // Relaunch
-        commonAndroid.relaunchApp(goBUYERBundleId);
     }
 
     void waitFlashSaleStart() {
