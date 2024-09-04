@@ -29,8 +29,8 @@ public class BaseTest {
     @BeforeSuite
     @Parameters({"browser", "headless", "environment", "language", "domain"})
     public void getConfig(@Optional("chrome") String browser,
-                          @Optional("false") String headless,
-                          @Optional("STAG") String environment,
+                          @Optional("true") String headless,
+                          @Optional("PRE-PRO") String environment,
                           @Optional("ENG") String language,
                           @Optional("VN") String domain ) { // either VN or BIZ
         this.browser = browser;

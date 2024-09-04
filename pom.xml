@@ -123,19 +123,14 @@
             <artifactId>generex</artifactId>
             <version>1.0.2</version>
         </dependency>
-
-        <!-- https://mvnrepository.com/artifact/org.testng/reportng -->
-        <dependency>
-            <groupId>org.testng</groupId>
-            <artifactId>reportng</artifactId>
-            <version>1.2.2</version>
-        </dependency>
     </dependencies>
 
     <properties>
         <maven.compiler.source>22</maven.compiler.source>
         <maven.compiler.target>22</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <headless>false</headless>
+        <environment>STAG</environment>
         <suiteXmlFiles>test_config/web/run_all.xml</suiteXmlFiles>
         <udidAndroid>emulator-5554</udidAndroid>
         <udidIOS>DFA832D0-43A1-4CBE-89CA-29F2617DAF2B</udidIOS>
@@ -154,6 +149,8 @@
                         <suiteXmlFile>${suiteFile}</suiteXmlFile>
                     </suiteXmlFiles>
                     <systemPropertyVariables>
+                        <headless>${headless}</headless>
+                        <environment>${environment}</environment>
                         <udidAndroid>${udidAndroid}</udidAndroid>
                         <appiumPort>${appiumPort}</appiumPort>
                         <udidIOS>${udidIOS}</udidIOS>
