@@ -1,6 +1,5 @@
 package mobile.seller.android.login;
 
-import io.appium.java_client.AppiumBy;
 import lombok.Getter;
 import mobile.seller.android.home.HomeScreen;
 import org.apache.logging.log4j.LogManager;
@@ -182,7 +181,8 @@ public class LoginScreen {
         commonMobile.waitUntilScreenLoaded(goSELLERHomeActivity);
 
         // Save password into Google Password Manager
-        commonMobile.click(By.xpath("//android.widget.Button[@resource-id=\"android:id/autofill_save_yes\"]"));
+        By acceptSavePassword = By.xpath("//android.widget.Button[@resource-id=\"android:id/autofill_save_yes\"]");
+        if (!commonMobile.getListElement(acceptSavePassword).isEmpty()) commonMobile.click(acceptSavePassword);
     }
 
     public HomeScreen performLogin(String countryCode, String userName, String password) {

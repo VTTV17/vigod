@@ -544,6 +544,9 @@ public class EditProductScreen extends EditProductElement {
         // Wait product management screen loaded
         commonMobile.waitUntilScreenLoaded(goSELLERProductManagementActivity);
 
+        // Log
+        logger.info("Product update successfully");
+
         // If product are updated, check information after updating
         // Get current product information
         ProductInfo currentInfo = apiProductDetail.getInfo(productInfo.getProductId());

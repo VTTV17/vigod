@@ -16,6 +16,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
+import org.testng.Assert;
 import utilities.assert_customize.AssertCustomize;
 import utilities.commons.UICommonAndroid;
 import utilities.data.DataGenerator;
@@ -505,9 +506,15 @@ public class CreateProductScreen extends CreateProductElement {
         // Wait product management screen loaded
         commonAndroid.waitUntilScreenLoaded(goSELLERProductManagementActivity);
 
+        // Log
+        logger.info("Product create successfully");
+
         // If product are updated, check information after updating
         // Get product ID
         int productId = new APIAllProducts(LoginScreen.getLoginInformation()).searchProductIdByName(productInfo.getMainProductNameMap().get(defaultLanguage));
+
+        // Validate after create
+        if (productId == 0) Assert.fail("Can not find product after created");
 
         // Get current product information
         ProductInfo currentInfo = new APIProductDetail(LoginScreen.getLoginInformation()).getInfo(productId);

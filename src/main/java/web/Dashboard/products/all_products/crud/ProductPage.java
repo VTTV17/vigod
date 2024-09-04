@@ -566,7 +566,7 @@ public class ProductPage extends ProductPageElement {
         }
 
         if (hasAttribution) {
-            int numOfAttribute = 10;//nextInt(10);
+            int numOfAttribute = nextInt(10);
             // add attribution
             IntStream.range(0, numOfAttribute)
                     .forEachOrdered(index -> commonAction.clickJS(loc_btnAddAttribution));

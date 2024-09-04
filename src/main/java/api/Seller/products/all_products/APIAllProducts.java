@@ -351,13 +351,11 @@ public class APIAllProducts {
 
     public int searchProductIdByName(String name) {
         ProductManagementInfo info = getAllProductInformation();
-        if (!info.getProductIds().isEmpty()) {
-            for (int index = 0; index < info.getProductNames().size(); index++) {
-                if (info.getProductNames().get(index).equals(name)) {
-                    return info.getProductIds().get(index);
-                }
+
+        for (int index = 0; index < info.getProductNames().size(); index++) {
+            if (info.getProductNames().get(index).equals(name)) {
+                return info.getProductIds().get(index);
             }
-            return searchProductIdByName(name);
         }
         return 0;
     }
