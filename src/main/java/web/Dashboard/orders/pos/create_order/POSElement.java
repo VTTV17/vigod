@@ -6,7 +6,7 @@ public class POSElement {
     By loc_ddvSelectedBranch = By.cssSelector("div[class='uik-select__wrapper pos-selector'] div[class='uik-select__valueWrapper']");
 
     By loc_lstBranches(String branchName) {
-        return By.xpath("(//div[text() = '%s'])[last()]".formatted(branchName));
+        return By.xpath("(//div[text() = \"%s\"])[last()]".formatted(branchName));
     }
 
     By loc_dlgConfirmSwitchBranch = By.cssSelector(".confirm-modal");
@@ -15,40 +15,40 @@ public class POSElement {
     By loc_txtProductSearchBox = By.cssSelector("#dropdownSuggestionProduct input");
 
     By loc_lstProductResult(String productBarcode) {
-        return By.xpath("//code[text() = '%s']".formatted(productBarcode));
+        return By.xpath("//code[text() = \"%s\"]".formatted(productBarcode));
     }
 
     By loc_txtCustomerSearchBox = By.cssSelector("#dropdownSuggestionCustomer input");
 
     By loc_lstCustomerResult(int customerId) {
-        return By.xpath("//*[@class = 'mobile-customer-profile-row__right' and contains(., '%s')]".formatted(customerId));
+        return By.xpath("//*[@class = 'mobile-customer-profile-row__right' and contains(., \"%s\")]".formatted(customerId));
     }
     By loc_lstCustomerResult(String name) {
     	return By.xpath("//*[contains(@class,'search-list__result')]//div[@class='full-name' and .=\"%s\"]".formatted(name));
     }
 
     By loc_txtProductQuantity(String productName, String unitName) {
-        return By.xpath("//tr[td//div[text() ='%s'] and td//div[text()='%s']]//input".formatted(productName, unitName));
+        return By.xpath("//tr[td//div[text() =\"%s\"] and td//div[text()=\"%s\"]]//input".formatted(productName, unitName));
     }
 
     By loc_txtProductQuantity(String productName, String variationValue, String unitName) {
-        return By.xpath("//tr[td//div[text() ='%s'] and //td//span[text() ='%s'] and td//div[text()='%s']]//input".formatted(productName, variationValue, unitName));
+        return By.xpath("//tr[td//div[text() =\"%s\"] and //td//span[text() =\"%s\"] and td//div[text()=\"%s\"]]//input".formatted(productName, variationValue, unitName));
     }
 
     By loc_btnSelectIMEI(String productName, String unitName) {
-        return By.xpath("//tr[td//div[text() ='%s'] and td//div[text()='%s']]//*[@class='select-IMEI errorIMEI']".formatted(productName, unitName));
+        return By.xpath("//tr[td//div[text() =\"%s\"] and td//div[text()=\"%s\"]]//*[@class='select-IMEI errorIMEI']".formatted(productName, unitName));
     }
 
     By loc_btnSelectIMEI(String productName, String variationValue, String unitName) {
-        return By.xpath("//tr[td//div[text() ='%s'] and td//span[text() ='%s'] and td//div[text()='%s']]//*[@class='select-IMEI errorIMEI']".formatted(productName, variationValue, unitName));
+        return By.xpath("//tr[td//div[text() =\"%\"] and td//span[text() =\"%s\"] and td//div[text()=\"%s\"]]//*[@class='select-IMEI errorIMEI']".formatted(productName, variationValue, unitName));
     }
 
     By loc_btnSelectLot(String productName, String unitName) {
-        return By.xpath("//tr[td//div[text() ='%s'] and td//div[text()='%s']]//following-sibling::tr[1]//img".formatted(productName, unitName));
+        return By.xpath("//tr[td//div[text() =\"%s\"] and td//div[text()=\"%s\"]]//following-sibling::tr[1]//img".formatted(productName, unitName));
     }
 
     By loc_btnSelectLot(String productName, String variationValue, String unitName) {
-        return By.xpath("//tr[td//div[text() ='%s'] and td//span[text() ='%s'] and td//div[text()='%s']]//following-sibling::tr[1]//img".formatted(productName, variationValue, unitName));
+        return By.xpath("//tr[td//div[text() =\"%s\"] and td//span[text() =\"%s\"] and td//div[text()=\"%s\"]]//following-sibling::tr[1]//img".formatted(productName, variationValue, unitName));
     }
 
     By loc_dlgSelectIMEI_lstIMEI = By.cssSelector(".content:not(.selected)");
@@ -73,7 +73,7 @@ public class POSElement {
     By loc_dlgDiscount_txtDiscountAmountValue = By.cssSelector("[name='fixAmount']");
     By loc_dlgDiscount_tabDiscountPercentage = By.cssSelector(".box-promotion-title:nth-child(3)");
     By loc_dlgDiscount_txtDiscountPercentValue = By.cssSelector("[name='percentage']");
-    By loc_dlgDiscount_btnApply = By.cssSelector(".modal-content .color--gradient-blue");
+    By loc_dlgDiscount_btnApply = By.xpath("//div[contains(@class,'order-instore-purchase-discount-modal')]//div[@class='modal-content']//button[2]");
     By loc_dlgToast = By.cssSelector(".Toastify__toast--success");
     By loc_chkUsePointValue = By.cssSelector(".order-in-store-use-point .form-check-label");
     By loc_chkUsePointAction = By.cssSelector(".order-in-store-use-point .new-ui-checkbox-square");
@@ -88,7 +88,7 @@ public class POSElement {
     By loc_lblSubTotalValue = By.cssSelector(".order-in-store-purchase-content__subTotal .align-self-baseline");
     By loc_lst_lblProductName = By.cssSelector(".order-in-store-purchase-cart-product-list__product-name");
     By loc_lblVariationName (String productName){
-        return By.xpath("//div[contains(@class,'product-list')]//div[text() = '%s']//following-sibling::span".formatted(productName));
+        return By.xpath("//div[contains(@class,'product-list')]//div[text() = \"%s\"]//following-sibling::span".formatted(productName));
     }
     By loc_lblSellingPriceForOne(int index){
         return By.xpath("((//div[@class='order-in-store-purchase-cart-product-list__product-name'])[%s]//ancestor::tr//div[@class = 'selling-price'])[1]".formatted(index));
@@ -97,13 +97,13 @@ public class POSElement {
         return By.xpath("(//div[@class='order-in-store-purchase-cart-product-list__product-name'])[%s]//ancestor::tr//div[@class = 'price']".formatted(index));
     }
     By loc_lblSellingPriceTotal(String productName){
-        return By.xpath("(//div[contains(@class,'product-list')]//div[text() = '%s']//ancestor::tr//div[@class = 'selling-price'])[2]".formatted(productName));
+        return By.xpath("(//div[contains(@class,'product-list')]//div[text() = \"%s\"]//ancestor::tr//div[@class = 'selling-price'])[2]".formatted(productName));
     }
     By loc_lblPriceTotalAfterDiscount(int index){
         return By.xpath("(//div[@class='order-in-store-purchase-cart-product-list__product-name'])[%s]//ancestor::tr//div[@class='total-price']".formatted(index));
     }
     By loc_lblGift(String productName){
-        return By.xpath("//div[contains(@class,'product-list')]//div[text() = '%s']//preceding-sibling::div[@class='text-gift']".formatted(productName));
+        return By.xpath("//div[contains(@class,'product-list')]//div[text() = \"%s\"]//preceding-sibling::div[@class='text-gift']".formatted(productName));
     }
     By loc_ddlPromotion(int index){
         return By.xpath("(//div[@class='order-in-store-purchase-cart-product-list__product-name'])[%s]//ancestor::tr//span[@class='group-promotion-item']".formatted(index));

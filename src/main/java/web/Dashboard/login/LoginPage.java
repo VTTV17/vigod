@@ -59,6 +59,8 @@ public class LoginPage {
     By loc_tabStaff = By.cssSelector("span.login-widget__tab:nth-child(2)");
     By loc_dlgWarning = By.cssSelector("div.modal-content");
     By loc_lnkForgotPassword = new ByChained(loc_frmLogin, By.cssSelector(".login-widget__forgotPassword"));
+    
+    By loc_icnDotSpinner = new ByChained(loc_btnLogin, By.xpath(".//i[contains(@class,'fa-spinner')]"));
 
     public LoginPage navigateBiz() {
     	driver.get(DOMAIN_BIZ + LOGIN_PATH);
@@ -119,6 +121,12 @@ public class LoginPage {
         return this;
     }
 
+    public LoginPage waitTillDotSpinnerDisappear() {
+    	commonAction.waitInvisibilityOfElementLocated(loc_icnDotSpinner);
+    	logger.info("Dot spinner disappeared");
+    	return this;
+    }
+    
     public ForgotPasswordPage clickForgotPassword() {
         commonAction.click(loc_lnkForgotPassword);
         logger.info("Clicked on Forgot Password linktext.");
@@ -129,13 +137,14 @@ public class LoginPage {
         inputEmailOrPhoneNumber(username);
         inputPassword(password);
         clickLoginBtn();
+        waitTillDotSpinnerDisappear();
         return this;
     }
 
     public LoginPage performLogin(String country, String username, String password) {
         selectCountry(country);
         performLogin(username, password);
-        new HomePage(driver).waitTillSpinnerDisappear1();
+        new HomePage(driver).waitTillSpinnerDisappear1(); //Not sure if it's still needed as UI behavior has changed
         return this;
     }
 

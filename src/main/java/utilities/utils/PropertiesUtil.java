@@ -109,9 +109,9 @@ public class PropertiesUtil {
                     throw new RuntimeException(e);
                 }
             }
-            case "PRE-PRO" -> {
+            case "PREPROD" -> {
                 try {
-                    value = getPropertyValue(initProperties(projectLocation + getDirectorySlash("src") + getDirectorySlash("main") + getDirectorySlash("resources") + getDirectorySlash("environment") + FILE_DATA_PRE_PRO), propertyName);
+                    value = getPropertyValue(initProperties(projectLocation + getDirectorySlash("src") + getDirectorySlash("main") + getDirectorySlash("resources") + getDirectorySlash("environment") + FILE_DATA_PREPROD), propertyName);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }

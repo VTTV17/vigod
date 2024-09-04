@@ -103,7 +103,11 @@ public class APICustomerDetail {
     	return response;
     }
     public int getEarningPoint(int userId) {
-    	return getPoint(userId).jsonPath().getInt("findAll { it.'event' == 'EARN' }.value[0]");
+    	Object earningPoint = getPoint(userId).jsonPath().get("findAll { it.'event' == 'EARN' }.value[0]");
+    	
+    	if (earningPoint ==null) return 0;
+    	
+    	return (int)earningPoint;
     }
     
     /**
