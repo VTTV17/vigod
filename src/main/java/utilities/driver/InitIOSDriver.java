@@ -7,6 +7,8 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import static utilities.account.AccountTest.IOS_GoBUYER_APP;
+import static utilities.account.AccountTest.IOS_GoSELLER_APP;
 import static utilities.environment.goSELLEREnvironment.goSELLERBundleId;
 
 public class InitIOSDriver {
@@ -28,7 +30,7 @@ public class InitIOSDriver {
     public IOSDriver getSellerDriver(String udid) {
         try {
             // Init driver
-            IOSDriver driver = getIOSDriver(udid, System.getProperty("user.dir") + "/src/main/resources/app/GoSELLER_STAG.zip");
+            IOSDriver driver = getIOSDriver(udid, System.getProperty("user.dir") + "/src/main/resources/app/" + IOS_GoSELLER_APP);
 
             // Open GoSeller app
             driver.terminateApp(goSELLERBundleId);
@@ -44,7 +46,7 @@ public class InitIOSDriver {
     public IOSDriver getBuyerDriver(String udid, String goBuyerBundleId) {
         try {
             // Init driver
-            IOSDriver driver = getIOSDriver(udid, System.getProperty("user.dir") + "/src/main/resources/app/GoBUYER_STAG.zip");
+            IOSDriver driver = getIOSDriver(udid, System.getProperty("user.dir") + "/src/main/resources/app/" + IOS_GoBUYER_APP);
 
             // Open GoSeller app
             driver.terminateApp(goBuyerBundleId);

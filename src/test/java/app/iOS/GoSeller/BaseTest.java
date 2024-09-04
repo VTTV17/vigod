@@ -14,7 +14,7 @@ public class BaseTest {
 
     @BeforeSuite
     @Parameters({"environment", "language"})
-    public void getConfig(@Optional("STAG") String environment,
+    public void getConfig(@Optional("PREPROD") String environment,
                           @Optional("VIE") String language) {
         this.language = language;
         // set environment, language for Properties

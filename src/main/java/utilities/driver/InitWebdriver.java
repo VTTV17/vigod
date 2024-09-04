@@ -61,6 +61,7 @@ public class InitWebdriver {
                     if (headless) driver.manage().window().setSize(new Dimension(1920, 1080));
                 }
             }
+            driver.manage().window().maximize();
         }
         return driver;
     }

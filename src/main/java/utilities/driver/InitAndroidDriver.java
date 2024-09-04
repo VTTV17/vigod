@@ -13,6 +13,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 
+import static utilities.account.AccountTest.ANDROID_GoBUYER_APP;
+import static utilities.account.AccountTest.ANDROID_GoSELLER_APP;
 import static utilities.environment.goSELLEREnvironment.goSELLERBundleId;
 
 
@@ -39,14 +41,14 @@ public class InitAndroidDriver {
 
 
     public AndroidDriver getSellerDriver(String udid) throws MalformedURLException, URISyntaxException {
-        AndroidDriver driver = getAndroidDriver(udid, System.getProperty("user.dir") + "/src/main/resources/app/GoSELLER_STAG.apk");
+        AndroidDriver driver = getAndroidDriver(udid, System.getProperty("user.dir") + "/src/main/resources/app/" + ANDROID_GoSELLER_APP);
         new UICommonAndroid(driver).relaunchApp(goSELLERBundleId);
         return driver;
     }
 
     @SneakyThrows
     public AndroidDriver getBuyerDriver(String udid, String goBuyerBundleId) {
-        AndroidDriver driver = getAndroidDriver(udid, System.getProperty("user.dir") + "/src/main/resources/app/GoBUYER_STAG.apk");
+        AndroidDriver driver = getAndroidDriver(udid, System.getProperty("user.dir") + "/src/main/resources/app/" +  ANDROID_GoBUYER_APP);
         new UICommonAndroid(driver).relaunchApp(goBuyerBundleId);
         return driver;
     }
