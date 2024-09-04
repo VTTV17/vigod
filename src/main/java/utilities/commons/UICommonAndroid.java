@@ -106,7 +106,7 @@ public class UICommonAndroid {
             closeNotificationScreen();
 
             // Find again
-            return driver.findElement(locator);
+            return wait.until(ExpectedConditions.presenceOfElementLocated(locator));
         }
     }
 
