@@ -12,6 +12,7 @@ public class FileNameAndPath {
     public static final String FILE_DASHBOARD_VI_TEXT = "dashboard_vi.properties";
     public static final String FILE_STOREFRONT_VI_TEXT = "storefront_vi.properties";
     public static final String FILE_DATA_CA = "ca.properties";
+    public static final String FILE_DATA_PRE_PRO = "pre-pro.properties";
     public static final String FILE_DATA_PROD = "prod.properties";
     public static final String FILE_DATA_STAG = "stag.properties";
     public static final String FILE_CREATE_SERVICE_TCS = "CreateService.xlsx";

@@ -45,12 +45,12 @@ public class BaseTest {
 
     @BeforeMethod
     void startTest(Method method) {
-        SeleniumRecording.startRecord(driver, method);
+//        SeleniumRecording.startRecord(driver, method);
     }
 
     @AfterMethod
     public void writeResult(ITestResult result) throws Exception {
-        SeleniumRecording.stopRecord(result);
+//        SeleniumRecording.stopRecord(result);
         AssertCustomize.setCountFalse(0);
     }
 
