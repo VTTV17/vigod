@@ -30,13 +30,14 @@ public class BaseTest {
     @Parameters({"browser", "headless", "environment", "language", "domain"})
     public void getConfig(@Optional("chrome") String browser,
                           @Optional("true") String headless,
-                          @Optional("STAG") String environment,
-                          @Optional("ENG") String language,
+                          @Optional("CA") String environment,
+                          @Optional("VIEEE") String language,
                           @Optional("VN") String domain ) { // either VN or BIZ
         this.browser = browser;
         this.headless = headless;
         this.language = language;
         this.domain = domain;
+        System.out.println(language);
         // set environment, language for Properties
         PropertiesUtil.setEnvironment(environment);
         PropertiesUtil.setDBLanguage(language);
@@ -45,12 +46,12 @@ public class BaseTest {
 
     @BeforeMethod
     void startTest(Method method) {
-        SeleniumRecording.startRecord(driver, method);
+//        SeleniumRecording.startRecord(driver, method);
     }
 
     @AfterMethod
     public void writeResult(ITestResult result) throws Exception {
-        SeleniumRecording.stopRecord(result);
+//        SeleniumRecording.stopRecord(result);
         AssertCustomize.setCountFalse(0);
     }
 
@@ -68,6 +69,6 @@ public class BaseTest {
 
     @AfterSuite
     void tearDownWeb() {
-        if (driver != null) driver.quit();
+//        if (driver != null) driver.quit();
     }
 }

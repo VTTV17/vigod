@@ -25,9 +25,9 @@ import static java.lang.Thread.sleep;
 import static utilities.account.AccountTest.*;
 
 public class ProductDetailTest extends BaseTest {
-    LoginInformation loginInformation = new LoginInformation(ADMIN_ACCOUNT_THANG, ADMIN_PASSWORD_THANG);
-    List<Integer> branchID = new BranchManagement(loginInformation).getInfo().getBranchID();
-    int customerId = new APIAllCustomers(loginInformation).getCustomerID(BUYER_ACCOUNT_THANG);
+    LoginInformation loginInformation;
+    List<Integer> branchID;
+    int customerId;
 
     ProductInfo productInfo;
     int productId;
@@ -37,6 +37,10 @@ public class ProductDetailTest extends BaseTest {
 
     @BeforeClass
     void setup() {
+        System.out.println("step2");
+        loginInformation = new LoginInformation(ADMIN_ACCOUNT_THANG, ADMIN_PASSWORD_THANG);
+        branchID = new BranchManagement(loginInformation).getInfo().getBranchID();
+        customerId = new APIAllCustomers(loginInformation).getCustomerID(BUYER_ACCOUNT_THANG);
         flashSale = new FlashSale(loginInformation);
         discountCampaign = new ProductDiscountCampaign(loginInformation);
         driver = new InitWebdriver().getDriver(browser, headless);
