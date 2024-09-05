@@ -28,7 +28,6 @@ import utilities.permission.CheckPermission;
 import utilities.utils.PropertiesUtil;
 import web.Dashboard.confirmationdialog.ConfirmationDialog;
 import web.Dashboard.home.HomePage;
-import web.Dashboard.settings.vat.VATInformation;
 
 public class Cashbook {
 
@@ -122,7 +121,30 @@ public class Cashbook {
 		}
 		return summary;
 	}
+	
+	public int getTotalRecordCount() {
+		int recordCount = Integer.valueOf(commonAction.getText(elements.loc_lblTotalRecordCount));
+		
+		logger.debug("Retrieved total record count: {}", recordCount);
+		return recordCount;
+	}
+	
+	
+	/**
+	 * Waits until the newly created record appears on Cash Book table
+	 * @param preTotalRecordCount the number of records initially
+	 */
+	public void waitTillRecordCountIncrease(int preTotalRecordCount) {
+	    int maxRetries = 10;
+	    int sleepDuration = 1000;
+	    int retries = 0;
 
+	    while (retries < maxRetries && getTotalRecordCount()-preTotalRecordCount <1) {
+	        commonAction.sleepInMiliSecond(sleepDuration, "Wait until total record count increases");
+	        retries++;
+	    }
+	}   	
+	
 	public void waitTillRecordsAppear() {
 	    int maxRetries = 10;
 	    int sleepDuration = 500;
