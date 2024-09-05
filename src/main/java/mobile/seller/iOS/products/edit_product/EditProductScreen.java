@@ -134,7 +134,7 @@ public class EditProductScreen extends EditProductElement {
         this.productInfo = apiProductDetail.getInfo(productId);
 
         // Get lot manage status
-        this.hasLot = productInfo.getLotAvailable();
+        this.hasLot = Optional.ofNullable(productInfo.getLotAvailable()).orElse(false);
 
         // Get product name
         String productName = productInfo.getMainProductNameMap().get(defaultLanguage);
