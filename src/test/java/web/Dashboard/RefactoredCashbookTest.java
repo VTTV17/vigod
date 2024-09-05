@@ -147,7 +147,7 @@ public class RefactoredCashbookTest extends BaseTest {
 			commonAction.sleepInMiliSecond(500, "Wait OMG");
 		}
 		return cashbookPage.getCashbookSummaryBig();
-	}    
+	}  
 	
 	public String randomSender(CashbookGroup group) {
 		return switch (group) {
@@ -366,6 +366,7 @@ public class RefactoredCashbookTest extends BaseTest {
 			
 			// Get cashbook summary before creating receipts
 			List<BigDecimal> originalSummary = waitTillOK();
+			int preTotalRecord = cashbookPage.getTotalRecordCount();
 
 			// Create receipt
 			cashbookPage.createReceipt(group, source, branch, paymentMethod, sender, amount, note, isAccountingChecked);
@@ -373,7 +374,8 @@ public class RefactoredCashbookTest extends BaseTest {
 
 			// Get cashbook summary after creating receipts
 			List<BigDecimal> laterSummary = waitTillOK();
-
+			cashbookPage.waitTillRecordCountIncrease(preTotalRecord);
+			
 			// Check data summary after creating receipts
 			verifySummaryDataAfterReceiptCreated(originalSummary, laterSummary, amount, isAccountingChecked);
 
@@ -406,6 +408,7 @@ public class RefactoredCashbookTest extends BaseTest {
 			
 			// Get cashbook summary before creating payments
 			List<BigDecimal> originalSummary = waitTillOK();
+			int preTotalRecord = cashbookPage.getTotalRecordCount();
 			
 			// Create payments
 			cashbookPage.createPayment(group, source, branch, paymentMethod, sender, amount, note, isAccountingChecked);
@@ -413,6 +416,7 @@ public class RefactoredCashbookTest extends BaseTest {
 			
 			// Get cashbook summary after creating payments
 			List<BigDecimal> laterSummary = waitTillOK();
+			cashbookPage.waitTillRecordCountIncrease(preTotalRecord);
 			
 			// Check data summary after creating payments
 			verifySummaryDataAfterPaymentCreated(originalSummary, laterSummary, amount, isAccountingChecked);

@@ -5,6 +5,7 @@ import org.openqa.selenium.By;
 public class CashbookElement {
 
 	By loc_lblPageTitle = By.cssSelector(".gs-page-title");
+	By loc_lblTotalRecordCount = By.cssSelector(".gs-page-title span.uik-tag__wrapper span");
 	By loc_lblCashbookSummary = By.cssSelector(".cashbook-summary .number");
 	By loc_tltCashbookSummary = By.cssSelector(".tippy-tooltip-content");
 	By loc_tblCashbookRecord = By.xpath("//div[contains(@class,'cashbook-list')]//table/tbody/tr");
