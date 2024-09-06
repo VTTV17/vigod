@@ -695,9 +695,7 @@ public class ProductManagementPage extends ProductManagementElement {
             // check product stock alert value after updating
             APIProductDetail productInformation = new APIProductDetail(sellerLoginInformation);
             List<Integer> stockAlert = productInformation.getListOfProductStockAlert(productIds);
-            assertCustomize.assertTrue(IntStream.range(0, stockAlert.size())
-                            .allMatch(index -> stockAlert.get(index) == stockAlertValue),
-                    "Stock alert value of selected products must be %s.".formatted(stockAlert.toString()));
+            stockAlert.forEach(alert -> assertCustomize.assertEquals(alert, stockAlertValue, "Stock alert must be '%,d' but found '%,d', index: %d".formatted(stockAlertValue, alert, stockAlert.indexOf(alert))));
 
             // log
             logger.info("Check product stock alert value after bulk actions: SET STOCK ALERT.");
