@@ -28,7 +28,6 @@ import web.Dashboard.home.HomePage;
 import web.Dashboard.products.all_products.crud.conversion_unit.ConversionUnitPage;
 import web.Dashboard.products.all_products.crud.variation_detail.VariationDetailPage;
 import web.Dashboard.products.all_products.crud.wholesale_price.WholesaleProductPage;
-import web.Dashboard.settings.vat.VATInformation;
 
 import java.time.Instant;
 import java.util.*;
@@ -1022,13 +1021,6 @@ public class ProductPage extends ProductPageElement {
     public void configWholesaleProduct(ProductInfo productInfo) {
         navigateToUpdateProductPage(productInfo.getProductId());
 
-        // close notification popup
-        commonAction.click(loc_dlgNotification_btnClose);
-        logger.info("Close notification popup.");
-
-        // hide Facebook bubble
-        commonAction.removeFbBubble();
-
         if (productId != 0) {
             if (productInfo.isHasModel()) new WholesaleProductPage(driver, loginInformation, productInfo.getProductId())
                     .navigateToWholesaleProductPage()
@@ -1038,6 +1030,9 @@ public class ProductPage extends ProductPageElement {
                     .navigateToWholesaleProductPage()
                     .getWholesaleProductInfo()
                     .addWholesaleProductWithoutVariation();
+
+            // complete config wholesale product
+            commonAction.click(loc_btnSave);
         } else {
             logger.info("Can not found product id.");
         }
@@ -1107,11 +1102,13 @@ public class ProductPage extends ProductPageElement {
         name = "[%s] %s".formatted(storeInfo.getDefaultLanguage(), productInfo.getManageInventoryByIMEI() ? ("Auto - IMEI - Variation - ") : ("Auto - Normal - Variation - "));
         name += new DataGenerator().generateDateTime("dd/MM HH:mm:ss");
         productInfo(name, productInfo.getManageInventoryByIMEI());
-        addVariations();
-        uploadVariationImage("img.jpg");
-        inputVariationPrice();
-        if (!manageByLotDate) inputVariationStock(newIncreaseNum, newBranchStock);
-        inputVariationSKU();
+        if (!productInfo.getLotAvailable() && !manageByLotDate) {
+            addVariations();
+            uploadVariationImage("img.jpg");
+            inputVariationPrice();
+            inputVariationStock(newIncreaseNum, newBranchStock);
+            inputVariationSKU();
+        }
         completeUpdateProduct();
 
         return this;

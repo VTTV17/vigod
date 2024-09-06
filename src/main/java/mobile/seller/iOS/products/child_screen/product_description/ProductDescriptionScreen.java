@@ -1,8 +1,13 @@
 package mobile.seller.iOS.products.child_screen.product_description;
 
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import utilities.assert_customize.AssertCustomize;
 import utilities.commons.UICommonIOS;
+
+import java.time.Duration;
 
 public class ProductDescriptionScreen extends ProductDescriptionElement {
     WebDriver driver;
@@ -17,6 +22,7 @@ public class ProductDescriptionScreen extends ProductDescriptionElement {
 
     public void inputDescription(String description) {
         // Input product description
+        commonIOS.click(loc_rtfDescription);
         commonIOS.sendKeys(loc_rtfDescription, description);
 
         // Save changes
@@ -24,10 +30,8 @@ public class ProductDescriptionScreen extends ProductDescriptionElement {
     }
 
     public void updateDescription(String oldDescription, String newDescription) {
-        // Clear old description
-        commonIOS.getElement(loc_txtContent(oldDescription)).clear();
-
         // Input product description
+        commonIOS.click(loc_rtfDescription);
         commonIOS.sendKeys(loc_rtfDescription, newDescription);
 
         // Save changes

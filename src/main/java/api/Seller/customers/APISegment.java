@@ -25,7 +25,7 @@ public class APISegment {
     final static Logger logger = LogManager.getLogger(APISegment.class);
 
     String CREATE_SEGMENT_PATH = "/beehiveservices/api/segments/create/";
-    String GET_SEGMENT_LIST = "/beehiveservices/api/segments/store/%s?page=0&size=50&name.contains=&sort=id,desc";
+    String GET_SEGMENT_LIST = "/beehiveservices/api/segments/store/%s?page=0&size=50&name.contains=";
     String DELETE_SEGMENT_PATH = "/beehiveservices/api/segments/delete/%s/%s";
     String detailPath = "/beehiveservices/api/segments/detail/<storeId>/<segmentId>";
     String editPath = "/beehiveservices/api/segments/edit/<storeId>/<segmentId>";

@@ -38,8 +38,8 @@ public class ProductPageElement {
     By loc_chkInStore = By.cssSelector("[name = inStore]");
     By loc_chkGoSocial = By.cssSelector("[name = inGosocial]");
     By loc_btnSave = By.cssSelector("[data-testid=\"desktop-saveBtn\"]");
-    By loc_btnDeactivate = By.xpath("(//*[text() = 'Ngừng bán' or text() = 'Deactivate'])[1]/parent::button");
-    By loc_btnDelete = By.xpath("(//*[text() = 'Xóa' or text() = 'Delete'])[1]/parent::button");
+    By loc_btnDeactivate = By.xpath("(//*[text() = 'Ngừng bán' or text() = 'Deactivate' or text() = 'Bán ngay' or text() = 'Activate'])[1]/parent::div/parent::button");
+    By loc_btnDelete = By.xpath("(//*[text() = 'Xóa' or text() = 'Delete'])[1]/parent::div/parent::button");
     By loc_dlgConfirmDelete_btnOK = By.cssSelector(".modal-footer .gs-button__green");
     public static By loc_dlgSuccessNotification = By.cssSelector(".modal-success");
     By loc_dlgNotification_btnClose = By.cssSelector("[data-testid='closeBtn']");
@@ -127,7 +127,7 @@ public class ProductPageElement {
     By loc_dlgConfirm_btnOK = By.cssSelector(".modal-footer .gs-button__green");
     By loc_dlgConfirm_btnCancel = By.cssSelector(".modal-footer .gs-button__gray--outline");
     public By loc_dlgConfirm_btnNo = By.cssSelector(".modal-footer .gs-button__yellow--outline");
-    By loc_lblEditTranslation = By.xpath("(//*[text() = 'Sửa bản dịch' or text() = 'Edit Translation'])[1]/parent::button");
+    By loc_lblEditTranslation = By.xpath("(//*[text() = 'Sửa bản dịch' or text() = 'Edit Translation'])[1]/parent::div/parent::button");
 
     By loc_ttlUpdatePrice = By.cssSelector(".modal-title");
     By loc_txtVariationListingPrice = By.xpath("//*[contains(@name,'orgPrice')]/parent::div/parent::div/preceding-sibling::input");

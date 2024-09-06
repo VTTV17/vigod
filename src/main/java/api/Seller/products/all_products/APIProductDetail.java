@@ -7,6 +7,7 @@ import api.Seller.setting.BranchManagement;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import lombok.Data;
+import org.apache.logging.log4j.LogManager;
 import utilities.api.API;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.dashboard.products.productInfomation.ProductInfo;
@@ -339,6 +340,7 @@ public class APIProductDetail {
 
 
     public ProductInfo getInfo(int productId, ProductInformationEnum... enums) {
+        LogManager.getLogger().info("Get product info: {}", productId);
         // get enum info
         List<ProductInformationEnum> infoEnum = Arrays.stream(enums).toList();
         if (infoEnum.isEmpty()) infoEnum = ProductInformationEnum.getAllValues();

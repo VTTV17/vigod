@@ -8,5 +8,5 @@ public class LoginElement {
     By loc_txtUsername = iOSNsPredicateString("type == \"XCUIElementTypeTextField\"");
     By loc_txtPassword = iOSNsPredicateString("type == \"XCUIElementTypeSecureTextField\"");
     By loc_chkTermOfUse = By.xpath("(//XCUIElementTypeTextView[@value]//preceding-sibling::*)[1]");
-    By loc_btnLogin = By.xpath("//XCUIElementTypeStaticText[@name=\"LOGIN\"]");
+    By loc_btnLogin = By.xpath("(//XCUIElementTypeButton)[6]");
 }

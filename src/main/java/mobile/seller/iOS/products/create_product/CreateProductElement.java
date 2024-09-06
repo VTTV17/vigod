@@ -4,7 +4,7 @@ import org.openqa.selenium.By;
 
 public class CreateProductElement {
     By loc_icnProductImage = By.xpath("//XCUIElementTypeImage[@name=\"icon_selected_image_default\"]/preceding-sibling::XCUIElementTypeButton");
-    By loc_txtProductName = By.xpath("//XCUIElementTypeStaticText[@name=\"Product name *\"]/following-sibling::XCUIElementTypeTextField");
+    By loc_txtProductName = By.xpath("//XCUIElementTypeStaticText[@name=\"Product name *\"]/following-sibling::XCUIElementTypeTextView");
     By loc_btnProductDescription = By.xpath("//XCUIElementTypeStaticText[@name=\"Description\"]/following-sibling::XCUIElementTypeButton");
     By loc_txtWithoutVariationListingPrice = By.xpath("(//XCUIElementTypeStaticText[@name=\"Selling price\"]/following-sibling::XCUIElementTypeOther//XCUIElementTypeTextField)[1]");
     By loc_txtWithoutVariationSellingPrice = By.xpath("(//XCUIElementTypeStaticText[@name=\"Selling price\"]/following-sibling::XCUIElementTypeOther//XCUIElementTypeTextField)[2]");

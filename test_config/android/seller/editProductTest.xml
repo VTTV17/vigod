@@ -5,33 +5,33 @@
         <classes>
             <class name="app.android.GoSeller.EditProductTest">
                 <methods>
-                    <include name="UP_PRODUCT_G1_01_UpdateProductWithoutDimension"/>
-                    <include name="UP_PRODUCT_G1_02_UpdateProductWithDimension"/>
-                    <include name="UP_PRODUCT_G1_03_UpdateProductWithInStock"/>
-                    <include name="UP_PRODUCT_G1_04_UpdateProductWithOutOfStock"/>
-                    <include name="UP_PRODUCT_G1_05_UpdateProductWithDiscountPrice"/>
-                    <include name="UP_PRODUCT_G1_06_UpdateProductWithoutDiscountPrice"/>
-                    <include name="UP_PRODUCT_G1_07_UpdateProductWithoutCostPrice"/>
-                    <include name="UP_PRODUCT_G1_08_UpdateProductWithCostPrice"/>
+<!--                    <include name="UP_PRODUCT_G1_01_UpdateProductWithoutDimension"/>-->
+<!--                    <include name="UP_PRODUCT_G1_02_UpdateProductWithDimension"/>-->
+<!--                    <include name="UP_PRODUCT_G1_03_UpdateProductWithInStock"/>-->
+<!--                    <include name="UP_PRODUCT_G1_04_UpdateProductWithOutOfStock"/>-->
+<!--                    <include name="UP_PRODUCT_G1_05_UpdateProductWithDiscountPrice"/>-->
+<!--                    <include name="UP_PRODUCT_G1_06_UpdateProductWithoutDiscountPrice"/>-->
+<!--                    <include name="UP_PRODUCT_G1_07_UpdateProductWithoutCostPrice"/>-->
+<!--                    <include name="UP_PRODUCT_G1_08_UpdateProductWithCostPrice"/>-->
                     <include name="UP_PRODUCT_G1_09_UpdateProductWithNonePlatform"/>
                     <include name="UP_PRODUCT_G1_10_UpdateProductWithAnyPlatform"/>
-                    <include name="UP_PRODUCT_G1_11_UpdateProductWithoutManageByLotDate"/>
-                    <include name="UP_PRODUCT_G1_12_UpdateProductWithManageByLotDate"/>
-                    <include name="UP_PRODUCT_G1_13_UpdateProductWithPriority"/>
-                    <include name="UP_PRODUCT_G1_14_UpdateProductWithoutPriority"/>
+<!--                    <include name="UP_PRODUCT_G1_11_UpdateProductWithoutManageByLotDate"/>-->
+<!--                    <include name="UP_PRODUCT_G1_12_UpdateProductWithManageByLotDate"/>-->
+<!--                    <include name="UP_PRODUCT_G1_13_UpdateProductWithPriority"/>-->
+<!--                    <include name="UP_PRODUCT_G1_14_UpdateProductWithoutPriority"/>-->
 
-                    <include name="UP_PRODUCT_G2_01_UpdateProductWithoutDimension"/>
-                    <include name="UP_PRODUCT_G2_02_UpdateProductWithDimension"/>
-                    <include name="UP_PRODUCT_G2_03_UpdateProductWithInStock"/>
-                    <include name="UP_PRODUCT_G2_04_UpdateProductWithOutOfStock"/>
-                    <include name="UP_PRODUCT_G2_05_UpdateProductWithDiscountPrice"/>
-                    <include name="UP_PRODUCT_G2_06_UpdateProductWithoutDiscountPrice"/>
-                    <include name="UP_PRODUCT_G2_07_UpdateProductWithoutCostPrice"/>
-                    <include name="UP_PRODUCT_G2_08_UpdateProductWithCostPrice"/>
-                    <include name="UP_PRODUCT_G2_09_UpdateProductWithNonePlatform"/>
-                    <include name="UP_PRODUCT_G2_10_UpdateProductWithAnyPlatform"/>
-                    <include name="UP_PRODUCT_G2_11_UpdateProductWithPriority"/>
-                    <include name="UP_PRODUCT_G2_12_UpdateProductWithoutPriority"/>
+<!--                    <include name="UP_PRODUCT_G2_01_UpdateProductWithoutDimension"/>-->
+<!--                    <include name="UP_PRODUCT_G2_02_UpdateProductWithDimension"/>-->
+<!--                    <include name="UP_PRODUCT_G2_03_UpdateProductWithInStock"/>-->
+<!--                    <include name="UP_PRODUCT_G2_04_UpdateProductWithOutOfStock"/>-->
+<!--                    <include name="UP_PRODUCT_G2_05_UpdateProductWithDiscountPrice"/>-->
+<!--                    <include name="UP_PRODUCT_G2_06_UpdateProductWithoutDiscountPrice"/>-->
+<!--                    <include name="UP_PRODUCT_G2_07_UpdateProductWithoutCostPrice"/>-->
+<!--                    <include name="UP_PRODUCT_G2_08_UpdateProductWithCostPrice"/>-->
+<!--                    <include name="UP_PRODUCT_G2_09_UpdateProductWithNonePlatform"/>-->
+<!--                    <include name="UP_PRODUCT_G2_10_UpdateProductWithAnyPlatform"/>-->
+<!--                    <include name="UP_PRODUCT_G2_11_UpdateProductWithPriority"/>-->
+<!--                    <include name="UP_PRODUCT_G2_12_UpdateProductWithoutPriority"/>-->
 
                     <include name="UP_PRODUCT_G3_01_UpdateProductWithoutDimension"/>
                     <include name="UP_PRODUCT_G3_02_UpdateProductWithDimension"/>

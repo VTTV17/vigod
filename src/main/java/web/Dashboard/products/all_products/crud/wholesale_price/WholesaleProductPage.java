@@ -66,10 +66,6 @@ public class WholesaleProductPage extends WholesaleProductElement {
         // click Configure button
         commonAction.click(loc_btnConfigureWholesalePricing);
 
-
-        // wait wholesale product page loaded
-        commonAction.getElement(noConfigText);
-
         // hide Facebook bubble
         commonAction.removeFbBubble();
 
@@ -195,7 +191,7 @@ public class WholesaleProductPage extends WholesaleProductElement {
                 commonAction.click(allCustomerCheckbox);
             } else {
                 // in-case store have some segment, select any segment.
-                int segmentId = listSegmentIdInStore.get(nextInt(listSegmentIdInStore.size()));
+                int segmentId = listSegmentIdInStore.get(0);
                 logger.info("Select segment: %s.".formatted(commonAction.getText(By.cssSelector(segmentText.formatted(segmentId)))));
                 commonAction.click(By.cssSelector(segmentLocator.formatted(segmentId)));
             }

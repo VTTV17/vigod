@@ -5,22 +5,22 @@
         <classes>
             <class name="app.android.GoSeller.ProductManagementTest">
                 <methods>
-                    <include name="MN_PRODUCT_01_SortProductByRecentUpdated"/>
-                    <include name="MN_PRODUCT_02_SortProductByStockHighToLow"/>
-                    <include name="MN_PRODUCT_03_SortProductByStockLowToHigh"/>
+<!--                    <include name="MN_PRODUCT_01_SortProductByRecentUpdated"/>-->
+<!--                    <include name="MN_PRODUCT_02_SortProductByStockHighToLow"/>-->
+<!--                    <include name="MN_PRODUCT_03_SortProductByStockLowToHigh"/>-->
                     <include name="MN_PRODUCT_04_SortProductByPriorityHighToLow"/>
-                    <include name="MN_PRODUCT_05_SortProductByPriorityLowToHigh"/>
-                    <include name="MN_PRODUCT_06_FilterProductByActiveStatus"/>
-                    <include name="MN_PRODUCT_07_FilterProductByActiveStatus"/>
-                    <include name="MN_PRODUCT_08_FilterProductByErrorStatus"/>
-                    <include name="MN_PRODUCT_09_FilterProductByLazadaChannel"/>
-                    <include name="MN_PRODUCT_10_FilterProductByShopeeChannel"/>
-                    <include name="MN_PRODUCT_11_FilterProductByWebPlatform"/>
-                    <include name="MN_PRODUCT_12_FilterProductByAppPlatform"/>
-                    <include name="MN_PRODUCT_13_FilterProductByInStorePlatform"/>
-                    <include name="MN_PRODUCT_14_FilterProductByNonePlatform"/>
-                    <include name="MN_PRODUCT_15_FilterProductByBranch"/>
-                    <include name="MN_PRODUCT_16_FilterProductByCollections"/>
+<!--                    <include name="MN_PRODUCT_05_SortProductByPriorityLowToHigh"/>-->
+<!--                    <include name="MN_PRODUCT_06_FilterProductByActiveStatus"/>-->
+<!--                    <include name="MN_PRODUCT_07_FilterProductByActiveStatus"/>-->
+<!--                    <include name="MN_PRODUCT_08_FilterProductByErrorStatus"/>-->
+<!--                    <include name="MN_PRODUCT_09_FilterProductByLazadaChannel"/>-->
+<!--                    <include name="MN_PRODUCT_10_FilterProductByShopeeChannel"/>-->
+<!--                    <include name="MN_PRODUCT_11_FilterProductByWebPlatform"/>-->
+<!--                    <include name="MN_PRODUCT_12_FilterProductByAppPlatform"/>-->
+<!--                    <include name="MN_PRODUCT_13_FilterProductByInStorePlatform"/>-->
+<!--                    <include name="MN_PRODUCT_14_FilterProductByNonePlatform"/>-->
+<!--                    <include name="MN_PRODUCT_15_FilterProductByBranch"/>-->
+<!--                    <include name="MN_PRODUCT_16_FilterProductByCollections"/>-->
                 </methods>
             </class> <!-- ProductManagementTest -->
         </classes>

@@ -1,8 +1,8 @@
 package web.Dashboard;
 
 import api.Seller.products.all_products.APIAllProducts;
-import api.Seller.products.all_products.APIProductDetail;
 import api.Seller.products.all_products.APICreateProduct;
+import api.Seller.products.all_products.APIProductDetail;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeGroups;
 import org.testng.annotations.Test;
@@ -54,33 +54,27 @@ public class UpdateProductTest extends BaseTest {
     @BeforeGroups(groups = "[WEB][UPDATE] Normal product - Without variation")
     void preCondition_G1() {
         // get product ID
-        productId = apiAllProducts.getProductIdForEdit(false, false, false);
-        if (productId == 0) productId = apiCreateProduct.createWithoutVariationProduct(false)
+        productId = apiCreateProduct.createWithoutVariationProduct(false)
                 .getProductID();
     }
 
     @BeforeGroups(groups = "[WEB][UPDATE] IMEI product - Without variation")
     void preCondition_G2() {
         // get product ID
-        productId = apiAllProducts.getProductIdForEdit(false, true, false);
-        if (productId == 0) productId = apiCreateProduct.createWithoutVariationProduct(true)
+        productId = apiCreateProduct.createWithoutVariationProduct(true)
                 .getProductID();
     }
 
     @BeforeGroups(groups = "[WEB][UPDATE] Normal product - Variation")
     void preCondition_G3() {
-        productId = apiAllProducts.getProductIdForEdit(true, false, false);
-        if (productId == 0)
-            productId = apiCreateProduct.createVariationProduct(false, 1)
-                    .getProductID();
+        productId = apiCreateProduct.createVariationProduct(false, 1)
+                .getProductID();
     }
 
     @BeforeGroups(groups = "[WEB][UPDATE] IMEI product - Variation")
     void preCondition_G4() {
-        productId = apiAllProducts.getProductIdForEdit(true, true, false);
-        if (productId == 0)
-            productId = apiCreateProduct.createVariationProduct(true, 0)
-                    .getProductID();
+        productId = apiCreateProduct.createVariationProduct(true, 0)
+                .getProductID();
     }
 
     //G1: Normal product without variation

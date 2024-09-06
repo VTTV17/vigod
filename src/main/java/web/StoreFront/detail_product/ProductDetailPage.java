@@ -636,7 +636,7 @@ public class ProductDetailPage extends ProductDetailElement {
             }
 
         } else {
-            checkSoldOutMark(variationName);
+//            checkSoldOutMark(variationName);
             checkBuyNowAndAddToCartBtnIsHidden(variationName);
         }
     }

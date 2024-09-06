@@ -488,7 +488,7 @@ public class EditProductScreen extends EditProductElement {
         // Get total variations
         int totalVariations = this.hasLot
                 ? productInfo.getVariationModelList().size()
-                : mobile.seller.iOS.products.child_screen.crud_variations.CRUDVariationScreen.getVariationMap()
+                : CRUDVariationScreen.getVariationMap()
                     .values()
                     .stream()
                     .mapToInt(List::size)
@@ -507,9 +507,9 @@ public class EditProductScreen extends EditProductElement {
             editMultipleScreen.bulkUpdatePrice(listingPrice, sellingPrice);
 
             // Get new product price
-            productInfo.setProductListingPrice(IntStream.range(0, totalVariations).mapToLong(varIndex -> listingPrice).boxed().toList());
-            productInfo.setProductSellingPrice(IntStream.range(0, totalVariations).mapToLong(varIndex -> sellingPrice).boxed().toList());
-            productInfo.setProductCostPrice(IntStream.range(0, totalVariations).mapToLong(varIndex -> 0).boxed().toList());
+            productInfo.setProductListingPrice(IntStream.range(0, totalVariations).mapToLong(ignored -> listingPrice).boxed().toList());
+            productInfo.setProductSellingPrice(IntStream.range(0, totalVariations).mapToLong(ignored -> sellingPrice).boxed().toList());
+            productInfo.setProductCostPrice(IntStream.range(0, totalVariations).mapToLong(ignored -> 0).boxed().toList());
 
             // Bulk update stock
             editMultipleScreen.bulkUpdateStock(manageByIMEI, manageByLot, branchInfo, increaseNum, branchStock);
@@ -518,7 +518,7 @@ public class EditProductScreen extends EditProductElement {
             List<Integer> stockQuantity = IntStream.range(0, branchInfo.getBranchID().size())
                     .mapToObj(branchIndex -> (manageByIMEI || productInfo.getLotAvailable()) ? 0 : ((branchIndex >= branchStock.length) ? 0 : branchStock[branchIndex]) + branchIndex * increaseNum)
                     .toList();
-            Map<String, List<Integer>> stockMap = IntStream.range(0, totalVariations).boxed().collect(Collectors.toMap(String::valueOf, variationIndex -> stockQuantity, (a, b) -> b));
+            Map<String, List<Integer>> stockMap = IntStream.range(0, totalVariations).boxed().collect(Collectors.toMap(String::valueOf, ignored -> stockQuantity, (ignored, b) -> b));
             productInfo.setProductStockQuantityMap(stockMap);
 
         } else {
