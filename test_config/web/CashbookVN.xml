@@ -3,7 +3,7 @@
 <suite name="Cashbook-VN Suite">
     <parameter name="browser" value="chrome"/>
     <parameter name="headless" value="true"/>
-    <parameter name="environment" value="STAG"/>
+    <parameter name="environment" value="PREPROD"/>
     <parameter name="language" value="VIE"/>
     <parameter name="domain" value="VN"/>
     <test name="Cashbook-VN">

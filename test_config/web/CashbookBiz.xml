@@ -3,7 +3,7 @@
 <suite name="Cashbook-Biz Suite">
     <parameter name="browser" value="chrome"/>
     <parameter name="headless" value="true"/>
-    <parameter name="environment" value="STAG"/>
+    <parameter name="environment" value="PREPROD"/>
     <parameter name="language" value="ENG"/>
     <parameter name="domain" value="BIZ"/>
     <test name="Cashbook-Biz">

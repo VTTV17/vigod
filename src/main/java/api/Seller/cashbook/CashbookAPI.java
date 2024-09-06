@@ -10,6 +10,9 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import api.Seller.login.Login;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
@@ -18,6 +21,9 @@ import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 
 public class CashbookAPI {
+	
+	final static Logger logger = LogManager.getLogger(CashbookAPI.class);
+	
     String GET_RECORD_LIST = "/cashbookservice/api/cash-books/store/%s?page=0&size=1000000&sort=createdDate,desc";
     String CREATE_RECORD_PATH = "/cashbookservice/api/cash-books/store/%s";
     String CashbookSummaryPath = "/cashbookservice/api/cash-books/summary/%s?createdDateFrom.greaterThanOrEqual=%sT17:00:00.000Z&createdDateTo.lessThanOrEqual=%sT16:59:59.000Z";
@@ -31,7 +37,7 @@ public class CashbookAPI {
         loginInfo = new Login().getInfo(loginInformation);
     }
 
-    public Response getCashbookSummaryResponse() {
+    public Response getCashbookSummaryResponse1() {
     	Instant now = Instant.now();
     	Instant yesterday = now.minus(1, ChronoUnit.DAYS);
     	
@@ -44,6 +50,32 @@ public class CashbookAPI {
     	String yesterdayDateTime = dateFormat.format(yesterdayDate);  
     	
     	Response response = api.get(CashbookSummaryPath.formatted(loginInfo.getStoreID(), yesterdayDateTime, currentDateTime), loginInfo.getAccessToken());
+    	response.then().statusCode(200);
+    	return response;
+    }  
+    
+    
+    public Response getCashbookSummaryResponse() {
+    	Instant now = Instant.now();
+    	Instant yesterday = now.minus(1, ChronoUnit.DAYS);
+    	
+    	Date currentDate = Date.from(now);
+    	Date yesterdayDate = Date.from(yesterday);
+    	
+    	SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    	
+    	String currentDateTime = dateFormat.format(currentDate);   
+    	String yesterdayDateTime = dateFormat.format(yesterdayDate);  
+    	
+	    //Retry 3 times when 500 status code is encountered
+	    int maxRetries = 3;
+	    int retries = 0;
+	    Response response;
+    	do {
+    		response = api.get(CashbookSummaryPath.formatted(loginInfo.getStoreID(), yesterdayDateTime, currentDateTime), loginInfo.getAccessToken());
+    		retries++;	
+    	} while (retries < maxRetries && response.statusCode()==500);
+    	
     	response.then().statusCode(200);
     	return response;
     }    
