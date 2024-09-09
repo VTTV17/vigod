@@ -6,15 +6,18 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import utilities.data.DataGenerator;
+import utilities.enums.Domain;
 import utilities.enums.newpackage.NewPackage;
 
 public class PlanMoney {
 
-	static BigDecimal workoutRefund(NewPackage plan, int years, long remainingDays, int rudimentaryScale, int finalScale) {
+	static BigDecimal workoutRefund(NewPackage plan, int years, long remainingDays, int finalScale) {
 
+		final int rudimentaryScale = 10;
+		
 		BigDecimal priceByYear = getBasePriceByYears(plan, years);
 		
-		BigDecimal refund = priceByYear.divide(BigDecimal.valueOf(years), 10, RoundingMode.HALF_UP)
+		BigDecimal refund = priceByYear.divide(BigDecimal.valueOf(years), rudimentaryScale, RoundingMode.HALF_UP)
 				.divide(BigDecimal.valueOf(365), rudimentaryScale, RoundingMode.HALF_UP)
 				.multiply(BigDecimal.valueOf(remainingDays));
 
@@ -54,30 +57,30 @@ public class PlanMoney {
 
 	public static BigDecimal calculateRefund(String country, NewPackage plan, int years, long remainingDays) {
 		if (country.contentEquals("Vietnam")) {
-			return workoutRefund(plan, years, remainingDays, 4, 0);
+			return workoutRefund(plan, years, remainingDays, 0);
 		}
-		return workoutRefund(plan, years, remainingDays, 4, 2);
+		return workoutRefund(plan, years, remainingDays, 2);
 	}
 
 	static BigDecimal resetRefund(BigDecimal priceIncludingTax, BigDecimal refundAmount) {
-		return (refundAmount.compareTo(priceIncludingTax) == 1) ? priceIncludingTax : refundAmount;
+		return (refundAmount.compareTo(priceIncludingTax) != -1) ? priceIncludingTax : refundAmount;
 	}	
-	public static BigDecimal resetRefund(String domain, NewPackage newPlan, int years, BigDecimal refundAmount) {
+	public static BigDecimal resetRefund(Domain domain, NewPackage newPlan, int years, BigDecimal refundAmount) {
 		BigDecimal basePriceIncludingTax = calculatePriceIncludingTax(domain, newPlan, years);
 		return resetRefund(basePriceIncludingTax, refundAmount);
 	}	
 	
-	public static BigDecimal calculatePriceIncludingTax(String domain, NewPackage plan, int years) {
+	public static BigDecimal calculatePriceIncludingTax(Domain domain, NewPackage plan, int years) {
 		BigDecimal priceByYears = getBasePriceByYears(plan, years);
 		
-		BigDecimal priceIncludingTax = domain.contains("biz") ? priceByYears : priceByYears.add(workoutVAT(priceByYears));
+		BigDecimal priceIncludingTax = domain.equals(Domain.BIZ) ? priceByYears : priceByYears.add(workoutVAT(priceByYears));
 		
 		System.out.println("Plan price inclusive of tax: %s".formatted(priceIncludingTax));
 		
 		return priceIncludingTax;
 	}
 	
-	public static BigDecimal calculateTotalPrice(String domain, NewPackage newPlan, int years, BigDecimal refundAmount) {
+	public static BigDecimal calculateFinalTotalPrice(Domain domain, NewPackage newPlan, int years, BigDecimal refundAmount) {
 		
 		BigDecimal basePriceIncludingTax = calculatePriceIncludingTax(domain, newPlan, years);
 		

@@ -351,8 +351,7 @@ public class StoreLanguages {
 		if (staffPermission.getSetting().getStoreLanguage().isRenewLanguagePackage()) {
 			//Not sure if this is a bug as it's not as expected in ticket
 			PackagePayment planPage = new PackagePayment(driver);
-			planPage.selectPaymentMethod(PaymentMethod.BANKTRANSFER);
-			planPage.completePayment(PaymentMethod.BANKTRANSFER);
+			planPage.payThenComplete(PaymentMethod.BANKTRANSFER);
 			Assert.assertTrue(!planPage.getOrderId().isEmpty(), "OrderId is not empty");
 			//We won't actually renew as we can only do that once
 		} else {

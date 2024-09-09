@@ -502,7 +502,7 @@ public class HomePage extends HomePageElement {
     }
 
     public HomePage verifyPageLoaded() {
-        commons.waitElementVisible(commons.getElement(loc_lblWhatToDoNextTitle));
+        commons.waitElementVisible(loc_lblWhatToDoNextTitle);
         return this;
     }
 
