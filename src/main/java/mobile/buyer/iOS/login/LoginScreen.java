@@ -55,9 +55,6 @@ public class LoginScreen extends LoginElement {
         // Navigate to login screen
         new AccountScreen(driver).navigateToLoginScreen();
 
-        // Open login screen
-        commonIOS.click(loc_btnLogin);
-
         // Perform login
         inputUsername(loginInformation.getEmail());
         inputPassword(loginInformation.getPassword());

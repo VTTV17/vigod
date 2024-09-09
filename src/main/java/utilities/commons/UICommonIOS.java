@@ -92,28 +92,6 @@ public class UICommonIOS {
         ((IOSDriver) driver).perform(List.of(tapPosition));
     }
 
-    public void doubleTapInCenter(int x, int y) {
-        // Create an instance of PointerInput
-        PointerInput finger = new PointerInput(PointerInput.Kind.TOUCH, "finger");
-        Sequence doubleTap = new Sequence(finger, 1);
-
-        // Move to the element and perform the double tap
-        doubleTap.addAction(finger.createPointerMove(Duration.ZERO, PointerInput.Origin.viewport(), x, y))
-                .addAction(finger.createPointerDown(PointerInput.MouseButton.LEFT.asArg()))
-                .addAction(finger.createPointerUp(PointerInput.MouseButton.LEFT.asArg()))
-                .addAction(new Pause(finger, Duration.ofMillis(100))) // Small pause between taps
-                .addAction(finger.createPointerDown(PointerInput.MouseButton.LEFT.asArg()))
-                .addAction(finger.createPointerUp(PointerInput.MouseButton.LEFT.asArg()));
-        ((IOSDriver) driver).perform(List.of(doubleTap));
-    }
-
-    public void tapByCoordinatesInPercent(double x, double y) {
-        // Get the size of the device screen
-        Dimension size = driver.manage().window().getSize();
-
-        tapByCoordinates((int) (size.width * x), (int) (size.height * y));
-    }
-
     void tapOnCenter(WebElement element) {
         // Get the center coordinates of the element
         int centerX = element.getLocation().getX() + element.getSize().getWidth() / 2;
@@ -136,14 +114,11 @@ public class UICommonIOS {
         tapOnRightTopCorner(getElement(locator));
     }
 
-    public void tapOnRightTopCorner(By locator, int index) {
-        tapOnRightTopCorner(getElement(locator, index));
-    }
 
     public void click(By locator) {
         switch (getElement(locator).getAttribute("type")) {
             case "XCUIElementTypeImage", "XCUIElementTypeOther" -> tapOnCenter(getElement(locator));
-            default -> getElement(locator).click();
+            default -> wait.until(ExpectedConditions.elementToBeClickable(getElement(locator))).click();
         }
     }
 

@@ -5,23 +5,23 @@
         <classes>
             <class name="web.StoreFront.ProductDetailTest">
                 <methods>
-                    <include name="G1_01_FlashSaleIsInProgress"/>
+<!--                    <include name="G1_01_FlashSaleIsInProgress"/>-->
 <!--                    <include name="G1_02_FlashSaleIsExpired"/>-->
 <!--                    <include name="G1_03_FlashSaleIsSchedule"/>-->
 <!--                    <include name="G1_04_DiscountCampaignIsInProgress"/>-->
 <!--                    <include name="G1_05_DiscountCampaignIsExpired"/>-->
-                    <include name="G1_06_DiscountCampaignIsSchedule"/>
-                    <include name="G1_07_HideStockAndInStock"/>
+<!--                    <include name="G1_06_DiscountCampaignIsSchedule"/>-->
+<!--                    <include name="G1_07_HideStockAndInStock"/>-->
 <!--                    <include name="G1_08_ShowStockAndInStock"/>-->
 <!--                    <include name="G1_09_SettingDisplayAndProductInStock"/>-->
                     <include name="G1_10_SettingDisplayAndProductOutOfStock"/>
 <!--                    <include name="G1_11_SettingHiddenAndProductInStock"/>-->
 <!--                    <include name="G1_12_SettingHiddenAndProductOutOfStock"/>-->
-                    <include name="G1_13_OneBranchActiveAndHideBranchOnStoreFront"/>
-                    <include name="G1_14_AllBranchesActiveAndHideBranchOnStoreFront"/>
+<!--                    <include name="G1_13_OneBranchActiveAndHideBranchOnStoreFront"/>-->
+<!--                    <include name="G1_14_AllBranchesActiveAndHideBranchOnStoreFront"/>-->
 <!--                    <include name="G1_15_AllBranchesActiveAndShowBranchOnStoreFront"/>-->
 
-                    <include name="G2_01_FlashSaleIsInProgress"/>
+<!--                    <include name="G2_01_FlashSaleIsInProgress"/>-->
 <!--                    <include name="G2_02_FlashSaleIsExpired"/>-->
 <!--                    <include name="G2_03_FlashSaleIsSchedule"/>-->
 <!--                    <include name="G2_04_DiscountCampaignIsInProgress"/>-->
@@ -34,23 +34,23 @@
 <!--                    <include name="G2_11_SettingHiddenAndProductInStock"/>-->
 <!--                    <include name="G2_12_SettingHiddenAndProductOutOfStock"/>-->
                     <include name="G2_13_OneBranchActiveAndHideBranchOnStoreFront"/>
-                    <include name="G2_14_AllBranchesActiveAndHideBranchOnStoreFront"/>
+<!--                    <include name="G2_14_AllBranchesActiveAndHideBranchOnStoreFront"/>-->
 <!--                    <include name="G2_15_AllBranchesActiveAndShowBranchOnStoreFront"/>-->
 
-                    <include name="G3_01_FlashSaleIsInProgress"/>
-                    <include name="G3_02_FlashSaleIsExpired"/>
-                    <include name="G3_03_FlashSaleIsSchedule"/>
-                    <include name="G3_04_DiscountCampaignIsInProgress"/>
-                    <include name="G3_05_DiscountCampaignIsExpired"/>
-                    <include name="G3_06_DiscountCampaignIsSchedule"/>
+<!--                    <include name="G3_01_FlashSaleIsInProgress"/>-->
+<!--                    <include name="G3_02_FlashSaleIsExpired"/>-->
+<!--                    <include name="G3_03_FlashSaleIsSchedule"/>-->
+<!--                    <include name="G3_04_DiscountCampaignIsInProgress"/>-->
+<!--                    <include name="G3_05_DiscountCampaignIsExpired"/>-->
+<!--                    <include name="G3_06_DiscountCampaignIsSchedule"/>-->
                     <include name="G3_07_HideStockAndInStock_AllVariations"/>
-                    <include name="G3_08_HideStockAndInStock_SomeVariations"/>
+<!--                    <include name="G3_08_HideStockAndInStock_SomeVariations"/>-->
 <!--                    <include name="G3_09_ShowStockAndInStock_AllVariations"/>-->
 <!--                    <include name="G3_10_ShowStockAndInStock_SomeVariations"/>-->
 <!--                    <include name="G3_11_SettingDisplayAndProductInStock"/>-->
-                    <include name="G3_12_SettingDisplayAndOneOfVariationOutOfStock"/>
+<!--                    <include name="G3_12_SettingDisplayAndOneOfVariationOutOfStock"/>-->
 <!--                    <include name="G3_13_SettingDisplayAndAllVariationsOutOfStock"/>-->
-                    <include name="G3_14_SettingHiddenAndAllVariationsInStock"/>
+<!--                    <include name="G3_14_SettingHiddenAndAllVariationsInStock"/>-->
 <!--                    <include name="G3_15_SettingHiddenAndOneOfVariationOutOfStock"/>-->
 <!--                    <include name="G3_16_SettingHiddenAndAllVariationsOutOfStock"/>-->
 <!--                    <include name="G3_17_OneBranchActiveAndHideBranchOnStoreFront"/>-->

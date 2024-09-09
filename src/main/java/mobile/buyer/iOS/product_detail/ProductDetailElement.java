@@ -5,7 +5,7 @@ import org.openqa.selenium.By;
 import static org.openqa.selenium.By.xpath;
 
 public class ProductDetailElement {
-    By loc_lblFlashSaleBadge = xpath("//XCUIElementTypeStaticText[contains(@name,\" Sold \")]");
+    By loc_lblFlashSaleBadge = xpath("//XCUIElementTypeStaticText[contains(@name,\" Sold \") or contains(@name = 'Đã bán')]");
     By loc_lblProductName = xpath("//XCUIElementTypeButton[@name=\"ic share partner\"]//following-sibling::XCUIElementTypeStaticText");
     By loc_lblSoldOutMark = xpath("//XCUIElementTypeStaticText[@name=\"Có sẵn trong 0 chi nhánh\"]|//XCUIElementTypeStaticText[@name=\"Available in 0 branches\"]");
 

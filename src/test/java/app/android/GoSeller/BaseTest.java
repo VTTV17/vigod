@@ -32,7 +32,7 @@ public class BaseTest {
     @BeforeMethod
     void startTest() {
         // Start recording
-        AppiumRecording.startRecording(driver);
+//        AppiumRecording.startRecording(driver);
     }
 
     @AfterMethod
@@ -41,7 +41,7 @@ public class BaseTest {
         AssertCustomize.setCountFalse(0);
 
         // Stop recording
-        AppiumRecording.stopRecording(driver, result);
+//        AppiumRecording.stopRecording(driver, result);
     }
 
     @AfterSuite

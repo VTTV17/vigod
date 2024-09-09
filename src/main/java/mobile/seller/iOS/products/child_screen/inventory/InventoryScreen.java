@@ -24,9 +24,9 @@ public class InventoryScreen extends InventoryElement {
 
     public void addStock(boolean manageByIMEI, BranchInfo branchInfo, String variation, int... branchStock) {
         // Add stock for each branch
-        IntStream.range(0, branchInfo.getBranchName().size()).forEach(branchIndex -> {
+        IntStream.range(0, branchInfo.getActiveBranches().size()).forEach(branchIndex -> {
             // Get current branch
-            String branchName = branchInfo.getBranchName().get(branchIndex);
+            String branchName = branchInfo.getActiveBranches().get(branchIndex);
 
             // Get branch quantity
             int branchQuantity = (branchIndex >= branchStock.length) ? 0 : branchStock[branchIndex];
@@ -55,9 +55,9 @@ public class InventoryScreen extends InventoryElement {
 
     public void updateStock(boolean manageByIMEI, BranchInfo branchInfo, String variation, int... branchStock) {
         // Add stock for each branch
-        IntStream.range(0, branchInfo.getBranchName().size()).forEach(branchIndex -> {
+        IntStream.range(0, branchInfo.getActiveBranches().size()).forEach(branchIndex -> {
             // Get current branch
-            String branchName = branchInfo.getBranchName().get(branchIndex);
+            String branchName = branchInfo.getActiveBranches().get(branchIndex);
 
             // Get branch quantity
             int branchQuantity = (branchIndex >= branchStock.length) ? 0 : branchStock[branchIndex];

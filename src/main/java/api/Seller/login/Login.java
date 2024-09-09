@@ -2,13 +2,13 @@ package api.Seller.login;
 
 import api.Buyer.login.ResetPasswordPayloadBuilder;
 import api.Seller.setting.BranchManagement;
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Iterables;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
-import lombok.Getter;
+import org.apache.logging.log4j.LogManager;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import utilities.api.API;
 import utilities.api.payloadbuilder.CapchaPayloadBuilder;
 import utilities.api.payloadbuilder.JsonObjectBuilder;
@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Optional;
 
 public class Login {
+    private static final Logger log = LoggerFactory.getLogger(Login.class);
     String API_LOGIN_PATH = "/api/authenticate/store/email/gosell";
     public String DASHBOARD_LOGIN_PHONE_PATH = "api/authenticate/store/phone/gosell";
     String switchStaffPath = "/api/authenticate/store/%s/switch-staff";
@@ -35,11 +36,13 @@ public class Login {
                     "username": "%s",
                     "password": "%s"
                 }""".formatted(account, password);
-        Response loginResponse = api.login(API_LOGIN_PATH, body);
 
-        loginResponse.then().statusCode(200);
-
-        return loginResponse;
+        try {
+            return api.login(API_LOGIN_PATH, body).then().statusCode(200).extract().response();
+        } catch (AssertionError ex) {
+            LogManager.getLogger().debug(ex);
+            return api.login(API_LOGIN_PATH, body).then().statusCode(200).extract().response();
+        }
     }
 
     public Login setLoginInformation(String account, String password) {
