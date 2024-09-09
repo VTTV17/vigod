@@ -17,6 +17,6 @@ public enum PaymentMethod {
 		return Arrays.asList(PaymentMethod.values());
 	}
 	public static List<PaymentMethod> forForeignShop() {
-		return Arrays.asList(PAYPAL, BANKTRANSFER);
+		return Arrays.asList(PAYPAL);
 	}
 }

@@ -143,4 +143,9 @@ public class PlansPage {
 	  logger.info("Click Continue on Feature Comparision dialog");
 	  return this;
 	}
+	public boolean isComparisionDialogDisplayed() {
+		boolean isDisplayed = !commons.getElements(elements.loc_btnContinue).isEmpty();
+		logger.info("Is Comparision dialog displayed: {}", isDisplayed);
+		return isDisplayed;
+	}
 }

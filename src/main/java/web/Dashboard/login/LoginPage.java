@@ -82,7 +82,15 @@ public class LoginPage {
     	}
     	return this;
     }
-
+	public LoginPage navigateToPage(Domain domain, DisplayLanguage lang) {
+		switch (domain) {
+			case VN -> navigate().selectDisplayLanguage(lang);
+			case BIZ -> navigateBiz();
+			default -> throw new IllegalArgumentException("Unexpected value: " + domain);
+		}
+		return this;
+	}	    
+    
     public LoginPage selectCountry(String country) {
     	commonAction.getElement(loc_ddlCountryDefaultValue); //Implicitly means the dropdown has a default value and ready for further actions. Reason #1
     	commonAction.click(loc_ddlCountry);
@@ -146,6 +154,13 @@ public class LoginPage {
         performLogin(username, password);
         new HomePage(driver).waitTillSpinnerDisappear1(); //Not sure if it's still needed as UI behavior has changed
         return this;
+    }
+    
+    public LoginPage performValidLogin(String country, String username, String password) {
+    	selectCountry(country);
+    	performLogin(username, password);
+    	new HomePage(driver).waitTillSpinnerDisappear1().verifyPageLoaded();
+    	return this;
     }
 
     public LoginPage performLoginWithFacebook(String username, String password) {

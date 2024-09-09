@@ -50,6 +50,15 @@ public class AccountTest {
     public static String ADMIN_MAIL_BIZ_COUNTRY = PropertiesUtil.getEnvironmentData("admin.mail.biz.country");
     public static String ADMIN_MAIL_BIZ_USERNAME = PropertiesUtil.getEnvironmentData("admin.mail.biz.username");
     public static String ADMIN_MAIL_BIZ_PASSWORD = PropertiesUtil.getEnvironmentData("admin.mail.biz.password");
+    
+    public static String ADMIN_PLAN_MAIL_VN_COUNTRY = PropertiesUtil.getEnvironmentData("admin.plan.mail.vn.country");
+    public static String ADMIN_PLAN_MAIL_VN_USERNAME = PropertiesUtil.getEnvironmentData("admin.plan.mail.vn.username");
+    public static String ADMIN_PLAN_MAIL_VN_PASSWORD = PropertiesUtil.getEnvironmentData("admin.plan.mail.vn.password");
+    
+    public static String ADMIN_PLAN_PHONE_BIZ_COUNTRY = PropertiesUtil.getEnvironmentData("admin.plan.phone.biz.country");
+    public static String ADMIN_PLAN_PHONE_BIZ_USERNAME = PropertiesUtil.getEnvironmentData("admin.plan.phone.biz.username");
+    public static String ADMIN_PLAN_PHONE_BIZ_PASSWORD = PropertiesUtil.getEnvironmentData("admin.plan.phone.biz.password");
+    
     public static String ADMIN_FACEBOOK_USERNAME = PropertiesUtil.getEnvironmentData("adminFacebookUsername");
     public static String ADMIN_FACEBOOK_PASSWORD = PropertiesUtil.getEnvironmentData("adminFacebookPassword");
     public static String ADMIN_USERNAME_GOWEB = PropertiesUtil.getEnvironmentData("adminGoWebUserName");
@@ -98,8 +107,6 @@ public class AccountTest {
     public static String VISA_ADDRESS = "22 Lang Ha";
     public static String VISA_OTP = "1234";
     //PAYPAL Credentials
-//    public static String PAYPAL_USERNAME = "trangthuy9662@gmail.com";
-//    public static String PAYPAL_PASSWORD = "P@ssword1@";
     public static String PAYPAL_USERNAME = "tienvan-staging-vn@mailnesia.com";
     public static String PAYPAL_PASSWORD = "246357x@X";
     //Shopee Credentials

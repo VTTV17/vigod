@@ -84,6 +84,7 @@ public class LoginDashboard extends BaseTest {
 		generate = new DataGenerator();
 	}
 
+	//Will remove soon
 	void navigateToPage(Domain domain) {
 		switch (domain) {
 			case VN -> loginPage.navigate().selectDisplayLanguage(language);

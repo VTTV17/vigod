@@ -9,6 +9,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.testng.Assert;
 
+import utilities.enums.Domain;
 import utilities.model.dashboard.setting.packageinfo.PaymentCompleteInfo;
 import utilities.model.dashboard.setupstore.SetupStoreDG;
 
@@ -31,12 +32,12 @@ public class VerifyMailContent {
     static String TRACKINGLINK_REGEX = "//tracking\\.(.*)/tracking";
     public static String ORDERID_REGEX = "(?:Order ID|M. đ.n h.ng):#(\\d+)";
     
-    static String getDomain(String url) {
-    	return url.contains("biz") ? DOMAIN_BIZ : DOMAIN_VN;
+    static String getDomain(Domain domain) {
+    	return domain.equals(Domain.BIZ) ? DOMAIN_BIZ : DOMAIN_VN;
     }
-    static String getGoSellEmail(String url) {
-    	String subMail = url.contains("biz") ? "support@" : "hotro@";
-    	return subMail + getDomain(url);
+    static String getGoSellEmail(Domain domain) {
+    	String subMail = domain.equals(Domain.BIZ) ? "support@" : "hotro@";
+    	return subMail + getDomain(domain);
     }
     static String getGoSellAccountNumber(String country) {
     	return country.contentEquals("Vietnam") ? GOSELL_LOCAL_BANKNUMBER : GOSELL_FOREIGN_BANKNUMBER;
