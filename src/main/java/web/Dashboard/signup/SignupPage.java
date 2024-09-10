@@ -212,24 +212,38 @@ public class SignupPage {
 //		clickCompleteBtn();
 	}    
     
+	public String getUsernameExistError() {
+		String text = commonAction.getText(loc_lblSignupFailError);
+		logger.info("Retrieve Username Exists error: {}", text);
+		return text;
+	}
     public SignupPage verifyUsernameExistError(String signupLanguage) throws Exception {
-    	String text = commonAction.getText(loc_lblSignupFailError);
-    	logger.info("Retrieve Username Exists error: {}", text);
     	String retrievedMsg = PropertiesUtil.getPropertiesValueByDBLang("signup.screen.error.userExists", signupLanguage);
-    	soft.assertEquals(text,retrievedMsg, "[Signup][Username already exists] Message does not match.");
+    	Assert.assertEquals(getUsernameExistError(),retrievedMsg, "Username exists error");
     	logger.info("verifyUsernameExistError completed");
     	return this;
     }
     
+    public String getVerificationCodeError() {
+    	String text = commonAction.getText(loc_lblInvalidFeedback);
+    	logger.info("Retrieve Verification Code error: {}", text);
+    	return text;
+    }
+    public SignupPage verifyVerificationCodeError(DisplayLanguage language) throws Exception {
+    	String retrievedMsg = PropertiesUtil.getPropertiesValueByDBLang("signup.screen.error.wrongVerificationCode", language.name());
+    	Assert.assertEquals(getVerificationCodeError(), retrievedMsg, "Verification Code error");
+    	logger.info("verifyVerificationCodeError completed");
+    	return this;
+    }
+    //Will be eradicated
     public SignupPage verifyVerificationCodeError(String signupLanguage) throws Exception {
-        String text = commonAction.getText(loc_lblInvalidFeedback);
-        logger.info("Retrieve Verification Code error: {}", text);
     	String retrievedMsg = PropertiesUtil.getPropertiesValueByDBLang("signup.screen.error.wrongVerificationCode", signupLanguage);
-    	Assert.assertEquals(text,retrievedMsg, "[Signup][Wrong Verification Code] Message does not match.");
+    	Assert.assertEquals(getVerificationCodeError(), retrievedMsg, "Verification Code error");
         logger.info("verifyVerificationCodeError completed");
         return this;
     }
 
+    //Remove be eradicated
     public void completeVerify() {
         soft.assertAll();
     }

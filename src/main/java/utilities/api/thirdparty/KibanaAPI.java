@@ -64,21 +64,22 @@ public class KibanaAPI {
 	 * @return activationKey/resetKey generated for the username
 	 */
 	public String getKeyFromKibana(String username, String keyType) {
-		String key = "";
-		
-		for (int i=0; i<10; i++) {
+	    String key = "";
+	    int attempts = 0;
+
+	    do {
 	        try {
 	            sleep(1000);
 	        } catch (InterruptedException e) {
 	            throw new RuntimeException(e);
 	        }
-			key = extractKeyFromKibanaJsonPath(getKeyFromKibanaJsonPath(username), keyType);
-			if (key ==null) continue;
-			if (key.isEmpty()) continue;
-			break;
-		}
-		logger.info("Retrieved %s for username %s: %s".formatted(keyType, username, key));
-		return key;
+
+	        key = extractKeyFromKibanaJsonPath(getKeyFromKibanaJsonPath(username), keyType);
+	        attempts++;
+	    } while ((key == null || key.isEmpty()) && attempts < 10);
+
+	    logger.info(String.format("Retrieved %s for username %s: %s", keyType, username, key));
+	    return key;
 	}
 	
 }
