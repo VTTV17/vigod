@@ -2,6 +2,8 @@ package api.Seller.promotion;
 
 import api.Seller.customers.APIAllCustomers;
 import api.Seller.login.Login;
+import api.Seller.products.all_products.APIProductDetailV2;
+import api.Seller.products.all_products.APIProductDetailV2.ProductInfoV2;
 import api.Seller.setting.BranchManagement;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
@@ -172,6 +174,49 @@ public class ProductDiscountCampaign {
                 }""".formatted(nextInt(Math.max(min, 1)) + 1);
     }
 
+    String getAppliesToCondition(ProductInfoV2 productInfo) {
+        // applies to type:
+        // 0: all products
+        // 1: specific collections
+        // 2: specific products
+        int appliesToType = 2;
+
+        String appliesToLabel = "APPLIES_TO_SPECIFIC_PRODUCTS";
+
+        String appliesToValue = """
+        {
+            "conditionValue": %s
+        }
+        """.formatted(productInfo.getId());
+
+        return """
+                {
+                    "conditionOption": "%s",
+                    "conditionType": "APPLIES_TO",
+                    "values": [ %s ]
+                }
+                """.formatted(appliesToLabel, appliesToValue);
+    }
+
+    String getMinimumRequirement(ProductInfoV2 productInfo) {
+        // init minimum requirement
+        List<Integer> variationModelList = productInfo.getVariationModelList();
+        int min = Collections.min(productInfo.getProductStockQuantityMap().get(productInfo.isHasModel() ? variationModelList.get(0) : productInfo.getId()));
+        if (productInfo.isHasModel()) for (int index = 1; index < variationModelList.size(); index++)
+            min = Math.min(Collections.min(productInfo.getProductStockQuantityMap().get(variationModelList.get(index))), min);
+
+        return """
+                {
+                    "conditionOption": "MIN_REQUIREMENTS_QUANTITY_OF_ITEMS",
+                    "conditionType": "MINIMUM_REQUIREMENTS",
+                    "values": [
+                        {
+                            "conditionValue": "%s"
+                        }
+                    ]
+                }""".formatted(nextInt(Math.max(min, 1)) + 1);
+    }
+
     String getBranchCondition() {
         int discountCampaignBranchConditionType = (conditions.getDiscountCampaignBranchConditionType() != null)
                 ? conditions.getDiscountCampaignBranchConditionType()
@@ -208,6 +253,14 @@ public class ProductDiscountCampaign {
                 [%s, %s, %s, %s]""".formatted(getSegmentCondition(),
                 getAppliesToCondition(),
                 getMinimumRequirement(),
+                getBranchCondition());
+    }
+
+    String getAllConditionV2(ProductInfoV2 productInfo) {
+        return """
+                [%s, %s, %s, %s]""".formatted(getSegmentCondition(),
+                getAppliesToCondition(productInfo),
+                getMinimumRequirement(productInfo),
                 getBranchCondition());
     }
 
@@ -260,6 +313,55 @@ public class ProductDiscountCampaign {
                 getAllCondition());
     }
 
+    String getDiscountConfigV2(int startDatePlus, ProductInfoV2 productInfo) {
+
+        // Get the current local time
+        LocalDateTime localDateTime = LocalDateTime.now();
+
+        // Get the time zone of the local time
+        ZoneId localZoneId = ZoneId.systemDefault();
+
+        // Get the GMT+0 time zone
+        ZoneId gmtZoneId = ZoneId.of("GMT+0");
+
+        // start date
+        Instant productDiscountCampaignStartTime = localDateTime.truncatedTo(ChronoUnit.DAYS).atZone(localZoneId).withZoneSameInstant(gmtZoneId).plusDays(startDatePlus).toInstant();
+
+        // end date
+        Instant productDiscountCampaignEndTime = localDateTime.truncatedTo(ChronoUnit.DAYS).atZone(localZoneId).withZoneSameInstant(gmtZoneId).plusDays(startDatePlus).plus(Duration.ofHours(23).plusMinutes(59)).toInstant();
+
+        // coupon type
+        // 0: percentage
+        // 1: fixed amount
+        int productDiscountCouponType = nextInt(MAX_PRODUCT_WHOLESALE_CAMPAIGN_DISCOUNT_TYPE);
+        String couponType = productDiscountCouponType == 0
+                ? "PERCENTAGE"
+                : "FIXED_AMOUNT";
+
+        // coupon value
+        long minFixAmount = productInfo.isHasModel() ? Collections.min(productInfo.getProductSellingPrice()) : productInfo.getNewPrice();
+        long couponValue = productDiscountCouponType == 0
+                ? nextInt(MAX_PERCENT_DISCOUNT) + 1
+                : nextLong(Math.max(minFixAmount, 1)) + 1;
+
+        return """
+                [
+                        {
+                            "couponCode": "unused_code",
+                            "activeDate": "%s",
+                            "couponType": "%s",
+                            "couponValue": "%s",
+                            "expiredDate": "%s",
+                            "type": "WHOLE_SALE",
+                            "conditions": %s
+                        }
+                ]""".formatted(productDiscountCampaignStartTime,
+                couponType,
+                couponValue,
+                productDiscountCampaignEndTime,
+                getAllConditionV2(productInfo));
+    }
+
     String getDiscountCampaignBody(int startDatePlus) {
         // campaign name
         String name = "Auto - [Product] Discount campaign - %s".formatted(new DataGenerator().generateDateTime("dd/MM HH:mm:ss"));
@@ -272,6 +374,20 @@ public class ProductDiscountCampaign {
                     "description": "",
                     "discounts": %s
                 }""".formatted(name, loginInfo.getStoreID(), getDiscountConfig(startDatePlus));
+    }
+
+    String getDiscountCampaignBodyV2(int startDatePlus, ProductInfoV2 productInfo) {
+        // campaign name
+        String name = "Auto - [Product] Discount campaign - %s".formatted(new DataGenerator().generateDateTime("dd/MM HH:mm:ss"));
+
+        return """
+                {
+                    "name": "%s",
+                    "storeId": "%s",
+                    "timeCopy": 0,
+                    "description": "",
+                    "discounts": %s
+                }""".formatted(name, loginInfo.getStoreID(), getDiscountConfigV2(startDatePlus, productInfo));
     }
 
     public void createProductDiscountCampaign(ProductDiscountCampaignConditions conditions, ProductInfo productInfo, int startDatePlus) {
@@ -295,6 +411,29 @@ public class ProductDiscountCampaign {
 
         // debug log
         logger.debug("Product discount campaign id: %s".formatted(createProductDiscountCampaign.jsonPath().getInt("id")));
+    }
+
+    public void createProductDiscountCampaignV2(ProductDiscountCampaignConditions conditions, ProductInfoV2 productInfo, int startDatePlus) {
+        // Logger
+        LogManager.getLogger().info("===== STEP =====> [CreateDiscountCampaign] START... ");
+
+        // get product discount campaign condition
+        this.conditions = conditions;
+
+        // end early discount campaign
+        endEarlyDiscountCampaign();
+
+        // get discount campaign body
+        String body = getDiscountCampaignBodyV2(startDatePlus, productInfo);
+
+        // POST API to create new product discount campaign
+        Response createProductDiscountCampaign = api.post(CREATE_PRODUCT_DISCOUNT_CAMPAIGN_PATH, loginInfo.getAccessToken(), body, Map.of("time-zone", "Asia/Saigon"));
+
+        // check product discount campaign is create
+        createProductDiscountCampaign.then().statusCode(200);
+
+        // Logger
+        LogManager.getLogger().info("===== STEP =====> [CreateDiscountCampaign] DONE!!! ");
     }
 
     boolean isMatchWithConditions(List<String> conditionOption, Map<String, List<Integer>> conditionValueMap, ProductInfo productInfo, List<Integer> listSegmentOfCustomer) {

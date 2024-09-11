@@ -1,6 +1,7 @@
 package api.Seller.customers;
 
 import api.Seller.login.Login;
+import com.fasterxml.jackson.core.type.TypeReference;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import lombok.Data;
@@ -96,10 +97,13 @@ public class APIAllCustomers {
     }
 
     public int getCustomerID(String keywords) {
-        Response searchCustomerByEmail = new API().get("%s%s/v2?keyword=%s&searchField=%s".formatted(SEARCH_CUSTOMER_PATH, loginInfo.getStoreID(), keywords, "EMAIL"), loginInfo.getAccessToken());
-        searchCustomerByEmail.then().statusCode(200);
-
-        return Pattern.compile("id.{3}(\\d+)").matcher(searchCustomerByEmail.asPrettyString()).results().map(matchResult -> Integer.valueOf(matchResult.group(1))).toList().get(0);
+        List<String> customerList = api.get("%s%s/v2?keyword=%s&searchField=%s".formatted(SEARCH_CUSTOMER_PATH, loginInfo.getStoreID(), keywords, "EMAIL"), loginInfo.getAccessToken())
+                .then()
+                .statusCode(200)
+                .extract()
+                .jsonPath()
+                .getList("userId");
+        return customerList.isEmpty() ? 0 : Integer.parseInt(customerList.get(0));
     }
 
     public Response getAllCustomerResponse(int pageIndex) {

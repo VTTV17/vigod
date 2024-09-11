@@ -1,6 +1,7 @@
 package api.Seller.promotion;
 
 import api.Seller.login.Login;
+import api.Seller.products.all_products.APIProductDetailV2;
 import api.Seller.setting.BranchManagement;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
@@ -21,6 +22,7 @@ import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 
+import static api.Seller.products.all_products.APIProductDetailV2.*;
 import static java.lang.Thread.sleep;
 import static org.apache.commons.lang.math.JVMRandom.nextLong;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
@@ -50,7 +52,7 @@ public class FlashSale {
     }
 
     @Data
-    public class FlashSaleInfo {
+    public static class FlashSaleInfo {
         private List<Long> flashSalePrice;
         private List<Integer> flashSaleStock;
         private Map<String, List<String>> flashSaleStatus;
@@ -116,8 +118,46 @@ public class FlashSale {
         } else return "";
     }
 
+    String getItemV2(ProductInfoV2 productInfo, int varIndex) {
+        // get model
+        int model = productInfo.isHasModel() ? productInfo.getVariationModelList().get(varIndex) : productInfo.getId();
+
+        // if variation stock > 0 => add variation to flash sale campaign
+        if (Collections.max(productInfo.getProductStockQuantityMap().get(model)) > 0) {
+            int stock = nextInt(Collections.max(productInfo.getProductStockQuantityMap().get(model))) + 1;
+
+            // purchase limit
+            int purchaseLimit = nextInt(stock) + 1;
+
+            // variation price
+            long price = nextLong(productInfo.isHasModel() ? productInfo.getProductSellingPrice().get(varIndex) : productInfo.getNewPrice());
+
+            return productInfo.isHasModel() ? """
+                    {
+                                "itemId": "%s",
+                                "limitPurchaseStock": "%s",
+                                "modelId": "%s",
+                                "price": "%s",
+                                "saleStock": "%s"
+                            }
+                    """.formatted(productInfo.getId(), purchaseLimit, model, price, stock)
+                    : """
+                    {
+                                "itemId": "%s",
+                                "limitPurchaseStock": "%s",
+                                "price": "%s",
+                                "saleStock": "%s"
+                            }
+                    """.formatted(productInfo.getId(), purchaseLimit, price, stock);
+        } else return "";
+    }
+
     String getItems(ProductInfo productInfo) {
         return IntStream.range(0, nextInt(productInfo.getVariationModelList().size()) + 1).mapToObj(varIndex -> getItem(productInfo, varIndex)).filter(item -> !item.isEmpty()).toList().toString();
+    }
+
+    String getItemsV2(ProductInfoV2 productInfo) {
+        return IntStream.range(0, nextInt(productInfo.getVariationModelList().size()) + 1).mapToObj(varIndex -> getItemV2(productInfo, varIndex)).filter(item -> !item.isEmpty()).toList().toString();
     }
 
     String getFlashSaleBody(ProductInfo productInfo, int... time) {
@@ -139,6 +179,25 @@ public class FlashSale {
                     "items": %s}""".formatted(flashSaleName, flashSaleStartTime, flashSaleEndTime, getItems(productInfo));
     }
 
+    String getFlashSaleBodyV2(ProductInfoV2 productInfo, int... time) {
+        // flash sale name
+        String flashSaleName = "Auto - Flash sale campaign - " + new DataGenerator().generateDateTime("dd/MM HH:mm:ss");
+        // start date
+        int startMin = time.length > 0 ? time[0] : nextInt(60);
+        Instant flashSaleStartTime = Instant.now().plus(startMin, ChronoUnit.MINUTES);
+
+        // end date
+        int endMin = time.length > 1 ? time[1] : startMin + nextInt(60);
+        Instant flashSaleEndTime = Instant.now().plus(endMin, ChronoUnit.MINUTES);
+
+        return """
+                {
+                    "name": "%s",
+                    "startDate": "%s",
+                    "endDate": "%s",
+                    "items": %s}""".formatted(flashSaleName, flashSaleStartTime, flashSaleEndTime, getItemsV2(productInfo));
+    }
+
     @SneakyThrows
     Response createFlashSaleResponse(ProductInfo productInfo, int... time) {
         // post api create new flash sale campaign
@@ -147,6 +206,25 @@ public class FlashSale {
             if (createFlashSale.getStatusCode() == 200) return createFlashSale;
             sleep(3000);
             logger.debug("Try create flash sale again");
+        }
+        return null;
+    }
+
+    @SneakyThrows
+    Response createFlashSaleResponseV2(ProductInfoV2 productInfo, int... time) {
+        // Logger
+        LogManager.getLogger().info("===== STEP =====> [CreateFlashSale] START... ");
+
+        // post api create new flash sale campaign
+        for (int executeTimes = 0; executeTimes < 5; executeTimes++) {
+            Response createFlashSale = api.post(CREATE_FLASH_SALE_PATH + loginInfo.getStoreID(), loginInfo.getAccessToken(), getFlashSaleBodyV2(productInfo, time), Map.of("time-zone", "Asia/Saigon"));
+            if (createFlashSale.getStatusCode() == 200) {
+                // Logger
+                LogManager.getLogger().info("===== STEP =====> [CreateFlashSale] DONE!!! ");
+                return createFlashSale;
+            }
+            sleep(3000);
+            logger.debug("Try create flash sale again v2");
         }
         return null;
     }
@@ -160,6 +238,13 @@ public class FlashSale {
         logger.debug("Flash sale id: %s.".formatted(createFlashSale.jsonPath().getInt("id")));
     }
 
+    public void createFlashSaleV2(ProductInfoV2 productInfo, int... time) {
+        endEarlyFlashSale();
+
+        // post api create new flash sale campaign
+        Response createFlashSale = createFlashSaleResponseV2(productInfo, time);
+    }
+
     void getFlashSaleInformation(int flashSaleID, List<String> listVariationModelId) {
         Response flashSaleDetail = api.get(FLASH_SALE_DETAIL.formatted(flashSaleID, loginInfo.getStoreID()), loginInfo.getAccessToken());
         flashSaleDetail.then().statusCode(200);
@@ -168,7 +253,7 @@ public class FlashSale {
         // init flash sale stock list
         if (flashSaleStock == null) {
             flashSaleStock = new ArrayList<>();
-            listVariationModelId.forEach(barcode -> flashSaleStock.add(0));
+            listVariationModelId.forEach(ignored -> flashSaleStock.add(0));
         }
 
         // update flash sale status map

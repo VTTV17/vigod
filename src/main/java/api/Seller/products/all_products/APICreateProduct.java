@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import org.apache.logging.log4j.LogManager;
 import utilities.api.API;
 import utilities.data.DataGenerator;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
@@ -284,6 +285,9 @@ public class APICreateProduct {
     }
 
     public APICreateProduct createWithoutVariationProduct(boolean isManagedByIMEI, int... branchStock) {
+        // Log
+        LogManager.getLogger().info("===== STEP =====> [CreateWithoutVariationProduct] START...");
+
         // Get product payload
         ProductPayload productPayload = getWithoutVariationPayload(isManagedByIMEI, branchStock);
 
@@ -298,10 +302,16 @@ public class APICreateProduct {
                 .response()
                 .jsonPath()
                 .getInt("id");
+
+        // Log
+        LogManager.getLogger().info("===== STEP =====> [CreateWithoutVariationProduct] DONE!!!");
         return this;
     }
 
     public APICreateProduct createVariationProduct(boolean isManagedByIMEI, int increaseNum, int... branchStock) {
+        // Log
+        LogManager.getLogger().info("===== STEP =====> [CreateVariationProduct] START...");
+
         // Get product payload
         ProductPayload productPayload = getWithVariationPayload(isManagedByIMEI, increaseNum, branchStock);
 
@@ -316,6 +326,9 @@ public class APICreateProduct {
                 .response()
                 .jsonPath()
                 .getInt("id");
+
+        // Log
+        LogManager.getLogger().info("===== STEP =====> [CreateVariationProduct] DONE!!!");
         return this;
     }
 

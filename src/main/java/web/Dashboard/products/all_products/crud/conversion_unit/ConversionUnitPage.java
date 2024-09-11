@@ -1,5 +1,6 @@
 package web.Dashboard.products.all_products.crud.conversion_unit;
 
+import api.Seller.products.all_products.APIProductDetailV2.ProductInfoV2;
 import api.Seller.products.all_products.ConversionUnit;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -8,7 +9,6 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import utilities.assert_customize.AssertCustomize;
 import utilities.commons.UICommonAction;
-import utilities.model.dashboard.products.productInfomation.ProductInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 
 import java.time.Duration;
@@ -19,19 +19,20 @@ import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static utilities.character_limit.CharacterLimit.MAX_PRICE;
 import static utilities.links.Links.DOMAIN;
 import static web.Dashboard.products.all_products.crud.ProductPage.updateProductPath;
-import static web.Dashboard.products.all_products.crud.ProductPageElement.*;
+import static web.Dashboard.products.all_products.crud.ProductPageElement.loc_btnConfigureAddConversionUnit;
+import static web.Dashboard.products.all_products.crud.ProductPageElement.loc_chkAddConversionUnit;
 
 public class ConversionUnitPage extends ConversionUnitElement {
     WebDriver driver;
     WebDriverWait wait;
     UICommonAction commonAction;
     Logger logger = LogManager.getLogger(ConversionUnitPage.class);
-    ProductInfo productInfo;
+    ProductInfoV2 productInfo;
     ConversionUnit unit;
     List<String> variationList;
     AssertCustomize assertCustomize;
 
-    public ConversionUnitPage(WebDriver driver, LoginInformation loginInformation, ProductInfo productInfo) {
+    public ConversionUnitPage(WebDriver driver, LoginInformation loginInformation, ProductInfoV2 productInfo) {
         this.driver = driver;
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         commonAction = new UICommonAction(driver);
@@ -42,8 +43,8 @@ public class ConversionUnitPage extends ConversionUnitElement {
 
     public ConversionUnitPage navigateToConversionUnitPage() {
         // navigate to product detail page by URL
-        driver.get("%s%s".formatted(DOMAIN, updateProductPath(productInfo.getProductId())));
-        logger.info("Navigate to product detail page by URL, productId: %s".formatted(productInfo.getProductId()));
+        driver.get("%s%s".formatted(DOMAIN, updateProductPath(productInfo.getId())));
+        logger.info("Navigate to product detail page by URL, productId: {}", productInfo.getId());
 
         // If product has conversion unit, remove that to add new configuration
         if (commonAction.isCheckedJS(loc_chkAddConversionUnit)) {
@@ -53,7 +54,7 @@ public class ConversionUnitPage extends ConversionUnitElement {
 
         // Check "Add Conversion Unit" checkbox to add new configuration
         commonAction.clickJS(loc_chkAddConversionUnit);
-        if (productInfo.getManageInventoryByIMEI())
+        if (productInfo.getInventoryManageType().equals("IMEI_SERIAL_NUMBER"))
             logger.info("Not support conversion unit for product managed by IMEI/Serial at this time.");
         else {
             // click Configure button
@@ -67,7 +68,7 @@ public class ConversionUnitPage extends ConversionUnitElement {
 
     /* Without variation config */
     public void addConversionUnitWithoutVariation() {
-        if (!productInfo.getManageInventoryByIMEI()) {
+        if (!productInfo.getInventoryManageType().equals("IMEI_SERIAL_NUMBER")) {
             // click Select Unit button
             commonAction.click(withoutVariationSelectUnitBtn);
             logger.info("Add new conversion unit.");
@@ -82,12 +83,12 @@ public class ConversionUnitPage extends ConversionUnitElement {
             String unitName = unitNameList.isEmpty() ? unit.createConversionUnitAndGetName() : unitNameList.get(nextInt(unitNameList.size()));
             commonAction.sendKeys(unitTextBoxOnSetupVariationConversionUnitPage, unitName);
             commonAction.click(By.xpath(unitLocator.formatted(unitName)));
-            logger.info("Select conversion unit: %s.".formatted(unitName));
+            logger.info("Select conversion unit: {}", unitName);
 
             // input conversion unit quantity
-            long quantity = Math.min(Math.max(Collections.max(productInfo.getProductStockQuantityMap().get(String.valueOf(productInfo.getProductId()))), 1), MAX_PRICE / productInfo.getProductListingPrice().get(0));
+            long quantity = Math.min(Math.max(Collections.max(productInfo.getProductStockQuantityMap().get(productInfo.getId())), 1), MAX_PRICE / productInfo.getProductListingPrice().get(0));
             commonAction.sendKeys(withoutVariationQuantity, String.valueOf(quantity));
-            logger.info("Conversion unit quantity: %s.".formatted(quantity));
+            logger.info("Conversion unit quantity: {}", quantity);
 
             // click Save button
             commonAction.click(withoutVariationSaveBtn);
@@ -103,7 +104,7 @@ public class ConversionUnitPage extends ConversionUnitElement {
 
     /* Variation config */
     public void addConversionUnitVariation() {
-        if (!productInfo.getManageInventoryByIMEI()) {
+        if (!productInfo.getInventoryManageType().equals("IMEI_SERIAL_NUMBER")) {
             // number of conversion unit
             int numberOfConversionUnit = nextInt(productInfo.getVariationModelList().size()) + 1;
 
@@ -118,7 +119,7 @@ public class ConversionUnitPage extends ConversionUnitElement {
 
                 // select variation
                 selectVariation(variation);
-                logger.info("Select variation: %s.".formatted(variation));
+                logger.info("Select variation: {}", variation);
 
                 // close Add variation popup
                 commonAction.closePopup(saveBtnOnSelectVariationPopup);
@@ -140,20 +141,20 @@ public class ConversionUnitPage extends ConversionUnitElement {
                 // select conversion unit
                 commonAction.sendKeys(withoutVariationUnitTextBox, unitName);
                 commonAction.click(By.xpath(unitLocator.formatted(unitName)));
-                logger.info("[%s] Select conversion unit: %s.".formatted(variation, unitName));
+                logger.info("[{}] Select conversion unit: {}", variation, unitName);
 
                 // input conversion unit quantity
                 long quantity = MAX_PRICE / productInfo.getProductListingPrice().get(varIndex);
                 commonAction.sendKeys(quantityOnSetupVariationConversionUnitPage, String.valueOf(quantity));
-                logger.info("[%s] Conversion unit quantity: %s.".formatted(variation, quantity));
+                logger.info("[{}] Conversion unit quantity: {}", variation, quantity);
 
                 // click Save button on variation config
                 commonAction.click(saveBtnOnSetupVariationConversionUnitPage);
-                logger.info("[%s] Complete configure conversion unit.".formatted(variation));
+                logger.info("[{}] Complete configure conversion unit.", variation);
 
                 // wait conversion unit page loaded
                 commonAction.waitURLShouldBeContains("/conversion-unit/variation/edit/");
-                logger.info("[%s] Wait setup conversion unit page loaded.".formatted(variation));
+                logger.info("[{}] Wait setup conversion unit page loaded.", variation);
 
             }
 

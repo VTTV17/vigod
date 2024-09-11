@@ -4,6 +4,7 @@ import api.Seller.login.Login;
 import api.Seller.setting.BranchManagement;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
+import org.apache.logging.log4j.LogManager;
 import utilities.api.API;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.dashboard.products.productInfomation.ProductInfo;
@@ -14,6 +15,7 @@ import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 
+import static api.Seller.products.all_products.APIProductDetailV2.*;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.math.JVMRandom.nextLong;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
@@ -85,6 +87,68 @@ public class WholesaleProduct {
 
         Response addWholesale = api.post(CREATE_WHOLESALE_PRICE_PATH, loginInfo.getAccessToken(), String.valueOf(body));
         addWholesale.then().statusCode(200);
+    }
+
+    public void addWholesalePriceProduct(ProductInfoV2 productInfo) {
+        // Logger
+        LogManager.getLogger().info("===== STEP =====> [AddWholesaleProduct] START... ");
+
+        String CREATE_WHOLESALE_PRICE_PATH = "/itemservice/api/item/wholesale-pricing";
+        StringBuilder body = new StringBuilder("""
+                {
+                    "itemId": "%s",
+                    "lstWholesalePricingDto": [""".formatted(productInfo.getId()));
+        String segmentIDs = "ALL";
+        int num = productInfo.isHasModel() ? nextInt(productInfo.getVariationModelList().size()) + 1 : 1;
+        if (productInfo.isHasModel()) {
+            for (int i = 0; i < num; i++) {
+                long price = productInfo.getProductSellingPrice().get(i) == 0
+                        ? productInfo.getProductSellingPrice().get(i)
+                        : nextLong(productInfo.getProductSellingPrice().get(i)) + 1;
+                int maxStock = Collections.max(productInfo.getProductStockQuantityMap().get(productInfo.getVariationModelList().get(i)));
+                int stock = nextInt(Math.min(MAX_STOCK_QUANTITY, Math.max(maxStock, 1))) + 1;
+                String title = randomAlphabetic(nextInt(MAX_WHOLESALE_PRICE_TITLE) + 1);
+                String variationWholesaleConfig = """
+                        {
+                            "id": null,
+                            "title": "%s",
+                            "minQuatity": %s,
+                            "itemModelIds": "%s",
+                            "currency": "%s",
+                            "price": %s,
+                            "segmentIds": "%s",
+                            "itemId": "%s",
+                            "action": null
+                        }""".formatted(title, stock, "%s_%s".formatted(productInfo.getId(), productInfo.getVariationModelList().get(i)), STORE_CURRENCY, price, segmentIDs, productInfo.getId());
+                body.append(variationWholesaleConfig);
+                body.append((i == (num - 1)) ? "" : ",");
+            }
+        } else {
+            String title = randomAlphabetic(nextInt(MAX_WHOLESALE_PRICE_TITLE) + 1);
+            long price = nextLong(productInfo.isHasModel() ? productInfo.getProductSellingPrice().get(0) : productInfo.getNewPrice()) + 1;
+            int maxStock = Collections.max(productInfo.getProductStockQuantityMap().get(productInfo.isHasModel() ? productInfo.getVariationModelList().get(0) : productInfo.getId()));
+            int stock = nextInt(Math.min(MAX_STOCK_QUANTITY, Math.max(maxStock, 1))) + 1;
+            String variationWholesaleConfig = """
+                    {
+                        "id": null,
+                        "title": "%s",
+                        "minQuatity": %s,
+                        "itemModelIds": "%s",
+                        "currency": "%s",
+                        "price": %s,
+                        "segmentIds": "%s",
+                        "itemId": "%s",
+                        "action": null
+                    }""".formatted(title, stock, productInfo.getId(), STORE_CURRENCY, price, segmentIDs, productInfo.getId());
+            body.append(variationWholesaleConfig);
+        }
+        body.append("]}");
+
+        Response addWholesale = api.post(CREATE_WHOLESALE_PRICE_PATH, loginInfo.getAccessToken(), String.valueOf(body));
+        addWholesale.then().statusCode(200);
+
+        // Logger
+        LogManager.getLogger().info("===== STEP =====> [AddWholesaleProduct] DONE!!! ");
     }
 
     /**

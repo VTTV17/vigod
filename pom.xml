@@ -123,6 +123,12 @@
             <artifactId>generex</artifactId>
             <version>1.0.2</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.testng/reportng -->
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>reportng</artifactId>
+            <version>1.2.2</version>
+        </dependency>
     </dependencies>
 
     <properties>

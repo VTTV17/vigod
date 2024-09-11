@@ -6,7 +6,7 @@ public class VariationDetailElement {
     By loc_txtProductVersionName = By.cssSelector("#variationName");
     By loc_chkReuse = By.cssSelector(".des-header > div > label > input");
     By loc_rtfDescription = By.cssSelector(".fr-element");
-    By loc_btnSave = By.cssSelector("(//*[text() = 'Lưu' or text() = 'Save'])[1]/parent::div/parent::button");
+    By loc_btnSave = By.xpath("(//*[text() = 'Lưu' or text() = 'Save'])[1]/parent::div/parent::button");
     By loc_btnDeactivate = By.xpath("(//*[text() = 'Ngừng bán' or text() = 'Deactivate' or text() = 'Bán ngay' or text() = 'Activate'])[1]/parent::div/parent::button");
     By loc_btnEditTranslation = By.xpath("(//*[text() = 'Sửa bản dịch' or text() = 'Edit Translation'])[1]/parent::div/parent::button");
     By loc_dlgEditTranslation = By.cssSelector(".modal-content");

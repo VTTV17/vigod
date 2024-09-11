@@ -1,33 +1,30 @@
 package web.StoreFront.detail_product;
 
-import api.Seller.customers.APIAllCustomers;
-import api.Seller.products.all_products.WholesaleProduct;
+import api.Buyer.productdetail.APIGetDiscountCampaignInformation;
+import api.Buyer.productdetail.APIGetFlashSaleInformation;
+import api.Buyer.productdetail.APIGetWholesaleProductInformation;
+import api.Seller.login.Login;
+import api.Seller.products.all_products.APIProductDetailV2.ProductInfoV2;
 import api.Seller.products.product_reviews.APIProductReviews;
-import api.Seller.promotion.FlashSale;
-import api.Seller.promotion.FlashSale.FlashSaleInfo;
-import api.Seller.promotion.ProductDiscountCampaign;
-import api.Seller.promotion.ProductDiscountCampaign.BranchDiscountCampaignInfo;
 import api.Seller.sale_channel.onlineshop.Preferences;
 import api.Seller.setting.BranchManagement;
 import api.Seller.setting.StoreInformation;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.*;
 import org.testng.Assert;
 import utilities.assert_customize.AssertCustomize;
 import utilities.commons.UICommonAction;
-import utilities.model.dashboard.products.productInfomation.ProductInfo;
-import utilities.model.dashboard.products.wholesaleProduct.WholesaleProductInfo;
+import utilities.data.DataGenerator;
 import utilities.model.dashboard.setting.branchInformation.BranchInfo;
 import utilities.model.dashboard.setting.storeInformation.StoreInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 import web.StoreFront.shoppingcart.ShoppingCart;
 
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.IntStream;
 
 import static utilities.links.Links.SF_DOMAIN;
@@ -38,12 +35,9 @@ public class ProductDetailPage extends ProductDetailElement {
     WebDriver driver;
     Logger logger = LogManager.getLogger(ProductDetailPage.class);
     UICommonAction commonAction;
-    ProductInfo productInfo;
+    ProductInfoV2 productInfo;
     BranchInfo brInfo;
     StoreInfo storeInfo;
-    FlashSaleInfo flashSaleInfo;
-    Map<String, BranchDiscountCampaignInfo> productDiscountCampaignInfo;
-    WholesaleProductInfo wholesaleProductInfo;
     List<Boolean> branchStatus;
     LoginInformation loginInformation;
     AssertCustomize assertCustomize;
@@ -62,27 +56,27 @@ public class ProductDetailPage extends ProductDetailElement {
     void checkHeader(String language) throws Exception {
         // check store logo
         String sfStoreLogo = commonAction.getAttribute(loc_imgHeaderLogo, "src").replaceAll("\\d+/", "");
-        assertCustomize.assertEquals(sfStoreLogo, storeInfo.getStoreLogo(), "[Failed][Header] Store logo should be %s, but found %s.".formatted(storeInfo.getStoreLogo(), sfStoreLogo));
-        logger.info("[UI][%s] Check Header - Store Logo".formatted(language));
+        assertCustomize.assertEquals(sfStoreLogo, storeInfo.getStoreLogo(), "[Header] Store logo should be %s, but found %s.".formatted(storeInfo.getStoreLogo(), sfStoreLogo));
+        logger.info("[UI][{}] Check Header - Store Logo", language);
 
         // check header menu
         List<String> sfHeaderMenu = IntStream.range(0, commonAction.getListElement(loc_mnuHeaderMenu).size()).mapToObj(index -> commonAction.getText(loc_mnuHeaderMenu, index)).toList();
         List<String> defaultMenu = List.of(getPropertiesValueBySFLang("header.menu.vnStore.0", storeInfo.getDefaultLanguage()), getPropertiesValueBySFLang("header.menu.vnStore.1", storeInfo.getDefaultLanguage()));
-        assertCustomize.assertEquals(sfHeaderMenu, defaultMenu, "[Failed][Header] Header menu should be %s, but found %s.".formatted(defaultMenu, sfHeaderMenu));
-        logger.info("[UI][%s] Check Header - Menu".formatted(language));
+        assertCustomize.assertEquals(sfHeaderMenu, defaultMenu, "[Header] Header menu should be %s, but found %s.".formatted(defaultMenu, sfHeaderMenu));
+        logger.info("[UI][{}] Check Header - Menu", language);
 
         // check search icon
-        assertCustomize.assertFalse(commonAction.getListElement(loc_icnHeaderSearch).isEmpty(), "[Failed][Header] Search icon does not show.");
-        logger.info("[UI][%s] Check Header - Search Icon".formatted(language));
+        assertCustomize.assertFalse(commonAction.getListElement(loc_icnHeaderSearch).isEmpty(), "[Header] Search icon does not show.");
+        logger.info("[UI][{}] Check Header - Search Icon", language);
 
         // check cart
-        assertCustomize.assertFalse(commonAction.getListElement(loc_icnHeaderCart).isEmpty(), "[Failed][Header] Cart icon does not show.");
-        assertCustomize.assertFalse(commonAction.getListElement(loc_icnNumberOfProductsInCart).isEmpty(), "[Failed][Header] Number of products in cart does not show.");
-        logger.info("[UI][%s] Check Header - Cart Icon".formatted(language));
+        assertCustomize.assertFalse(commonAction.getListElement(loc_icnHeaderCart).isEmpty(), "[Header] Cart icon does not show.");
+        assertCustomize.assertFalse(commonAction.getListElement(loc_icnNumberOfProductsInCart).isEmpty(), "[Header] Number of products in cart does not show.");
+        logger.info("[UI][{}] Check Header - Cart Icon", language);
 
         // check profile icon
-        assertCustomize.assertFalse(commonAction.getListElement(loc_icnUserProfile).isEmpty(), "[Failed][Header] Profile icon does not show.");
-        logger.info("[UI][%s] Check Header - Profile Icon".formatted(language));
+        assertCustomize.assertFalse(commonAction.getListElement(loc_icnUserProfile).isEmpty(), "[Header] Profile icon does not show.");
+        logger.info("[UI][{}] Check Header - Profile Icon", language);
     }
 
     void checkBreadcrumbs(String language) throws Exception {
@@ -90,8 +84,8 @@ public class ProductDetailPage extends ProductDetailElement {
         List<WebElement> breadcrumbsElements = commonAction.getListElement(loc_brcBreadCrumbs);
         List<String> sfBreadCrumbs = IntStream.range(0, breadcrumbsElements.size()).filter(index -> index != 1).mapToObj(index -> commonAction.getText(loc_brcBreadCrumbs, index)).toList();
         List<String> ppBreadCrumbs = List.of(getPropertiesValueBySFLang("productDetail.breadCrumbs.0", language), productInfo.getMainProductNameMap().get(language));
-        assertCustomize.assertTrue(ppBreadCrumbs.toString().equals(sfBreadCrumbs.toString()), "[Failed][Breadcrumbs] Breadcrumbs should be %s, but found %s.".formatted(ppBreadCrumbs, sfBreadCrumbs));
-        logger.info("[UI][%s] Check Breadcrumbs".formatted(language));
+        assertCustomize.assertTrue(ppBreadCrumbs.toString().equals(sfBreadCrumbs.toString()), "[Breadcrumbs] Breadcrumbs should be %s, but found %s.".formatted(ppBreadCrumbs, sfBreadCrumbs));
+        logger.info("[UI][{}] Check Breadcrumbs", language);
     }
 
     void checkProductDetailWhenInStock(String language) throws Exception {
@@ -99,54 +93,54 @@ public class ProductDetailPage extends ProductDetailElement {
         if (!(new Preferences(loginInformation).isEnabledListingProduct() && productInfo.isEnabledListing())) {
             String sfQuantity = commonAction.getText(loc_lblQuantity);
             String quantity = getPropertiesValueBySFLang("productDetail.quantity", language);
-            assertCustomize.assertEquals(sfQuantity, quantity, "[Failed][Product Detail] Quantity title should be %s, but found %s.".formatted(quantity, sfQuantity));
-            logger.info("[UI][%s] Check Product Detail - Quantity".formatted(language));
+            assertCustomize.assertEquals(sfQuantity, quantity, "[Product Detail] Quantity title should be %s, but found %s.".formatted(quantity, sfQuantity));
+            logger.info("[UI][{}] Check Product Detail - Quantity", language);
 
             // check buy now
             String sfBuyNow = commonAction.getText(loc_btnBuyNow);
             String buyNow = getPropertiesValueBySFLang("productDetail.cart.buyNow", language);
-            assertCustomize.assertEquals(sfBuyNow, buyNow, "[Failed][Product Detail] Buy now title should be %s, but found %s.".formatted(buyNow, sfBuyNow));
-            logger.info("[UI][%s] Check Product Detail - Buy Now button".formatted(language));
+            assertCustomize.assertEquals(sfBuyNow, buyNow, "[Product Detail] Buy now title should be %s, but found %s.".formatted(buyNow, sfBuyNow));
+            logger.info("[UI][{}] Check Product Detail - Buy Now button", language);
 
             // check Add to cart
             String sfAddToCart = commonAction.getText(loc_btnAddToCart);
             String addToCart = getPropertiesValueBySFLang("productDetail.cart.addToCart", language);
-            assertCustomize.assertEquals(sfAddToCart, addToCart, "[Failed][Product Detail] Add to cart title should be %s, but found %s.".formatted(addToCart, sfAddToCart));
-            logger.info("[UI][%s] Check Product Detail - Add to Cart button".formatted(language));
+            assertCustomize.assertEquals(sfAddToCart, addToCart, "[Product Detail] Add to cart title should be %s, but found %s.".formatted(addToCart, sfAddToCart));
+            logger.info("[UI][{}] Check Product Detail - Add to Cart button", language);
 
             // payment
             String sfPayment = commonAction.getText(loc_lblPayment);
             String payment = getPropertiesValueBySFLang("productDetail.payment", language);
-            assertCustomize.assertEquals(sfPayment, payment, "[Failed][Product Detail] Payment title should be %s, but found %s.".formatted(payment, sfPayment));
-            logger.info("[UI][%s] Check Product Detail - Payment Method".formatted(language));
+            assertCustomize.assertEquals(sfPayment, payment, "[Product Detail] Payment title should be %s, but found %s.".formatted(payment, sfPayment));
+            logger.info("[UI][{}] Check Product Detail - Payment Method", language);
         }
 
         if (commonAction.getListElement(loc_lblBranchName).size() > 5) {
             // filter
             String sfFilterBranch = commonAction.getText(loc_lblAllLocations);
             String filterBranch = getPropertiesValueBySFLang("productDetail.branch.filter", language);
-            assertCustomize.assertEquals(sfFilterBranch, filterBranch, "[Failed][Filter branch by location] The first filter value should be %s, but found %s.".formatted(filterBranch, sfFilterBranch));
-            logger.info("[UI][%s] Check Product Detail - Filter Branch".formatted(language));
+            assertCustomize.assertEquals(sfFilterBranch, filterBranch, "[Filter branch by location] The first filter value should be %s, but found %s.".formatted(filterBranch, sfFilterBranch));
+            logger.info("[UI][{}] Check Product Detail - Filter Branch", language);
 
             // search
             String sfSearchBranch = commonAction.getText(loc_plhSearchBranchByName);
             String searchBranch = getPropertiesValueBySFLang("productDetail.branch.search", language);
-            assertCustomize.assertEquals(sfFilterBranch, filterBranch, "[Failed][Search branch by address] The search placeholder value should be %s, but found %s.".formatted(searchBranch, sfSearchBranch));
-            logger.info("[UI][%s] Check Product Detail - Search Branch".formatted(language));
+            assertCustomize.assertEquals(sfFilterBranch, filterBranch, "[Search branch by address] The search placeholder value should be %s, but found %s.".formatted(searchBranch, sfSearchBranch));
+            logger.info("[UI][{}] Check Product Detail - Search Branch", language);
         }
 
         // check branch
         String sfAvailableBranch = commonAction.getText(loc_lblAvailableBranch).replaceAll("\\d", "");
         String availableBranch = getPropertiesValueBySFLang("productDetail.branch.availableBranch", language).replaceAll("\\d", "");
-        assertCustomize.assertEquals(sfAvailableBranch, availableBranch, "[Failed][Product Detail] Available branch title should be %s, but found %s.".formatted(availableBranch, sfAvailableBranch));
-        logger.info("[UI][%s] Check Product Detail - Available Branches".formatted(language));
+        assertCustomize.assertEquals(sfAvailableBranch, availableBranch, "[Product Detail] Available branch title should be %s, but found %s.".formatted(availableBranch, sfAvailableBranch));
+        logger.info("[UI][{}] Check Product Detail - Available Branches", language);
 
         // check stock
         if (!productInfo.isHideStock()) {
             String sfStockText = commonAction.getText(loc_lblBranchStock, 0).replaceAll("\\d+,*", "");
             String dbStockText = getPropertiesValueBySFLang("productDetail.branch.stock", language).replaceAll("\\d+,*", "");
-            assertCustomize.assertEquals(sfStockText, dbStockText, "[Failed][Product Detail] Stock title should be %s, but found %s.".formatted(dbStockText, sfStockText));
-            logger.info("[UI][%s] Check Product Detail - Stock in Branch".formatted(language));
+            assertCustomize.assertEquals(sfStockText, dbStockText, "[Product Detail] Stock title should be %s, but found %s.".formatted(dbStockText, sfStockText));
+            logger.info("[UI][{}] Check Product Detail - Stock in Branch", language);
         }
     }
 
@@ -154,15 +148,15 @@ public class ProductDetailPage extends ProductDetailElement {
         // description tab
         String sfDescriptionTab = commonAction.getText(loc_tabDescription);
         String descriptionTab = getPropertiesValueBySFLang("productDetail.description", language);
-        assertCustomize.assertEquals(sfDescriptionTab, descriptionTab, "[Failed][Product Detail] Description tab title should be %s, but found %s.".formatted(descriptionTab, sfDescriptionTab));
-        logger.info("[UI][%s] Check Product Detail - Description Tab".formatted(language));
+        assertCustomize.assertEquals(sfDescriptionTab, descriptionTab, "[Product Detail] Description tab title should be %s, but found %s.".formatted(descriptionTab, sfDescriptionTab));
+        logger.info("[UI][{}] Check Product Detail - Description Tab", language);
 
         // review tab
         if (new APIProductReviews(loginInformation).isIsEnableReview()) {
             String sfReviewTab = commonAction.getText(loc_tabReview);
             String reviewTab = getPropertiesValueBySFLang("productDetail.review", language);
-            assertCustomize.assertEquals(sfReviewTab, reviewTab, "[Failed][Product Detail] Review tab title should be %s, but found %s.".formatted(reviewTab, sfReviewTab));
-            logger.info("[UI][%s] Check Product Detail - Review Tab".formatted(language));
+            assertCustomize.assertEquals(sfReviewTab, reviewTab, "[Product Detail] Review tab title should be %s, but found %s.".formatted(reviewTab, sfReviewTab));
+            logger.info("[UI][{}] Check Product Detail - Review Tab", language);
         }
 
         // similar product
@@ -170,8 +164,8 @@ public class ProductDetailPage extends ProductDetailElement {
             if (!commonAction.getListElement(loc_lblSimilarProducts).isEmpty()) {
                 String sfSimilarProduct = commonAction.getText(loc_lblSimilarProducts);
                 String similarProduct = getPropertiesValueBySFLang("productDetail.similarProduct", language);
-                assertCustomize.assertEquals(sfSimilarProduct, similarProduct, "[Failed][Product Detail] Similar Product title should be %s, but found %s.".formatted(similarProduct, sfSimilarProduct));
-                logger.info("[UI][%s] Check Product Detail - Similar Product".formatted(language));
+                assertCustomize.assertEquals(sfSimilarProduct, similarProduct, "[Product Detail] Similar Product title should be %s, but found %s.".formatted(similarProduct, sfSimilarProduct));
+                logger.info("[UI][{}] Check Product Detail - Similar Product", language);
             }
         } catch (NoSuchElementException ex) {
             logger.info("No similar product");
@@ -181,59 +175,62 @@ public class ProductDetailPage extends ProductDetailElement {
     void checkFooter(String language) throws Exception {
         // check store logo
         String sfStoreLogo = commonAction.getAttribute(loc_imgFooterShopLogo, "src").replaceAll("\\d+/", "");
-        assertCustomize.assertEquals(sfStoreLogo, storeInfo.getStoreLogo(), "[Failed][Footer] Store logo should be %s, but found %s.".formatted(storeInfo.getStoreLogo(), sfStoreLogo));
-        logger.info("[UI][%s] Check Footer - Shop Logo".formatted(language));
+        assertCustomize.assertEquals(sfStoreLogo, storeInfo.getStoreLogo(), "[Footer] Store logo should be %s, but found %s.".formatted(storeInfo.getStoreLogo(), sfStoreLogo));
+        logger.info("[UI][{}] Check Footer - Shop Logo", language);
 
         // check company
         String sfCompany = commonAction.getText(loc_lblFooterCompany);
         String company = getPropertiesValueBySFLang("footer.company", language);
-        assertCustomize.assertEquals(sfCompany, company, "[Failed][Footer] Company title should be %s, but found %s.".formatted(company, sfCompany));
-        logger.info("[UI][%s] Check Footer - Company".formatted(language));
+        assertCustomize.assertEquals(sfCompany, company, "[Footer] Company title should be %s, but found %s.".formatted(company, sfCompany));
+        logger.info("[UI][{}] Check Footer - Company", language);
 
         // check follow us
         String sfFollowUs = commonAction.getText(loc_lblFooterFollowUs);
         String followUs = getPropertiesValueBySFLang("footer.followUs", language);
-        assertCustomize.assertEquals(sfFollowUs, followUs, "[Failed][Footer] Follow us title should be %s, but found %s.".formatted(followUs, sfFollowUs));
-        logger.info("[UI][%s] Check Footer - Follow Us".formatted(language));
+        assertCustomize.assertEquals(sfFollowUs, followUs, "[Footer] Follow us title should be %s, but found %s.".formatted(followUs, sfFollowUs));
+        logger.info("[UI][{}] Check Footer - Follow Us", language);
 
         // check copyright
-//        String sfCopyright = commonAction.getText(loc_lblFooterCopyright);
-//        String copyright = getPropertiesValueBySFLang("footer.copyright", language).formatted(new DataGenerator().generateDateTime("yyyy"), new Login().getInfo(loginInformation).getStoreName());
-//        assertCustomize.assertEquals(sfCopyright, copyright, "[Failed][Footer] Copyright title should be %s, but found %s.".formatted(copyright, sfCopyright));
-//        logger.info("[UI][%s] Check Footer - Copyright".formatted(language));
+        String sfCopyright = commonAction.getText(loc_lblFooterCopyright);
+        String copyright = getPropertiesValueBySFLang("footer.copyright", language).formatted(new DataGenerator().generateDateTime("yyyy"), new Login().getInfo(loginInformation).getStoreName());
+        assertCustomize.assertEquals(sfCopyright, copyright, "[Footer] Copyright title should be %s, but found %s.".formatted(copyright, sfCopyright));
+        logger.info("[UI][{}] Check Footer - Copyright", language);
     }
 
     void checkMetaTag(String language) {
+        // Get main language
+        var languages = productInfo.getLanguages().parallelStream().filter(mainLanguage -> mainLanguage.getLanguage().equals(language)).findAny().orElse(null);
+
         // check SEO title
-        if (!productInfo.getSeoMap().get("title").get(language).isEmpty()) {
+        if ((languages != null) && (languages.getSeoTitle() != null)) {
             String sfSEOTitle = commonAction.getAttribute(loc_seoTitle, "content");
-            String dbSEOTitle = productInfo.getSeoMap().get("title").get(language);
-            assertCustomize.assertEquals(sfSEOTitle, dbSEOTitle, "[Failed] SEO title should be %s, but found %s.".formatted(dbSEOTitle, sfSEOTitle));
-            logger.info("[%s] Check SEO title".formatted(language));
+            String dbSEOTitle = languages.getSeoTitle();
+            assertCustomize.assertEquals(sfSEOTitle, dbSEOTitle, " SEO title should be %s, but found %s.".formatted(dbSEOTitle, sfSEOTitle));
+            logger.info("[{}] Check SEO title", language);
         }
 
         // check SEO description
-        if (!productInfo.getSeoMap().get("description").get(language).isEmpty()) {
+        if ((languages != null) && (languages.getSeoDescription() != null)) {
             String sfSEODescription = commonAction.getAttribute(loc_seoDescription, "content");
-            String dbSEODescription = productInfo.getSeoMap().get("description").get(language);
-            assertCustomize.assertEquals(sfSEODescription, dbSEODescription, "[Failed] SEO description should be %s, but found %s.".formatted(dbSEODescription, sfSEODescription));
-            logger.info("[%s] Check SEO description".formatted(language));
+            String dbSEODescription = languages.getSeoDescription();
+            assertCustomize.assertEquals(sfSEODescription, dbSEODescription, " SEO description should be %s, but found %s.".formatted(dbSEODescription, sfSEODescription));
+            logger.info("[{}] Check SEO description", language);
         }
 
         // check SEO keywords
-        if (!productInfo.getSeoMap().get("keywords").get(language).isEmpty()) {
+        if ((languages != null) && (languages.getSeoKeywords() != null)) {
             String sfSEOKeywords = commonAction.getAttribute(loc_seoKeyword, "content");
-            String dbSEOKeywords = productInfo.getSeoMap().get("keywords").get(language);
-            assertCustomize.assertEquals(sfSEOKeywords, dbSEOKeywords, "[Failed] SEO keywords should be %s, but found %s.".formatted(dbSEOKeywords, sfSEOKeywords));
-            logger.info("[%s] Check SEO keywords".formatted(language));
+            String dbSEOKeywords = languages.getSeoKeywords();
+            assertCustomize.assertEquals(sfSEOKeywords, dbSEOKeywords, " SEO keywords should be %s, but found %s.".formatted(dbSEOKeywords, sfSEOKeywords));
+            logger.info("[{}] Check SEO keywords", language);
         }
 
         // check SEO Url
-        if (!productInfo.getSeoMap().get("url").get(language).isEmpty()) {
+        if ((languages != null) && (languages.getSeoUrl() != null)) {
             String sfSEOUrl = commonAction.getAttribute(loc_seoURL, "content");
-            String dbSEOUrl = productInfo.getSeoMap().get("url").get(language);
-            assertCustomize.assertTrue(sfSEOUrl.contains(dbSEOUrl), "[Failed] SEO url should be contains %s, but found %s.".formatted(dbSEOUrl, sfSEOUrl));
-            logger.info("[%s] Check SEO url".formatted(language));
+            String dbSEOUrl = languages.getSeoUrl();
+            assertCustomize.assertTrue(sfSEOUrl.contains(dbSEOUrl), " SEO url should be contains %s, but found %s.".formatted(dbSEOUrl, sfSEOUrl));
+            logger.info("[{}] Check SEO url", language);
         }
     }
 
@@ -243,43 +240,19 @@ public class ProductDetailPage extends ProductDetailElement {
     }
 
     /**
-     * Map: branch name, list of price type
-     * <p>Ex: Product has variation var1, var2, var3, var4. And branch A, B</p>
-     * <p>This function return list price type of each variation on each branch</p>
-     * <p>Branch A = {FLASH SALE, WHOLESALE PRODUCT, WHOLESALE PRODUCT, SELLING PRICE} </p>
-     * <p>Branch B = {FLASH SALE, DISCOUNT CAMPAIGN, DISCOUNT CAMPAIGN, DISCOUNT CAMPAIGN} </p>
-     * <p>Branch C = {FLASH SALE, DISCOUNT CAMPAIGN, DISCOUNT CAMPAIGN, SELLING PRICE} </p>
-     */
-    Map<String, List<String>> getSalePriceMap() {
-        return brInfo.getBranchName().stream().collect(Collectors.toMap(brName -> brName, brName -> IntStream.range(0, flashSaleInfo.getFlashSaleStatus().get(brName).size()).mapToObj(i -> switch (flashSaleInfo.getFlashSaleStatus().get(brName).get(i)) {
-            case "IN_PROGRESS" -> "FLASH SALE";
-            case "SCHEDULED" ->
-                    (productDiscountCampaignInfo.get(brName) == null) && (wholesaleProductInfo.getStatusMap().get(brName).get(i)) ? "WHOLESALE PRODUCT" : "SELLING PRICE";
-            default ->
-                    productDiscountCampaignInfo.get(brName) != null ? "DISCOUNT CAMPAIGN" : wholesaleProductInfo.getStatusMap().get(brName).get(i) ? "WHOLESALE PRODUCT" : "SELLING PRICE";
-        }).toList(), (a, b) -> b));
-    }
-
-    Map<String, List<String>> getSaleDisplayMap() {
-        return brInfo.getBranchName().stream().collect(Collectors.toMap(brName -> brName, brName -> IntStream.range(0, flashSaleInfo.getFlashSaleStatus().get(brName).size()).mapToObj(i -> switch (flashSaleInfo.getFlashSaleStatus().get(brName).get(i)) {
-            case "IN_PROGRESS", "SCHEDULED" -> "FLASH SALE";
-            default ->
-                    productDiscountCampaignInfo.get(brName) != null ? "DISCOUNT CAMPAIGN" : wholesaleProductInfo.getStatusMap().get(brName).get(i) ? "WHOLESALE PRODUCT" : "SELLING PRICE";
-        }).toList(), (a, b) -> b));
-    }
-
-    /**
      * Compare product name on the SF with Dashboard
      */
-    void checkProductName(String barcode, String language) {
+    void checkProductName(Integer modelId, String language) {
         // get product name on dashboard
-        String dbProductName = productInfo.getVersionNameMap().get(barcode).get(language);
+        String dbProductName = productInfo.isHasModel()
+                ? productInfo.getVersionNameMap().get(modelId).get(language)
+                : productInfo.getLanguages().parallelStream().filter(languages -> languages.getLanguage().equals(language)).findAny().orElse(new ProductInfoV2.MainLanguage()).getName();
 
         // get product name on shop online
         String sfProductName = commonAction.getText(loc_lblProductName);
 
         // check product name
-        assertCustomize.assertTrue(sfProductName.equals(dbProductName), "[Failed][Check product name] Product name should be %s but found %s.".formatted(dbProductName, sfProductName));
+        assertCustomize.assertTrue(sfProductName.equals(dbProductName), "[Check product name] Product name should be %s but found %s.".formatted(dbProductName, sfProductName));
 
         logger.info("[Check product name] Check product name show correctly.");
     }
@@ -295,69 +268,53 @@ public class ProductDetailPage extends ProductDetailElement {
         if (!(new Preferences(loginInformation).isEnabledListingProduct() && productInfo.isEnabledListing())) {
             if (listingPrice != sellingPrice) {
                 String actListingPrice = new UICommonAction(driver).getText(loc_lblListingPrice).replace(",", "");
-                assertCustomize.assertEquals(actListingPrice, listingPrice + STORE_CURRENCY, "[Failed]%s Listing price should be show %s instead of %s".formatted(branch, listingPrice, actListingPrice));
+                assertCustomize.assertEquals(actListingPrice, listingPrice + STORE_CURRENCY, "%s Listing price should be show %s instead of %s".formatted(branch, listingPrice, actListingPrice));
             } else logger.info("No discount product (listing price = selling price)");
             String actSellingPrice = new UICommonAction(driver).getText(loc_lblSellingPrice).replace(",", "");
             long actSellingPriceValue = Long.parseLong(actSellingPrice.replace(STORE_CURRENCY, ""));
 
-            assertCustomize.assertTrue(Math.abs(actSellingPriceValue - sellingPrice) <= 1, "[Failed]%s Selling price should be show %,d ±1 instead of %,d".formatted(branch, sellingPrice, actSellingPriceValue));
-            logger.info("%s Check product price/ store currency show correctly".formatted(branch));
-        } else logger.info("%s Website listing enable, so listing/selling price is hidden".formatted(branch));
+            assertCustomize.assertTrue(Math.abs(actSellingPriceValue - sellingPrice) <= 1, "%s Selling price should be show %,d ±1 instead of %,d".formatted(branch, sellingPrice, actSellingPriceValue));
+            logger.info("{}Check product price/ store currency show correctly", branch);
+        } else logger.info("{}Website listing enable, so listing/selling price is hidden", branch);
     }
 
     // check flash sale
     void checkFlashSaleShouldBeShown(String brName) {
         String branch = "[Branch name: %s]".formatted(brName);
         assertCustomize.assertFalse(commonAction.getListElement(loc_lblFlashSale).isEmpty(), "%s Flash sale badge does not show".formatted(branch));
-        logger.info("%s Check flash sale badge is shown".formatted(branch));
+        logger.info("{}Check flash sale badge is shown", branch);
     }
 
 
     // check discount campaign
     void checkDiscountCampaignShouldBeShown(String brName) {
         String branch = "[Branch name: %s]".formatted(brName);
-        boolean check = true;
-        try {
-            if (commonAction.getAttribute(loc_chkBuyInBulk, "class").contains("unchecked")) {
-                commonAction.clickJS(loc_chkBuyInBulk);
-                // wait page loaded
-                try {
-                    commonAction.waitInvisibilityOfElementLocated(loc_spnLoading);
-                    logger.info("Wait page loaded after apply discount campaign.");
-                } catch (TimeoutException ex) {
-                    logger.info(ex);
-                    commonAction.waitInvisibilityOfElementLocated(loc_spnLoading);
-                    logger.info("Wait page loaded after apply discount campaign again.");
-                }
-            } else {
-                // uncheck
+
+        if (!commonAction.getListElement(loc_chkBuyInBulk).isEmpty()) {
+            // check into buy in bulk checkbox
+            if (commonAction.getAttribute(loc_chkBuyInBulk, "class").contains("unchecked"))
                 commonAction.clickJS(loc_chkBuyInBulk);
 
-                // check again
-                commonAction.clickJS(loc_chkBuyInBulk);
-                // wait page loaded
-                try {
-                    commonAction.waitInvisibilityOfElementLocated(loc_spnLoading);
-                    logger.info("Wait page loaded after apply discount campaign.");
-                } catch (TimeoutException ex) {
-                    logger.info(ex);
-                    commonAction.waitInvisibilityOfElementLocated(loc_spnLoading);
-                    logger.info("Wait page loaded after apply discount campaign again.");
-                }
+            // wait page loaded
+            try {
+                commonAction.waitInvisibilityOfElementLocated(loc_spnLoading);
+                logger.info("Wait page loaded after apply discount campaign.");
+            } catch (TimeoutException ex) {
+                logger.info(ex);
+                commonAction.waitInvisibilityOfElementLocated(loc_spnLoading);
+                logger.info("Wait page loaded after apply discount campaign again.");
             }
-        } catch (NoSuchElementException ex) {
-            check = false;
         }
 
-        assertCustomize.assertTrue(check, "%s Discount campaign does not show".formatted(branch));
-        logger.info("%s Check discount campaign is shown".formatted(branch));
+        assertCustomize.assertFalse(commonAction.getListElement(loc_chkBuyInBulk).isEmpty(), "%s Discount campaign does not show".formatted(branch));
+        logger.info("{}Check discount campaign is shown", branch);
     }
 
     // check wholesale product price
     void checkWholesaleProductShouldBeShown(String brName) {
         String branch = "[Branch name: %s]".formatted(brName);
-        assertCustomize.assertFalse(commonAction.getListElement(loc_pnlWholesalePricing).isEmpty(), "[Failed]%s Wholesale product information is not shown".formatted(branch));
-        logger.info("%s Check wholesale product information is shown".formatted(branch));
+        assertCustomize.assertFalse(commonAction.getListElement(loc_pnlWholesalePricing).isEmpty(), "%s Wholesale product information is not shown".formatted(branch));
+        logger.info("{}Check wholesale product information is shown", branch);
     }
 
 
@@ -387,7 +344,7 @@ public class ProductDetailPage extends ProductDetailElement {
         }
 
         // log
-        logger.info("%s Check product attribute.".formatted(varName));
+        logger.info("{}Check product attribute.", varName);
     }
 
     /**
@@ -399,30 +356,30 @@ public class ProductDetailPage extends ProductDetailElement {
         List<WebElement> listElement = commonAction.getListElement(loc_lblVariationName);
         List<String> variationNameListSF = IntStream.range(0, listElement.size()).mapToObj(index -> commonAction.getText(loc_lblVariationName, index)).toList().stream().sorted().toList();
 
-        assertCustomize.assertTrue(variationNameListSF.toString().equalsIgnoreCase(variationNameListDB.toString()), "[Failed][Check variation name] Variation name should be %s, but found %s.".formatted(variationNameListDB, variationNameListSF));
+        assertCustomize.assertTrue(variationNameListSF.toString().equalsIgnoreCase(variationNameListDB.toString()), "[Check variation name] Variation name should be %s, but found %s.".formatted(variationNameListDB, variationNameListSF));
         logger.info("[Check variation name] Check product variation show correctly");
     }
 
     void checkFilterAndSearchBranchIsShown(String... variationName) {
         String varName = variationName.length > 0 ? ((variationName[0].isEmpty()) ? "[Variation: %s]".formatted(variationName[0]) : "") : "";
         // check Filter branch is shown
-        assertCustomize.assertFalse(commonAction.getListElement(loc_icnFilterBranch).isEmpty(), "[Failed]%s 'Filter dropdown' should be shown but it is hidden.".formatted(varName));
-        logger.info("%s Check 'Filter dropdown' is displayed.".formatted(varName));
+        assertCustomize.assertFalse(commonAction.getListElement(loc_icnFilterBranch).isEmpty(), "%s 'Filter dropdown' should be shown but it is hidden.".formatted(varName));
+        logger.info("{}Check 'Filter dropdown' is displayed.", varName);
 
         // check Search branch is shown
-        assertCustomize.assertFalse(commonAction.getListElement(loc_icnSearchBranch).isEmpty(), "[Failed]%s 'Search box' should be shown but it is hidden.".formatted(varName));
-        logger.info("%s Check 'Search box' is displayed.".formatted(varName));
+        assertCustomize.assertFalse(commonAction.getListElement(loc_icnSearchBranch).isEmpty(), "%s 'Search box' should be shown but it is hidden.".formatted(varName));
+        logger.info("{}Check 'Search box' is displayed.", varName);
     }
 
     void checkFilterAndSearchBranchIsHidden(String... variationName) {
         String varName = variationName.length > 0 ? ((variationName[0].isEmpty()) ? "[Variation: %s]".formatted(variationName[0]) : "") : "";
         // check Filter branch is hidden
-        assertCustomize.assertTrue(commonAction.getListElement(loc_icnFilterBranch).isEmpty(), "[Failed]%s 'Filter dropdown' should be hidden but it is shown.".formatted(varName));
-        logger.info("%s Check 'Filter dropdown' is hidden.".formatted(varName));
+        assertCustomize.assertTrue(commonAction.getListElement(loc_icnFilterBranch).isEmpty(), "%s 'Filter dropdown' should be hidden but it is shown.".formatted(varName));
+        logger.info("{}Check 'Filter dropdown' is hidden.", varName);
 
         // check Search branch is hidden
-        assertCustomize.assertTrue(commonAction.getListElement(loc_icnSearchBranch).isEmpty(), "[Failed]%s 'Search box' should be hidden but it is shown.".formatted(varName));
-        logger.info("%s Check 'Search box' is hidden.".formatted(varName));
+        assertCustomize.assertTrue(commonAction.getListElement(loc_icnSearchBranch).isEmpty(), "%s 'Search box' should be hidden but it is shown.".formatted(varName));
+        logger.info("{}Check 'Search box' is hidden.", varName);
     }
 
     // BH_8616, BH_9536
@@ -431,8 +388,8 @@ public class ProductDetailPage extends ProductDetailElement {
 
         // check branch information
         // check branch name
-        assertCustomize.assertTrue(brInfo.getBranchName().contains(brElementText) && brStatus && (brStock > 0), "[Failed][Branch name: %s] Branch in-stock but is not shown.".formatted(brElementText));
-        logger.info("%s Check branch '%s'".formatted(varName, brElementText));
+        assertCustomize.assertTrue(brInfo.getBranchName().contains(brElementText) && brStatus && (brStock > 0), "[Branch name: %s] Branch in-stock but is not shown.".formatted(brElementText));
+        logger.info("{}Check branch '{}'", varName, brElementText);
     }
 
     /**
@@ -444,21 +401,29 @@ public class ProductDetailPage extends ProductDetailElement {
             String brStockElementText = commonAction.getText(loc_lblBranchStock, brElementIndex);
             // check branch stock
             int sfStock = Integer.parseInt(brStockElementText.replaceAll("\\D+", ""));
-            assertCustomize.assertEquals(sfStock, brStock, "[Failed]%s[Branch name: %s] Stock quantity should be %s, but found %s".formatted(varName, brElementText, brStock, sfStock));
+            assertCustomize.assertEquals(sfStock, brStock, "%s[Branch name: %s] Stock quantity should be %s, but found %s".formatted(varName, brElementText, brStock, sfStock));
         } else logger.info("Setting hide stock.");
     }
 
     /**
      * Compare product description on the SF with Dashboard
      */
-    void checkProductDescription(String barcode, String language) {
+    void checkProductDescription(Integer modelId, String language) {
         // get dashboard product description
-        String dbDescription = productInfo.getVersionDescriptionMap().get(barcode).get(language).replaceAll("<.*?>", "").replaceAll("amp;", "");
+        String dbDescription = productInfo.isHasModel()
+                ? productInfo.getVersionDescriptionMap().get(modelId).get(language)
+                : productInfo.getLanguages()
+                .parallelStream()
+                .filter(languages -> languages.getLanguage().equals(language))
+                .findAny()
+                .orElse(new ProductInfoV2.MainLanguage())
+                .getDescription();
+        dbDescription = dbDescription.replaceAll("<.*?>", "").replaceAll("amp;", "");
 
         // get SF product description
         String sfDescription = commonAction.getText(loc_pnlDescription).replaceAll("\n", "");
 
-        assertCustomize.assertTrue(sfDescription.equals(dbDescription), "[Failed][Check description] Product description should be '%s', but found '%s'".formatted(dbDescription, sfDescription));
+        assertCustomize.assertTrue(sfDescription.equals(dbDescription), "[Check description] Product description should be '%s', but found '%s'".formatted(dbDescription, sfDescription));
         logger.info("[Check description] Check product description is shown correctly.");
     }
 
@@ -467,12 +432,12 @@ public class ProductDetailPage extends ProductDetailElement {
 
         if (!(new Preferences(loginInformation).isEnabledListingProduct() && productInfo.isEnabledListing())) {
             // check Buy now button is shown
-            assertCustomize.assertFalse(commonAction.getListElement(loc_btnBuyNow).isEmpty(), "[Failed]%s 'Buy now' button should be shown but it is hidden.".formatted(varName));
-            logger.info("%s Check 'Buy Now' button is displayed.".formatted(varName));
+            assertCustomize.assertFalse(commonAction.getListElement(loc_btnBuyNow).isEmpty(), "%s 'Buy now' button should be shown but it is hidden.".formatted(varName));
+            logger.info("{}Check 'Buy Now' button is displayed.", varName);
 
             // check Add to cart button is shown
-            assertCustomize.assertFalse(commonAction.getListElement(loc_btnAddToCart).isEmpty(), "[Failed]%s 'Add to cart' button should be shown but it is hidden.".formatted(varName));
-            logger.info("%s Check 'Add to cart' button is displayed.".formatted(varName));
+            assertCustomize.assertFalse(commonAction.getListElement(loc_btnAddToCart).isEmpty(), "%s 'Add to cart' button should be shown but it is hidden.".formatted(varName));
+            logger.info("{}Check 'Add to cart' button is displayed.", varName);
         } else {
             checkBuyNowAndAddToCartBtnIsHidden(variationName);
         }
@@ -481,12 +446,12 @@ public class ProductDetailPage extends ProductDetailElement {
     void checkBuyNowAndAddToCartBtnIsHidden(String... variationName) {
         String varName = variationName.length > 0 ? ((variationName[0].isEmpty()) ? "[Variation: %s]".formatted(variationName[0]) : "") : "";
         // check Buy now button is hidden
-        assertCustomize.assertTrue(commonAction.getListElement(loc_btnBuyNow).isEmpty(), "[Failed]%s 'Buy now' button should be hidden but it is shown.".formatted(varName));
-        logger.info("%s Check 'Buy Now' button is hidden.".formatted(varName));
+        assertCustomize.assertTrue(commonAction.getListElement(loc_btnBuyNow).isEmpty(), "%s 'Buy now' button should be hidden but it is shown.".formatted(varName));
+        logger.info("{}Check 'Buy Now' button is hidden.", varName);
 
         // check Add to cart button is hidden
-        assertCustomize.assertTrue(commonAction.getListElement(loc_btnAddToCart).isEmpty(), "[Failed]%s 'Add to cart' button should be hidden but it is shown.".formatted(varName));
-        logger.info("%s Check 'Add to cart' button is hidden.".formatted(varName));
+        assertCustomize.assertTrue(commonAction.getListElement(loc_btnAddToCart).isEmpty(), "%s 'Add to cart' button should be hidden but it is shown.".formatted(varName));
+        logger.info("{}Check 'Add to cart' button is hidden.", varName);
     }
 
     /**
@@ -497,8 +462,8 @@ public class ProductDetailPage extends ProductDetailElement {
     void checkSoldOutMark(String... variationName) {
         String varName = variationName.length > 0 ? ((variationName[0].isEmpty()) ? "[Variation: %s]".formatted(variationName[0]) : "") : "";
         boolean sfSoldOut = commonAction.getText(loc_lblSoldOut).equals("Hết hàng") || commonAction.getText(loc_lblSoldOut).equals("Out of stock");
-        assertCustomize.assertTrue(sfSoldOut, "[Failed]%s Sold out mark does not show".formatted(varName));
-        logger.info("%s Check 'SOLD OUT' mark is shown".formatted(varName));
+        assertCustomize.assertTrue(sfSoldOut, "%s Sold out mark does not show".formatted(varName));
+        logger.info("{}Check 'SOLD OUT' mark is shown", varName);
     }
 
     /**
@@ -506,85 +471,75 @@ public class ProductDetailPage extends ProductDetailElement {
      * <p> Check can not access to product detail page by URL</p>
      */
     void check404Page() {
-        assertCustomize.assertTrue(driver.getCurrentUrl().contains("404"), "[Failed] 404 is not shown although product out of stock.");
+        assertCustomize.assertTrue(driver.getCurrentUrl().contains("404"), " 404 is not shown although product out of stock.");
         logger.info("Check 404 page is shown when product out of stock.");
     }
 
-    Long getDiscountCampaignPrice(long sellingPrice, String brName) {
-        List<Integer> listOfMinimumRequirements = productDiscountCampaignInfo.get(brName).getListOfMinimumRequirements();
-        int minRequirement = Collections.min(listOfMinimumRequirements);
-        List<Integer> indexOfAllMinRequirements = IntStream.range(0, listOfMinimumRequirements.size()).filter(index -> listOfMinimumRequirements.get(index).equals(minRequirement)).boxed().toList();
+    void checkVariationPriceAndDiscount(int itemId, Integer modelId, int branchId, int customerId, long listingPrice, long sellingPrice, String brName) {
+        var campaignInfo = new APIGetDiscountCampaignInformation(loginInformation).getDiscountCampaignInformation(itemId, branchId, customerId);
+        var wholesaleInfo = new APIGetWholesaleProductInformation(loginInformation).getWholesaleProductInformation(itemId, customerId, modelId);
+        var flashSaleInfo = new APIGetFlashSaleInformation(loginInformation).getFlashSaleInformation(itemId, modelId);
 
-        String couponType = productDiscountCampaignInfo.get(brName).getListOfCouponTypes().get(indexOfAllMinRequirements.get(0));
-        long couponValue = productDiscountCampaignInfo.get(brName).getListOfCouponValues().get(indexOfAllMinRequirements.get(0));
-        long productDiscountCampaignPrice = couponType.equals("FIXED_AMOUNT")
-                ? ((sellingPrice > couponValue) ? (sellingPrice - couponValue) : 0)
-                : ((sellingPrice * (100 - couponValue)) / 100);
-
-        if (indexOfAllMinRequirements.size() > 1) {
-            for (int index = 1; index < indexOfAllMinRequirements.size(); index++) {
-                couponType = productDiscountCampaignInfo.get(brName).getListOfCouponTypes().get(index);
-                couponValue = productDiscountCampaignInfo.get(brName).getListOfCouponValues().get(index);
-                productDiscountCampaignPrice = Math.min(productDiscountCampaignPrice, couponType.equals("FIXED_AMOUNT")
-                        ? ((sellingPrice > couponValue) ? (sellingPrice - couponValue) : 0)
-                        : ((sellingPrice * (100 - couponValue)) / 100));
-            }
-        }
-        return productDiscountCampaignPrice;
-    }
-
-    void checkVariationPriceAndDiscount(int varIndex, long listingPrice, long sellingPrice, long flashSalePrice, int wholesaleProductStock, long wholesaleProductPrice, String brName) {
-        String priceType = getSalePriceMap().get(brName).get(varIndex);
-        String displayType = getSaleDisplayMap().get(brName).get(varIndex);
-        System.out.printf("price type: %s%n", priceType);
-        System.out.printf("display type: %s%n", displayType);
 
         // check badge
-        switch (displayType) {
-            // check flash sale badge is shown
-            case "FLASH SALE" -> checkFlashSaleShouldBeShown(brName);
-            // check discount campaign is shown
-            case "DISCOUNT CAMPAIGN" -> checkDiscountCampaignShouldBeShown(brName);
-            // check wholesale product is shown
-            case "WHOLESALE PRODUCT" -> checkWholesaleProductShouldBeShown(brName);
-        }
+        if (flashSaleInfo != null) checkFlashSaleShouldBeShown(brName);
+        else if (campaignInfo != null) checkDiscountCampaignShouldBeShown(brName);
+        else if (wholesaleInfo != null) checkWholesaleProductShouldBeShown(brName);
 
         // check price
-        switch (priceType) {
-            // check flash sale price
-            case "FLASH SALE" -> checkPriceOnEachBranch(listingPrice, flashSalePrice, brName);
-            // check discount campaign price
-            case "DISCOUNT CAMPAIGN" ->
-                    checkPriceOnEachBranch(listingPrice, getDiscountCampaignPrice(sellingPrice, brName), brName);
-            case "WHOLESALE PRODUCT" -> {
-                // increase quantity to wholesale product minimum requirement
-                do {
-                    commonAction.sendKeys(loc_txtQuantity, String.valueOf(wholesaleProductStock));
-                } while (!commonAction.getValue(loc_txtQuantity).equals(String.valueOf(wholesaleProductStock)));
+        if (flashSaleInfo != null && !flashSaleInfo.getStatus().equals("SCHEDULED")) {
+            // Log
+            logger.info("PRICE: FLASH SALE");
 
-                // wait spinner loading if any
-                try {
-                    commonAction.waitInvisibilityOfElementLocated(loc_spnLoading);
-                    logger.info("Wait page loaded after apply wholesale product discount.");
-                } catch (TimeoutException ex) {
-                    logger.info(ex);
-                    commonAction.waitInvisibilityOfElementLocated(loc_spnLoading);
-                    logger.info("Wait page loaded after apply wholesale product discount again.");
-                }
+            // Check flash sale price
+            checkPriceOnEachBranch(listingPrice, flashSaleInfo.getItems().get(0).getNewPrice(), brName);
+        } else if (campaignInfo != null) {
+            // Log
+            logger.info("PRICE: DISCOUNT CAMPAIGN");
 
-                // check wholesale product price
-                checkPriceOnEachBranch(listingPrice, wholesaleProductPrice, brName);
+            // Calculation campaign price
+            String couponType = campaignInfo.getWholesales().get(0).getType();
+            long couponValue = campaignInfo.getWholesales().get(0).getWholesaleValue();
+            long newPrice = couponType.equals("FIXED_AMOUNT")
+                    ? ((sellingPrice > couponValue) ? (sellingPrice - couponValue) : 0)
+                    : ((sellingPrice * (100 - couponValue)) / 100);
+
+            // Check discount campaign price
+            checkPriceOnEachBranch(listingPrice, newPrice, brName);
+        } else if (wholesaleInfo != null) {
+            // Log
+            logger.info("PRICE: WHOLESALE PRODUCT");
+
+            // increase quantity to wholesale product minimum requirement
+            do {
+                commonAction.sendKeys(loc_txtQuantity, String.valueOf(wholesaleInfo.getMinQuatity()));
+            } while (!commonAction.getValue(loc_txtQuantity).equals(String.valueOf(wholesaleInfo.getMinQuatity())));
+
+            // wait spinner loading if any
+            try {
+                commonAction.waitInvisibilityOfElementLocated(loc_spnLoading);
+                logger.info("Wait page loaded after apply wholesale product discount.");
+            } catch (TimeoutException ex) {
+                logger.info(ex);
+                commonAction.waitInvisibilityOfElementLocated(loc_spnLoading);
+                logger.info("Wait page loaded after apply wholesale product discount again.");
             }
-            default -> checkPriceOnEachBranch(listingPrice, sellingPrice, brName);
+
+            // check wholesale product price
+            checkPriceOnEachBranch(listingPrice, wholesaleInfo.getPrice().longValue(), brName);
+        } else {
+            // Log
+            logger.info("PRICE: SELLING PRICE");
+
+            // Check selling price
+            checkPriceOnEachBranch(listingPrice, sellingPrice, brName);
         }
     }
 
     void checkAllVariationsAndDiscount(int varIndex,
                                        long listingPrice,
                                        long sellingPrice,
-                                       long flashSalePrice,
-                                       int wholesaleProductStock,
-                                       long wholesaleProductPrice,
+                                       int customerId,
                                        List<Integer> branchStock,
                                        List<Boolean> isDisplayAttribute,
                                        List<String> attributeGroups,
@@ -606,7 +561,7 @@ public class ProductDetailPage extends ProductDetailElement {
         // check description
         checkProductDescription(productInfo.getVariationModelList().get(varIndex), language);
 
-        int numberOfDisplayBranches = IntStream.range(0, brInfo.getAllBranchStatus().size()).filter(i -> !brInfo.getIsHideOnStoreFront().get(i) && brInfo.getAllBranchStatus().get(i).equals("ACTIVE") && (branchStock.get(i) > 0)).mapToObj(i -> true).toList().size();
+        int numberOfDisplayBranches = IntStream.range(0, brInfo.getAllBranchStatus().size()).filter(i -> !brInfo.getIsHideOnStoreFront().get(i) && brInfo.getAllBranchStatus().get(i).equals("ACTIVE") && (branchStock.get(i) > 0)).mapToObj(ignored -> true).toList().size();
         if (numberOfDisplayBranches > 0) {
             // check filter/search branch is shown when available branches >= 6
             if (numberOfDisplayBranches >= 6) checkFilterAndSearchBranchIsShown(variationName);
@@ -632,7 +587,13 @@ public class ProductDetailPage extends ProductDetailElement {
                 checkBranch(brName, branchStatus.get(brIndex), branchStock.get(brIndex), variationName);
 
                 // check product price
-                checkVariationPriceAndDiscount(varIndex, listingPrice, sellingPrice, flashSalePrice, wholesaleProductStock, wholesaleProductPrice, brName);
+                checkVariationPriceAndDiscount(productInfo.getId(),
+                        productInfo.getVariationModelList().get(varIndex),
+                        brInfo.getBranchID().get(brIndex),
+                        customerId,
+                        listingPrice,
+                        sellingPrice,
+                        brName);
             }
 
         } else {
@@ -649,41 +610,34 @@ public class ProductDetailPage extends ProductDetailElement {
         brInfo = new BranchManagement(loginInformation).getInfo();
         branchStatus = getBranchStatus();
 
-        // get list segment of customer
-        List<Integer> listSegmentOfCustomer = new APIAllCustomers(loginInformation).getListSegmentOfCustomer(customerId);
-
-        // get flash sale, discount campaign information
-        flashSaleInfo = new FlashSale(loginInformation).getFlashSaleInfo(productInfo.getVariationModelList(), productInfo.getProductSellingPrice());
-        productDiscountCampaignInfo = new ProductDiscountCampaign(loginInformation).getAllDiscountCampaignInfo(productInfo, listSegmentOfCustomer);
-
-        // get wholesale config
-        if (!productInfo.isDeleted())
-            wholesaleProductInfo = new WholesaleProduct(loginInformation).wholesaleProductInfo(productInfo, listSegmentOfCustomer);
-
         // verify on each variation
-        for (String variationValue : productInfo.getVariationValuesMap().get(language)) {
+        for (Integer modelId : productInfo.getVariationModelList()) {
             // variation index
-            int varIndex = productInfo.getVariationValuesMap().get(language).indexOf(variationValue);
+            int varIndex = productInfo.getVariationModelList().indexOf(modelId);
 
             // ignore if variation inactive
-            if (productInfo.getVariationStatus().get(varIndex).equals("ACTIVE")) {
+            if ((productInfo.isHasModel() && productInfo.getVariationStatus().get(varIndex).equals("ACTIVE")) || productInfo.getBhStatus().equals("ACTIVE")) {
+                // In case without variation, variation is empty
+                String variationValue = "";
+
                 // switch variation if any
                 if (productInfo.isHasModel()) {
                     // get variation value
+                    variationValue = productInfo.getVariationValuesMap().get(language).get(varIndex);
                     List<String> varName = Arrays.stream(variationValue.split("\\|")).toList();
-                    logger.info("*** var: %s ***".formatted(variationValue));
+                    logger.info("*** var: {} ***", variationValue);
 
                     // select variation
                     for (String var : varName) {
                         int index = varName.indexOf(var);
                         commonAction.clickJS(By.cssSelector(variationDropdownLocator.formatted(index + 1)));
-                        logger.info("Open variation dropdown %s.".formatted(index));
+                        logger.info("Open variation dropdown {}.", index);
 
                         commonAction.clickJS(By.xpath(variationValueLocator.formatted(var, var)));
-                        logger.info("Select variation: %s.".formatted(var));
+                        logger.info("Select variation: {}.", var);
 
                         // check variation is selected or not
-                        Assert.assertEquals(commonAction.getAttribute(By.cssSelector(selectedLocator.formatted(index + 1)), "title"), var, "[Failed] Can not select variation: %s.".formatted(var));
+                        Assert.assertEquals(commonAction.getAttribute(By.cssSelector(selectedLocator.formatted(index + 1)), "title"), var, " Can not select variation: %s.".formatted(var));
                     }
 
                     // wait page loaded
@@ -697,22 +651,28 @@ public class ProductDetailPage extends ProductDetailElement {
                     }
                 }
 
-                // get modelCode
-                String modelCode = productInfo.getVariationModelList().get(varIndex);
+                // Get attribute configs
+                List<Boolean> isDisplayAttribute = productInfo.isHasModel()
+                        ? productInfo.getModels().get(varIndex).getModelAttributes().stream().map(ProductInfoV2.ItemAttribute::isDisplay).toList()
+                        : productInfo.getItemAttributes().stream().map(ProductInfoV2.ItemAttribute::isDisplay).toList();
+                List<String> attributeGroups = productInfo.isHasModel()
+                        ? productInfo.getModels().get(varIndex).getModelAttributes().stream().map(ProductInfoV2.ItemAttribute::getAttributeName).toList()
+                        : productInfo.getItemAttributes().stream().map(ProductInfoV2.ItemAttribute::getAttributeName).toList();
+
+                List<String> attributeValues = productInfo.isHasModel()
+                        ? productInfo.getModels().get(varIndex).getModelAttributes().stream().map(ProductInfoV2.ItemAttribute::getAttributeValue).toList()
+                        : productInfo.getItemAttributes().stream().map(ProductInfoV2.ItemAttribute::getAttributeValue).toList();
 
                 // check product information
                 checkAllVariationsAndDiscount(varIndex,
-                        productInfo.getProductListingPrice().get(varIndex),
-                        productInfo.getProductSellingPrice().get(varIndex),
-                        flashSaleInfo.getFlashSalePrice().get(varIndex),
-                        wholesaleProductInfo.getStockList().get(varIndex),
-                        wholesaleProductInfo.getPriceList().get(varIndex),
-                        productInfo.getProductStockQuantityMap().get(modelCode),
-                        productInfo.getIsDisplayVariationAttributes().get(modelCode),
-                        productInfo.getVariationAttributeNames().get(modelCode),
-                        productInfo.getVariationAttributeValues().get(modelCode),
-                        language,
-                        variationValue);
+                        productInfo.isHasModel() ? productInfo.getProductListingPrice().get(varIndex) : productInfo.getOrgPrice(),
+                        productInfo.isHasModel() ? productInfo.getProductSellingPrice().get(varIndex) : productInfo.getNewPrice(),
+                        customerId,
+                        productInfo.getProductStockQuantityMap().get(productInfo.isHasModel() ? modelId : productInfo.getId()),
+                        isDisplayAttribute,
+                        attributeGroups,
+                        attributeValues,
+                        language, variationValue);
             }
 
             // refresh page before check next variation
@@ -723,7 +683,10 @@ public class ProductDetailPage extends ProductDetailElement {
     /**
      * Access to product detail on SF by URL
      */
-    public void accessToProductDetailPageByProductIDAndCheckProductInformation(LoginInformation loginInformation, String language, ProductInfo productInfo, int customerId) throws Exception {
+    public void accessToProductDetailPageByProductIDAndCheckProductInformation(LoginInformation loginInformation, String language, ProductInfoV2 productInfo, int customerId) throws Exception {
+        // Logger
+        LogManager.getLogger().info("===== STEP =====> [ProductDetail] START... ");
+
         // get login information
         this.loginInformation = loginInformation;
 
@@ -742,40 +705,35 @@ public class ProductDetailPage extends ProductDetailElement {
         int maxStock = productInfo.isDeleted() ? 0 : Collections.max(productInfo.getProductStockQuantityMap().values().stream().map(Collections::max).toList());
 
         // check product is display or not
-        if (!productInfo.isDeleted() && productInfo.getOnWeb() && productInfo.getBhStatus().equals("ACTIVE") && (maxStock > 0 || productInfo.getShowOutOfStock())) {
+        if (!productInfo.isDeleted() && productInfo.isOnWeb() && productInfo.getBhStatus().equals("ACTIVE") && (maxStock > 0 || productInfo.isShowOutOfStock())) {
             // in-case in stock or setting show product when out of stock
             // check language is published or not
             if (storeInfo.getSFLangList().contains(languageCode)) {
                 // check all information with language
-                if (languageCode.equals(storeInfo.getDefaultLanguage()) || !productInfo.getSeoMap().get("url").get(languageCode).equals(productInfo.getSeoMap().get("url").get(storeInfo.getDefaultLanguage()))) {
-                    driver.get("https://%s%s/%s/product/%s".formatted(storeInfo.getStoreURL(), SF_DOMAIN, languageCode, productInfo.getProductId()));
-                    driver.navigate().refresh();
-                    if (StringUtils.countMatches(driver.getCurrentUrl(), "//") > 1) {
-                        driver.get(driver.getCurrentUrl().replaceAll("vn//", "vn/"));
-                    }
-                    logger.info("Navigate to Product detail page by URL, with productID: %s".formatted(productInfo.getProductId()));
+                driver.get("https://%s%s/%s/product/%s".formatted(storeInfo.getStoreURL(), SF_DOMAIN, languageCode, productInfo.getId()));
+                driver.navigate().refresh();
+                logger.info("Navigate to Product detail page by URL, with id: {}", productInfo.getId());
 
-                    // wait product detail page loaded
-                    commonAction.getElement(loc_lblProductName);
+                // wait product detail page loaded
+                commonAction.getElement(loc_lblProductName);
 
-                    // check UI
-                    checkHeader(languageCode);
-                    checkBreadcrumbs(languageCode);
-                    checkOthersInformation(languageCode);
-                    checkFooter(languageCode);
-                    checkMetaTag(languageCode);
+                // check UI
+                checkHeader(languageCode);
+                checkBreadcrumbs(languageCode);
+                checkOthersInformation(languageCode);
+                checkFooter(languageCode);
+                checkMetaTag(languageCode);
 
-                    if ((maxStock > 0) && (!commonAction.getListElement(loc_lblBranchName).isEmpty())) {
-                        checkProductDetailWhenInStock(languageCode);
-                    }
-                    checkProductInformation(languageCode, customerId);
+                if ((maxStock > 0) && (!commonAction.getListElement(loc_lblBranchName).isEmpty())) {
+                    checkProductDetailWhenInStock(languageCode);
                 }
-            } else logger.info("'%s' language is not published, please publish it and try again.".formatted(language));
+                checkProductInformation(languageCode, customerId);
+            } else logger.info("'%s' language is not published, please publish it and try again.", language);
         } else {
             // in-case out of stock and setting hide product when out of stock
             // wait 404 page loaded
-            driver.get("https://%s%s%s/product/%s".formatted(storeInfo.getStoreURL(), SF_DOMAIN, !storeInfo.getStoreLanguageList().isEmpty() ? "/%s".formatted(storeInfo.getStoreLanguageList().get(0)) : "", productInfo.getProductId()));
-            logger.info("Navigate to Product detail page by URL, with productID: %s".formatted(productInfo.getProductId()));
+            driver.get("https://%s%s%s/product/%s".formatted(storeInfo.getStoreURL(), SF_DOMAIN, !storeInfo.getStoreLanguageList().isEmpty() ? "/%s".formatted(storeInfo.getStoreLanguageList().get(0)) : "", productInfo.getId()));
+            logger.info("Navigate to Product detail page by URL, id: {}", productInfo.getId());
 
             // wait 404 page loaded
             commonAction.waitURLShouldBeContains("404");
@@ -784,9 +742,11 @@ public class ProductDetailPage extends ProductDetailElement {
             check404Page();
         }
 
+        // Logger
+        LogManager.getLogger().info("===== STEP =====> [ProductDetail] DONE!!! ");
+
         // complete verify
         AssertCustomize.verifyTest();
-
     }
 
     public ShoppingCart clickOnBuyNow() {
@@ -798,7 +758,7 @@ public class ProductDetailPage extends ProductDetailElement {
 
     public ProductDetailPage accessToProductDetailPageByURL(String domain, String productID) {
         commonAction.navigateToURL(domain + "product/" + productID);
-        logger.info("Navigate to Product detail page by URL, with productID: %s".formatted(productID));
+        logger.info("Navigate to Product detail page by URL, with productID: {}", productID);
         commonAction.sleepInMiliSecond(3000);
         return this;
     }

@@ -2,13 +2,13 @@ package web.Dashboard;
 
 import api.Seller.products.all_products.APIAllProducts;
 import api.Seller.products.all_products.APICreateProduct;
-import api.Seller.products.all_products.APIProductDetail;
+import api.Seller.products.all_products.APIProductDetailV2;
+import api.Seller.products.all_products.APIProductDetailV2.ProductInfoV2;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeGroups;
 import org.testng.annotations.Test;
 import utilities.assert_customize.AssertCustomize;
 import utilities.driver.InitWebdriver;
-import utilities.model.dashboard.products.productInfomation.ProductInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 import web.Dashboard.login.LoginPage;
 import web.Dashboard.products.all_products.crud.ProductPage;
@@ -23,10 +23,10 @@ public class UpdateProductTest extends BaseTest {
     ProductPage productPage;
     ProductDetailPage productDetailPage;
     int productId;
-    ProductInfo productInfo;
+    ProductInfoV2 productInfo;
     APIAllProducts apiAllProducts;
     APICreateProduct apiCreateProduct;
-    APIProductDetail apiProductDetail;
+    APIProductDetailV2 apiProductDetail;
 
     @BeforeClass
     void setupWeb() {
@@ -48,7 +48,7 @@ public class UpdateProductTest extends BaseTest {
         // init API
         apiCreateProduct = new APICreateProduct(loginInformation);
         apiAllProducts = new APIAllProducts(loginInformation);
-        apiProductDetail = new APIProductDetail(loginInformation);
+        apiProductDetail = new APIProductDetailV2(loginInformation);
     }
 
     @BeforeGroups(groups = "[WEB][UPDATE] Normal product - Without variation")

@@ -1,5 +1,6 @@
 package web.Dashboard.products.all_products.crud.variation_detail;
 
+import api.Seller.products.all_products.APIProductDetailV2.ProductInfoV2;
 import api.Seller.setting.StoreInformation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -7,7 +8,6 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import utilities.assert_customize.AssertCustomize;
 import utilities.commons.UICommonAction;
-import utilities.model.dashboard.products.productInfomation.ProductInfo;
 import utilities.model.dashboard.setting.storeInformation.StoreInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 import utilities.model.staffPermission.AllPermissions;
@@ -27,17 +27,17 @@ import static utilities.links.Links.DOMAIN;
 public class VariationDetailPage extends VariationDetailElement {
     WebDriver driver;
     UICommonAction commonAction;
-    String modelId;
+    int modelId;
     String variation;
     String defaultLanguage;
     Logger logger = LogManager.getLogger(VariationDetailPage.class);
     StoreInfo storeInfo;
     LoginInformation loginInformation;
-    ProductInfo productInfo;
+    ProductInfoV2 productInfo;
     String uiLanguage;
     AssertCustomize assertCustomize;
 
-    public VariationDetailPage(WebDriver driver, String modelId, ProductInfo productInfo, LoginInformation loginInformation) {
+    public VariationDetailPage(WebDriver driver, int modelId, ProductInfoV2 productInfo, LoginInformation loginInformation) {
         this.modelId = modelId;
         commonAction = new UICommonAction(driver);
         this.loginInformation = loginInformation;
@@ -47,21 +47,21 @@ public class VariationDetailPage extends VariationDetailElement {
         this.driver = driver;
         variation = productInfo.getVariationValuesMap()
                 .get(storeInfo.getDefaultLanguage())
-                .get(productInfo.getBarcodeList().indexOf(modelId));
+                .get(productInfo.getVariationModelList().indexOf(modelId));
         assertCustomize = new AssertCustomize(driver);
         defaultLanguage = storeInfo.getDefaultLanguage();
     }
 
     void navigateToVariationDetailPage() {
-        driver.get("%s/product/%s/variation-detail/%s/edit".formatted(DOMAIN, modelId.split("-")[0], modelId.split("-")[1]));
-        logger.info("Navigate to variation detail page, barcode: %s.".formatted(modelId));
+        driver.get("%s/product/%s/variation-detail/%s/edit".formatted(DOMAIN, productInfo.getId(), modelId));
+        logger.info("Navigate to variation detail page, barcode: {}", modelId);
     }
 
     void updateVariationProductName() {
         String name = "[Update][%s][%s] product version name".formatted(defaultLanguage, variation);
         commonAction.click(loc_txtProductVersionName);
         commonAction.sendKeys(loc_txtProductVersionName, name);
-        logger.info("[%s] Update product version name: %s.".formatted(variation, name));
+        logger.info("[{}] Update product version name: {}", variation, name);
     }
 
     void updateVariationProductDescription() {
@@ -72,20 +72,20 @@ public class VariationDetailPage extends VariationDetailElement {
         if (!reuseDescription) {
             String description = "[Update][%s][%s] Product description".formatted(defaultLanguage, variation);
             commonAction.sendKeys(loc_rtfDescription, description);
-            logger.info("[%s] Update product description: %s.".formatted(variation, description));
+            logger.info("[{}] Update product description: {}.", variation, description);
         }
 
     }
 
     void completeUpdateProductVersionNameAndDescription() {
         commonAction.click(loc_btnSave);
-        logger.info("[%s] Update successfully.".formatted(variation));
+        logger.info("[{}] Update successfully.", variation);
     }
 
     void updateVariationTranslation(String languageCode, String languageName) {
         String variation = productInfo.getVariationValuesMap()
                 .get(languageCode)
-                .get(productInfo.getBarcodeList().indexOf(modelId));
+                .get(productInfo.getVariationModelList().indexOf(modelId));
         if (!commonAction.getListElement(loc_dlgEditTranslation).isEmpty()) {
             // convert languageCode to languageName
             if (languageCode.equals("en") && (uiLanguage.equals("vi") || uiLanguage.equals("VIE")))
@@ -99,20 +99,20 @@ public class VariationDetailPage extends VariationDetailElement {
                 // select language
                 commonAction.click(By.xpath(str_dlgEditTranslation_languageInDropdown.formatted(languageName)));
             }
-            logger.info("[%s] Select language for translation: %s.".formatted(variation, languageName));
+            logger.info("[{}] Select language for translation: %s.",variation, languageName);
 
             // add translation for variation name
             String name = "[Update][%s][%s] Product version name".formatted(languageCode, variation);
             commonAction.sendKeys(loc_dlgEditTranslation_variationName, name);
-            logger.info("[%s] Edit translation for product version name: %s.".formatted(variation, name));
+            logger.info("[{}] Edit translation for product version name: %s.", variation, name);
 
             // add translation for variation description
             String description = "[Update][%s][%s] Product description".formatted(languageCode, variation);
             commonAction.sendKeys(loc_dlgEditTranslation_variationDescription, description);
-            logger.info("[%s] Edit translation for product description: %s.".formatted(variation, description));
+            logger.info("[{}] Edit translation for product description: {}.", variation, description);
 
             commonAction.openPopupJS(loc_dlgEditTranslation_btnSave, loc_dlgToastSuccess);
-            logger.info("[%s] Add translation successfully.".formatted(variation));
+            logger.info("[{}] Add translation successfully.",variation);
         }
     }
 
@@ -135,9 +135,9 @@ public class VariationDetailPage extends VariationDetailElement {
 
     public void changeVariationStatus(String status) {
         navigateToVariationDetailPage();
-        if (!productInfo.getVariationStatus().get(productInfo.getBarcodeList().indexOf(modelId)).equals(status))
+        if (!productInfo.getVariationStatus().get(productInfo.getVariationModelList().indexOf(modelId)).equals(status))
             commonAction.clickJS(loc_btnDeactivate);
-        logger.info("[%s] Update status successfully.".formatted(variation));
+        logger.info("[{}] Update status successfully.", variation);
     }
 
 
@@ -160,7 +160,7 @@ public class VariationDetailPage extends VariationDetailElement {
             int numOfAttribute = nextInt(10);
             // add attribution
             IntStream.range(0, numOfAttribute)
-                    .forEachOrdered(index -> commonAction.clickJS(loc_lnkAddAttribution));
+                    .forEachOrdered(ignored -> commonAction.clickJS(loc_lnkAddAttribution));
 
             // input attribution
             long epoch = Instant.now().toEpochMilli();

@@ -28,7 +28,6 @@ import utilities.driver.InitWebdriver;
 import utilities.utils.jsonFileUtility;
 import utilities.model.sellerApp.login.LoginInformation;
 
-import java.io.IOException;
 import java.util.*;
 
 import static utilities.account.AccountTest.*;

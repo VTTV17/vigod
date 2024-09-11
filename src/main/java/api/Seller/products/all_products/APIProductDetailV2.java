@@ -26,7 +26,7 @@ public class APIProductDetailV2 {
 
     public ProductInfoV2 getInfo(int productId) {
         // Logger
-        LogManager.getLogger().info("Get information of productId: {}", productId);
+        LogManager.getLogger().info("===== STEP =====> [GetProductInfo] ProductId: {} ", productId);
 
         return api.get(getDetailsOfProductPath.formatted(productId), loginInfo.getAccessToken())
                 .then()
@@ -91,7 +91,7 @@ public class APIProductDetailV2 {
         private Map<String, List<String>> variationValuesMap = new HashMap<>();
         private Map<Integer, List<Integer>> productStockQuantityMap = new HashMap<>();
 
-        public ProductInfoV2 analyzeData() {
+        private ProductInfoV2 analyzeData() {
             // Get product name and description
             languages.forEach(language -> {
                 this.mainProductNameMap.put(language.getLanguage(), language.getName());
@@ -129,18 +129,18 @@ public class APIProductDetailV2 {
                     this.productStockQuantityMap.put(model.getId(), variationStock);
 
                     // Get version name
-                    this.versionNameMap.put(id, IntStream.range(0, model.getLanguages().size())
+                    this.versionNameMap.put(model.getId(), IntStream.range(0, model.getLanguages().size())
                             .boxed()
                             .collect(Collectors.toMap(languageIndex -> model.getLanguages().get(languageIndex).getLanguage(),
                                     languageIndex -> Optional.ofNullable(model.getLanguages().get(languageIndex).getVersionName()).orElse(name),
-                                    (a, b) -> b)));
+                                    (ignored, b) -> b)));
 
                     // Get version name
-                    this.versionDescriptionMap.put(id, IntStream.range(0, model.getLanguages().size())
+                    this.versionDescriptionMap.put(model.getId(), IntStream.range(0, model.getLanguages().size())
                             .boxed()
                             .collect(Collectors.toMap(languageIndex -> model.getLanguages().get(languageIndex).getLanguage(),
                                     languageIndex -> model.isUseProductDescription() ? description : Optional.ofNullable(model.getLanguages().get(languageIndex).getDescription()).orElse(description),
-                                    (a, b) -> b)));
+                                    (ignored, b) -> b)));
 
                     // Get variation value map
                     model.getLanguages().forEach(language -> {
@@ -164,15 +164,6 @@ public class APIProductDetailV2 {
                 this.variationModelList.add(null);
             }
             return this;
-        }
-
-        @Data
-        @JsonIgnoreProperties(ignoreUnknown = true)
-        public static class Category {
-            private long id;
-            private int cateId;
-            private int level;
-            private long itemId;
         }
 
         @Data
@@ -233,6 +224,7 @@ public class APIProductDetailV2 {
             private String seoTitle;
             private String seoDescription;
             private String seoKeywords;
+            private String seoUrl;
         }
 
         @Data
