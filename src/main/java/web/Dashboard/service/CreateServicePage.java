@@ -332,8 +332,8 @@ public class CreateServicePage extends HomePage{
     public ServiceManagementPage clickCloseBTNOnNotificationPopup(){
         commons.click(createServiceUI.loc_dlgNotification_btnClose);
         logger.info("Click on Close button on Notification pop up.");
-//        waitTillLoadingDotsDisappear();
-        commons.sleepInMiliSecond(1000);
+        waitTillLoadingDotsDisappear();
+//        commons.sleepInMiliSecond(1000);
         return new ServiceManagementPage(driver);
     }
     /*------------Edit---------------------*/
@@ -469,20 +469,19 @@ public class CreateServicePage extends HomePage{
         return commons.getElements(createServiceUI.loc_lstImage).size();
     }
     public CreateServicePage removeAllImages() throws Exception {
-        commons.sleepInMiliSecond(500);
-        int size = commons.getElements(createServiceUI.loc_lstIconRemoveImage).size();
-        for (int i=0;i<size;i++){
-            commons.click(createServiceUI.loc_lstIconRemoveImage,0);
+        int size = commons.getElements(createServiceUI.loc_lstIconRemoveImage,3).size();
+        for (int i=0;i<=size;i++){
+            if(!commons.getElements(createServiceUI.loc_lstIconRemoveImage,1).isEmpty())
+                commons.click(createServiceUI.loc_lstIconRemoveImage,0);
             logger.info("Remove image: "+i);
-            commons.sleepInMiliSecond(100);
+            commons.sleepInMiliSecond(200);
         }
         Assert.assertEquals(commons.getText(createServiceUI.loc_lblErrorMessageImages),PropertiesUtil.getPropertiesValueByDBLang("services.create.imagesFieldEmptyError"));
         logger.info("Removed alll images");
         return this;
     }
     public CreateServicePage removeAllCollection(){
-        commons.sleepInMiliSecond(500);
-        int size = commons.getElements(createServiceUI.loc_lstIconDeleteCollection).size();
+        int size = commons.getElements(createServiceUI.loc_lstIconDeleteCollection,2).size();
         for (int i = 0;i<size;i++) {
             commons.click(createServiceUI.loc_lstIconDeleteCollection,0);
         }

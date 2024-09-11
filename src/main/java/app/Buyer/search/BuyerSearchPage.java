@@ -57,7 +57,7 @@ public class BuyerSearchPage extends UICommonMobile{
             verifyNoProductMessage();
         }
         List<WebElement> productNameElements = getElements(searchPage.PRODUCT_LIST);
-        List<String> productNamesActual =new ArrayList<>();
+        List<String> productNamesActual;
         List<String> productNamesActualToLowerCase =new ArrayList<>();
         if (productNameElements.size() !=0){
             productNamesActual = getListElementText(searchPage.PRODUCT_LIST);

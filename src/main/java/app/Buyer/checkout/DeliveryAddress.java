@@ -158,10 +158,13 @@ public class DeliveryAddress extends DeliveryAddressElement {
 
     public String selectCountryNonVN() {
         common.click(loc_tvCountry);
+        common.sleepInMiliSecond(2000);
         common.swipeByCoordinatesInPercent(0.75,0.75,0.75,0.25);
-        List<WebElement> countryList = common.getElements(loc_lstCountry);
+        List<WebElement> countryList = common.getElements(loc_lstCountry,2);
         int index = new DataGenerator().generatNumberInBound(0, countryList.size() - 1);
         String country = common.getText(countryList.get(index));
+        System.out.println("index country: "+index);
+        System.out.println("Selected country: "+country);
 //        if (country.contains("(+84)")) index = new DataGenerator().generatNumberInBound(0, countryList.size() - 1);
 //        country = common.getText(countryList.get(index));
         country = country.substring(country.indexOf(")") + 1).trim();
@@ -230,6 +233,7 @@ public class DeliveryAddress extends DeliveryAddressElement {
         }
         if (isUpdateInProfile) checkedOnUpdateMyProfile();
         new BuyerGeneral(driver).tapRightBtnOnHeader();
+        common.sleepInMiliSecond(1000);
         return addressInfo;
     }
     public DeliveryAddress inputPhoneOrEmailIfNeed(){

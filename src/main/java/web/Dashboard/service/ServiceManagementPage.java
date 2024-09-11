@@ -130,7 +130,8 @@ public class ServiceManagementPage extends ServiceManagementElement {
 			return new CreateServicePage(driver);
 		}
 		boolean clicked = false;
-		List<WebElement> serviceNameElements = commons.getElements(loc_lst_lblServiceName);
+		List<WebElement> serviceNameElements = commons.getElements(loc_lst_lblServiceName,5);
+		System.out.println("serviceNameElements size: "+serviceNameElements.size());
 		for (WebElement el: serviceNameElements) {
 			if (commons.getText(el).equalsIgnoreCase(serviceName)){
 				commons.clickElement(el);

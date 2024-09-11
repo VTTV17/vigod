@@ -1,11 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
 <suite name="Default Suite">
+    <parameter name="browser" value="chrome"/>
+    <parameter name="headless" value="false"/>
+    <parameter name="environment" value="PREPROD"/>
+    <parameter name="language" value="VIE"/>
+    <parameter name="domain" value="VN"/>
     <test thread-count="5" name="UserProfileSFTest">
         <classes>
-            <class name="UserProfileSFTest">
+            <class name="web.StoreFront.UserProfileSFTest">
                 <methods>
-<!--                    <include name="UP01_ViewAccountInfo"/>-->
+                    <include name="UP01_ViewAccountInfo"/>
                     <include name="UP02_UpdateMyAccountAndVerifyOnSF_NoBirthdayBefore_EmailAccount"/>
                     <include name="UP03_UpdateUserProfileAndVerifyOnSF_HasBirthdayBefore_EmailAccount"/>
                     <include name="UP04_UpdateUserProfile_NoBirthdayBefore_PhoneAccount"/>

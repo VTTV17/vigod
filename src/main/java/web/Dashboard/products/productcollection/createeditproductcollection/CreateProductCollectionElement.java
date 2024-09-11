@@ -28,14 +28,14 @@ public class CreateProductCollectionElement {
     By loc_txtSEOKeywords = By.id("seoKeywords");
     By loc_txtSEOUrl = By.id("seoUrl");
     By loc_btnClose = By.cssSelector(".modal-footer button");
-    By loc_btnSave = By.cssSelector(".header-wrapper .gs-button__green");
+    By loc_btnSave = By.xpath("//button[string()='Lưu' or string()='Save']");
     By loc_btnDelete = By.cssSelector(".icon-delete");
-    By loc_btnEditTranslation = By.xpath("//*[contains(@class, 'btn-save')]/preceding-sibling::button");
+    By loc_btnEditTranslation = By.xpath("//button[string()='Sửa bản dịch' or string()='Edit Translation']");
     By loc_lst_txtPriority  = By.xpath("//td[contains(@class,'gs-table-body-item')]//input[@precision='0']");
     By loc_lst_lblProductName = By.xpath("//td[contains(@class,gs-table-body-item)][2]//b");
     By loc_icn_btnDelete = By.cssSelector(".btn-remove__row");
     By loc_lblCreateProductCollectionTitle = By.cssSelector(".gs-page-title");
-    By loc_btnCancel = By.xpath("//div[contains(@class,'action-btn--group')]//button[2]");
+    By loc_btnCancel = By.xpath("//button[string()='Hủy' or string()='Cancel']");
     By loc_lblGeneralInformation = By.xpath("//button[@type='submit']//following-sibling::div[1]//h3");
     By loc_lblCollectionName = By.xpath("//label[@for='collectionName']");
     By loc_lblImages = By.xpath("//label[@for='collectionName']//following-sibling::label");
