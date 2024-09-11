@@ -212,7 +212,7 @@ public class ProductCollectionTest extends BaseTest {
         System.out.println("allCondition" + Arrays.stream(allCondition).toList());
         List<String> productExpectedList;
         int countItemExpected;
-        callLoginAPI();
+//        callLoginAPI();
         CreateProductCollection createProductCollection = new CreateProductCollection(driver);
         if (allCondition.length > 1) {
             Map productBelongCollectionMap = createProductCollection.productsBelongCollectionExpected_MultipleCondition(loginInformation, conditionType, allCondition);

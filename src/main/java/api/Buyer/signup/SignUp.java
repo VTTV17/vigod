@@ -21,10 +21,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.json.JSONObject;
+import utilities.utils.PropertiesUtil;
 
 import static io.restassured.RestAssured.baseURI;
 import static io.restassured.RestAssured.given;
 import static utilities.links.Links.SF_DOMAIN;
+import static utilities.links.Links.URI;
 
 public class SignUp {
     String SIGN_UP_PHONE_PATH = "/api/register2/mobile/phone";
@@ -41,7 +43,7 @@ public class SignUp {
     public SignUp (LoginInformation loginInformation) {
         this.loginInformation = loginInformation;
         RestAssured.proxy("localhost", 8888);
-        baseURI = Links.URI;
+        baseURI = URI;
 
     }
 
@@ -144,7 +146,7 @@ public class SignUp {
     	String body = JsonObjectBuilder.mergeJSONObjects(capchaPayload, registerPayload).toString();
         
         Map<String, String> headerMap = new HashMap<>();
-        headerMap.put("Host", "api.beecow.info");
+        headerMap.put("Host", URI.split("//")[1]);
         headerMap.put("x-request-origin", "STOREFRONT");
         headerMap.put("platform", "WEB");
         headerMap.put("storeid", storeId);
@@ -178,7 +180,7 @@ public class SignUp {
                 .givenMail(username).build();
         String body = JsonObjectBuilder.mergeJSONObjects(capchaPayload, registerPayload).toString();
         Map<String, String> headerMap = new HashMap<>();
-        headerMap.put("Host", "api.beecow.info");
+        headerMap.put("Host", URI.split("//")[1]);
         headerMap.put("x-request-origin", "STOREFRONT");
         headerMap.put("platform", "WEB");
         headerMap.put("storeid", storeId);

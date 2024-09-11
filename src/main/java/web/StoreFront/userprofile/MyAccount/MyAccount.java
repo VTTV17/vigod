@@ -453,4 +453,9 @@ public class MyAccount extends HeaderSF {
         logger.info("Click all delete other email icon.");
         return this;
     }
+    public MyAccount refreshPage(){
+        commonAction.refreshPage();
+        waitTillLoaderDisappear();
+        return this;
+    }
 }

@@ -6,11 +6,13 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import utilities.api.API;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
+import utilities.model.dashboard.onlineshop.ListingStoreInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 
 public class APIPreferences {
     public static String ENABLE_GUEST_CHECKOUT_PATH = "storeservice/api/stores/%s/checkout?enableGuestCheckout=%s";
     String GET_GUEST_CHECKOUT_STATUS_PATH = "/storeservice/api/stores/%s/checkout";
+    String STORE_LISTING_PATH = "/storeservice/api/store-listing-webs/%s";
     final static Logger logger = LogManager.getLogger(APIPreferences.class);
     API api = new API();
     LoginDashboardInfo loginInfo;
@@ -35,5 +37,8 @@ public class APIPreferences {
         response.then().statusCode(200);
         return response.jsonPath().get();
     }
-
+    public void enableStoreListingWeb(ListingStoreInfo listingStoreInfo){
+        Response response = api.put(STORE_LISTING_PATH.formatted(loginInfo.getStoreID()),loginInfo.getAccessToken(),listingStoreInfo);
+        response.then().statusCode(201);
+    }
 }
