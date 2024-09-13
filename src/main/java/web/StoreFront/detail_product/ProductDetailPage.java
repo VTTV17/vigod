@@ -273,7 +273,7 @@ public class ProductDetailPage extends ProductDetailElement {
             String actSellingPrice = new UICommonAction(driver).getText(loc_lblSellingPrice).replace(",", "");
             long actSellingPriceValue = Long.parseLong(actSellingPrice.replace(STORE_CURRENCY, ""));
 
-            assertCustomize.assertTrue(Math.abs(actSellingPriceValue - sellingPrice) <= 1, "%s Selling price should be show %,d ±1 instead of %,d".formatted(branch, sellingPrice, actSellingPriceValue));
+            assertCustomize.assertTrue(Math.abs(actSellingPriceValue - sellingPrice) <= 1, "%s Selling price should be show %,d ±1 instead of %d".formatted(branch, sellingPrice, actSellingPriceValue));
             logger.info("{}Check product price/ store currency show correctly", branch);
         } else logger.info("{}Website listing enable, so listing/selling price is hidden", branch);
     }
@@ -620,7 +620,7 @@ public class ProductDetailPage extends ProductDetailElement {
                     // get variation value
                     variationValue = productInfo.getVariationValuesMap().get(language).get(varIndex);
                     List<String> varName = Arrays.stream(variationValue.split("\\|")).toList();
-                    if (!variationValue.isEmpty())logger.info("*** var: {} ***", variationValue);
+                    if (!variationValue.isEmpty()) logger.info("*** var: {} ***", variationValue);
 
                     // select variation
                     for (String var : varName) {

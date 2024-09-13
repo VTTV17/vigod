@@ -406,9 +406,11 @@ public class CreateProductScreen extends CreateProductElement {
 
     void addVariations() {
         // Navigate to Add/Edit variation
-        commonAndroid.click(loc_swVariations);
-        if (!commonAndroid.getListElement(loc_btnAddVariation).isEmpty()) {
+        for (int retriesIndex = 0; retriesIndex < 5; retriesIndex++) {
             commonAndroid.click(loc_swVariations);
+            if (commonAndroid.isChecked(loc_swVariations)) {
+                break;
+            }
         }
         commonAndroid.click(loc_btnAddVariation);
 

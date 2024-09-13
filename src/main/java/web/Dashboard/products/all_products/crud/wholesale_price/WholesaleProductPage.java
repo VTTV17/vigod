@@ -98,7 +98,7 @@ public class WholesaleProductPage extends WholesaleProductElement {
 
         // wait and input price per item
         commonAction.sendKeys(withoutVariationWholesalePrice, String.valueOf(wholesaleProductPrice.get(0)));
-        logger.info("Input price per item: %,d".formatted(wholesaleProductPrice.get(0)));
+        logger.info("Input price per item: {}", String.format("%,d", wholesaleProductPrice.get(0)));
 
         // open segment dropdown
         commonAction.click(withoutVariationSegmentDropdown);

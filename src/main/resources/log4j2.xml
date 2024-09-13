@@ -12,12 +12,8 @@ status="WARN">
     </File>
 </Appenders>
 <Loggers>
-    <Logger name="log4j.test.Log4jTest" level="trace">
-        <AppenderRef ref="Console"/>
-        <AppenderRef ref="MyFile"/>
-    </Logger>
     <Root level="trace">
-        <AppenderRef ref="Console"/>
+        <AppenderRef ref="Console" level="debug"/>
         <AppenderRef ref="MyFile"/>
     </Root>
 </Loggers>
