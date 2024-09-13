@@ -86,7 +86,7 @@ public class ConversionUnitPage extends ConversionUnitElement {
             logger.info("Select conversion unit: {}", unitName);
 
             // input conversion unit quantity
-            long quantity = Math.min(Math.max(Collections.max(productInfo.getProductStockQuantityMap().get(productInfo.getId())), 1), MAX_PRICE / productInfo.getProductListingPrice().get(0));
+            long quantity = Math.min(Math.max(Collections.max(productInfo.getProductStockQuantityMap().get(productInfo.getId())), 1), MAX_PRICE / productInfo.getOrgPrice());
             commonAction.sendKeys(withoutVariationQuantity, String.valueOf(quantity));
             logger.info("Conversion unit quantity: {}", quantity);
 

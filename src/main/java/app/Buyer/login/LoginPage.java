@@ -78,6 +78,8 @@ public class LoginPage {
     }
     
     public LoginPage performLogin(String userName, String pass){
+        // Logger
+        LogManager.getLogger().info("===== STEP =====> [LoginGoBUYER] START... ");
         if (!userName.matches("[\\w.%+-]+@[\\w.-]+\\.[A-Za-z]{2,6}")) {
             clickPhoneTab();
         }
@@ -88,6 +90,10 @@ public class LoginPage {
 
         // wait home screen loaded
         new UICommonAndroid(driver).waitUntilScreenLoaded(goBUYERHomeScreenActivity);
+
+        // Logger
+        LogManager.getLogger().info("===== STEP =====> [LoginGoBUYER] DONE!!! ");
+
         return this;
     }
     

@@ -80,8 +80,8 @@ public class ProductPageElement {
      * <p>3: Update Image</p>
      */
     By loc_tblVariation_ddvActions = By.cssSelector(".uik-menuDrop__list > button");
-    By loc_tblVariation_txtStock = By.xpath("//*[contains(@name, 'stock')]|//input[contains(@name,'barcode')]/ancestor::td/preceding-sibling::td[2]/span");
-    By loc_tblVariation_txtSKU = By.xpath("//*[contains(@name, 'sku')]|//input[contains(@name,'barcode')]/ancestor::td/preceding-sibling::td[1]/span");
+    By loc_tblVariation_txtStock = By.xpath("//td[div/input[contains(@name, 'barcode')]]/preceding::td[3]/span");
+    By loc_tblVariation_txtSKU = By.xpath("//td[div/input[contains(@name, 'barcode')]]/preceding::td[1]/span");
     By loc_dlgUpdateSKU_txtInputSKU = By.cssSelector(".justify-content-center input");
     By loc_tblVariation_imgUploads = By.cssSelector("td > img");
     By loc_dlgUploadsImage_btnUploads = By.cssSelector(".modal-content [type = file]");

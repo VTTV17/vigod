@@ -1,5 +1,6 @@
 package utilities.commons;
 
+import io.appium.java_client.AppiumBy;
 import io.appium.java_client.AppiumDriver;
 import io.appium.java_client.InteractsWithApps;
 import io.appium.java_client.android.Activity;
@@ -95,6 +96,9 @@ public class UICommonAndroid {
     }
 
     public WebElement getElement(By locator) {
+        // Logger
+        logLocatorDetails(locator);
+
         try {
             // Close notification screen
             closeNotificationScreen();
@@ -260,5 +264,48 @@ public class UICommonAndroid {
         List<WebElement> elements = getListElement(locator);
 
         return elements.isEmpty() ? List.of() : new ArrayList<>(elements.stream().map(WebElement::getText).toList());
+    }
+
+    private void logLocatorDetails(By by) {
+        String strategy = "Unknown"; // Default value if strategy is not matched
+        String value = by.toString(); // Full locator string
+
+        // Extract strategy and value for By locators
+        switch (by) {
+            case By.ById ignored -> {
+                strategy = "ID";
+                value = by.toString();
+            }
+            case By.ByXPath ignored -> {
+                strategy = "XPath";
+                value = by.toString();
+            }
+            case By.ByClassName ignored -> {
+                strategy = "Class Name";
+                value = by.toString();
+            }
+            case By.ByCssSelector ignored -> {
+                strategy = "CSS Selector";
+                value = by.toString();
+            }
+            case By.ByLinkText ignored -> {
+                strategy = "Link Text";
+                value = by.toString();
+            }
+            default -> {
+            }
+        }
+
+        // Extract strategy and value for AppiumBy locators
+        if (by instanceof AppiumBy.ByAccessibilityId) {
+            strategy = "Accessibility ID";
+            value = by.toString();
+        } else if (by instanceof AppiumBy.ByAndroidUIAutomator) {
+            strategy = "UIAutomator";
+            value = by.toString();
+        }
+
+        // Log the detailed search type and locator
+        logger.info("FindElement - Search type: {}, Locator: {}", strategy, value);
     }
 }

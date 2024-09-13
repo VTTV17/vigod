@@ -5,8 +5,8 @@ import org.openqa.selenium.By;
 class ConversionUnitElement {
 
     /* Without variation config */
-    By withoutVariationSelectUnitBtn = By.cssSelector(".btn-header-wrapper > .gs-button__green--outline");
-     By withoutVariationSaveBtn = By.cssSelector(".btn-header-wrapper > .gs-button__green");
+    By withoutVariationSelectUnitBtn = By.cssSelector(".gs-content-header-right-el .gs-button__green--outline");
+     By withoutVariationSaveBtn = By.cssSelector(".gs-content-header-right-el .gs-button__green");
     By withoutVariationUnitTextBox = By.cssSelector("#unit-0");
     String unitLocator = "//*[text() = '%s']";
     By withoutVariationQuantity = By.cssSelector("[name *= quantity]");

@@ -412,12 +412,7 @@ public class ProductDetailPage extends ProductDetailElement {
         // get dashboard product description
         String dbDescription = productInfo.isHasModel()
                 ? productInfo.getVersionDescriptionMap().get(modelId).get(language)
-                : productInfo.getLanguages()
-                .parallelStream()
-                .filter(languages -> languages.getLanguage().equals(language))
-                .findAny()
-                .orElse(new ProductInfoV2.MainLanguage())
-                .getDescription();
+                : productInfo.getLanguages().parallelStream().filter(languages -> languages.getLanguage().equals(language)).findAny().orElse(new ProductInfoV2.MainLanguage()).getDescription();
         dbDescription = dbDescription.replaceAll("<.*?>", "").replaceAll("amp;", "");
 
         // get SF product description
@@ -597,7 +592,7 @@ public class ProductDetailPage extends ProductDetailElement {
             }
 
         } else {
-//            checkSoldOutMark(variationName);
+            checkSoldOutMark(variationName);
             checkBuyNowAndAddToCartBtnIsHidden(variationName);
         }
     }
@@ -625,7 +620,7 @@ public class ProductDetailPage extends ProductDetailElement {
                     // get variation value
                     variationValue = productInfo.getVariationValuesMap().get(language).get(varIndex);
                     List<String> varName = Arrays.stream(variationValue.split("\\|")).toList();
-                    logger.info("*** var: {} ***", variationValue);
+                    if (!variationValue.isEmpty())logger.info("*** var: {} ***", variationValue);
 
                     // select variation
                     for (String var : varName) {
@@ -685,7 +680,7 @@ public class ProductDetailPage extends ProductDetailElement {
      */
     public void accessToProductDetailPageByProductIDAndCheckProductInformation(LoginInformation loginInformation, String language, ProductInfoV2 productInfo, int customerId) throws Exception {
         // Logger
-        LogManager.getLogger().info("===== STEP =====> [ProductDetail] START... ");
+        LogManager.getLogger().info("===== STEP =====> [CheckProductDetail] START... ");
 
         // get login information
         this.loginInformation = loginInformation;
@@ -709,8 +704,14 @@ public class ProductDetailPage extends ProductDetailElement {
             // in-case in stock or setting show product when out of stock
             // check language is published or not
             if (storeInfo.getSFLangList().contains(languageCode)) {
+                // Get product URL
+                var languages = productInfo.getLanguages().parallelStream().filter(mainLanguage -> mainLanguage.getLanguage().equals(languageCode)).findAny().orElse(null);
+                String sfURL = ((languages != null) && (languages.getSeoUrl() != null))
+                        ? "https://%s%s/%s".formatted(storeInfo.getStoreURL(), SF_DOMAIN, languages.getSeoUrl())
+                        : "https://%s%s/%s/product/%d".formatted(storeInfo.getStoreURL(), SF_DOMAIN, languageCode, productInfo.getId());
+
                 // check all information with language
-                driver.get("https://%s%s/%s/product/%s".formatted(storeInfo.getStoreURL(), SF_DOMAIN, languageCode, productInfo.getId()));
+                driver.get(sfURL);
                 driver.navigate().refresh();
                 logger.info("Navigate to Product detail page by URL, with id: {}", productInfo.getId());
 
@@ -743,7 +744,7 @@ public class ProductDetailPage extends ProductDetailElement {
         }
 
         // Logger
-        LogManager.getLogger().info("===== STEP =====> [ProductDetail] DONE!!! ");
+        LogManager.getLogger().info("===== STEP =====> [CheckProductDetail] DONE!!! ");
 
         // complete verify
         AssertCustomize.verifyTest();

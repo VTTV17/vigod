@@ -145,8 +145,15 @@ public class BuyerAccountPage {
         return this;
     }
     public BuyerAccountPage changeLanguage(String lang){
+        // Logger
+        LogManager.getLogger().info("===== STEP =====> [ChangeGoBUYERLanguage] START... ");
+
+        // Update GoBUYER app language
         new BuyerAccountPage(driver).clickLanguageBtn()
                 .changeLanguage(lang);
+
+        // Logger
+        LogManager.getLogger().info("===== STEP =====> [LoginGoBUYER] DONE!!! ");
         return new BuyerAccountPage(driver);
     }
 }

@@ -673,7 +673,7 @@ public class ProductPage extends ProductPageElement {
                 commonAction.sendKeys(loc_dlgAddIMEI_txtAddIMEI, brIndex, imei);
                 logger.info("Input IMEI: {}", imei.replace("\n", ""));
             }
-            logger.info("%s[%s] Add IMEI, stock: {}", variationValue == null ? "" : "[%s]".formatted(variationValue), brName, branchStock.get(brStockIndex));
+            logger.info("{}[{}] Add IMEI, stock: {}", variationValue == null ? "" : "[%s]".formatted(variationValue), brName, branchStock.get(brStockIndex));
         }
 
         // save IMEI/Serial number
@@ -734,9 +734,9 @@ public class ProductPage extends ProductPageElement {
             int brStockIndex = brInfo.getBranchName().indexOf(brName);
             if (!commonAction.getListElement(loc_dlgUpdateStock_txtBranchStock(brName), 1000).isEmpty()) {
                 commonAction.sendKeys(loc_dlgUpdateStock_txtBranchStock(brName), String.valueOf(branchStock.get(brStockIndex)));
-                logger.info("%s[%s] Update stock: {}", variationList.get(varIndex) == null ? "" : "[%s]".formatted(variationList.get(varIndex)), brName, branchStock.get(brStockIndex));
+                logger.info("{}[{}] Update stock: {}", variationList.get(varIndex) == null ? "" : "[%s]".formatted(variationList.get(varIndex)), brName, branchStock.get(brStockIndex));
             } else {
-                logger.info("%s[%s] Add stock: {}", variationList.get(varIndex) == null ? "" : "[%s]".formatted(variationList.get(varIndex)), brName, stock);
+                logger.info("{}[{}] Add stock: {}", variationList.get(varIndex) == null ? "" : "[%s]".formatted(variationList.get(varIndex)), brName, stock);
             }
         });
         // close Update stock popup
@@ -1049,6 +1049,9 @@ public class ProductPage extends ProductPageElement {
 
     /* Create product */
     public ProductPage createWithoutVariationProduct(boolean isIMEIProduct, int... branchStock) throws Exception {
+        // Logger
+        LogManager.getLogger().info("===== STEP =====> [CreateWithoutVariationProduct] START... ");
+
         hasModel = false;
 
         // product name
@@ -1060,10 +1063,16 @@ public class ProductPage extends ProductPageElement {
         inputWithoutVariationProductSKU();
         completeCreateProduct();
 
+        // Logger
+        LogManager.getLogger().info("===== STEP =====> [CreateWithoutVariationProduct] DONE!!! ");
+
         return this;
     }
 
     public ProductPage createVariationProduct(boolean isIMEIProduct, int increaseNum, int... branchStock) throws Exception {
+        // Logger
+        LogManager.getLogger().info("===== STEP =====> [CreateVariationProduct] START... ");
+
         hasModel = true;
 
         // product name
@@ -1077,11 +1086,17 @@ public class ProductPage extends ProductPageElement {
         inputVariationSKU();
         completeCreateProduct();
 
+        // Logger
+        LogManager.getLogger().info("===== STEP =====> [CreateVariationProduct] DONE!!! ");
+
         return this;
     }
 
     /* Update Product */
     public void updateWithoutVariationProduct(int... newBranchStock) {
+        // Logger
+        LogManager.getLogger().info("===== STEP =====> [UpdateWithoutVariationProduct] START... ");
+
         hasModel = false;
 
         // product name
@@ -1093,9 +1108,14 @@ public class ProductPage extends ProductPageElement {
         updateWithoutVariationProductSKU();
         completeUpdateProduct();
 
+        // Logger
+        LogManager.getLogger().info("===== STEP =====> [UpdateWithoutVariationProduct] DONE!!! ");
     }
 
     public ProductPage updateVariationProduct(int newIncreaseNum, int... newBranchStock) {
+        // Logger
+        LogManager.getLogger().info("===== STEP =====> [UpdateVariationProduct] START... ");
+
         hasModel = true;
 
         // product name
@@ -1111,10 +1131,16 @@ public class ProductPage extends ProductPageElement {
         }
         completeUpdateProduct();
 
+        // Logger
+        LogManager.getLogger().info("===== STEP =====> [UpdateVariationProduct] DONE!!! ");
+
         return this;
     }
 
     public void changeVariationStatus(int productID) {
+        // Logger
+        LogManager.getLogger().info("===== STEP =====> [ChangeProductStatus] START... ");
+
         // update variation product name and description
         // get current product information
         ProductInfoV2 productInfo = new APIProductDetailV2(loginInformation).getInfo(productID);
@@ -1123,14 +1149,22 @@ public class ProductPage extends ProductPageElement {
         for (int modelId : productInfo.getVariationModelList())
             new VariationDetailPage(driver, modelId, productInfo, loginInformation)
                     .changeVariationStatus(List.of("ACTIVE", "INACTIVE").get(nextInt(2)));
+
+        // Logger
+        LogManager.getLogger().info("===== STEP =====> [ChangeProductStatus] DONE!!! ");
     }
 
     public void editVariationTranslation(int productID) {
+        // Logger
+        LogManager.getLogger().info("===== STEP =====> [AddVariationTranslation] START... ");
         // update variation product name and description
         // get current product information
         ProductInfoV2 productInfo = new APIProductDetailV2(loginInformation).getInfo(productID);
 
         productInfo.getVariationModelList().forEach(barcode -> new VariationDetailPage(driver, barcode, productInfo, loginInformation).updateVariationProductNameAndDescription());
+
+        // Logger
+        LogManager.getLogger().info("===== STEP =====> [AddVariationTranslation] DONE!!! ");
     }
 
     /* Edit translation */
@@ -1207,6 +1241,9 @@ public class ProductPage extends ProductPageElement {
     }
 
     public void editTranslation(int productID) {
+        // Logger
+        LogManager.getLogger().info("===== STEP =====> [AddProductTranslation] START... ");
+
         // navigate to product detail page by URL
         driver.get("%s%s".formatted(DOMAIN, updateProductPath(productID)));
         logger.info("Navigate to product detail page, productId: {}", productID);
@@ -1232,16 +1269,24 @@ public class ProductPage extends ProductPageElement {
 
         // save edit translation
         completeUpdateProduct();
+
+        // Logger
+        LogManager.getLogger().info("===== STEP =====> [AddProductTranslation] DONE!!! ");
     }
 
     public void addVariationAttribution() {
-        // update variation product name and description
+        // Logger
+        LogManager.getLogger().info("===== STEP =====> [AddVariationAttribution] START... ");
+
         // get current product information
         ProductInfoV2 productInfo = new APIProductDetailV2(loginInformation).getInfo(productId);
 
         // update variation status
         for (int modelId : productInfo.getVariationModelList())
             new VariationDetailPage(driver, modelId, productInfo, loginInformation).updateAttribution();
+
+        // Logger
+        LogManager.getLogger().info("===== STEP =====> [AddVariationAttribution] DONE!!! ");
     }
 
     public void navigateToProductAndDeleteAllVariation(int productId) {

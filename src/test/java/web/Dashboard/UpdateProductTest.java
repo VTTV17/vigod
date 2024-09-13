@@ -8,6 +8,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeGroups;
 import org.testng.annotations.Test;
 import utilities.assert_customize.AssertCustomize;
+import utilities.commons.UICommonAction;
 import utilities.driver.InitWebdriver;
 import utilities.model.sellerApp.login.LoginInformation;
 import web.Dashboard.login.LoginPage;
@@ -29,7 +30,7 @@ public class UpdateProductTest extends BaseTest {
     APIProductDetailV2 apiProductDetail;
 
     @BeforeClass
-    void setupWeb() {
+    void setup() {
         // init WebDriver
         driver = new InitWebdriver().getDriver(browser, headless);
 
@@ -290,6 +291,8 @@ public class UpdateProductTest extends BaseTest {
     void UP_PRODUCT_G1_21_DeleteProduct() throws Exception {
         productPage.deleteProduct(productId);
 
+        new UICommonAction(driver).sleepInMiliSecond(1000, "Wait product deleted...");
+
         productInfo = apiProductDetail.getInfo(productId);
         productDetailPage.accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, 0);
     }
@@ -483,6 +486,8 @@ public class UpdateProductTest extends BaseTest {
     @Test(groups = "[WEB][UPDATE] IMEI product - Without variation")
     void UP_PRODUCT_G2_18_DeleteProduct() throws Exception {
         productPage.deleteProduct(productId);
+
+        new UICommonAction(driver).sleepInMiliSecond(1000, "Wait product deleted...");
 
         productInfo = apiProductDetail.getInfo(productId);
         productDetailPage.accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, 0);
@@ -717,6 +722,8 @@ public class UpdateProductTest extends BaseTest {
     void UP_PRODUCT_G3_23_DeleteProduct() throws Exception {
         productPage.deleteProduct(productId);
 
+        new UICommonAction(driver).sleepInMiliSecond(1000, "Wait product deleted...");
+
         productInfo = apiProductDetail.getInfo(productId);
         productDetailPage.accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, 0);
     }
@@ -927,6 +934,8 @@ public class UpdateProductTest extends BaseTest {
     @Test(groups = "[WEB][UPDATE] IMEI product - Variation")
     void UP_PRODUCT_G4_20_DeleteProduct() throws Exception {
         productPage.deleteProduct(productId);
+
+        new UICommonAction(driver).sleepInMiliSecond(1000, "Wait product deleted...");
 
         productInfo = apiProductDetail.getInfo(productId);
         productDetailPage.accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, 0);

@@ -2,6 +2,7 @@ package api.Seller.products.all_products;
 
 import api.Seller.login.Login;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import io.restassured.response.Response;
 import lombok.Data;
 import org.apache.logging.log4j.LogManager;
 import utilities.api.API;
@@ -28,12 +29,14 @@ public class APIProductDetailV2 {
         // Logger
         LogManager.getLogger().info("===== STEP =====> [GetProductInfo] ProductId: {} ", productId);
 
-        return api.get(getDetailsOfProductPath.formatted(productId), loginInfo.getAccessToken())
-                .then()
-                .statusCode(200)
-                .extract()
-                .as(ProductInfoV2.class)
-                .analyzeData();
+        Response response = api.get(getDetailsOfProductPath.formatted(productId), loginInfo.getAccessToken());
+
+        return switch (response.getStatusCode()) {
+            case 200 -> response.as(ProductInfoV2.class).analyzeData();
+            case 404 -> new ProductInfoV2().setDeleteInfo(productId);
+            default ->
+                    throw new AssertionError("Can not get product detail, response: \n%s.".formatted(response.asPrettyString()));
+        };
     }
 
     @Data
@@ -48,7 +51,7 @@ public class APIProductDetailV2 {
         private int discount;
         private long newPrice;
         private ShippingInfo shippingInfo;
-        private boolean deleted = true;
+        private boolean deleted;
         private List<Model> models = new ArrayList<>();
         private boolean hasModel;
         private boolean showOutOfStock;
@@ -90,6 +93,12 @@ public class APIProductDetailV2 {
         private Map<String, String> variationGroupNameMap = new HashMap<>();
         private Map<String, List<String>> variationValuesMap = new HashMap<>();
         private Map<Integer, List<Integer>> productStockQuantityMap = new HashMap<>();
+
+        private ProductInfoV2 setDeleteInfo(int productId) {
+            this.id = productId;
+            this.deleted = true;
+            return this;
+        }
 
         private ProductInfoV2 analyzeData() {
             // Get product name and description

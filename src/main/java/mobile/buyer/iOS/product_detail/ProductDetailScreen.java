@@ -1,10 +1,9 @@
 package mobile.buyer.iOS.product_detail;
 
-import api.Seller.customers.APIAllCustomers;
-import api.Seller.products.all_products.WholesaleProduct;
-import api.Seller.promotion.FlashSale;
-import api.Seller.promotion.ProductDiscountCampaign;
-import api.Seller.promotion.ProductDiscountCampaign.BranchDiscountCampaignInfo;
+import api.Buyer.productdetail.APIGetDiscountCampaignInformation;
+import api.Buyer.productdetail.APIGetFlashSaleInformation;
+import api.Buyer.productdetail.APIGetWholesaleProductInformation;
+import api.Seller.products.all_products.APIProductDetailV2.ProductInfoV2;
 import api.Seller.sale_channel.onlineshop.Preferences;
 import api.Seller.setting.BranchManagement;
 import api.Seller.setting.StoreInformation;
@@ -15,14 +14,14 @@ import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import utilities.assert_customize.AssertCustomize;
 import utilities.commons.UICommonIOS;
-import utilities.model.dashboard.products.productInfomation.ProductInfo;
-import utilities.model.dashboard.products.wholesaleProduct.WholesaleProductInfo;
 import utilities.model.dashboard.setting.branchInformation.BranchInfo;
 import utilities.model.dashboard.setting.storeInformation.StoreInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.IntStream;
 
 public class ProductDetailScreen extends ProductDetailElement {
@@ -30,16 +29,11 @@ public class ProductDetailScreen extends ProductDetailElement {
     AssertCustomize assertCustomize;
     UICommonIOS commonIOS;
     Logger logger = LogManager.getLogger();
-    ProductInfo productInfo;
+    ProductInfoV2 productInfo;
     BranchInfo brInfo;
     StoreInfo storeInfo;
-    FlashSale.FlashSaleInfo flashSaleInfo;
-    Map<String, BranchDiscountCampaignInfo> discountCampaignInfo;
-    WholesaleProductInfo wholesaleProductInfo;
     List<Boolean> branchStatus;
     boolean isEnableListingProduct;
-    Map<String, List<String>> salePriceMap;
-    Map<String, List<String>> saleDisplayMap;
     LoginInformation loginInformation;
 
     public ProductDetailScreen(WebDriver driver) {
@@ -64,35 +58,6 @@ public class ProductDetailScreen extends ProductDetailElement {
         return IntStream.range(0, brInfo.getAllBranchStatus().size()).mapToObj(i -> !brInfo.getIsHideOnStoreFront().get(i) && brInfo.getAllBranchStatus().get(i).equals("ACTIVE")).toList();
     }
 
-    /**
-     * Map: branch name, list of price type
-     * <p>Ex: Product has variation var1, var2, var3, var4. And branch A, B</p>
-     * <p>This function return list price type of each variation on each branch</p>
-     * <p>Branch A = {FLASH SALE, WHOLESALE PRODUCT, WHOLESALE PRODUCT, SELLING PRICE} </p>
-     * <p>Branch B = {FLASH SALE, DISCOUNT CAMPAIGN, DISCOUNT CAMPAIGN, DISCOUNT CAMPAIGN} </p>
-     * <p>Branch C = {FLASH SALE, DISCOUNT CAMPAIGN, DISCOUNT CAMPAIGN, SELLING PRICE} </p>
-     */
-    Map<String, List<String>> getSalePriceMap() {
-        return brInfo.getBranchName().stream().collect(Collectors.toMap(brName -> brName,
-                brName -> IntStream.range(0, flashSaleInfo.getFlashSaleStatus().get(brName).size())
-                        .mapToObj(i -> flashSaleInfo.getFlashSaleStatus().get(brName).get(i).equals("IN_PROGRESS")
-                                ? "FLASH SALE"
-                                : ((discountCampaignInfo.get(brName) != null)
-                                    ? "DISCOUNT CAMPAIGN"
-                                    : (wholesaleProductInfo.getStatusMap().get(brName).get(i)
-                                        ? "WHOLESALE PRODUCT"
-                                        : "SELLING PRICE"))).toList(),
-                (a, b) -> b));
-    }
-
-    Map<String, List<String>> getSaleDisplayMap() {
-        return brInfo.getBranchName().stream().collect(Collectors.toMap(brName -> brName, brName -> IntStream.range(0, flashSaleInfo.getFlashSaleStatus().get(brName).size()).mapToObj(i -> switch (flashSaleInfo.getFlashSaleStatus().get(brName).get(i)) {
-            case "IN_PROGRESS", "SCHEDULED" -> "FLASH SALE";
-            default ->
-                    (discountCampaignInfo.get(brName) != null) ? "DISCOUNT CAMPAIGN" : (wholesaleProductInfo.getStatusMap().get(brName).get(i) ? "WHOLESALE PRODUCT" : "SELLING PRICE");
-        }).toList(), (a, b) -> b));
-    }
-
     void checkProductName(String productName) {
         // Check product name
         String actProductName = commonIOS.getText(loc_lblProductName);
@@ -103,48 +68,21 @@ public class ProductDetailScreen extends ProductDetailElement {
         assertCustomize.assertFalse(commonIOS.getListElement(loc_lblSoldOutMark).isEmpty(), "Sold out mark is not shown");
     }
 
-    long getDiscountCampaignPrice(long sellingPrice, String brName) {
-        List<Integer> listOfMinimumRequirements = discountCampaignInfo.get(brName).getListOfMinimumRequirements();
-        int minRequirement = Collections.min(listOfMinimumRequirements);
-        List<Integer> indexOfAllMinRequirements = IntStream.range(0, listOfMinimumRequirements.size()).filter(index -> listOfMinimumRequirements.get(index).equals(minRequirement)).boxed().toList();
+    void checkVariationPrice(int itemId, Integer modelId, int branchId, int customerId, long listingPrice, long sellingPrice) {
+        var campaignInfo = new APIGetDiscountCampaignInformation(loginInformation).getDiscountCampaignInformation(itemId, branchId, customerId);
+        var wholesaleInfo = new APIGetWholesaleProductInformation(loginInformation).getWholesaleProductInformation(itemId, customerId, modelId);
+        var flashSaleInfo = new APIGetFlashSaleInformation(loginInformation).getFlashSaleInformation(itemId, modelId);
 
-        String couponType = discountCampaignInfo.get(brName).getListOfCouponTypes().get(indexOfAllMinRequirements.get(0));
-        long couponValue = discountCampaignInfo.get(brName).getListOfCouponValues().get(indexOfAllMinRequirements.get(0));
-        long productDiscountCampaignPrice = couponType.equals("FIXED_AMOUNT")
-                ? ((sellingPrice > couponValue) ? (sellingPrice - couponValue) : 0)
-                : ((sellingPrice * (100 - couponValue)) / 100);
-
-        if (indexOfAllMinRequirements.size() > 1) {
-            for (int index = 1; index < indexOfAllMinRequirements.size(); index++) {
-                couponType = discountCampaignInfo.get(brName).getListOfCouponTypes().get(index);
-                couponValue = discountCampaignInfo.get(brName).getListOfCouponValues().get(index);
-                productDiscountCampaignPrice = Math.min(productDiscountCampaignPrice, couponType.equals("FIXED_AMOUNT")
-                        ? ((sellingPrice > couponValue) ? (sellingPrice - couponValue) : 0)
-                        : ((sellingPrice * (100 - couponValue)) / 100));
-            }
-        }
-        return productDiscountCampaignPrice;
-    }
-
-    void checkVariationPrice(int varIndex, long listingPrice, long sellingPrice, long flashSalePrice, int wholesaleProductStock, long wholesaleProductPrice, String brName) {
-        String priceType = salePriceMap.get(brName).get(varIndex);
-        logger.debug("Price: {}", priceType);
-        String displayType = saleDisplayMap.get(brName).get(varIndex);
-        logger.debug("Display: {}", displayType);
 
         // check badge
-        switch (displayType) {
-            // check flash sale badge is shown
-            case "FLASH SALE" ->
-                    assertCustomize.assertFalse(commonIOS.getListElement(loc_lblFlashSaleBadge).isEmpty(), "Flash sale badge is not shown");
-            // check discount campaign is shown
-            case "DISCOUNT CAMPAIGN" ->
-                    assertCustomize.assertFalse(commonIOS.getListElement(loc_lblDiscountCampaignBadge).isEmpty(), "Discount campaign badge is not shown");
-            // check wholesale product is shown
-            case "WHOLESALE PRODUCT" ->
-                    assertCustomize.assertFalse(commonIOS.getListElement(loc_lblWholesaleProductBadge).isEmpty(), "Wholesale product badge is not shown");
-        }
+        if (flashSaleInfo != null)
+            assertCustomize.assertFalse(commonIOS.getListElement(loc_lblFlashSaleBadge).isEmpty(), "Flash sale badge is not shown");
+        else if (campaignInfo != null)
+            assertCustomize.assertFalse(commonIOS.getListElement(loc_lblDiscountCampaignBadge).isEmpty(), "Discount campaign badge is not shown");
+        else if (wholesaleInfo != null)
+            assertCustomize.assertFalse(commonIOS.getListElement(loc_lblWholesaleProductBadge).isEmpty(), "Wholesale product badge is not shown");
 
+        // check price
         if (!(isEnableListingProduct && productInfo.isEnabledListing())) {
             // Check listing price
             if (!Objects.equals(sellingPrice, listingPrice)) {
@@ -153,27 +91,45 @@ public class ProductDetailScreen extends ProductDetailElement {
 
             // Open add to cart popup
             commonIOS.click(loc_icnAddToCart);
+            if (flashSaleInfo != null && !flashSaleInfo.getStatus().equals("SCHEDULED")) {
+                // Log
+                logger.info("PRICE: FLASH SALE");
 
-            // Check selling price
-            switch (priceType) {
-                case "FLASH SALE" -> checkSellingPriceOnBranch(flashSalePrice);// Check flash sale price
-                case "DISCOUNT CAMPAIGN" -> {
-                    // Click into Buy in bulk checkbox
-                    if (!commonIOS.isChecked(commonIOS.getElement(loc_chkBuyInBulk))) {
-                        commonIOS.click(loc_chkBuyInBulk);
-                    }
+                // Check flash sale price
+                checkSellingPriceOnBranch(flashSaleInfo.getItems().get(0).getNewPrice());
+            } else if (campaignInfo != null) {
+                // Log
+                logger.info("PRICE: DISCOUNT CAMPAIGN");
 
-                    // Check discount campaign price
-                    checkSellingPriceOnBranch(getDiscountCampaignPrice(sellingPrice, brName));
+                // Calculation campaign price
+                String couponType = campaignInfo.getWholesales().get(0).getType();
+                long couponValue = campaignInfo.getWholesales().get(0).getWholesaleValue();
+                long newPrice = couponType.equals("FIXED_AMOUNT")
+                        ? ((sellingPrice > couponValue) ? (sellingPrice - couponValue) : 0)
+                        : ((sellingPrice * (100 - couponValue)) / 100);
+
+                // Click into Buy in bulk checkbox
+                if (!commonIOS.isChecked(commonIOS.getElement(loc_chkBuyInBulk))) {
+                    commonIOS.click(loc_chkBuyInBulk);
                 }
-                case "WHOLESALE PRODUCT" -> {
-                    // Increase quantity to wholesale product minimum requirement
-                    commonIOS.sendKeys(loc_txtAddToCartQuantity, String.valueOf(wholesaleProductStock));
 
-                    // Check wholesale product price
-                    checkSellingPriceOnBranch(wholesaleProductPrice);
-                }
-                default -> checkSellingPriceOnBranch(sellingPrice);
+                // Check discount campaign price
+                checkSellingPriceOnBranch(newPrice);
+            } else if (wholesaleInfo != null) {
+                // Log
+                logger.info("PRICE: WHOLESALE PRODUCT");
+
+                // Increase quantity to wholesale product minimum requirement
+                commonIOS.sendKeys(loc_txtAddToCartQuantity, String.valueOf(wholesaleInfo.getMinQuatity()));
+
+                // Check wholesale product price
+                checkSellingPriceOnBranch(wholesaleInfo.getPrice().longValue());
+            } else {
+                // Log
+                logger.info("PRICE: SELLING PRICE");
+
+                // Check selling price
+                checkSellingPriceOnBranch(sellingPrice);
             }
 
             // close add to cart popup
@@ -236,7 +192,7 @@ public class ProductDetailScreen extends ProductDetailElement {
         }
     }
 
-    void checkVariationInformation(int varIndex, long listingPrice, long sellingPrice, long flashSalePrice, int wholesaleProductStock, long wholesaleProductPrice, List<Integer> branchStock, String language) {
+    void checkVariationInformation(int varIndex, long listingPrice, long sellingPrice, int customerId, List<Integer> branchStock, String language) {
         // Check product name
         checkProductName(productInfo.getVersionNameMap().get(productInfo.getVariationModelList().get(varIndex)).get(language));
 
@@ -252,12 +208,9 @@ public class ProductDetailScreen extends ProductDetailElement {
             for (String brName : brInfo.getActiveBranches()) {
                 // Get branch index in branch information
                 int brIndex = brInfo.getBranchName().indexOf(brName);
-
-                // Get variation stock
-                List<Integer> variationStock = productInfo.getProductStockQuantityMap().get(productInfo.getVariationModelList().get(varIndex));
-
+                
                 // Get stock in branch
-                int stockInBranch = variationStock.get(brIndex);
+                int stockInBranch = branchStock.get(brIndex);
 
                 // If branch in-stock, check that information
                 if (stockInBranch > 0 && branchStatus.get(brIndex)) {
@@ -271,7 +224,12 @@ public class ProductDetailScreen extends ProductDetailElement {
                     checkBranchNameAndStock(brName, branchStock.get(brIndex));
 
                     // Check product price
-                    checkVariationPrice(varIndex, listingPrice, sellingPrice, flashSalePrice, wholesaleProductStock, wholesaleProductPrice, brName.split(" - ")[0]);
+                    checkVariationPrice(productInfo.getId(),
+                            productInfo.getVariationModelList().get(varIndex),
+                            brInfo.getBranchID().get(brIndex),
+                            customerId,
+                            listingPrice,
+                            sellingPrice);
                 }
             }
         } else checkSoldOutMark();
@@ -284,21 +242,6 @@ public class ProductDetailScreen extends ProductDetailElement {
     }
 
     void checkProductInformation(String language, int customerId) {
-        // get list segment of customer
-        List<Integer> listSegmentOfCustomer = new APIAllCustomers(loginInformation).getListSegmentOfCustomer(customerId);
-
-        // get wholesale config
-        if (!productInfo.isDeleted())
-            wholesaleProductInfo = new WholesaleProduct(loginInformation).wholesaleProductInfo(productInfo, listSegmentOfCustomer);
-
-        // get flash sale, discount campaign information
-        flashSaleInfo = new FlashSale(loginInformation).getFlashSaleInfo(productInfo.getVariationModelList(), productInfo.getProductSellingPrice());
-        discountCampaignInfo = new ProductDiscountCampaign(loginInformation).getAllDiscountCampaignInfo(productInfo, listSegmentOfCustomer);
-
-        // get sale price map and display
-        salePriceMap = getSalePriceMap();
-        saleDisplayMap = getSaleDisplayMap();
-
         // get listing price setting
         isEnableListingProduct = new Preferences(loginInformation).isEnabledListingProduct();
 
@@ -306,15 +249,15 @@ public class ProductDetailScreen extends ProductDetailElement {
         if (productInfo.isHasModel()) checkVariationName(language);
 
         // verify on each variation
-        List<String> variationModelList = productInfo.getVariationModelList();
+        List<Integer> variationModelList = productInfo.getVariationModelList();
         for (int varIndex = 0; varIndex < variationModelList.size(); varIndex++) {
-            String modelId = variationModelList.get(varIndex);
+            Integer modelId = variationModelList.get(varIndex);
 
             // variation value
-            String variationValue = productInfo.getVariationValuesMap().get(language).get(varIndex);
+            String variationValue = productInfo.isHasModel() ? productInfo.getVariationValuesMap().get(language).get(varIndex) : "";
 
             // ignore if variation inactive
-            if (productInfo.getVariationStatus().get(varIndex).equals("ACTIVE")) {
+            if ((productInfo.getVariationStatus() != null && productInfo.getVariationStatus().get(varIndex).equals("ACTIVE")) || productInfo.getBhStatus().equals("ACTIVE")) {
                 // Log
                 if (!variationValue.isEmpty()) logger.debug("Variation value: {}", variationValue);
 
@@ -325,19 +268,17 @@ public class ProductDetailScreen extends ProductDetailElement {
 
                 // check product information
                 checkVariationInformation(varIndex,
-                        productInfo.getProductListingPrice().get(varIndex),
-                        productInfo.getProductSellingPrice().get(varIndex),
-                        flashSaleInfo.getFlashSalePrice().get(varIndex),
-                        wholesaleProductInfo.getStockList().get(varIndex),
-                        wholesaleProductInfo.getPriceList().get(varIndex),
-                        productInfo.getProductStockQuantityMap().get(modelId),
+                        productInfo.isHasModel() ? productInfo.getProductListingPrice().get(varIndex) : productInfo.getOrgPrice(),
+                        productInfo.isHasModel() ? productInfo.getProductSellingPrice().get(varIndex) : productInfo.getNewPrice(),
+                        customerId,
+                        productInfo.getProductStockQuantityMap().get(productInfo.isHasModel() ? modelId : productInfo.getId()),
                         language);
             }
         }
 
     }
 
-    void searchProductAndNavigateToProductDetailScreen(String language, ProductInfo productInfo) {
+    void searchProductAndNavigateToProductDetailScreen(String language, ProductInfoV2 productInfo) {
         // Get product name
         String keywords = productInfo.getMainProductNameMap().get(language.equals("VIE") ? "vi" : "en");
 
@@ -348,7 +289,7 @@ public class ProductDetailScreen extends ProductDetailElement {
     /**
      * Access to product detail on SF by URL
      */
-    public void openProductDetailScreenAndCheckProductInformation(LoginInformation loginInformation, String language, ProductInfo productInfo, int customerId) {
+    public void openProductDetailScreenAndCheckProductInformation(LoginInformation loginInformation, String language, ProductInfoV2 productInfo, int customerId) {
         // get login information
         this.loginInformation = loginInformation;
 
@@ -377,15 +318,15 @@ public class ProductDetailScreen extends ProductDetailElement {
         }
 
         // check out of stock
-        if ((maxStock == 0 && !productInfo.getShowOutOfStock())) {
+        if ((maxStock == 0 && !productInfo.isShowOutOfStock())) {
             assertCustomize.assertFalse(isShowOnApp, "[Failed] Product still shows when stock is out and setting hides product out of stock.");
         }
 
         // check product is display or not
-        if (!productInfo.isDeleted() && productInfo.getOnApp() && productInfo.getBhStatus().equals("ACTIVE") && (maxStock > 0 || productInfo.getShowOutOfStock())) {
+        if (!productInfo.isDeleted() && productInfo.isOnApp() && productInfo.getBhStatus().equals("ACTIVE") && (maxStock > 0 || productInfo.isShowOutOfStock())) {
             if (storeInfo.getSFLangList().contains(languageCode))
                 checkProductInformation(languageCode, customerId);
-            else logger.info("'%s' language is not published, please publish it and try again.".formatted(language));
+            else logger.info("'{}' language is not published, please publish it and try again.",language);
         }
 
         // complete verify

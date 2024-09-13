@@ -1,5 +1,6 @@
 package mobile.buyer.android.home;
 
+import api.Seller.products.all_products.APIProductDetailV2;
 import app.Buyer.collection.Collection;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -7,7 +8,6 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import utilities.commons.UICommonAndroid;
-import utilities.model.dashboard.products.productInfomation.ProductInfo;
 
 import java.time.Duration;
 
@@ -29,7 +29,7 @@ public class HomeScreen extends HomeElement {
         return this;
     }
 
-    public void searchAndNavigateToProductScreenByName(ProductInfo productInfo, String language) {
+    public boolean searchAndNavigateToProductScreenByName(APIProductDetailV2.ProductInfoV2 productInfo, String language) {
         // click Search icon
         commonAndroid.click(loc_icnHeaderSearch);
         logger.info("Open search screen");
@@ -42,7 +42,13 @@ public class HomeScreen extends HomeElement {
         logger.info("Search with keywords: {}", keywords);
 
         // Navigate to product detail
-        commonAndroid.click(loc_lstSearchResult(keywords));
+        if (!commonAndroid.getListElement(loc_lstSearchResult(keywords)).isEmpty()) {
+            // Navigate
+            commonAndroid.click(loc_lstSearchResult(keywords));
+
+            // Response result
+            return true;
+        } else return false;
     }
 
     public HomeScreen clickOnMenuItemByText(String menuItemByText) {
