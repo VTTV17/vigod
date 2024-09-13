@@ -71,7 +71,7 @@ public class APIProductDetailV2 {
         private boolean onApp;
         private boolean onWeb;
         private boolean inStore;
-        private boolean inGoSocial;
+        private boolean inGosocial;
         private boolean enabledListing;
         private boolean isHideStock;
         private String inventoryManageType;

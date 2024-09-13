@@ -8,7 +8,7 @@ import static utilities.commons.UICommonAndroid.androidUIAutomatorResourcesIdStr
 import static utilities.environment.goSELLEREnvironment.goSELLERBundleId;
 
 public class SelectImageElement {
-    By loc_lstImages(int imageIndex) {
+    static By loc_lstImages(int imageIndex) {
         return androidUIAutomator(androidUIAutomatorResourcesIdInstanceString.formatted("%s:id/tvSelectIndex".formatted(goSELLERBundleId), imageIndex));
     }
 

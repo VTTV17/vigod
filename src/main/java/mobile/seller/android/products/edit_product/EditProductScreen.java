@@ -1,6 +1,7 @@
 package mobile.seller.android.products.edit_product;
 
-import api.Seller.products.all_products.APIProductDetail;
+import api.Seller.products.all_products.APIProductDetailV2;
+import api.Seller.products.all_products.APIProductDetailV2.ProductInfoV2;
 import api.Seller.setting.BranchManagement;
 import api.Seller.setting.StoreInformation;
 import lombok.SneakyThrows;
@@ -19,7 +20,6 @@ import org.openqa.selenium.WebDriver;
 import utilities.assert_customize.AssertCustomize;
 import utilities.commons.UICommonAndroid;
 import utilities.data.DataGenerator;
-import utilities.model.dashboard.products.productInfomation.ProductInfo;
 import utilities.model.dashboard.setting.branchInformation.BranchInfo;
 import utilities.model.dashboard.setting.storeInformation.StoreInfo;
 
@@ -40,7 +40,7 @@ public class EditProductScreen extends EditProductElement {
     Logger logger = LogManager.getLogger();
     private static String defaultLanguage;
     private static BranchInfo branchInfo;
-    private ProductInfo productInfo;
+    private ProductInfoV2 productInfo;
     ProductManagementScreen productManagementScreen;
 
     public EditProductScreen(WebDriver driver) {
@@ -83,7 +83,7 @@ public class EditProductScreen extends EditProductElement {
         return this;
     }
 
-    public EditProductScreen getShowOutOfStock(boolean showOutOfStock) {
+    public EditProductScreen isShowOutOfStock(boolean showOutOfStock) {
         this.showOutOfStock = showOutOfStock;
         return this;
     }
@@ -126,21 +126,21 @@ public class EditProductScreen extends EditProductElement {
     }
 
     private boolean hasLot;
-    private APIProductDetail apiProductDetail;
+    private APIProductDetailV2 apiProductDetail;
 
     public EditProductScreen navigateToProductDetailScreen(int productId) {
         // Get product information
-        apiProductDetail = new APIProductDetail(LoginScreen.getLoginInformation());
+        apiProductDetail = new APIProductDetailV2(LoginScreen.getLoginInformation());
         this.productInfo = apiProductDetail.getInfo(productId);
 
         // Get lot manage status
-        this.hasLot = productInfo.getLotAvailable();
+        this.hasLot = productInfo.isLotAvailable();
 
         // Get product name
         String productName = productInfo.getMainProductNameMap().get(defaultLanguage);
 
         // get inventory manage type
-        manageByIMEI = productInfo.getManageInventoryByIMEI();
+        manageByIMEI = productInfo.getInventoryManageType().equals("IMEI_SERIAL_NUMBER");
 
         // Navigate to product detail screen
         productManagementScreen.navigateToProductManagementScreen()
@@ -157,7 +157,7 @@ public class EditProductScreen extends EditProductElement {
         String productName = productInfo.getMainProductNameMap().get(defaultLanguage);
 
         // If product has model, remove model and saves changes.
-        if (productInfo.isHasModel() && !productInfo.getLotAvailable()) {
+        if (productInfo.isHasModel() && !productInfo.isLotAvailable()) {
 
             // remove variation
             removeVariation();
@@ -173,9 +173,8 @@ public class EditProductScreen extends EditProductElement {
 
     void selectProductImages() {
         // Remove product images
-        while (commonMobile.isShown(loc_icnDeleteImages)) {
-            commonMobile.click(loc_icnDeleteImages);
-        }
+        int size = commonMobile.getListElement(loc_icnDeleteImages).size();
+        IntStream.range(0, size).forEach(ignored -> commonMobile.click(loc_icnDeleteImages));
         logger.info("Remove old product images");
 
         // Get list images
@@ -230,17 +229,17 @@ public class EditProductScreen extends EditProductElement {
         // Input listing price
         long listingPrice = nextLong(MAX_PRICE);
         commonMobile.sendKeys(loc_txtWithoutVariationListingPrice, String.valueOf(listingPrice));
-        logger.info("Input without variation listing price: %,d".formatted(listingPrice));
+        logger.info("Input without variation listing price: {}", String.format("%,d", listingPrice));
 
         // Input selling price
         long sellingPrice = hasDiscount ? nextLong(Math.max(listingPrice, 1)) : listingPrice;
         commonMobile.sendKeys(loc_txtWithoutVariationSellingPrice, String.valueOf(sellingPrice));
-        logger.info("Input without variation selling price: %,d".formatted(sellingPrice));
+        logger.info("Input without variation selling price: {}", String.format("%,d", sellingPrice));
 
         // Input cost price
         long costPrice = hasCostPrice ? nextLong(Math.max(sellingPrice, 1)) : 0;
         commonMobile.sendKeys(loc_txtWithoutVariationCostPrice, String.valueOf(costPrice));
-        logger.info("Input without variation cost price: %,d".formatted(costPrice));
+        logger.info("Input without variation cost price: {}", String.format("%,d", costPrice));
 
         // Get new product price
         productInfo.setProductListingPrice(List.of(listingPrice));
@@ -287,7 +286,7 @@ public class EditProductScreen extends EditProductElement {
     @SneakyThrows
     void displayIfOutOfStock() {
         // Get current checkbox status
-        boolean status = productInfo.getShowOutOfStock();
+        boolean status = productInfo.isShowOutOfStock();
 
         // Add display out of stock config
         if (!Objects.equals(showOutOfStock, status)) commonMobile.click(loc_chkDisplayIfOutOfStock);
@@ -302,7 +301,7 @@ public class EditProductScreen extends EditProductElement {
     void manageProductByLot() {
         if (!manageByIMEI) {
             // Get current manage by lot checkbox status
-            boolean status = productInfo.getLotAvailable();
+            boolean status = productInfo.isLotAvailable();
 
             // Manage product by lot
             if (manageByLot && !status) commonMobile.click(loc_chkManageStockByLotDate);
@@ -327,9 +326,9 @@ public class EditProductScreen extends EditProductElement {
 
         // Get new stock quantity
         List<Integer> stockQuantity = IntStream.range(0, branchInfo.getBranchID().size())
-                .mapToObj(branchIndex -> productInfo.getLotAvailable() ? 0 : ((branchIndex >= branchStock.length) ? 0 : branchStock[branchIndex]))
+                .mapToObj(branchIndex -> productInfo.isLotAvailable() ? 0 : ((branchIndex >= branchStock.length) ? 0 : branchStock[branchIndex]))
                 .toList();
-        productInfo.setProductStockQuantityMap(Map.of(String.valueOf(productInfo.getProductId()), stockQuantity));
+        productInfo.setProductStockQuantityMap(Map.of(productInfo.getId(), stockQuantity));
     }
 
     void modifyShippingInformation() {
@@ -403,7 +402,7 @@ public class EditProductScreen extends EditProductElement {
         // Get new platform config
         productInfo.setOnApp(showOnApp);
         productInfo.setOnWeb(showOnWeb);
-        productInfo.setInGoSocial(showInGoSocial);
+        productInfo.setInGosocial(showInGoSocial);
         productInfo.setInStore(showInStore);
     }
 
@@ -489,10 +488,10 @@ public class EditProductScreen extends EditProductElement {
         int totalVariations = this.hasLot
                 ? productInfo.getVariationModelList().size()
                 : CRUDVariationScreen.getVariationMap()
-                    .values()
-                    .stream()
-                    .mapToInt(List::size)
-                    .reduce(1, (a, b) -> a * b);
+                .values()
+                .stream()
+                .mapToInt(List::size)
+                .reduce(1, (a, b) -> a * b);
 
         // Navigate to edit multiple screen
         if (totalVariations > 1) {
@@ -516,9 +515,9 @@ public class EditProductScreen extends EditProductElement {
 
             // Get new stock quantity
             List<Integer> stockQuantity = IntStream.range(0, branchInfo.getBranchID().size())
-                    .mapToObj(branchIndex -> (manageByIMEI || productInfo.getLotAvailable()) ? 0 : ((branchIndex >= branchStock.length) ? 0 : branchStock[branchIndex]) + branchIndex * increaseNum)
+                    .mapToObj(branchIndex -> (manageByIMEI || productInfo.isLotAvailable()) ? 0 : ((branchIndex >= branchStock.length) ? 0 : branchStock[branchIndex]) + branchIndex * increaseNum)
                     .toList();
-            Map<String, List<Integer>> stockMap = IntStream.range(0, totalVariations).boxed().collect(Collectors.toMap(String::valueOf, ignored -> stockQuantity, (ignored, b) -> b));
+            Map<Integer, List<Integer>> stockMap = IntStream.range(0, totalVariations).boxed().collect(Collectors.toMap(varIndex -> varIndex, ignored -> stockQuantity, (ignored, b) -> b));
             productInfo.setProductStockQuantityMap(stockMap);
 
         } else {
@@ -549,7 +548,7 @@ public class EditProductScreen extends EditProductElement {
 
         // If product are updated, check information after updating
         // Get current product information
-        ProductInfo currentInfo = apiProductDetail.getInfo(productInfo.getProductId());
+        ProductInfoV2 currentInfo = apiProductDetail.getInfo(productInfo.getId());
 
         // Check main product name
         assertCustomize.assertEquals(productInfo.getMainProductNameMap(), currentInfo.getMainProductNameMap(),
@@ -560,16 +559,19 @@ public class EditProductScreen extends EditProductElement {
                 "Main product description must be %s, but found %s".formatted(productInfo.getMainProductDescriptionMap(), currentInfo.getMainProductDescriptionMap()));
 
         // Check product listing price
-        assertCustomize.assertEquals(productInfo.getProductListingPrice(), currentInfo.getProductListingPrice(),
-                "Product listing price must be %s, but found %s".formatted(productInfo.getProductListingPrice(), currentInfo.getProductListingPrice()));
+        List<Long> listingPrice = currentInfo.isHasModel() ? currentInfo.getProductListingPrice() : List.of(currentInfo.getOrgPrice());
+        assertCustomize.assertEquals(productInfo.getProductListingPrice(), listingPrice,
+                "Product listing price must be %s, but found %s".formatted(productInfo.getProductListingPrice(), listingPrice));
 
         // Check product selling price
-        assertCustomize.assertEquals(productInfo.getProductSellingPrice(), currentInfo.getProductSellingPrice(),
-                "Product selling price must be %s, but found %s".formatted(productInfo.getProductSellingPrice(), currentInfo.getProductSellingPrice()));
+        List<Long> sellingPrice = currentInfo.isHasModel() ? currentInfo.getProductSellingPrice() : List.of(currentInfo.getNewPrice());
+        assertCustomize.assertEquals(productInfo.getProductSellingPrice(), sellingPrice,
+                "Product selling price must be %s, but found %s".formatted(productInfo.getProductSellingPrice(), sellingPrice));
 
         // Check product cost price
-        assertCustomize.assertEquals(productInfo.getProductCostPrice(), currentInfo.getProductCostPrice(),
-                "Product cost price must be %s, but found %s".formatted(productInfo.getProductCostPrice(), currentInfo.getProductCostPrice()));
+        List<Long> costPrice = currentInfo.isHasModel() ? currentInfo.getProductCostPrice() : List.of(currentInfo.getCostPrice());
+        assertCustomize.assertEquals(productInfo.getProductCostPrice(), costPrice,
+                "Product cost price must be %s, but found %s".formatted(productInfo.getProductCostPrice(), costPrice));
 
         // Check product barcode
         if (!productInfo.isHasModel() || updateVariationInformation) {
@@ -578,28 +580,28 @@ public class EditProductScreen extends EditProductElement {
         }
 
         // Check online store config
-        assertCustomize.assertEquals(productInfo.getShowOutOfStock(), currentInfo.getShowOutOfStock(),
-                "Show when out of stock config must be %s, but found %s".formatted(productInfo.getShowOutOfStock(), currentInfo.getShowOutOfStock()));
+        assertCustomize.assertEquals(productInfo.isShowOutOfStock(), currentInfo.isShowOutOfStock(),
+                "Show when out of stock config must be %s, but found %s".formatted(productInfo.isShowOutOfStock(), currentInfo.isShowOutOfStock()));
         assertCustomize.assertEquals(productInfo.isHideStock(), currentInfo.isHideStock(),
                 "Hide remaining stock config must be %s, but found %s".formatted(productInfo.isHideStock(), currentInfo.isHideStock()));
 
         // Check inventory
-        assertCustomize.assertEquals(productInfo.getLotAvailable(), currentInfo.getLotAvailable(),
-                "Manage by lot must be %s, but found %s".formatted(productInfo.getLotAvailable(), currentInfo.getLotAvailable()));
+        assertCustomize.assertEquals(productInfo.isLotAvailable(), currentInfo.isLotAvailable(),
+                "Manage by lot must be %s, but found %s".formatted(productInfo.isLotAvailable(), currentInfo.isLotAvailable()));
 
         // Check stock quantity
         assertCustomize.assertTrue(CollectionUtils.isEqualCollection(productInfo.getProductStockQuantityMap().values(), currentInfo.getProductStockQuantityMap().values()),
                 "Product stock quantity must be %s, but found %s".formatted(productInfo.getProductStockQuantityMap().values(), currentInfo.getProductStockQuantityMap().values()));
 
         // Check selling platform
-        assertCustomize.assertEquals(productInfo.getOnWeb(), currentInfo.getOnWeb(),
-                "Web config must be %s, but found %s".formatted(productInfo.getOnWeb(), currentInfo.getOnWeb()));
-        assertCustomize.assertEquals(productInfo.getOnApp(), currentInfo.getOnApp(),
-                "App config must be %s, but found %s".formatted(productInfo.getOnApp(), currentInfo.getOnApp()));
-        assertCustomize.assertEquals(productInfo.getInStore(), currentInfo.getInStore(),
-                "In-store config must be %s, but found %s".formatted(productInfo.getInStore(), currentInfo.getInStore()));
-        assertCustomize.assertEquals(productInfo.getInGoSocial(), currentInfo.getInGoSocial(),
-                "In GoSOCIAL config must be %s, but found %s".formatted(productInfo.getInGoSocial(), currentInfo.getInGoSocial()));
+        assertCustomize.assertEquals(productInfo.isOnWeb(), currentInfo.isOnWeb(),
+                "Web config must be %s, but found %s".formatted(productInfo.isOnWeb(), currentInfo.isOnWeb()));
+        assertCustomize.assertEquals(productInfo.isOnApp(), currentInfo.isOnApp(),
+                "App config must be %s, but found %s".formatted(productInfo.isOnApp(), currentInfo.isOnApp()));
+        assertCustomize.assertEquals(productInfo.isInStore(), currentInfo.isInStore(),
+                "In-store config must be %s, but found %s".formatted(productInfo.isInStore(), currentInfo.isInStore()));
+        assertCustomize.assertEquals(productInfo.isInGosocial(), currentInfo.isInGosocial(),
+                "In GoSOCIAL config must be %s, but found %s".formatted(productInfo.isInGosocial(), currentInfo.isInGosocial()));
 
         // Check variation information
         if (updateVariationInformation) {
@@ -689,9 +691,9 @@ public class EditProductScreen extends EditProductElement {
         });
 
         // Init variation information
-        Map<String, Map<String, String>> versionNameMap = new HashMap<>();
-        Map<String, Map<String, String>> versionDescriptionMap = new HashMap<>();
-        Map<String, List<Integer>> stockQuantityMap = new HashMap<>();
+        Map<Integer, Map<String, String>> versionNameMap = new HashMap<>();
+        Map<Integer, Map<String, String>> versionDescriptionMap = new HashMap<>();
+        Map<Integer, List<Integer>> stockQuantityMap = new HashMap<>();
         List<Long> listingPrices = new ArrayList<>();
         List<Long> sellingPrices = new ArrayList<>();
         List<Long> costPrices = new ArrayList<>();
@@ -699,16 +701,16 @@ public class EditProductScreen extends EditProductElement {
         List<String> status = new ArrayList<>();
 
         // Get new variation information
-        for (ProductVariationScreen.VariationInfo info : variationInfo) {
-            versionNameMap.put(info.getVariation(), Map.of(defaultLanguage, info.getName()));
-            versionDescriptionMap.put(info.getVariation(), Map.of(defaultLanguage, info.getDescription()));
-            stockQuantityMap.put(info.getVariation(), info.getStockQuantity());
+        variationInfo.forEach(info -> {
+            versionNameMap.put(variationInfo.indexOf(info), Map.of(defaultLanguage, info.getName()));
+            versionDescriptionMap.put(variationInfo.indexOf(info), Map.of(defaultLanguage, info.getDescription()));
+            stockQuantityMap.put(variationInfo.indexOf(info), info.getStockQuantity());
             listingPrices.add(info.getListingPrice());
             sellingPrices.add(info.getSellingPrice());
             costPrices.add(info.getCostPrice());
             barcodes.add(info.getBarcode());
             status.add(info.getStatus());
-        }
+        });
         productInfo.setVersionNameMap(versionNameMap);
         productInfo.setVersionDescriptionMap(versionDescriptionMap);
         if (!hasLot) productInfo.setProductStockQuantityMap(stockQuantityMap);

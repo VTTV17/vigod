@@ -1,6 +1,5 @@
 package utilities.commons;
 
-import io.appium.java_client.AppiumBy;
 import io.appium.java_client.AppiumDriver;
 import io.appium.java_client.InteractsWithApps;
 import io.appium.java_client.android.Activity;
@@ -8,7 +7,6 @@ import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.android.StartsActivity;
 import io.appium.java_client.android.nativekey.AndroidKey;
 import io.appium.java_client.android.nativekey.KeyEvent;
-import lombok.SneakyThrows;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.*;
@@ -23,6 +21,7 @@ import utilities.data.DataGenerator;
 import utilities.screenshot.Screenshot;
 
 import java.io.File;
+import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -55,14 +54,6 @@ public class UICommonAndroid {
         try {
             driver.findElement(androidUIAutomator("new UiScrollable(new UiSelector().scrollable(true)).scrollBackward().scrollToBeginning(1000)"));
             logger.info("Scroll to top of screen");
-        } catch (NoSuchElementException ignored) {
-        }
-    }
-
-    public void scrollToEndOfScreen() {
-        try {
-            driver.findElement(androidUIAutomator("new UiScrollable(new UiSelector().scrollable(true)).scrollForward().scrollToEnd(1000)"));
-            logger.info("Scroll to end of screen");
         } catch (NoSuchElementException ignored) {
         }
     }
@@ -138,27 +129,6 @@ public class UICommonAndroid {
         return getElement(locator).isEnabled();
     }
 
-
-    public void tapByCoordinates(int x, int y) {
-        // Create new PointerInput objects for start and end positions
-        PointerInput finger = new PointerInput(PointerInput.Kind.TOUCH, "finger");
-
-        // Create a new sequence for the tap gesture and add actions to it
-        Sequence tapPosition = new Sequence(finger, 1);
-        tapPosition.addAction(finger.createPointerMove(Duration.ZERO, PointerInput.Origin.viewport(), x, y))
-                .addAction(finger.createPointerDown(PointerInput.MouseButton.LEFT.asArg()))
-                .addAction(finger.createPointerUp(PointerInput.MouseButton.LEFT.asArg()));
-
-        ((AndroidDriver) driver).perform(List.of(tapPosition));
-    }
-
-    public void tapByCoordinatesInPercent(double x, double y) {
-        // Get the size of the device screen
-        Dimension size = driver.manage().window().getSize();
-
-        tapByCoordinates((int) (size.width * x), (int) (size.height * y));
-    }
-
     public void swipeByCoordinatesInPercent(double startX, double startY, double endX, double endY) {
         swipeByCoordinatesInPercent(startX, startY, endX, endY, 200);
     }
@@ -200,17 +170,6 @@ public class UICommonAndroid {
         return !getListElement(locator).isEmpty();
     }
 
-    public double getElementLocationYPercent(By locator) {
-        int y = getElement(locator).getLocation().getY();
-        Dimension size = driver.manage().window().getSize();
-        return (double) y / size.height;
-    }
-
-    public void swipeHorizontalInPercent(By locator, double startX, double endX) {
-        double y = getElementLocationYPercent(locator);
-        swipeByCoordinatesInPercent(startX, y, endX, y);
-    }
-
     public void relaunchApp(String appPackage) {
         ((InteractsWithApps) driver).terminateApp(appPackage);
         ((InteractsWithApps) driver).activateApp(appPackage);
@@ -244,13 +203,16 @@ public class UICommonAndroid {
         return getElement(locator).isDisplayed();
     }
 
-    @SneakyThrows
     public void pushFileToMobileDevices(String fileName) {
         // Specify the file to be uploaded
         File file = new File(new DataGenerator().getPathOfFileInResourcesRoot(fileName));
 
         // Push the file to the device
-        ((AndroidDriver) driver).pushFile("/sdcard/Download/%s".formatted(fileName), file);
+        try {
+            ((AndroidDriver) driver).pushFile("/sdcard/Download/%s".formatted(fileName), file);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
         // Log
         logger.info("Push file to mobile device, file name: {}", fileName);
@@ -267,45 +229,14 @@ public class UICommonAndroid {
     }
 
     private void logLocatorDetails(By by) {
-        String strategy = "Unknown"; // Default value if strategy is not matched
-        String value = by.toString(); // Full locator string
-
-        // Extract strategy and value for By locators
-        switch (by) {
-            case By.ById ignored -> {
-                strategy = "ID";
-                value = by.toString();
-            }
-            case By.ByXPath ignored -> {
-                strategy = "XPath";
-                value = by.toString();
-            }
-            case By.ByClassName ignored -> {
-                strategy = "Class Name";
-                value = by.toString();
-            }
-            case By.ByCssSelector ignored -> {
-                strategy = "CSS Selector";
-                value = by.toString();
-            }
-            case By.ByLinkText ignored -> {
-                strategy = "Link Text";
-                value = by.toString();
-            }
-            default -> {
-            }
-        }
-
-        // Extract strategy and value for AppiumBy locators
-        if (by instanceof AppiumBy.ByAccessibilityId) {
-            strategy = "Accessibility ID";
-            value = by.toString();
-        } else if (by instanceof AppiumBy.ByAndroidUIAutomator) {
-            strategy = "UIAutomator";
-            value = by.toString();
-        }
+        // Get full locator string
+        String fullLocator = by.toString();
 
         // Log the detailed search type and locator
-        logger.info("FindElement - Search type: {}, Locator: {}", strategy, value);
+        if (fullLocator.contains("By.chained")) {
+            logger.trace("FindElement - Search type: By Chained, Locator: {}", fullLocator);
+        } else {
+            logger.trace("FindElement - Search type: {}, Locator: {}", fullLocator.substring(0, fullLocator.indexOf(":")), fullLocator.substring(fullLocator.indexOf(": ") + 2));
+        }
     }
 }

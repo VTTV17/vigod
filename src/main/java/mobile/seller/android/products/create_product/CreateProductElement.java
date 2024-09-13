@@ -4,6 +4,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.support.pagefactory.ByChained;
 
 import static io.appium.java_client.AppiumBy.androidUIAutomator;
+import static org.openqa.selenium.By.xpath;
 import static utilities.commons.UICommonAndroid.androidUIAutomatorResourcesIdString;
 import static utilities.environment.goSELLEREnvironment.goSELLERBundleId;
 
@@ -21,7 +22,7 @@ public class CreateProductElement {
     By loc_chkHideRemainingStock = androidUIAutomator(androidUIAutomatorResourcesIdString.formatted("%s:id/ivHideStockOnOnlineStore".formatted(goSELLERBundleId)));
     By loc_chkDisplayIfOutOfStock = androidUIAutomator(androidUIAutomatorResourcesIdString.formatted("%s:id/ivDisplayIfOutOfStock".formatted(goSELLERBundleId)));
     By loc_lblSelectedManageInventoryType = androidUIAutomator(androidUIAutomatorResourcesIdString.formatted("%s:id/btnSwitchManageInventoryType".formatted(goSELLERBundleId)));
-    By loc_lblManageInventoryByIMEI = By.xpath("//*[@* = '%s']".formatted("%s:id/llManageInventoryByImeiSerial".formatted(goSELLERBundleId)));
+    By loc_lblManageInventoryByIMEI = xpath("//*[@* = '%s']".formatted("%s:id/llManageInventoryByImeiSerial".formatted(goSELLERBundleId)));
     By loc_chkManageStockByLotDate = androidUIAutomator(androidUIAutomatorResourcesIdString.formatted("%s:id/ivManageStockByLotDate".formatted(goSELLERBundleId)));
     By loc_lblInventory = androidUIAutomator(androidUIAutomatorResourcesIdString.formatted("%s:id/clInventoryContainer".formatted(goSELLERBundleId)));
     By loc_swShipping = androidUIAutomator(androidUIAutomatorResourcesIdString.formatted("%s:id/swShipping".formatted(goSELLERBundleId)));

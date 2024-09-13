@@ -2,18 +2,12 @@ package utilities.driver;
 
 import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.android.options.UiAutomator2Options;
-import lombok.SneakyThrows;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.openqa.selenium.remote.DesiredCapabilities;
 import utilities.commons.UICommonAndroid;
 
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 
-import static utilities.account.AccountTest.ANDROID_GoBUYER_APP;
 import static utilities.account.AccountTest.ANDROID_GoSELLER_APP;
 import static utilities.environment.goSELLEREnvironment.goSELLERBundleId;
 
@@ -45,9 +39,13 @@ public class InitAndroidDriver {
         return driver;
     }
 
-    @SneakyThrows
     public AndroidDriver getBuyerDriver(String udid, String goBuyerBundleId) {
-        AndroidDriver driver = getAndroidDriver(udid, System.getProperty("user.dir") + "/src/main/resources/app/" +  "GoBUYER_PREPROD.apk");
+        AndroidDriver driver = null;
+        try {
+            driver = getAndroidDriver(udid, System.getProperty("user.dir") + "/src/main/resources/app/" +  "GoBUYER_PREPROD.apk");
+        } catch (MalformedURLException | URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
         new UICommonAndroid(driver).relaunchApp(goBuyerBundleId);
         return driver;
     }

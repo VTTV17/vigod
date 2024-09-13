@@ -3,12 +3,13 @@ package mobile.seller.android.products.child_screen.product_variation;
 import org.openqa.selenium.By;
 
 import static io.appium.java_client.AppiumBy.androidUIAutomator;
+import static org.openqa.selenium.By.xpath;
 import static utilities.commons.UICommonAndroid.androidUIAutomatorResourcesIdString;
 import static utilities.environment.goSELLEREnvironment.goSELLERBundleId;
 
 public class ProductVariationElement {
     By loc_btnSave = androidUIAutomator(androidUIAutomatorResourcesIdString.formatted("%s:id/tvActionBarIconRight".formatted(goSELLERBundleId)));
-    By loc_btnSelectImage = androidUIAutomator(androidUIAutomatorResourcesIdString.formatted("%s:id/rlSelectImages".formatted(goSELLERBundleId)));
+    By loc_btnSelectImage = xpath("//android.widget.FrameLayout[*[@resource-id = '%s:id/rlSelectImages']]".formatted(goSELLERBundleId));
     By loc_txtVariationName = androidUIAutomator(androidUIAutomatorResourcesIdString.formatted("%s:id/edtVersionName".formatted(goSELLERBundleId)));
     By loc_chkReuseProductDescription = androidUIAutomator(androidUIAutomatorResourcesIdString.formatted("%s:id/ivUseProductDescription".formatted(goSELLERBundleId)));
     By loc_btnVariationDescription = androidUIAutomator(androidUIAutomatorResourcesIdString.formatted("%s:id/tvVariationDescription".formatted(goSELLERBundleId)));

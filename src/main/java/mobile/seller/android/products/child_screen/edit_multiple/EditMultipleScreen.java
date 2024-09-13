@@ -30,11 +30,11 @@ public class EditMultipleScreen extends EditMultipleElement {
 
         // Input listing price
         commonMobile.sendKeys(loc_dlgUpdatePrice_txtListingPrice, String.valueOf(listingPrice));
-        logger.info("Bulk listing price: %,d".formatted(listingPrice));
+        logger.info("Bulk listing price: {}", String.format("%,d", listingPrice));
 
         // Input selling price
         commonMobile.sendKeys(loc_dlgUpdatePrice_txtSellingPrice, String.valueOf(sellingPrice));
-        logger.info("Bulk selling price: %,d".formatted(sellingPrice));
+        logger.info("Bulk selling price: {}", String.format("%,d", sellingPrice));
 
         // Save changes
         commonMobile.click(loc_dlgUpdatePrice_btnOK);

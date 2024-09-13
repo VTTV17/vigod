@@ -153,7 +153,7 @@ public class ProductDetailScreen extends ProductDetailElement {
         long actSellingPrice = Long.parseLong(commonAndroid.getText(loc_lblSellingPriceOnCart).replaceAll("\\D+", ""));
 
         // Check selling price
-        assertCustomize.assertTrue(Math.abs(actSellingPrice - expSellingPrice) <= 1, "Selling price must be %,d but found %,d".formatted(expSellingPrice, actSellingPrice));
+        assertCustomize.assertTrue(Math.abs(actSellingPrice - expSellingPrice) <= 1, "Selling price must be %,d but found %,d".formatted( expSellingPrice, actSellingPrice));
     }
 
     void checkVariationName(String language) {

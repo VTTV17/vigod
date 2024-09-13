@@ -160,17 +160,17 @@ public class ProductVariationScreen extends ProductVariationElement {
         // Input listing price
         long listingPrice = nextLong(MAX_PRICE);
         commonIOS.sendKeys(loc_txtVariationListingPrice, String.valueOf(listingPrice));
-        logger.info("Input variation listing price: %,d".formatted(listingPrice));
+        logger.info("Input variation listing price: {}", String.format("%,d", listingPrice));
 
         // Input selling price
         long sellingPrice = hasDiscount ? nextLong(Math.max(listingPrice, 1)) : listingPrice;
         commonIOS.sendKeys(loc_txtVariationSellingPrice, String.valueOf(sellingPrice));
-        logger.info("Input variation selling price: %,d".formatted(sellingPrice));
+        logger.info("Input variation selling price: {}", String.format("%,d", sellingPrice));
 
         // Input cost price
         long costPrice = hasCostPrice ? nextLong(Math.max(sellingPrice, 1)) : 0;
         commonIOS.sendKeys(loc_txtVariationCostPrice, String.valueOf(costPrice));
-        logger.info("Input variation cost price: %,d".formatted(costPrice));
+        logger.info("Input variation cost price: {}", String.format("%,d", costPrice));
 
         // Get variation price
         variationInfo.setListingPrice(listingPrice);

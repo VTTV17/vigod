@@ -26,9 +26,8 @@ public class AddIMEIScreen extends AddIMEIElement {
 
     public void addIMEI(int quantity, String branchName, String variation) {
         // Remove old IMEI
-        while (commonMobile.isShown(loc_icnRemoveIMEI)) {
-            commonMobile.click(loc_icnRemoveIMEI);
-        }
+        int size = commonMobile.getListElement(loc_icnRemoveIMEI).size();
+        IntStream.range(0, size).forEach(ignored -> commonMobile.click(loc_icnRemoveIMEI));
 
         // Add imei value for variation
         IntStream.range(0, quantity).forEach(index -> {

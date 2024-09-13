@@ -28,10 +28,8 @@ public class CRUDVariationScreen extends CRUDVariationElement {
 
     public CRUDVariationScreen removeOldVariation() {
         // Remove old variation
-        while (commonAndroid.isShown(loc_btnRemoveVariationGroup)) {
-            commonAndroid.click(loc_btnRemoveVariationGroup);
-        }
-
+        int size = commonAndroid.getListElement(loc_btnRemoveVariationGroup).size();
+        IntStream.range(0, size).forEach(ignored -> commonAndroid.click(loc_btnRemoveVariationGroup));
         return this;
     }
 

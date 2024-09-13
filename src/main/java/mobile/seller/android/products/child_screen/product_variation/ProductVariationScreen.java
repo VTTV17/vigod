@@ -1,5 +1,6 @@
 package mobile.seller.android.products.child_screen.product_variation;
 
+import api.Seller.products.all_products.APIProductDetailV2.ProductInfoV2;
 import lombok.Data;
 import lombok.Getter;
 import mobile.seller.android.products.child_screen.inventory.InventoryScreen;
@@ -11,7 +12,6 @@ import org.openqa.selenium.WebDriver;
 import utilities.assert_customize.AssertCustomize;
 import utilities.commons.UICommonAndroid;
 import utilities.data.DataGenerator;
-import utilities.model.dashboard.products.productInfomation.ProductInfo;
 import utilities.model.dashboard.setting.branchInformation.BranchInfo;
 
 import java.time.Instant;
@@ -31,7 +31,7 @@ public class ProductVariationScreen extends ProductVariationElement {
     String defaultLanguage;
     boolean hasDiscount;
     boolean hasCostPrice;
-    ProductInfo productInfo;
+    ProductInfoV2 productInfo;
     int variationIndex;
     String variationValue;
     BranchInfo branchInfo;
@@ -67,7 +67,7 @@ public class ProductVariationScreen extends ProductVariationElement {
     @Getter
     public static VariationInfo variationInfo;
 
-    public ProductVariationScreen getVariationInformation(String defaultLanguage, BranchInfo branchInfo, boolean hasDiscount, boolean hasCostPrice, int variationIndex, ProductInfo productInfo) {
+    public ProductVariationScreen getVariationInformation(String defaultLanguage, BranchInfo branchInfo, boolean hasDiscount, boolean hasCostPrice, int variationIndex, ProductInfoV2 productInfo) {
         // Get default language
         this.defaultLanguage = defaultLanguage;
 
@@ -167,17 +167,17 @@ public class ProductVariationScreen extends ProductVariationElement {
         // Input listing price
         long listingPrice = nextLong(MAX_PRICE);
         commonMobile.sendKeys(loc_txtVariationListingPrice, String.valueOf(listingPrice));
-        logger.info("Input variation listing price: %,d".formatted(listingPrice));
+        logger.info("Input variation listing price: {}", String.format("%,d", listingPrice));
 
         // Input selling price
         long sellingPrice = hasDiscount ? nextLong(Math.max(listingPrice, 1)) : listingPrice;
         commonMobile.sendKeys(loc_txtVariationSellingPrice, String.valueOf(sellingPrice));
-        logger.info("Input variation selling price: %,d".formatted(sellingPrice));
+        logger.info("Input variation selling price: {}", String.format("%,d", sellingPrice));
 
         // Input cost price
         long costPrice = hasCostPrice ? nextLong(Math.max(sellingPrice, 1)) : 0;
         commonMobile.sendKeys(loc_txtVariationCostPrice, String.valueOf(costPrice));
-        logger.info("Input variation cost price: %,d".formatted(costPrice));
+        logger.info("Input variation cost price: {}", String.format("%,d", costPrice));
 
         // Get variation price
         variationInfo.setListingPrice(listingPrice);
@@ -208,34 +208,34 @@ public class ProductVariationScreen extends ProductVariationElement {
 
     void addVariationStock(int... branchStock) {
         // Check product is managed by lot or not
-        if (!productInfo.getLotAvailable() || productInfo.getManageInventoryByIMEI()) {
+        if (!productInfo.isLotAvailable() || productInfo.getInventoryManageType().equals("IMEI_SERIAL_NUMBER")) {
             // Navigate to inventory screen
             commonMobile.click(loc_btnInventory);
 
             // Add variation stock
-            new InventoryScreen(driver).addStock(productInfo.getManageInventoryByIMEI(), branchInfo, variationValue, branchStock);
+            new InventoryScreen(driver).addStock(productInfo.getInventoryManageType().equals("IMEI_SERIAL_NUMBER"), branchInfo, variationValue, branchStock);
         } else logger.info("Product is managed by lot, requiring add stocks in the lot screen.");
 
         // Get new stock quantity
         List<Integer> stockQuantity = IntStream.range(0, branchInfo.getBranchID().size())
-                .mapToObj(branchIndex -> productInfo.getLotAvailable() ? 0 : (branchIndex >= branchStock.length) ? 0 : branchStock[branchIndex])
+                .mapToObj(branchIndex -> productInfo.isLotAvailable() ? 0 : (branchIndex >= branchStock.length) ? 0 : branchStock[branchIndex])
                 .toList();
         variationInfo.setStockQuantity(stockQuantity);
     }
 
     void updateVariationStock(int... branchStock) {
         // Check product is managed by lot or not
-        if (!productInfo.getLotAvailable() || productInfo.getManageInventoryByIMEI()) {
+        if (!productInfo.isLotAvailable() || productInfo.getInventoryManageType().equals("IMEI_SERIAL_NUMBER")) {
             // Navigate to inventory screen
             commonMobile.click(loc_btnInventory);
 
             // Add variation stock
-            new InventoryScreen(driver).updateStock(productInfo.getManageInventoryByIMEI(), branchInfo, variationValue, branchStock);
+            new InventoryScreen(driver).updateStock(productInfo.getInventoryManageType().equals("IMEI_SERIAL_NUMBER"), branchInfo, variationValue, branchStock);
         } else logger.info("Product is managed by lot, requiring stock updates in the lot screen.");
 
         // Get new stock quantity
         List<Integer> stockQuantity = IntStream.range(0, branchInfo.getBranchID().size())
-                .mapToObj(branchIndex -> productInfo.getLotAvailable() ? 0 : ((branchIndex >= branchStock.length) ? 0 : branchStock[branchIndex]))
+                .mapToObj(branchIndex -> productInfo.isLotAvailable() ? 0 : ((branchIndex >= branchStock.length) ? 0 : branchStock[branchIndex]))
                 .toList();
         variationInfo.setStockQuantity(stockQuantity);
     }
