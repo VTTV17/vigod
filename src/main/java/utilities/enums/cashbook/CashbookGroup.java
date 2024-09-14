@@ -24,7 +24,7 @@ public enum CashbookGroup {
         return Arrays.stream(CashbookGroup.values()).map(value -> value.enumValue).toArray(String[]::new);
     }
 	
-    public static String getTextByLanguage(CashbookGroup cashbookEnums) {
+    public static String getLocalizedText(CashbookGroup cashbookEnums) {
     	try {
     		return PropertiesUtil.getPropertiesValueByDBLang(cashbookEnums.enumValue);
 		} catch (Exception e) {
