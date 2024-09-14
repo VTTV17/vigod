@@ -225,7 +225,7 @@ public class SignupPage extends GeneralSF {
     }
     public void signUpWithEmail(String country, String userName, String passWord, String displayName, String birthday) throws SQLException {
         onlyFillOutSignupForm(country, userName, passWord, displayName, birthday);
-        String verifyCode =  new InitConnection().getActivationKey(userName);
+        String verifyCode =  new KibanaAPI().getKeyFromKibana(userName,"activationKey");
         inputVerificationCode(verifyCode);
         clickConfirmBtn();
         commonAction.sleepInMiliSecond(1000);

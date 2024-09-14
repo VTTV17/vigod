@@ -599,7 +599,7 @@ public class CreatePromotion {
 //        int segmentConditionType = nextInt(MAX_PRODUCT_DISCOUNT_CODE_SEGMENT_TYPE);
         int segmentConditionType = apiSegmentConditionType;
         if (new APISegment(loginInformation).getSegmentID() == 0)
-            new APISegment(loginInformation).createSegmentByAPI(BUYER_ACCOUNT_THANG, BUYER_PASSWORD_THANG, "+84");
+            new APISegment(loginInformation).createSegment();
         String segmentConditionLabel = segmentConditionType == 0 ? "CUSTOMER_SEGMENT_ALL_CUSTOMERS" : "CUSTOMER_SEGMENT_SPECIFIC_SEGMENT";
         String segmentConditionValue = segmentConditionType == 0 ? "" : """
                 {

@@ -1,6 +1,7 @@
 package web.Dashboard;
 
 import api.Seller.login.Login;
+import api.Seller.sale_channel.onlineshop.APIPreferences;
 import api.Seller.services.CreateServiceAPI;
 import org.testng.Assert;
 import org.testng.ITestResult;
@@ -9,6 +10,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import utilities.model.dashboard.onlineshop.ListingStoreInfo;
 import web.Dashboard.home.HomePage;
 import web.Dashboard.login.LoginPage;
 import web.Dashboard.service.CreateServicePage;
@@ -308,6 +310,11 @@ public class CreateServiceTest extends BaseTest {
     @Test
     public void CS06_CreateListingPriceService() throws Exception {
         testCaseId = "CS06";
+        ListingStoreInfo listingStoreInfo = new ListingStoreInfo();
+        listingStoreInfo.setEnabledPhoneService(true);
+        listingStoreInfo.setEnabledService(true);
+        new APIPreferences(loginInformation).enableStoreListingWeb(listingStoreInfo);
+
         createService = loginDbAndGoToCreateServicePage();
         serviceName = "Automation Service SV" + generate.generateString(10);
         listingPrice = "2" + generate.generateNumber(5);
@@ -546,12 +553,12 @@ public class CreateServiceTest extends BaseTest {
         new HeaderSF(driver).clickSearchResult();
         serviceDetailPage = new ServiceDetailPage(driver);
         serviceDetailPage.verifySEOInfo(SEOTitle, SEODesctiption, SEOKeyword, "", "")
-                .verifyNavigateToServiceDetailBySEOUrl(SF_URL, SEOTitle, SEOUrl);;
+                .verifyNavigateToServiceDetailBySEOUrl(SF_URL, SEOUrl, serviceEdit);
         headerSF = new HeaderSF(driver);
         headerSF.clickUserInfoIcon().changeLanguage("ENG");
         serviceDetailPage = new ServiceDetailPage(driver);
         serviceDetailPage.verifySEOInfo(SEOTitleTranslate, SEODesctiptionTranslate, SEOKeywordTranslate, "", "")
-                     .verifyNavigateToServiceDetailBySEOUrl(SF_URL, SEOUrlTranslate, SEOTitleTranslate);
+                     .verifyNavigateToServiceDetailBySEOUrl(SF_URL, SEOUrlTranslate, serviceEdit);
         //edit seo
 //        home = new HomePage(driver);
 //        home.navigateToPageByURL().waitTillSpinnerDisappear1().navigateToPage(Constant.SERVICES_MENU_ITEM_NAME);
@@ -587,12 +594,12 @@ public class CreateServiceTest extends BaseTest {
                 .clickSearchResult();
         serviceDetailPage = new ServiceDetailPage(driver);
         serviceDetailPage.verifySEOInfo(SEOTitle, SEODesctiption, SEOKeyword, "", "")
-                .verifyNavigateToServiceDetailBySEOUrl(SF_URL, SEOTitle, SEOUrl);
+                .verifyNavigateToServiceDetailBySEOUrl(SF_URL, SEOUrl, serviceEdit);
         headerSF = new HeaderSF(driver);
         headerSF.clickUserInfoIcon().changeLanguage("ENG");
         serviceDetailPage = new ServiceDetailPage(driver);
         serviceDetailPage.verifySEOInfo(SEOTitleTranslate, SEODesctiptionTranslate, SEOKeywordTranslate, "", "")
-                .verifyNavigateToServiceDetailBySEOUrl(SF_URL, SEOUrlTranslate, SEOTitleTranslate);
+                .verifyNavigateToServiceDetailBySEOUrl(SF_URL, SEOUrlTranslate, serviceEdit);
 
         //delete seo
 //        home = new HomePage(driver);

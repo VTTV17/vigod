@@ -40,9 +40,14 @@ public class BuyerGeneral extends UICommonMobile {
     By DATE_PICKER_DAY_FRAME = By.xpath("//*[ends-with(@resource-id,'animator')]");
     By YEAR_LIST = By.xpath("//*[ends-with(@resource-id,'month_text_view')]");
     By loc_header_btnRight = By.xpath("//*[contains(@resource-id, 'action_bar_basic_right_button')]");
+
+    /**
+     * Use this function when has Loading icon show, if loading icon not show, take time to wait (10s)
+     * @return
+     */
     public BuyerGeneral waitLoadingDisapear(){
-        logger.info("Star Wait loading...");
-        List<WebElement> loadingEls =  getElements(el_loading_icon,3);
+        logger.info("Start Wait loading...");
+        List<WebElement> loadingEls =  getElements(el_loading_icon,10);
         if(loadingEls.size()>0) waitForElementInvisible(loadingEls.get(0), 10);
         logger.info("End wait loading.");
         return this;

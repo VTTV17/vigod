@@ -147,8 +147,7 @@ public class ServiceInfoAPI {
      */
     public List<Integer> getServiceIdList(int remainNumber){
         List<Integer> ids = getServiceIdList();
-        int limitNumber = ids.size()>remainNumber? ids.size()-remainNumber: ids.size();
-        return ids.stream().limit(limitNumber).collect(Collectors.toList());
+        return ids.stream().limit(remainNumber).collect(Collectors.toList());
     }
 
     /**

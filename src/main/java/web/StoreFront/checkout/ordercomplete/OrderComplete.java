@@ -7,6 +7,7 @@ import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import utilities.commons.UICommonAction;
+import web.StoreFront.GeneralSF;
 
 import java.time.Duration;
 
@@ -25,6 +26,7 @@ public class OrderComplete {
     }
     public void clickOnBackToMarket(){
         commonAction.click(orderCompleteUI.loc_btnBackToHome);
+        new GeneralSF(driver).waitTillLoaderDisappear();
         commonAction.sleepInMiliSecond(2000);
         logger.info("Click on Back to market button");
     }
