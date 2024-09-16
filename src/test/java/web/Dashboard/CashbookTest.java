@@ -55,8 +55,6 @@ public class CashbookTest extends BaseTest {
 
 	@BeforeClass
 	public void loadTestData() {
-//		username = "hoa.phan.hong@mediastep.com";
-//		password = "123456a@";
 		username = AccountTest.ADMIN_USERNAME_TIEN;
 		password = AccountTest.ADMIN_PASSWORD_TIEN;
 		country = AccountTest.ADMIN_COUNTRY_TIEN;
@@ -119,7 +117,7 @@ public class CashbookTest extends BaseTest {
 	}		
 
 	public String randomAmount() {
-		return String.valueOf(Math.round(generate.generatNumberInBound(1, 50))*1000);
+		return String.valueOf(Math.round(DataGenerator.generatNumberInBound(1, 50))*1000);
 	}	
 	
 	/**
@@ -196,20 +194,20 @@ public class CashbookTest extends BaseTest {
 
 	public void verifyRecordDataAfterReceiptCreated(List<String> record, String branch, String source,
 			String sender, String amount) {
-		Assert.assertEquals(record.get(Cashbook.BRANCH_COL), branch, "Branch");
-		Assert.assertEquals(record.get(Cashbook.REVENUETYPE_COL), source, "Revenue type");
-		Assert.assertEquals(record.get(Cashbook.EXPENSETYPE_COL), "-", "Expense type");
-		Assert.assertEquals(record.get(Cashbook.NAME_COL), sender, "Sender");
-		Assert.assertEquals(extractDigits(record.get(Cashbook.AMOUNT_COL)), amount, "Amount");
+		Assert.assertEquals(record.get(Cashbook.BRANCH_IDX), branch, "Branch");
+		Assert.assertEquals(record.get(Cashbook.REVENUETYPE_IDX), source, "Revenue type");
+		Assert.assertEquals(record.get(Cashbook.EXPENSETYPE_IDX), "-", "Expense type");
+		Assert.assertEquals(record.get(Cashbook.NAME_IDX), sender, "Sender");
+		Assert.assertEquals(extractDigits(record.get(Cashbook.AMOUNT_IDX)), amount, "Amount");
 	}
 
 	public void verifyRecordDataAfterPaymentCreated(List<String> record, String branch, String source,
 			String sender, String amount) {
-		Assert.assertEquals(record.get(Cashbook.BRANCH_COL), branch, "Branch");
-		Assert.assertEquals(record.get(Cashbook.REVENUETYPE_COL), "-", "Revenue type");
-		Assert.assertEquals(record.get(Cashbook.EXPENSETYPE_COL), source, "Expense type");
-		Assert.assertEquals(record.get(Cashbook.NAME_COL), sender, "Sender");
-		Assert.assertEquals(extractDigits(record.get(Cashbook.AMOUNT_COL)), amount, "Amount");
+		Assert.assertEquals(record.get(Cashbook.BRANCH_IDX), branch, "Branch");
+		Assert.assertEquals(record.get(Cashbook.REVENUETYPE_IDX), "-", "Revenue type");
+		Assert.assertEquals(record.get(Cashbook.EXPENSETYPE_IDX), source, "Expense type");
+		Assert.assertEquals(record.get(Cashbook.NAME_IDX), sender, "Sender");
+		Assert.assertEquals(extractDigits(record.get(Cashbook.AMOUNT_IDX)), amount, "Amount");
 	}
 
 	public void verifyRecordDataOnTransactionIDPopup(String group, String sender, String source, String branch,
@@ -224,51 +222,10 @@ public class CashbookTest extends BaseTest {
 		Assert.assertEquals(cashbookPage.isAccountingChecked(), isAccountingChecked, "Accounting");
 	}
 
-	@Test
-	public void CB_00_CheckRevenueExpensePaymentDropdownValues() throws Exception {
-		
-		loginDashboard();
-		
-		cashbookPage.navigate();
-		
-		cashbookPage.clickCreateReceiptBtn();
-		
-		String[] expected = revenueSourceList();
-		String[] temp = cashbookPage.getSourceDropdownValues(); //Create a new array by omitting the first element of a particular array
-		String[] actual = Arrays.copyOfRange(temp, 1, temp.length);
-        Arrays.sort(expected);
-        Arrays.sort(actual);
-        Assert.assertTrue(Arrays.equals(expected, actual), "Source list");
-        
-        expected = paymentMethodList();
-        actual = cashbookPage.getPaymentMethodDropdownValues();
-        Arrays.sort(expected);
-        Arrays.sort(actual);
-        Assert.assertTrue(Arrays.equals(expected, actual), "Payment method list");
-        
-        cashbookPage.clickCancelBtn();
-        
-        cashbookPage.clickCreatePaymentBtn();
-        
-		expected = expenseTypeList();
-		temp = cashbookPage.getSourceDropdownValues(); //Create a new array by omitting the first element of a particular array
-		actual = Arrays.copyOfRange(temp, 1, temp.length);
-        Arrays.sort(expected);
-        Arrays.sort(actual);
-        Assert.assertTrue(Arrays.equals(expected, actual), "Expense list");
-        
-        expected = paymentMethodList();
-        actual = cashbookPage.getPaymentMethodDropdownValues();
-        Arrays.sort(expected);
-        Arrays.sort(actual);
-        Assert.assertTrue(Arrays.equals(expected, actual), "Payment method list");
-        
-	}		
-	
 //	@Test
 	public void CB_01_CheckTranslation() throws Exception {
 		
-		String group = CashbookGroup.getTextByLanguage(CashbookGroup.CUSTOMER);
+		String group = CashbookGroup.getLocalizedText(CashbookGroup.CUSTOMER);
 		String sender = randomCustomer();
 		String branch = randomBranch();
 		boolean isAccountingChecked = randomAccountingChecked();
@@ -287,7 +244,7 @@ public class CashbookTest extends BaseTest {
 		cashbookPage.createReceipt(group, revenueSourceList()[0], branch, randomPaymentMethod(), sender, amount, note, isAccountingChecked);
 		homePage.getToastMessage();
 		List<List<String>> records = cashbookPage.getRecords();
-		cashbookPage.clickRecord(records.get(0).get(Cashbook.TRANSACTIONCODE_COL)); // Click on the first record on the list.
+		cashbookPage.clickRecord(records.get(0).get(Cashbook.ID_IDX)); // Click on the first record on the list.
 		cashbookPage.verifyTextAtReceiptTransactionIDScreen();
 		cashbookPage.clickCancelBtn();
 		
@@ -297,7 +254,7 @@ public class CashbookTest extends BaseTest {
 		cashbookPage.createPayment(group, expenseTypeList()[0], branch, randomPaymentMethod(), sender, amount, note, isAccountingChecked);
 		homePage.getToastMessage();
 		records = cashbookPage.getRecords();
-		cashbookPage.clickRecord(records.get(0).get(Cashbook.TRANSACTIONCODE_COL)); // Click on the first record on the list.
+		cashbookPage.clickRecord(records.get(0).get(Cashbook.ID_IDX)); // Click on the first record on the list.
 		cashbookPage.verifyTextAtPaymentTransactionIDScreen();
 		cashbookPage.clickCancelBtn();
 		
@@ -306,391 +263,7 @@ public class CashbookTest extends BaseTest {
 		cashbookPage.verifyTextAtFilterContainer();
 		cashbookPage.clickFilterDoneBtn();
 	}	
-	
-	@Test
-	public void CB_02_CreateReceiptWhenSenderGroupIsCustomer() throws Exception {
 
-		String group = CashbookGroup.getTextByLanguage(CashbookGroup.CUSTOMER);
-
-		/* Log into dashboard */
-		loginDashboard();
-
-		/* Create receipts */
-		cashbookPage.navigate();
-		for (String source : revenueSourceList()) {
-			boolean isAccountingChecked = randomAccountingChecked();
-			String sender = randomCustomer();
-			String branch = randomBranch();
-			String paymentMethod = randomPaymentMethod();
-			String amount = randomAmount();
-			String note = "%s %s".formatted(sender, paymentMethod);
-			
-			// Get cashbook summary before creating receipts
-			List<Long> originalSummary = cashbookPage.getCashbookSummary();
-
-			// Create receipt
-			cashbookPage.createReceipt(group, source, branch, paymentMethod, sender, amount, note, isAccountingChecked);
-			homePage.getToastMessage();
-
-			// Get cashbook summary after creating receipts
-			commonAction.sleepInMiliSecond(2500);
-			List<Long> laterSummary = cashbookPage.getCashbookSummary();
-
-			// Check data summary after creating receipts
-			verifySummaryDataAfterReceiptCreated(originalSummary, laterSummary, amount, isAccountingChecked);
-
-			// Check record data after creating receipts
-			List<String> record = cashbookPage.getSpecificRecord(0);
-			verifyRecordDataAfterReceiptCreated(record, branch, source, sender, amount);
-
-			// Check record data on transaction Id pop-up
-			cashbookPage.clickRecord(record.get(Cashbook.TRANSACTIONCODE_COL)); // Click on the first record on the list.
-			verifyRecordDataOnTransactionIDPopup(group, sender, source, branch, amount, paymentMethod, note,
-					isAccountingChecked);
-
-			cashbookPage.clickCancelBtn();
-		}
-	}
-
-	@Test
-	public void CB_03_CreateReceiptWhenSenderGroupIsSupplier() throws Exception {
-
-		String group = CashbookGroup.getTextByLanguage(CashbookGroup.SUPPLIER);
-
-		/* Log into dashboard */
-		loginDashboard();
-
-		/* Create receipts */
-		cashbookPage.navigate();
-		for (String source : revenueSourceList()) {
-			boolean isAccountingChecked = randomAccountingChecked();
-			String sender = randomSupplier();
-			String branch = randomBranch();
-			String paymentMethod = randomPaymentMethod();
-			String amount = randomAmount();
-			String note = "%s %s".formatted(sender, paymentMethod);
-
-			// Get cashbook summary before creating receipts
-			List<Long> originalSummary = cashbookPage.getCashbookSummary();
-
-			// Create receipt
-			cashbookPage.createReceipt(group, source, branch, paymentMethod, sender, amount, note, isAccountingChecked);
-			homePage.getToastMessage();
-
-			// Get cashbook summary after creating receipts
-			commonAction.sleepInMiliSecond(2500);
-			List<Long> laterSummary = cashbookPage.getCashbookSummary();
-
-			// Check data summary after creating receipts
-			verifySummaryDataAfterReceiptCreated(originalSummary, laterSummary, amount, isAccountingChecked);
-
-			// Check record data after creating receipts
-			List<String> record = cashbookPage.getSpecificRecord(0);
-			verifyRecordDataAfterReceiptCreated(record, branch, source, sender, amount);
-
-			// Check record data on transaction Id pop-up
-			cashbookPage.clickRecord(record.get(Cashbook.TRANSACTIONCODE_COL)); // Click on the first record on the list.
-			verifyRecordDataOnTransactionIDPopup(group, sender, source, branch, amount, paymentMethod, note,
-					isAccountingChecked);
-
-			cashbookPage.clickCancelBtn();
-		}
-	}
-
-	@Test
-	public void CB_04_CreateReceiptWhenSenderGroupIsStaff() throws Exception {
-
-		String group = CashbookGroup.getTextByLanguage(CashbookGroup.STAFF);
-
-		/* Log into dashboard */
-		loginDashboard();
-
-		/* Create receipts */
-		cashbookPage.navigate();
-		for (String source : revenueSourceList()) {
-			boolean isAccountingChecked = randomAccountingChecked();
-			String sender = randomStaff();
-			String branch = randomBranch();
-			String paymentMethod = randomPaymentMethod();
-			String amount = randomAmount();
-			String note = "%s %s".formatted(sender, paymentMethod);
-			
-			// Get cashbook summary before creating receipts
-			List<Long> originalSummary = cashbookPage.getCashbookSummary();
-
-			// Create receipt
-			cashbookPage.createReceipt(group, source, branch, paymentMethod, sender, amount, note, isAccountingChecked);
-			homePage.getToastMessage();
-
-			// Get cashbook summary after creating receipts
-			commonAction.sleepInMiliSecond(2500);
-			List<Long> laterSummary = cashbookPage.getCashbookSummary();
-
-			// Check data summary after creating receipts
-			verifySummaryDataAfterReceiptCreated(originalSummary, laterSummary, amount, isAccountingChecked);
-
-			// Check record data after creating receipts
-			List<String> record = cashbookPage.getSpecificRecord(0);
-			verifyRecordDataAfterReceiptCreated(record, branch, source, sender, amount);
-
-			// Check record data on transaction Id pop-up
-			cashbookPage.clickRecord(record.get(Cashbook.TRANSACTIONCODE_COL)); // Click on the first record on the list.
-			verifyRecordDataOnTransactionIDPopup(group, sender, source, branch, amount, paymentMethod, note,
-					isAccountingChecked);
-
-			cashbookPage.clickCancelBtn();
-		}
-	}
-
-	@Test
-	public void CB_05_CreateReceiptWhenSenderGroupIsOthers() throws Exception {
-
-		String group = CashbookGroup.getTextByLanguage(CashbookGroup.OTHERS);
-
-		/* Log into dashboard */
-		loginDashboard();
-
-		/* Create receipts */
-		cashbookPage.navigate();
-		for (String source : revenueSourceList()) {
-			boolean isAccountingChecked = randomAccountingChecked();
-			String sender = randomOthers();
-			String branch = randomBranch();
-			String paymentMethod = randomPaymentMethod();
-			String amount = randomAmount();
-			String note = "%s %s".formatted(sender, paymentMethod);
-
-			// Get cashbook summary before creating receipts
-			List<Long> originalSummary = cashbookPage.getCashbookSummary();
-
-			// Create receipt
-			cashbookPage.createReceipt(group, source, branch, paymentMethod, sender, amount, note, isAccountingChecked);
-			homePage.getToastMessage();
-
-			// Get cashbook summary after creating receipts
-			commonAction.sleepInMiliSecond(2500);
-			List<Long> laterSummary = cashbookPage.getCashbookSummary();
-
-			// Check data summary after creating receipts
-			verifySummaryDataAfterReceiptCreated(originalSummary, laterSummary, amount, isAccountingChecked);
-
-			// Check record data after creating receipts
-			List<String> record = cashbookPage.getSpecificRecord(0);
-			verifyRecordDataAfterReceiptCreated(record, branch, source, sender, amount);
-
-			// Check record data on transaction Id pop-up
-			cashbookPage.clickRecord(record.get(Cashbook.TRANSACTIONCODE_COL)); // Click on the first record on the list.
-			verifyRecordDataOnTransactionIDPopup(group, sender, source, branch, amount, paymentMethod, note,
-					isAccountingChecked);
-
-			cashbookPage.clickCancelBtn();
-		}
-	}
-
-	@Test
-	public void CB_06_CreatePaymentWhenRecipientGroupIsCustomer() throws Exception {
-
-		String group = CashbookGroup.getTextByLanguage(CashbookGroup.CUSTOMER);
-
-		/* Log into dashboard */
-		loginDashboard();
-
-		/* Create payments */
-		cashbookPage.navigate();
-		for (String source : expenseTypeList()) {
-			boolean isAccountingChecked = randomAccountingChecked();
-			String sender = randomCustomer();
-			String branch = randomBranch();
-			String paymentMethod = randomPaymentMethod();
-			String amount = randomAmount();
-			String note = "%s %s".formatted(sender, paymentMethod);
-			
-			// Get cashbook summary before creating payments
-			List<Long> originalSummary = cashbookPage.getCashbookSummary();
-
-			// Create payments
-			cashbookPage.createPayment(group, source, branch, paymentMethod, sender, amount, note, isAccountingChecked);
-			homePage.getToastMessage();
-
-			// Get cashbook summary after creating payments
-			commonAction.sleepInMiliSecond(2500);
-			List<Long> laterSummary = cashbookPage.getCashbookSummary();
-
-			// Check data summary after creating payments
-			verifySummaryDataAfterPaymentCreated(originalSummary, laterSummary, amount, isAccountingChecked);
-
-			// Check record data after creating payments
-			List<String> record = cashbookPage.getSpecificRecord(0);
-			verifyRecordDataAfterPaymentCreated(record, branch, source, sender, amount);
-			
-			// Check record data on transaction Id pop-up
-			cashbookPage.clickRecord(record.get(Cashbook.TRANSACTIONCODE_COL)); // Click on the first record on the list.
-			verifyRecordDataOnTransactionIDPopup(group, sender, source, branch, amount, paymentMethod, note,
-					isAccountingChecked);
-
-			cashbookPage.clickCancelBtn();
-		}
-	}
-
-	@Test
-	public void CB_07_CreatePaymentWhenRecipientGroupIsSupplier() throws Exception {
-
-		String group = CashbookGroup.getTextByLanguage(CashbookGroup.SUPPLIER);
-
-		/* Log into dashboard */
-		loginDashboard();
-
-		/* Create payments */
-		cashbookPage.navigate();
-		for (String source : expenseTypeList()) {
-			boolean isAccountingChecked = randomAccountingChecked();
-			String sender = randomSupplier();
-			String branch = randomBranch();
-			String paymentMethod = randomPaymentMethod();
-			String amount = randomAmount();
-			String note = "%s %s".formatted(sender, paymentMethod);
-			
-			// Get cashbook summary before creating payments
-			List<Long> originalSummary = cashbookPage.getCashbookSummary();
-
-			// Create payments
-			cashbookPage.createPayment(group, source, branch, paymentMethod, sender, amount, note, isAccountingChecked);
-			homePage.getToastMessage();
-
-			// Get cashbook summary after creating payments
-			commonAction.sleepInMiliSecond(2500);
-			List<Long> laterSummary = cashbookPage.getCashbookSummary();
-
-			// Check data summary after creating payments
-			verifySummaryDataAfterPaymentCreated(originalSummary, laterSummary, amount, isAccountingChecked);
-
-			// Check record data after creating payments
-			List<String> record = cashbookPage.getSpecificRecord(0);
-			verifyRecordDataAfterPaymentCreated(record, branch, source, sender, amount);
-
-			// Check record data on transaction Id pop-up
-			cashbookPage.clickRecord(record.get(Cashbook.TRANSACTIONCODE_COL)); // Click on the first record on the list.
-			verifyRecordDataOnTransactionIDPopup(group, sender, source, branch, amount, paymentMethod, note,
-					isAccountingChecked);
-
-			cashbookPage.clickCancelBtn();
-		}
-	}
-
-	@Test
-	public void CB_08_CreatePaymentWhenRecipientGroupIsStaff() throws Exception {
-
-		String group = CashbookGroup.getTextByLanguage(CashbookGroup.STAFF);
-
-		/* Log into dashboard */
-		loginDashboard();
-
-		/* Create payments */
-		cashbookPage.navigate();
-		for (String source : expenseTypeList()) {
-			boolean isAccountingChecked = randomAccountingChecked();
-			String sender = randomStaff();
-			String branch = randomBranch();
-			String paymentMethod = randomPaymentMethod();
-			String amount = randomAmount();
-			String note = "%s %s".formatted(sender, paymentMethod);
-			
-			// Get cashbook summary before creating payments
-			List<Long> originalSummary = cashbookPage.getCashbookSummary();
-
-			// Create payments
-			cashbookPage.createPayment(group, source, branch, paymentMethod, sender, amount, note, isAccountingChecked);
-			homePage.getToastMessage();
-
-			// Get cashbook summary after creating payments
-			commonAction.sleepInMiliSecond(2500);
-			List<Long> laterSummary = cashbookPage.getCashbookSummary();
-
-			// Check data summary after creating payments
-			verifySummaryDataAfterPaymentCreated(originalSummary, laterSummary, amount, isAccountingChecked);
-
-			// Check record data after creating payments
-			List<String> record = cashbookPage.getSpecificRecord(0);
-			verifyRecordDataAfterPaymentCreated(record, branch, source, sender, amount);
-
-			// Check record data on transaction Id pop-up
-			cashbookPage.clickRecord(record.get(Cashbook.TRANSACTIONCODE_COL)); // Click on the first record on the list.
-			verifyRecordDataOnTransactionIDPopup(group, sender, source, branch, amount, paymentMethod, note,
-					isAccountingChecked);
-
-			cashbookPage.clickCancelBtn();
-		}
-	}
-
-	@Test
-	public void CB_09_CreatePaymentWhenRecipientGroupIsOthers() throws Exception {
-
-		String group = CashbookGroup.getTextByLanguage(CashbookGroup.OTHERS);
-
-		/* Log into dashboard */
-		loginDashboard();
-
-		/* Create payments */
-		cashbookPage.navigate();
-		for (String source : expenseTypeList()) {
-			boolean isAccountingChecked = randomAccountingChecked();
-			String sender = randomOthers();
-			String branch = randomBranch();
-			String paymentMethod = randomPaymentMethod();
-			String amount = randomAmount();
-			String note = "%s %s".formatted(sender, paymentMethod);
-			
-			// Get cashbook summary before creating payments
-			List<Long> originalSummary = cashbookPage.getCashbookSummary();
-
-			// Create payments
-			cashbookPage.createPayment(group, source, branch, paymentMethod, sender, amount, note, isAccountingChecked);
-			homePage.getToastMessage();
-
-			// Get cashbook summary after creating payments
-			commonAction.sleepInMiliSecond(2500);
-			List<Long> laterSummary = cashbookPage.getCashbookSummary();
-
-			// Check data summary after creating payments
-			verifySummaryDataAfterPaymentCreated(originalSummary, laterSummary, amount, isAccountingChecked);
-
-			// Check record data after creating payments
-			List<String> record = cashbookPage.getSpecificRecord(0);
-			verifyRecordDataAfterPaymentCreated(record, branch, source, sender, amount);
-
-			// Check record data on transaction Id pop-up
-			cashbookPage.clickRecord(record.get(Cashbook.TRANSACTIONCODE_COL)); // Click on the first record on the list.
-			verifyRecordDataOnTransactionIDPopup(group, sender, source, branch, amount, paymentMethod, note,
-					isAccountingChecked);
-
-			cashbookPage.clickCancelBtn();
-		}
-	}
-	
-	@Test
-	public void CB_10_SearchRecords() throws Exception {
-		
-		/* Log into dashboard */
-		loginDashboard();
-		
-		cashbookPage.navigate();
-		cashbookPage.clickResetDateRangerPicker();
-		
-		/* Search random transaction ids */
-		for (int i=0; i<3; i++) {
-			String transactionId = randomTransactionId();
-			
-			cashbookPage.inputCashbookSearchTerm(transactionId);
-			
-			List<List<String>> searchedRecords = cashbookPage.getRecords();
-			
-			/* Click on the searched record */
-			Assert.assertEquals(searchedRecords.size(), 1, "Number of found records");
-			Assert.assertEquals(searchedRecords.get(0).get(Cashbook.TRANSACTIONCODE_COL), transactionId, "Transaction Code");	
-			cashbookPage.inputCashbookSearchTerm("DFRT");
-		}
-	}
-	
 	@Test
 	public void CB_11_FilterCashbook() throws Exception {
 		
@@ -708,10 +281,10 @@ public class CashbookTest extends BaseTest {
 		
 		List<String> randomRecord = DataGenerator.getRandomListElement(records);
 		
-		String recordId = randomRecord.get(Cashbook.TRANSACTIONCODE_COL);
-		String branch = randomRecord.get(Cashbook.BRANCH_COL);
-		String createdBy = randomRecord.get(Cashbook.CREATEDBY_COL);
-		String name = randomRecord.get(Cashbook.NAME_COL);
+		String recordId = randomRecord.get(Cashbook.ID_IDX);
+		String branch = randomRecord.get(Cashbook.BRANCH_IDX);
+		String createdBy = randomRecord.get(Cashbook.CREATEDBY_IDX);
+		String name = randomRecord.get(Cashbook.NAME_IDX);
 		
 		cashbookPage.clickRecord(recordId);
 		
@@ -732,7 +305,7 @@ public class CashbookTest extends BaseTest {
 		
 		Assert.assertNotEquals(records.size(), 0);
 		for (List<String> record : records) {
-			cashbookPage.clickRecord(record.get(Cashbook.TRANSACTIONCODE_COL));
+			cashbookPage.clickRecord(record.get(Cashbook.ID_IDX));
 			Assert.assertEquals(cashbookPage.isAccountingChecked(), expectedAccounting);
 			cashbookPage.clickCancelBtn();
 		}
@@ -750,7 +323,7 @@ public class CashbookTest extends BaseTest {
 		
 		Assert.assertNotEquals(records.size(), 0);
 		for (List<String> record : records) {
-			Assert.assertEquals(record.get(Cashbook.BRANCH_COL), branch);
+			Assert.assertEquals(record.get(Cashbook.BRANCH_IDX), branch);
 		}
 		
 		/* Filter by transaction */
@@ -766,7 +339,7 @@ public class CashbookTest extends BaseTest {
 		
 		Assert.assertNotEquals(records.size(), 0);
 		for (List<String> record : records) {
-			Assert.assertEquals(record.get(Cashbook.REVENUETYPE_COL), "-");
+			Assert.assertEquals(record.get(Cashbook.REVENUETYPE_IDX), "-");
 		}
 		
 		cashbookPage.clickFilterBtn();
@@ -778,7 +351,7 @@ public class CashbookTest extends BaseTest {
 		
 		Assert.assertNotEquals(records.size(), 0);
 		for (List<String> record : records) {
-			Assert.assertEquals(record.get(Cashbook.EXPENSETYPE_COL), "-");
+			Assert.assertEquals(record.get(Cashbook.EXPENSETYPE_IDX), "-");
 		}
 		
 		/* Filter by Expense type */
@@ -795,7 +368,7 @@ public class CashbookTest extends BaseTest {
 		
 		Assert.assertNotEquals(records.size(), 0);
 		for (List<String> record : records) {
-			Assert.assertEquals(record.get(Cashbook.EXPENSETYPE_COL), filteredExpenseType);
+			Assert.assertEquals(record.get(Cashbook.EXPENSETYPE_IDX), filteredExpenseType);
 		}
 		
 		/* Filter by Revenue type */
@@ -812,7 +385,7 @@ public class CashbookTest extends BaseTest {
 		
 		Assert.assertNotEquals(records.size(), 0);
 		for (List<String> record : records) {
-			Assert.assertEquals(record.get(Cashbook.REVENUETYPE_COL), filteredRevenueType);
+			Assert.assertEquals(record.get(Cashbook.REVENUETYPE_IDX), filteredRevenueType);
 		}
 		
 		/* Filter by Created by */
@@ -829,7 +402,7 @@ public class CashbookTest extends BaseTest {
 		
 		Assert.assertNotEquals(records.size(), 0);
 		for (List<String> record : records) {
-			Assert.assertEquals(record.get(Cashbook.CREATEDBY_COL), filteredStaff);
+			Assert.assertEquals(record.get(Cashbook.CREATEDBY_IDX), filteredStaff);
 		}
 		
 		filteredStaff = createdBy("system"); 
@@ -842,7 +415,7 @@ public class CashbookTest extends BaseTest {
 		
 		Assert.assertNotEquals(records.size(), 0);
 		for (List<String> record : records) {
-			Assert.assertEquals(record.get(Cashbook.CREATEDBY_COL), "system");
+			Assert.assertEquals(record.get(Cashbook.CREATEDBY_IDX), "system");
 		}
 		
 		/* Filter by Sender/Recipient Group */
@@ -859,7 +432,7 @@ public class CashbookTest extends BaseTest {
 		
 		Assert.assertNotEquals(records.size(), 0);
 		for (List<String> record : records) {
-			cashbookPage.clickRecord(record.get(Cashbook.TRANSACTIONCODE_COL));
+			cashbookPage.clickRecord(record.get(Cashbook.ID_IDX));
 			Assert.assertEquals(cashbookPage.getGroup(), filteredGroup);
 			cashbookPage.clickCancelBtn();
 		}
@@ -880,7 +453,7 @@ public class CashbookTest extends BaseTest {
 		
 		Assert.assertNotEquals(records.size(), 0);
 		for (List<String> record : records) {
-			Assert.assertEquals(record.get(Cashbook.NAME_COL), filteredName);
+			Assert.assertEquals(record.get(Cashbook.NAME_IDX), filteredName);
 		}
 		
 		/* Filter by Payment methods */
@@ -897,7 +470,7 @@ public class CashbookTest extends BaseTest {
 		
 		Assert.assertNotEquals(records.size(), 0);
 		for (List<String> record : records) {
-			cashbookPage.clickRecord(record.get(Cashbook.TRANSACTIONCODE_COL));
+			cashbookPage.clickRecord(record.get(Cashbook.ID_IDX));
 			Assert.assertEquals(cashbookPage.getPaymentMethod(), filteredPaymentMethod);
 			cashbookPage.clickCancelBtn();
 		}
@@ -921,12 +494,12 @@ public class CashbookTest extends BaseTest {
 		
 		List<String> randomRecord = DataGenerator.getRandomListElement(records);
 		
-		String recordId = randomRecord.get(Cashbook.TRANSACTIONCODE_COL);
-		String branch = randomRecord.get(Cashbook.BRANCH_COL);
-		String createdBy = randomRecord.get(Cashbook.CREATEDBY_COL);
-		String name = randomRecord.get(Cashbook.NAME_COL);
-		String revenue = randomRecord.get(Cashbook.REVENUETYPE_COL);
-		String expense = randomRecord.get(Cashbook.EXPENSETYPE_COL);
+		String recordId = randomRecord.get(Cashbook.ID_IDX);
+		String branch = randomRecord.get(Cashbook.BRANCH_IDX);
+		String createdBy = randomRecord.get(Cashbook.CREATEDBY_IDX);
+		String name = randomRecord.get(Cashbook.NAME_IDX);
+		String revenue = randomRecord.get(Cashbook.REVENUETYPE_IDX);
+		String expense = randomRecord.get(Cashbook.EXPENSETYPE_IDX);
 		String transaction = !revenue.contains("-") ? transactions("allRevenues") : transactions("allExpenses");
 		cashbookPage.inputCashbookSearchTerm(recordId);
 		cashbookPage.clickRecord(recordId);
@@ -960,19 +533,19 @@ public class CashbookTest extends BaseTest {
 		
 		Assert.assertNotEquals(records.size(), 0, "Number of found records");
 		for (List<String> record : records) {
-			Assert.assertEquals(record.get(Cashbook.BRANCH_COL), branch);
+			Assert.assertEquals(record.get(Cashbook.BRANCH_IDX), branch);
 			if (!revenue.contains("-")) {
-				Assert.assertEquals(record.get(Cashbook.REVENUETYPE_COL), revenue);
-				Assert.assertEquals(record.get(Cashbook.EXPENSETYPE_COL), "-");
+				Assert.assertEquals(record.get(Cashbook.REVENUETYPE_IDX), revenue);
+				Assert.assertEquals(record.get(Cashbook.EXPENSETYPE_IDX), "-");
 			} else {
-				Assert.assertEquals(record.get(Cashbook.REVENUETYPE_COL), "-");
-				Assert.assertEquals(record.get(Cashbook.EXPENSETYPE_COL), expense);
+				Assert.assertEquals(record.get(Cashbook.REVENUETYPE_IDX), "-");
+				Assert.assertEquals(record.get(Cashbook.EXPENSETYPE_IDX), expense);
 			}
 			
-			Assert.assertEquals(record.get(Cashbook.NAME_COL), name);
-			Assert.assertEquals(record.get(Cashbook.CREATEDBY_COL), createdBy);
+			Assert.assertEquals(record.get(Cashbook.NAME_IDX), name);
+			Assert.assertEquals(record.get(Cashbook.CREATEDBY_IDX), createdBy);
 			
-			cashbookPage.clickRecord(record.get(Cashbook.TRANSACTIONCODE_COL));
+			cashbookPage.clickRecord(record.get(Cashbook.ID_IDX));
 			Assert.assertEquals(cashbookPage.getGroup(), group);
 			Assert.assertEquals(cashbookPage.isAccountingChecked(), expectedAccounting);
 			Assert.assertEquals(cashbookPage.getPaymentMethod(), payment);

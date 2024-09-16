@@ -215,6 +215,12 @@ public class PackagePayment {
 		switchToOriginalWindow(currentWindowHandle);
 		return getOrderId();
 	}
+	void abandonATM() {
+		String currentWindowHandle = commons.getCurrentWindowHandle();
+		switchToNewWindow(currentWindowHandle);
+		new ATM(driver).abandonPayment();
+		switchToOriginalWindow(currentWindowHandle);
+	}
 	PackagePayment selectVISA() {
 		commons.click(elements.loc_tabOnlinePayment);
 		commons.click(elements.loc_rdoVISA);
@@ -229,9 +235,20 @@ public class PackagePayment {
 		switchToOriginalWindow(currentWindowHandle);
 		return getOrderId();
 	}
+	void abandonVISA() {
+		String currentWindowHandle = commons.getCurrentWindowHandle();
+		switchToNewWindow(currentWindowHandle);
+		new VISA(driver).abandonPayment();
+		switchToOriginalWindow(currentWindowHandle);
+	}	
 	PackagePayment selectPayPal() {
-		commons.click(elements.loc_tabOnlinePayment);
-		commons.click(elements.loc_rdoPAYPAL);
+		
+		//Especial logic handling for PayPal
+		if (!isPayPalPrioritized()) {
+			commons.click(elements.loc_tabOnlinePayment);
+			commons.click(elements.loc_rdoPAYPAL);
+		}
+
 		selectPrioritizedPayPal();
 		return this;
 	}
@@ -248,7 +265,13 @@ public class PackagePayment {
 		switchToOriginalWindow(currentWindowHandle);
 		return getOrderId();
 	}
-
+	void abandonPayPal() {
+		String currentWindowHandle = commons.getCurrentWindowHandle();
+		switchToNewWindow(currentWindowHandle);
+		new PAYPAL(driver).abandonPayment();
+		switchToOriginalWindow(currentWindowHandle);
+	}	
+	
 	//Will remove later
 	/**
 	 * @param method accepted values are "BANKTRANSFER", "ATM", "VISA" and "PAYPAL"
@@ -300,64 +323,23 @@ public class PackagePayment {
 			yield selectPaymentMethod(PaymentMethod.VISA).completePayment(PaymentMethod.VISA);
 		}
 		case PAYPAL: {
-			yield especialLogicForPayPalPayment();
+			yield selectPaymentMethod(PaymentMethod.PAYPAL).completePayment(PaymentMethod.PAYPAL);
 		}
 		default:
 			throw new IllegalArgumentException("Unexpected value: " + method);
 		};
 	}
 	
-	public String especialLogicForPayPalPayment() {
-		
-		if (isPayPalPrioritized()) {
-			selectPrioritizedPayPal();
-		} else {
-			selectPaymentMethod(PaymentMethod.PAYPAL);
-		}
-		
-		return completePayment(PaymentMethod.PAYPAL);
+	public void abandonPayment(PaymentMethod method) {
+		switch (method) {
+		case BANKTRANSFER -> {}
+		case ATM -> abandonATM();
+		case VISA -> abandonVISA();
+		case PAYPAL -> abandonPayPal();
+		default -> throw new IllegalArgumentException("Unexpected value: " + method);
+		};
 	}	
 	
-	
-	public String abandonPayment(PaymentMethod method) {
-		//Return orderId fast when the payment is Bank-Transfer
-		if (method.equals(PaymentMethod.BANKTRANSFER)) {
-			return getOrderId();
-		}
-		
-		//Get current tab handle
-		String currentWindowHandle = commons.getCurrentWindowHandle();
-		
-		int currentNumberOfWindows = 1;
-		
-		//Wait till a new tab is launch
-		for(int i=0; i<5; i++) {
-			currentNumberOfWindows = commons.getAllWindowHandles().size();
-			if (currentNumberOfWindows >1) break;
-			commons.sleepInMiliSecond(1000, "Wait till a new tab is launch");
-		}
-		
-		//Switch to the newly launched tab
-		commons.switchToWindow(1);
-		
-		switch (method) {
-		case ATM -> new ATM(driver).abandonPayment();
-		case VISA -> new VISA(driver).abandonPayment();
-		case PAYPAL -> new PAYPAL(driver).abandonPayment();
-		default -> System.out.println(); //No coding is needed
-		}
-		
-		//Wait till the latest tab is closed
-		for (int i=9; i>=0; i--) {
-			if (commons.getAllWindowHandles().size() != currentNumberOfWindows) {
-				break;
-			}
-			commons.sleepInMiliSecond(2000);
-		}
-		commons.switchToWindow(currentWindowHandle);
-		return "";
-	}
-
 	//Will be removed
 	/**
 	 * @param method Input value: BANKTRANSFER/ATM/VISA/PAYPAL

@@ -10,8 +10,8 @@ public enum CashbookPaymentMethod {
 	BANK_TRANSFER("cashbook.paymentMethod.bankTransfer"),
 	CASH("cashbook.paymentMethod.cash"),
 	ZALO("cashbook.paymentMethod.zalopay"),
-	MOMO("cashbook.paymentMethod.momo");
-//	POS("notyetDefined"),
+	MOMO("cashbook.paymentMethod.momo"),
+	MPOS("cashbook.paymentMethod.mpos");
 //	PAYPAL("notyetDefined");
 	
 	private final String enumValue;

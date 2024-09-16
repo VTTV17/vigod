@@ -304,18 +304,18 @@ public class CashbookApp extends BaseTest {
 
 	public void verifyRecordDataAfterReceiptCreated(List<String> record, String branch, String source,
 													String sender, String amount) {
-		Assert.assertEquals(record.get(web.Dashboard.cashbook.Cashbook.BRANCH_COL), branch, "Branch");
-		Assert.assertTrue(record.get(web.Dashboard.cashbook.Cashbook.REVENUETYPE_COL).contains(source), "Revenue type");
-		Assert.assertEquals(record.get(web.Dashboard.cashbook.Cashbook.NAME_COL-1), sender, "Sender");
-		Assert.assertEquals(extractDigits(record.get(web.Dashboard.cashbook.Cashbook.AMOUNT_COL-1)), amount, "Amount");
+		Assert.assertEquals(record.get(web.Dashboard.cashbook.Cashbook.BRANCH_IDX), branch, "Branch");
+		Assert.assertTrue(record.get(web.Dashboard.cashbook.Cashbook.REVENUETYPE_IDX).contains(source), "Revenue type");
+		Assert.assertEquals(record.get(web.Dashboard.cashbook.Cashbook.NAME_IDX-1), sender, "Sender");
+		Assert.assertEquals(extractDigits(record.get(web.Dashboard.cashbook.Cashbook.AMOUNT_IDX-1)), amount, "Amount");
 	}
 
 	public void verifyRecordDataAfterPaymentCreated(List<String> record, String branch, String source,
 													String sender, String amount) {
-		Assert.assertEquals(record.get(web.Dashboard.cashbook.Cashbook.BRANCH_COL), branch, "Branch");
-		Assert.assertTrue(record.get(web.Dashboard.cashbook.Cashbook.REVENUETYPE_COL).contains(source), "Expense type");
-		Assert.assertEquals(record.get(web.Dashboard.cashbook.Cashbook.NAME_COL-1), sender, "Sender");
-		Assert.assertEquals(extractDigits(record.get(web.Dashboard.cashbook.Cashbook.AMOUNT_COL-1)), amount, "Amount");
+		Assert.assertEquals(record.get(web.Dashboard.cashbook.Cashbook.BRANCH_IDX), branch, "Branch");
+		Assert.assertTrue(record.get(web.Dashboard.cashbook.Cashbook.REVENUETYPE_IDX).contains(source), "Expense type");
+		Assert.assertEquals(record.get(web.Dashboard.cashbook.Cashbook.NAME_IDX-1), sender, "Sender");
+		Assert.assertEquals(extractDigits(record.get(web.Dashboard.cashbook.Cashbook.AMOUNT_IDX-1)), amount, "Amount");
 	}
 
 	public void verifyDataInRecordDetail(String group, String sender, String source, String branch,
@@ -404,7 +404,7 @@ public class CashbookApp extends BaseTest {
 			List<String> record = cashbookPage.getSpecificRecord(0);
 			verifyRecordDataAfterReceiptCreated(record, branch, source, sender, amount);
 
-			cashbookPage.clickRecord(record.get(web.Dashboard.cashbook.Cashbook.TRANSACTIONCODE_COL)); // Click on the first record on the list.
+			cashbookPage.clickRecord(record.get(web.Dashboard.cashbook.Cashbook.ID_IDX)); // Click on the first record on the list.
 			verifyDataInRecordDetail(group, sender, source, branch, amount, paymentMethod, note, isAccountingChecked);
 
 			commonAction.navigateBack();
@@ -436,7 +436,7 @@ public class CashbookApp extends BaseTest {
 			List<String> record = cashbookPage.getSpecificRecord(0);
 			verifyRecordDataAfterReceiptCreated(record, branch, source, sender, amount);
 
-			cashbookPage.clickRecord(record.get(web.Dashboard.cashbook.Cashbook.TRANSACTIONCODE_COL)); // Click on the first record on the list.
+			cashbookPage.clickRecord(record.get(web.Dashboard.cashbook.Cashbook.ID_IDX)); // Click on the first record on the list.
 			verifyDataInRecordDetail(group, sender, source, branch, amount, paymentMethod, note, isAccountingChecked);
 
 			commonAction.navigateBack();
@@ -468,7 +468,7 @@ public class CashbookApp extends BaseTest {
 			List<String> record = cashbookPage.getSpecificRecord(0);
 			verifyRecordDataAfterReceiptCreated(record, branch, source, sender, amount);
 
-			cashbookPage.clickRecord(record.get(web.Dashboard.cashbook.Cashbook.TRANSACTIONCODE_COL)); // Click on the first record on the list.
+			cashbookPage.clickRecord(record.get(web.Dashboard.cashbook.Cashbook.ID_IDX)); // Click on the first record on the list.
 			verifyDataInRecordDetail(group, sender, source, branch, amount, paymentMethod, note, isAccountingChecked);
 
 			commonAction.navigateBack();
@@ -500,7 +500,7 @@ public class CashbookApp extends BaseTest {
 			List<String> record = cashbookPage.getSpecificRecord(0);
 			verifyRecordDataAfterReceiptCreated(record, branch, source, sender, amount);
 
-			cashbookPage.clickRecord(record.get(web.Dashboard.cashbook.Cashbook.TRANSACTIONCODE_COL)); // Click on the first record on the list.
+			cashbookPage.clickRecord(record.get(web.Dashboard.cashbook.Cashbook.ID_IDX)); // Click on the first record on the list.
 			verifyDataInRecordDetail(group, sender, source, branch, amount, paymentMethod, note, isAccountingChecked);
 
 			commonAction.navigateBack();
@@ -532,7 +532,7 @@ public class CashbookApp extends BaseTest {
 			List<String> record = cashbookPage.getSpecificRecord(0);
 			verifyRecordDataAfterPaymentCreated(record, branch, source, sender, amount);
 
-			cashbookPage.clickRecord(record.get(web.Dashboard.cashbook.Cashbook.TRANSACTIONCODE_COL)); // Click on the first record on the list.
+			cashbookPage.clickRecord(record.get(web.Dashboard.cashbook.Cashbook.ID_IDX)); // Click on the first record on the list.
 			verifyDataInRecordDetail(group, sender, source, branch, amount, paymentMethod, note, isAccountingChecked);
 
 			commonAction.navigateBack();
@@ -564,7 +564,7 @@ public class CashbookApp extends BaseTest {
 			List<String> record = cashbookPage.getSpecificRecord(0);
 			verifyRecordDataAfterPaymentCreated(record, branch, source, sender, amount);
 
-			cashbookPage.clickRecord(record.get(web.Dashboard.cashbook.Cashbook.TRANSACTIONCODE_COL)); // Click on the first record on the list.
+			cashbookPage.clickRecord(record.get(web.Dashboard.cashbook.Cashbook.ID_IDX)); // Click on the first record on the list.
 			verifyDataInRecordDetail(group, sender, source, branch, amount, paymentMethod, note, isAccountingChecked);
 
 			commonAction.navigateBack();
@@ -596,7 +596,7 @@ public class CashbookApp extends BaseTest {
 			List<String> record = cashbookPage.getSpecificRecord(0);
 			verifyRecordDataAfterPaymentCreated(record, branch, source, sender, amount);
 
-			cashbookPage.clickRecord(record.get(web.Dashboard.cashbook.Cashbook.TRANSACTIONCODE_COL)); // Click on the first record on the list.
+			cashbookPage.clickRecord(record.get(web.Dashboard.cashbook.Cashbook.ID_IDX)); // Click on the first record on the list.
 			verifyDataInRecordDetail(group, sender, source, branch, amount, paymentMethod, note, isAccountingChecked);
 
 			commonAction.navigateBack();
@@ -628,7 +628,7 @@ public class CashbookApp extends BaseTest {
 			List<String> record = cashbookPage.getSpecificRecord(0);
 			verifyRecordDataAfterPaymentCreated(record, branch, source, sender, amount);
 
-			cashbookPage.clickRecord(record.get(web.Dashboard.cashbook.Cashbook.TRANSACTIONCODE_COL)); // Click on the first record on the list.
+			cashbookPage.clickRecord(record.get(web.Dashboard.cashbook.Cashbook.ID_IDX)); // Click on the first record on the list.
 			verifyDataInRecordDetail(group, sender, source, branch, amount, paymentMethod, note, isAccountingChecked);
 
 			commonAction.navigateBack();
@@ -662,7 +662,7 @@ public class CashbookApp extends BaseTest {
 			cashbookPage.swipeThroughRecords();
 			List<String> rec2 = cashbookPage.getSpecificRecord(0);
 			Assert.assertEquals(rec1, rec2);
-			Assert.assertEquals(searchedRecords.get(web.Dashboard.cashbook.Cashbook.TRANSACTIONCODE_COL), transactionId, "Transaction Code");
+			Assert.assertEquals(searchedRecords.get(web.Dashboard.cashbook.Cashbook.ID_IDX), transactionId, "Transaction Code");
 		}
 	}
 
