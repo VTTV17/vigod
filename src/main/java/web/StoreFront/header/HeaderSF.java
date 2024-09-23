@@ -2,6 +2,7 @@ package web.StoreFront.header;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -179,7 +180,7 @@ public class HeaderSF extends GeneralSF {
 
     public void clickChangeLanguage() {
         commons.clickElement(CHANGE_LANGUAGE_LINKTEXT);
-        logger.info("Clicked on 'Change Language' link text.");
+        logger.info("Clicked 'Change Language' link text.");
     }
 
     /**
@@ -199,8 +200,7 @@ public class HeaderSF extends GeneralSF {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        commons.sleepInMiliSecond(5000);
-//        hideLoadingIcon();
+//        commons.sleepInMiliSecond(5000);
         waitTillLoaderDisappear();
         return this;
     }
@@ -217,7 +217,18 @@ public class HeaderSF extends GeneralSF {
         waitTillLoaderDisappear();
         return this;
     }
-
+    
+    public HeaderSF changeLanguageByLangCode(String langCode) {
+        clickChangeLanguage();
+        
+        new ChangeLanguageDialog(driver).selectLanguageByLangCode(langCode).clickSaveBtn();
+        
+//        commons.sleepInMiliSecond(5000);
+        waitTillLoaderDisappear();
+        return this;
+    }
+    
+    
     public HeaderSF clickOnMenuItemByText(String menuItemByText) {
         String menuItemNewXpath = MENU_ITEM_BY_TEXT.formatted(menuItemByText);
         commons.clickElement(wait.until(ExpectedConditions.visibilityOf(commons.getElementByXpath(menuItemNewXpath))));

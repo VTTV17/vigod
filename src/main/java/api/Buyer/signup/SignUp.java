@@ -47,6 +47,10 @@ public class SignUp {
 
     }
 
+    public String get_GuestToken() {
+    	return guestToken;
+    }
+    
     public void getGuestToken() {
         String body = """
                 {

@@ -62,7 +62,7 @@ public class DataGenerator {
      * Returns a list of all the countries in the CountryCodes.json file as Strings.
      * @return a List of all the countries in the CountryCodes.json file
      */
-    public List<String> getCountryList() {
+    public static List<String> getCountryList() {
         JsonNode data = jsonFileUtility.readJsonFile("CountryCodes.json");
         Iterator<String> it = data.fieldNames();
         List<String> countries = new ArrayList<>();
@@ -100,7 +100,7 @@ public class DataGenerator {
     /**
      * @return a random country
      */
-    public String randomCountry() {
+    public static String randomCountry() {
         List<String> countries = getCountryList();
         return countries.get(new Random().nextInt(0, countries.size()));
     }

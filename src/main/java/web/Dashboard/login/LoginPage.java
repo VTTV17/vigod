@@ -202,7 +202,7 @@ public class LoginPage {
     	commonAction.click(loc_ddlLanguage);
     	commonAction.sleepInMiliSecond(500, "Not sure why sometimes the page is white without this sleep");
     	
-    	if (!language.equals(DisplayLanguage.ENG) && !language.equals(DisplayLanguage.ENG)) {
+    	if (!language.equals(DisplayLanguage.ENG) && !language.equals(DisplayLanguage.VIE)) {
     		language = DisplayLanguage.ENG;
     		logger.info("Input value does not match 'VIE' or 'ENG', so 'ENG' will be selected by default");
     	}

@@ -1,6 +1,7 @@
 package web.Dashboard.customers.allcustomers;
 
 import static utilities.links.Links.DOMAIN;
+import static utilities.links.Links.DOMAIN_BIZ;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,6 +14,7 @@ import org.openqa.selenium.support.pagefactory.ByChained;
 import org.testng.Assert;
 
 import utilities.commons.UICommonAction;
+import utilities.enums.Domain;
 import utilities.model.staffPermission.AllPermissions;
 import utilities.permission.CheckPermission;
 import web.Dashboard.confirmationdialog.ConfirmationDialog;
@@ -29,6 +31,8 @@ public class AllCustomers {
 	UICommonAction commonAction;
 	HomePage homePage;
 	AllCustomerElement elements;
+	
+	Domain domain;
 
 	public AllCustomers(WebDriver driver) {
 		this.driver = driver;
@@ -37,12 +41,26 @@ public class AllCustomers {
 		elements = new AllCustomerElement();
 	}
 
+    public AllCustomers(WebDriver driver, Domain domain) {
+    	this(driver);
+    	this.domain = domain;
+    }	
+	
 	public AllCustomers navigate() {
 		homePage.navigateToPage("Customers");
 		waitTillDataPresent();
 		return this;
 	}
+
+	AllCustomers navigateByURL(String url) {
+		driver.get(url);
+		logger.info("Navigated to: " + url);
+		commonAction.removeFbBubble();
+		homePage.waitTillSpinnerDisappear1();
+		return this;
+	}	
 	
+	//Will be removed
 	public AllCustomers navigateByURL() {
 		String url = DOMAIN + "/customers/all-customers/list";
 		driver.get(url);
@@ -51,6 +69,17 @@ public class AllCustomers {
 		homePage.waitTillSpinnerDisappear1();
 		return this;
 	}
+
+	public AllCustomers navigateUsingURL() {
+		if (domain.equals(Domain.VN)) {
+			navigateByURL(DOMAIN + "/customers/all-customers/list");
+		} else {
+			navigateByURL(DOMAIN_BIZ + "/customers/all-customers/list");
+		}
+		
+    	commonAction.sleepInMiliSecond(500, "Wait a little after navigation");
+		return this;
+	}	
 	
 	public AllCustomers navigateToCustomerDetailScreenByURL(int customerProfileId, int userId, String channel) {
 		String url = DOMAIN + "/customers/all-customers/edit/%s/%s/%s".formatted(customerProfileId, userId, channel);
@@ -181,6 +210,7 @@ public class AllCustomers {
 	public AllCustomers clickFilterDoneBtn() {
 		commonAction.click(elements.loc_btnDoneFilter);
 		logger.info("Clicked on Filter Done button.");
+		commonAction.sleepInMiliSecond(1000, "Wait a little in clickFilterDoneBtn()");
 		return this;
 	}
 
@@ -190,23 +220,36 @@ public class AllCustomers {
 		return this;
 	}
 
+	/**
+	 * Select a branch to filter customers
+	 * @param branch ALL/NONE or any branch name
+	 * @return
+	 */
 	public AllCustomers selectBranch(String branch) {
 		homePage.hideFacebookBubble();
 		clickFilterIcon();
 		clickBranchList();
-		commonAction.click(By.xpath(elements.loc_ddlFilterBranchValues.formatted(branch)));
+		
+		if (branch.contentEquals("ALL")) {
+			//will be handled later
+		} else if (branch.contentEquals("NONE")) {
+			commonAction.click(By.xpath(elements.loc_ddlFilterBranchNone));
+		} else {
+			commonAction.click(By.xpath(elements.loc_ddlFilterBranchValues.formatted(branch)));
+		}
+		
 		logger.info("Selected branch: " + branch);
 		clickFilterDoneBtn();
-		homePage.waitTillSpinnerDisappear();
+		homePage.waitTillSpinnerDisappear1();
 		return this;
 	}
 
-	public AllCustomers clickUser(String customerName) {
+	public CustomerDetails clickUser(String customerName) {
 		homePage.hideFacebookBubble();
 		commonAction.click(By.xpath(elements.loc_lblCustomerName.formatted(customerName)));
 		logger.info("Clicked on user: " + customerName);
 		homePage.waitTillSpinnerDisappear();
-		return this;
+		return new CustomerDetails(driver);
 	}
 
 	public String getPhoneNumber(String customerName) {

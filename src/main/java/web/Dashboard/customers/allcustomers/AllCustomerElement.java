@@ -23,6 +23,7 @@ public class AllCustomerElement {
 	By loc_btnFilter = By.cssSelector(".btn-filter-action");
 	By loc_ddlFilterBranch = By.xpath("(//div[contains(@class,'filter-title')])[1]/following-sibling::div");
 	String loc_ddlFilterBranchValues = "//div[@class='uik-select__label' and text()='%s']";
+	String loc_ddlFilterBranchNone = "//div[@class='uik-select__label' and (.='Không xác định' or .='None Branch')]";
 	By loc_btnCreateCustomer = By.cssSelector(".gs-content-header-right-el > .gs-button__green");
 	By loc_btnDoneFilter = By.cssSelector(".dropdown-menu-right .gs-button__green");
 	By loc_dlgCreateCustomer = By.cssSelector(".create-customer-modal");	
