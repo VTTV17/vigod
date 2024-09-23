@@ -50,8 +50,10 @@ public class HomePageElement {
     By loc_dlgUpgradeNow_btnClose = By.cssSelector(".modal-success.modal-header img");
     By loc_btnSkipIntroduction = By.cssSelector("button[aria-label='skip-product-tour']");
     By loc_dlgUpgradeNow_lblMessage = By.cssSelector(".modal-content");
-    By loc_btnLanguage = By.cssSelector("div.language-selector > button");
-    By loc_lst_btnLanguages = By.cssSelector("button.uik-select__option");
+    By loc_btnLanguage = By.xpath("(//div[@id='language-selector']//img[@alt='down arrow']/preceding-sibling::span)[2]");
+    By loc_btnLanguageInList (String lang){
+        return By.xpath("//span[text()='%s']".formatted(lang));
+    }
     By loc_dlgSalePitch = By.cssSelector(".gs-sale-pitch_content");
     public By loc_lblToastMessage = By.cssSelector(".Toastify__toast-body");
     By loc_toastMessage_btnClose = By.cssSelector(".Toastify__close-button");

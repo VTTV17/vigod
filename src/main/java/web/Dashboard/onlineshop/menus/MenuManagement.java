@@ -47,6 +47,7 @@ public class MenuManagement {
 	public MenuManagement navigateByUrl(){
 		String url = Links.DOMAIN + Links.MENUS_PATH;
 		commonAction.navigateToURL(url);
+		commonAction.sleepInMiliSecond(500);
 		return this;
 	}
 	public AddMenu clickEditMenu(int index){
@@ -93,7 +94,7 @@ public class MenuManagement {
 		return allPermissions.getOnlineStore().getBlog().isViewArticleList();
 	}
 	public void checkViewMenuList(){
-		List<WebElement> menuTitleList = commonAction.getElements(loc_lstMenuTitle,1);
+		List<WebElement> menuTitleList = commonAction.getElements(loc_lstMenuTitle,2);
 		if(hasViewListMenu()){
 			assertCustomize.assertTrue(menuTitleList.size()>0,"[Failed] Menu list should be shown.");
 		}else assertCustomize.assertTrue(menuTitleList.isEmpty(),"[Failed] Menu list should be empty.");
@@ -108,13 +109,15 @@ public class MenuManagement {
 			case BLOG -> permission = hasViewBlogList();
 			case ARTICLE -> permission = hasViewArticleList();
 		}
+		logger.info(menuItemType + "Permission: "+permission);
 		addMenu.selectUrlLinkType(menuItemType);
 		commonAction.click(addMenu.loc_ddlUrlLinkValue);
+		commonAction.sleepInMiliSecond(1500,"Wait for list update with new data");
 		List<WebElement> linkValueList = commonAction.getElements(addMenu.loc_ddvUrlLinkValue,2);
 		if(permission){
 			assertCustomize.assertTrue(linkValueList.size()>0,"[Failed] %s list not show".formatted(menuItemType));
 			logger.info("Verified view list %s permission.".formatted(menuItemType));
-		}else assertCustomize.assertTrue(linkValueList.isEmpty(),"[Failed] %s list should be not shown".formatted(menuItemType));
+		}else assertCustomize.assertTrue(linkValueList.isEmpty(),"[Failed] %s list should not be shown".formatted(menuItemType));
 		commonAction.click(addMenu.loc_ddlUrlLinkValue);
 	}
 	public void checkCreateMenu(){

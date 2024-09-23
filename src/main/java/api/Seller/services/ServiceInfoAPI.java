@@ -175,18 +175,28 @@ public class ServiceInfoAPI {
         String path = SERVICE_LIST_PATH.replaceAll("%storeID%",String.valueOf(loginInfo.getStoreID())).replaceAll("%collectionId%","").replaceAll("%sort%","");
         Response response = api.get(path,loginInfo.getAccessToken());
         response.then().statusCode(200);
-        List<Integer> serviceIDList = response.jsonPath().getList("id");
-        List<String> serviceStatusList = response.jsonPath().getList("bhStatus");
-        for (String serviceStatus:serviceStatusList) {
-            if(serviceStatus.equals("INACTIVE")){
-                return serviceIDList.get(serviceStatusList.indexOf(serviceStatus));
-            }
-        }
-        try {
-            throw new Exception("Not found Inactive service.");
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        return Optional.ofNullable(response.jsonPath().getInt("find {x-> x.bhStatus =='INACTIVE'}.id"))
+                .orElseGet(()->{
+                    //Call api edit service to deactive service
+                    EditServiceAPI editServiceAPI = new EditServiceAPI(loginInformation);
+                    editServiceAPI.setActiveStatus(false);
+                    int id = response.jsonPath().getInt("[0].id");
+                    editServiceAPI.updateService(id);
+                    return id;
+                });
+//        List<Integer> serviceIDList = response.jsonPath().getList("id");
+//        List<String> serviceStatusList = response.jsonPath().getList("bhStatus");
+//        for (String serviceStatus:serviceStatusList) {
+//            if(serviceStatus.equals("INACTIVE")){
+//                return serviceIDList.get(serviceStatusList.indexOf(serviceStatus));
+//            }
+//        }
+//
+//        try {
+//            throw new Exception("Not found Inactive service.");
+//        } catch (Exception e) {
+//            throw new RuntimeException(e);
+//        }
     }
     public ServiceInfo getServiceInfo(int id){
         Response response = getServiceDetail(id);

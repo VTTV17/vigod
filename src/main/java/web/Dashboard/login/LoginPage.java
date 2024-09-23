@@ -52,6 +52,8 @@ public class LoginPage {
     By loc_txtUsername = new ByChained(loc_frmLogin, By.cssSelector("input[name='username']")); 
     By loc_txtPassword = new ByChained(loc_frmLogin, By.cssSelector("input[name='password']"));
     By loc_btnLogin = new ByChained(loc_frmLogin, By.xpath(".//button[@type='submit']"));
+//    By loc_btnLogin = new ByChained(loc_frmLogin, By.xpath(".//button[contains(@class,'gs-button') and contains(@class,'login-widget__btnSubmit')]"));  //4.5
+
     By loc_lblUsernameError = By.cssSelector("#username + .invalid-feedback");
     By loc_lblPasswordError = By.cssSelector("#password + .invalid-feedback");
     By loc_lblLoginFailError = By.cssSelector("div[class~='alert__wrapper']:not(div[hidden])");

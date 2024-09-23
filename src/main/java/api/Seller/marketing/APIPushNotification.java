@@ -9,9 +9,7 @@ import utilities.enums.PushNotiEvent;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class APIPushNotification {
     API api = new API();
@@ -49,7 +47,9 @@ public class APIPushNotification {
                 	"type": "PUSH"
                 }
                 """.formatted(content,String.valueOf(event),name,segmentLists,storeId,title);
-        Response response = api.post(CREATE_PUSH_NOTI_PATH,loginInfo.getAccessToken(),body);
+        Map<String, String> headerMap = new HashMap<>();
+        headerMap.put("langKey", "vi");
+        Response response = api.post(CREATE_PUSH_NOTI_PATH,loginInfo.getAccessToken(),body,headerMap);
         response.then().log().all().statusCode(201);
         int id = response.jsonPath().getInt("id");
         return id;

@@ -28,14 +28,14 @@ public class AddMenu {
 
 	By loc_txtMenuName = By.id("name");
 	By loc_btnAddMenuItem = By.cssSelector(".add-menu-item");
-	By loc_btnSave = By.cssSelector(".gs-button__green, .btn-save");
+	By loc_btnSave = By.xpath("//button[string()='Lưu' or string() = 'Save']");
 	By loc_dlgAddMenuItem_txtName = By.cssSelector(".menu-item-modal #name");
 	By loc_ddlUrlLinkType = By.cssSelector(".links .btn-secondary");
 	By loc_ddvUrlLinkType = By.cssSelector(".links .dropdown-menu button");
 	By loc_ddlUrlLinkValue = By.cssSelector(".collections .btn-secondary");
 	By loc_ddvUrlLinkValue = By.cssSelector(".collections .dropdown-menu button");
 	By loc_txtLinkValue = By.id("link");
-	By loc_btnEditTranslation = By.xpath("//button[contains(@class,'gs-button__green')]/preceding-sibling::button");
+	By loc_btnEditTranslation = By.xpath("//button[string()='Sửa bản dịch' or string()='Edit Translation']");
 	By loc_dlgEditTranslation_btnSave = By.cssSelector(".modal-footer .gs-button__green");
 	public AddMenu inputMenuTitle(String menuTitle) {
 		commonAction.sendKeys(loc_txtMenuName, menuTitle);

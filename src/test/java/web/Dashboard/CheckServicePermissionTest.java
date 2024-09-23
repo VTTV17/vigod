@@ -92,7 +92,7 @@ public class CheckServicePermissionTest extends BaseTest {
         System.out.println(allPermissions.getService().getServiceManagement());
         //Check on UI
         new LoginPage(driver).staffLogin(staffUserName,staffPass);
-        new HomePage(driver).waitTillSpinnerDisappear1().selectLanguage(languageDB).hideFacebookBubble().navigateToPage(Constant.SERVICES_MENU_ITEM_NAME);
+        new HomePage(driver).waitTillSpinnerDisappear1().selectLanguage(languageDB).hideFacebookBubble();
         new ServiceManagementPage(driver,staffCredentials).navigateToServiceManagementUrl()
                 .checkPermissionServiceManagement(allPermissions,staffCreatedServiceId,ownerCreatedServiceId);
     }
@@ -114,7 +114,7 @@ public class CheckServicePermissionTest extends BaseTest {
         int collectionId = new ServiceCollectionAPI(ownerCredentials).getNewestCollectionID();
         //Check on UI
         new LoginPage(driver).staffLogin(staffUserName,staffPass);
-        new HomePage(driver).waitTillSpinnerDisappear1().selectLanguage(languageDB).hideFacebookBubble().navigateToPage(Constant.SERVICES_MENU_ITEM_NAME);
+        new HomePage(driver).waitTillSpinnerDisappear1().selectLanguage(languageDB).hideFacebookBubble();
         new ServiceCollectionManagement(driver,staffCredentials).navigateToServiceCollectUrl()
                 .checkPermissionServiceCollection(allPermissions,collectionId);
     }

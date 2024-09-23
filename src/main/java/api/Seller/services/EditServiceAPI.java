@@ -4,6 +4,7 @@ import api.Seller.login.Login;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.response.Response;
+import lombok.SneakyThrows;
 import utilities.api.API;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.sellerApp.login.LoginInformation;
@@ -118,7 +119,8 @@ public class EditServiceAPI {
      * @param serviceId
      * @throws JsonProcessingException
      */
-    public void updateService(int serviceId) throws JsonProcessingException {
+    @SneakyThrows
+    public void updateService(int serviceId) {
         Response serviceInfoRes = new ServiceInfoAPI(loginInformation).getServiceDetail(serviceId);
         Map<String, Object> serviceInfoMapping = new ObjectMapper().readValue(serviceInfoRes.body().asString(), HashMap.class);
         String serviceNamEdit = (String) serviceInfoMapping.get("name");

@@ -14,6 +14,7 @@ import utilities.enums.PartnerStatus;
 import utilities.enums.PaymentStatus;
 import utilities.links.Links;
 import utilities.model.staffPermission.AllPermissions;
+import utilities.model.staffPermission.Home.Home;
 import utilities.permission.CheckPermission;
 import utilities.utils.FileUtils;
 import utilities.utils.PropertiesUtil;
@@ -161,6 +162,7 @@ public class PartnerOrdersPage extends PartnerOrdersElement{
         common.navigateToURL(url);
         logger.info("Navigate to url: "+url);
         common.sleepInMiliSecond(500);
+        new HomePage(driver).waitTillSpinnerDisappear1();
         return this;
     }
     public PartnerOrdersPage approveAnOrder(){

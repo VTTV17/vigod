@@ -10,7 +10,9 @@ import utilities.model.dashboard.marketing.landingPage.LandingPageTemplateInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 
 import javax.swing.text.html.HTML;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class APILandingPage {
     String GET_LIST_LANDING_PAGE_PATH = "/themeservices/api/landing-pages?storeId.equals=%s&sort=lastModifiedDate,desc&page=0&size=20";
@@ -33,7 +35,9 @@ public class APILandingPage {
         return ids.get(0);
     }
     public LandingPageTemplateInfo getALandingPageTemplateInfo(){
-        Response response = api.get(GET_LANDING_PAGE_TEMPLATE,loginInfo.getAccessToken());
+        Map<String, String> headerMap = new HashMap<>();
+        headerMap.put("langKey", "vi");
+        Response response = api.get(GET_LANDING_PAGE_TEMPLATE,loginInfo.getAccessToken(),headerMap);
         response.then().statusCode(200);
         LandingPageTemplateInfo landingPageTemplateInfo = new LandingPageTemplateInfo();
         landingPageTemplateInfo.setId((int)response.jsonPath().getList("id").get(0));
@@ -66,8 +70,8 @@ public class APILandingPage {
         requestBody.addProperty("zlChatId","");
         requestBody.addProperty("slug",landingPageInfo.getDomainName());
         requestBody.addProperty("freeDomainType","GOSELL");
+
         Response response = api.post(CREATE_LANDING_PAGE_PATH.formatted(loginInfo.getStoreID()),loginInfo.getAccessToken(),requestBody.toString());
-        System.out.println(requestBody.toString());
         response.then().log().all().statusCode(201);
         landingPageInfo.setId(response.jsonPath().getInt("id"));
         landingPageInfo.setContentHtml(contentHtml);

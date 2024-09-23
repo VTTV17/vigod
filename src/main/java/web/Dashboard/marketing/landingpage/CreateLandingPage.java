@@ -1,5 +1,6 @@
 package web.Dashboard.marketing.landingpage;
 
+import lombok.SneakyThrows;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
@@ -8,6 +9,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import utilities.commons.UICommonAction;
 import utilities.data.DataGenerator;
+import utilities.utils.PropertiesUtil;
 import web.Dashboard.home.HomePage;
 
 import java.util.ArrayList;
@@ -149,9 +151,10 @@ public class CreateLandingPage {
 		}
 		return this;
 	}
+	@SneakyThrows
 	public CreateLandingPage selectCheckoutTemplate(){
 		clickOnSelectTemplate();
-		selectToUseTemplate("Page Checkout 01");
+		selectToUseTemplate(PropertiesUtil.getPropertiesValueByDBLang("marketing.landingPage.checkoutLandingPageName"));
 		new HomePage(driver).waitTillLoadingDotsDisappear();
 		return this;
 	}
