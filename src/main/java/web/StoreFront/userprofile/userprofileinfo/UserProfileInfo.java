@@ -10,6 +10,7 @@ import org.testng.asserts.SoftAssert;
 import web.StoreFront.header.HeaderSF;
 import web.StoreFront.userprofile.MembershipInfo;
 import web.StoreFront.userprofile.MyAddress;
+import web.StoreFront.userprofile.MyAccount.MyAccount;
 import web.StoreFront.userprofile.myorder.MyOrders;
 import utilities.commons.UICommonAction;
 import java.time.Duration;
@@ -31,10 +32,10 @@ public class UserProfileInfo extends HeaderSF {
         PageFactory.initElements(driver, this);
     }
 
-    public UserProfileInfo clickMyAccountSection() {
+    public MyAccount clickMyAccountSection() {
         commonAction.click(userProfileUI.loc_btnMyAccount);
-        logger.info("Clicked on My Account section.");
-        return this;
+        logger.info("Clicked My Account section.");
+        return new MyAccount(driver);
     }
     public MyAddress clickMyAddressSection() {
         commonAction.click(userProfileUI.loc_btnMyAddress);

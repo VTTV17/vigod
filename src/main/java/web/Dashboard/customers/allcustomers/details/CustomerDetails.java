@@ -44,8 +44,9 @@ public class CustomerDetails extends HomePage {
     }	    
     
     public String getCountry(){
-    	logger.info("Getting country...");
-        return commonAction.getDropDownSelectedValue(commonAction.getElement(elements.loc_ddlCountry));
+    	var country = commonAction.getDropDownSelectedValue(commonAction.getElement(elements.loc_ddlCountry));
+    	logger.info("Retrieved country: {}", country);
+        return country;
     }
     public String getAddress(){
         String address = commonAction.getValue(elements.loc_txtAddress);

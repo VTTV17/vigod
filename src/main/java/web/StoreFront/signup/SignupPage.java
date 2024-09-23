@@ -10,17 +10,18 @@ import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.testng.Assert;
-import org.testng.asserts.SoftAssert;
 
-import web.StoreFront.GeneralSF;
-import web.StoreFront.header.HeaderSF;
-import web.StoreFront.login.LoginPage;
-import utilities.thirdparty.Mailnesia;
-import utilities.utils.PropertiesUtil;
+import lombok.SneakyThrows;
 import utilities.api.thirdparty.KibanaAPI;
 import utilities.commons.UICommonAction;
 import utilities.data.DataGenerator;
-import utilities.database.InitConnection;
+import utilities.enums.DisplayLanguage;
+import utilities.enums.Domain;
+import utilities.model.dashboard.storefront.BuyerSignupData;
+import utilities.utils.PropertiesUtil;
+import web.StoreFront.GeneralSF;
+import web.StoreFront.header.HeaderSF;
+import web.StoreFront.login.LoginPage;
 
 public class SignupPage extends GeneralSF {
 
@@ -34,18 +35,20 @@ public class SignupPage extends GeneralSF {
 	public String VERIFICATION_CODE_MESSAGE_EN = "is code to verify your e-mail address on %s";
 	/* ================================================== */
     
+	Domain domain;
     WebDriver driver;
     UICommonAction commonAction;
-    Mailnesia mailnesia;
-
-    SoftAssert soft = new SoftAssert();
 
     public SignupPage(WebDriver driver) {
         super(driver);
         this.driver = driver;
         commonAction = new UICommonAction(driver);
     }
-
+    public SignupPage(WebDriver driver, Domain domain) {
+    	this(driver);
+    	this.domain = domain;
+    }
+    
     By loc_lblSignupScreen = By.cssSelector("#signup-modal .modal-content");
     By loc_lblVerificationCodeScreen = By.cssSelector("#activate-modal .modal-content");
     By loc_txtUsername = By.cssSelector("#signup-username");
@@ -61,13 +64,43 @@ public class SignupPage extends GeneralSF {
     By loc_lstCountry = By.cssSelector("#signup-country-code-menu .dropdown-item");
     By loc_txtVerificationCode = By.cssSelector("#activate-code");
     By loc_btnConfirmOTP = By.cssSelector("#frm-activate .btn-submit");
-    By loc_lnkResendOTP = By.id("activate-resend-code");
+    By loc_lnkResendOTP = By.id("open-activate-resend-code");
     By loc_lblSignupFailError = By.id("signup-fail");
     By loc_lblUsernameError = By.id("signup-username-error");
     By loc_lblPasswordError = By.id("signup-password-error");
     By loc_lblDisplayNameError = By.id("signup-displayName-error");
     By loc_lblWrongCodeError = By.id("activate-fail");	
 
+    @SneakyThrows
+    public static String localizedEmailAlreadyExistError(DisplayLanguage language) {
+    	return PropertiesUtil.getPropertiesValueBySFLang("signup.screen.error.mailExists", language.name());
+    }
+    @SneakyThrows
+    public static String localizedPhoneAlreadyExistError(DisplayLanguage language) {
+    	return PropertiesUtil.getPropertiesValueBySFLang("signup.screen.error.phoneExists", language.name());
+    }
+    @SneakyThrows
+    public static String localizedEmptyUsernameError(DisplayLanguage language) {
+    	return PropertiesUtil.getPropertiesValueBySFLang("signup.screen.error.emptyUsername", language.name());
+    }
+    @SneakyThrows
+    public static String localizedEmptyPasswordError(DisplayLanguage language) {
+    	return PropertiesUtil.getPropertiesValueBySFLang("signup.screen.error.emptyPassword", language.name());
+    }
+    @SneakyThrows
+    public static String localizedEmptyNameError(DisplayLanguage language) {
+    	return PropertiesUtil.getPropertiesValueBySFLang("signup.screen.error.emptyDisplayName", language.name());
+    }
+    @SneakyThrows
+    public static String localizedInvalidUsernameError(DisplayLanguage language) {
+    	return PropertiesUtil.getPropertiesValueBySFLang("signup.screen.error.invalidUsernameFormat", language.name());
+    }
+    @SneakyThrows
+    public static String localizedWrongVerificationCodeError(DisplayLanguage language) {
+    	return PropertiesUtil.getPropertiesValueBySFLang("signup.screen.error.wrongVerificationCode", language.name());
+    }
+    
+    //Will be removed
     public SignupPage navigate() {
         driver.get(SF_URL_TIEN); //Temporary
         return this;
@@ -126,7 +159,7 @@ public class SignupPage extends GeneralSF {
     public SignupPage clickCompleteBtn() {
         commonAction.click(loc_btnCompleteEmail);
         logger.info("Clicked on Complete button.");
-        commonAction.sleepInMiliSecond(2000); //Without this delay, the email can not be sent to back end.
+//        commonAction.sleepInMiliSecond(2000); //Without this delay, the email can not be sent to back end.
         new GeneralSF(driver).waitTillLoaderDisappear();
         return this;
     }
@@ -145,8 +178,7 @@ public class SignupPage extends GeneralSF {
     }
 
     public SignupPage fillOutSignupForm(String country, String user, String password, String displayName, String birthday) {
-        new HeaderSF(driver).clickUserInfoIcon()
-                .clickSignupIcon();
+        new HeaderSF(driver).clickUserInfoIcon().clickSignupIcon();
         inputBirthday(birthday);
         selectCountry(country);
         inputMailOrPhoneNumber(user);
@@ -155,16 +187,19 @@ public class SignupPage extends GeneralSF {
         clickSignupBtn();
         return this;
     }
+    public SignupPage fillOutSignupForm(BuyerSignupData data) {
+    	return fillOutSignupForm(data.getCountry(), data.getUsername(), data.getPassword(), data.getDisplayName(), data.getBirthday());
+    }
 
-    public SignupPage inputVerificationCode(String verificationCode) throws SQLException {
+    public SignupPage inputVerificationCode(String verificationCode) {
         commonAction.sendKeys(loc_txtVerificationCode, verificationCode);
-        logger.info("Input '" + verificationCode + "' into Verification Code field.");
+        logger.info("Input Verification Code: {}", verificationCode);
         return this;
     }
 
     public SignupPage clickResendOTP() {
         commonAction.click(loc_lnkResendOTP);
-        logger.info("Clicked on Resend linktext.");
+        logger.info("Clicked Resend linktext.");
         return this;
     }
 
@@ -174,44 +209,35 @@ public class SignupPage extends GeneralSF {
         new GeneralSF(driver).waitTillLoaderDisappear();
     }
 
-    public SignupPage verifyUsernameExistError(String errMessage) {
-        String text = commonAction.getText(loc_lblSignupFailError);
-        soft.assertEquals(text, errMessage, "[Signup][Username already exists] Message does not match.");
-        logger.info("verifyUsernameExistError completed");
-        return this;
+	public String getUsernameExistError() {
+		String text = commonAction.getText(loc_lblSignupFailError);
+		logger.info("Retrieve Username Exists error: {}", text);
+		return text;
+	}
+    public String getUsernameError() {
+    	String text = commonAction.getText(loc_lblUsernameError);
+    	logger.info("Retrieve Username error: {}", text);
+    	return text;
     }
 
-    public SignupPage verifyEmailOrPhoneNumberError(String errMessage) {
-        String text = commonAction.getText(loc_lblUsernameError);
-        soft.assertEquals(text, errMessage, "[Signup][Email or Phone Number] Message does not match.");
-        logger.info("verifyEmailOrPhoneNumberError completed");
-        return this;
+    public String getPasswordError() {
+    	String text = commonAction.getText(loc_lblPasswordError);
+    	logger.info("Retrieve Password error: {}", text);
+    	return text;
     }
-
-    public SignupPage verifyPasswordError(String errMessage) {
-        String text = commonAction.getText(loc_lblPasswordError);
-        soft.assertEquals(text, errMessage, "[Signup][Password] Message does not match.");
-        logger.info("verifyPasswordError completed");
-        return this;
-    }
-    
-    public SignupPage verifyDisplayNameError(String errMessage) {
+ 
+    public String getDisplayNameError() {
     	String text = commonAction.getText(loc_lblDisplayNameError);
-    	soft.assertEquals(text, errMessage, "[Signup][Display Name] Message does not match.");
-    	logger.info("verifyDisplayNameError completed");
-    	return this;
+    	logger.info("Retrieve Display Name error: {}", text);
+    	return text;
     }
 
-    public SignupPage verifyVerificationCodeError(String errMessage) {
-        String text = commonAction.getText(loc_lblWrongCodeError);
-        soft.assertEquals(text, errMessage, "[Signup][Wrong Verification Code] Message does not match.");
-        logger.info("verifyVerificationCodeError completed");
-        return this;
+    public String getVerificationCodeError() {
+    	String text = commonAction.getText(loc_lblWrongCodeError);
+    	logger.info("Retrieve Verification Code error: {}", text);
+    	return text;
     }
 
-    public void completeVerify() {
-        soft.assertAll();
-    }
     public SignupPage navigate(String domain) {
         commonAction.navigateToURL(domain);
         return this;
@@ -233,7 +259,7 @@ public class SignupPage extends GeneralSF {
 
     public void signUpWithPhoneNumber(String country, String userName, String passWord, String displayName, String birthday) throws SQLException {
         onlyFillOutSignupForm(country, userName, passWord, displayName, birthday);
-        String phoneCode = new DataGenerator().getPhoneCode(country);
+        String phoneCode = DataGenerator.getPhoneCode(country);
         String verificationCode = new KibanaAPI().getKeyFromKibana(phoneCode+":"+userName,"activationKey");
 //                new InitConnection().getActivationKey(new DataGenerator().getPhoneCode(country) + ":" + userName);
         inputVerificationCode(verificationCode);

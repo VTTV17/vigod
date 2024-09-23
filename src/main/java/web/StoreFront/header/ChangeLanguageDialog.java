@@ -24,6 +24,10 @@ public class ChangeLanguageDialog {
 	By loc_btnSave = By.cssSelector("#modalChangeLanguage .btn-primary");
 	By loc_btnClose = By.cssSelector("#modalChangeLanguage .btn-secondary");
 
+    By languageByLangCodeLocator(String langCode) {
+    	return By.xpath("//*[@id='modalChangeLanguage']//div[@rv-on-click=\"methods.changeLang | args '%s'\"]".formatted(langCode));
+    }
+	
 	/**
 	 * <p>
 	 * Change language of SF
@@ -45,6 +49,12 @@ public class ChangeLanguageDialog {
 		return this;
 	}
 
+    public ChangeLanguageDialog selectLanguageByLangCode(String langCode) {
+    	commonAction.click(languageByLangCodeLocator(langCode));
+    	logger.info("Selected language '%s'.".formatted(langCode));
+    	return this;
+    }	
+	
 	public ChangeLanguageDialog clickSaveBtn() {
 		commonAction.click(loc_btnSave);
 		logger.info("Clicked on 'Save' button");

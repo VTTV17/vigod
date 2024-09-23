@@ -1,5 +1,6 @@
 package api.Seller.setting;
 
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -50,16 +51,14 @@ public class StoreLanguageAPI {
 		return -1;
 	}
 
-	public Response getAllAdditionalLanguagesResponse() {
-		return api.get(allAdditionalLanguagesPath.formatted(loginInfo.getStoreID()), loginInfo.getAccessToken()).then().statusCode(200).extract().response();
-	}    
-
 	public DefaultLanguage getDefaultLanguage() {
 		return api.get(defaultLanguagePath.formatted(loginInfo.getStoreID()), loginInfo.getAccessToken()).then().statusCode(200).extract().response().as(DefaultLanguage.class);
 	} 
 	
-	public AdditionalLanguages[] getAdditionalLanguages() {
-		return api.get(allAdditionalLanguagesPath.formatted(loginInfo.getStoreID()), loginInfo.getAccessToken()).then().statusCode(200).extract().response().as(AdditionalLanguages[].class);
+	public List<AdditionalLanguages> getAdditionalLanguages() {
+		return api.get(allAdditionalLanguagesPath.formatted(loginInfo.getStoreID()), loginInfo.getAccessToken())
+				.then().statusCode(200).extract().response()
+				.jsonPath().getList(".", AdditionalLanguages.class);
 	} 
 	
 	public LanguageCatalog[] getLanguageCatalog() {
