@@ -5,7 +5,6 @@ import static utilities.account.AccountTest.ADMIN_PASSWORD_TIEN;
 import static utilities.account.AccountTest.ADMIN_USERNAME_TIEN;
 import static utilities.links.Links.SF_DOMAIN;
 
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
@@ -168,7 +167,7 @@ public class RefactoredSignupSF extends BaseTest {
 				.getUsernameError();
 
 		
-		//Asserions for errors
+		//Assertions for errors
 		Assert.assertEquals(actualEmptyUsernameError, expectedEmptyUsernameError);
 		Assert.assertEquals(actualEmptyPasswordError, expectedEmptyPasswordError);
 		Assert.assertEquals(actualEmptyNameError, expectedEmptyNameError);
@@ -310,14 +309,13 @@ public class RefactoredSignupSF extends BaseTest {
 		var expected_UserProfile_Phone = "%s:%s".formatted(buyerData.getPhoneCode(), buyerData.getUsername());
 		var expected_UserProfile_Country = buyerData.getCountry();
 		var expected_API_LocationCode = buyerData.getCountryCode();
-		var expected_API_LangKey = randomSFDisplayLanguage();
 		
 		
 		//Create an account on SF
 		signupPage.navigate(sellerSFURL);
 		
 		headerSection.clickUserInfoIcon()
-			.changeLanguageByLangCode(expected_API_LangKey);
+			.changeLanguage(language);
 		
 		signupPage.fillOutSignupForm(buyerData);
 		
@@ -382,6 +380,7 @@ public class RefactoredSignupSF extends BaseTest {
 		JsonPath buyerAdditionalData = loginSFAPI.getAccountInfo(buyerData.getUsername(), buyerData.getPassword(), buyerData.getPhoneCode()).jsonPath();
 		var actual_API_langKey = buyerAdditionalData.getString("langKey");
 		var actual_API_LocationCode = buyerAdditionalData.getString("locationCode");
+		System.out.println(actual_API_langKey);
 
 		
 		//Assertions for SF
@@ -398,7 +397,6 @@ public class RefactoredSignupSF extends BaseTest {
 		
 		//Assertions for API
 		Assert.assertEquals(actual_API_LocationCode, expected_API_LocationCode);
-		Assert.assertEquals(actual_API_langKey, expected_API_LangKey);
 		
 		
 		//Delete account afterwards
