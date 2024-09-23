@@ -203,6 +203,8 @@ public class LandingPage extends LandingPageElement {
 		navigateUrl();
 		if (hasCreateLandingPagePers()) {
 			clickCreateLandingPage();
+			new HomePage(driver).waitTillSpinnerDisappear1();
+			new HomePage(driver).waitTillLoadingDotsDisappear();
 			checkPermissionViewProductList(productNameOfShopOwner, productNameOfStaff);
 			createLandingPage.createLandingPage();
 			String toastMessage = new HomePage(driver).getToastMessage();

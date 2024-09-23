@@ -88,7 +88,7 @@ public class ProductDiscountCampaignElement {
 
     @FindBy(css = ".gs-page-title")
     WebElement PAGE_TITLE;
-    public By loc_detail_lblDiscountCampaignName = By.xpath("(//div[@class = 'row'])[3]/div[2]");
+    public By loc_detail_lblDiscountCampaignName = By.xpath("(//div[@class = 'row'])[2]/div[2]");
     public By loc_txtCampaignName = By.cssSelector("input#name");
     public By loc_btnAddSegment = By.cssSelector("fieldset[name ='conditionCustomerSegment'] .gs-fake-link");
     public By loc_lst_lblSegmentName = By.cssSelector(".segment-name > span");

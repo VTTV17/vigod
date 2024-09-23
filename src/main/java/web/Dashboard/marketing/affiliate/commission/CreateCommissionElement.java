@@ -6,7 +6,7 @@ public class CreateCommissionElement {
     By loc_txtCommissionName = By.id("commissionName");
     By loc_txtCommissionPercent = By.cssSelector(".form-commission-type input:not(#percent)");
     By loc_lst_txtOrderLevelValue = By.cssSelector(".item-commission-applicable-level input:not([id*='commissionApplicableLevels'])");
-    By loc_btnSave = By.xpath("//button[@type='submit'][2]");
+    By loc_btnSave = By.xpath("//button[string()='Save' or string()='Lưu']");
     By loc_lst_ddlOrderLevelOperators = By.xpath("//select[contains(@id,'commissionApplicableLevels')]");
     By loc_btnAddCondition = By.cssSelector(".container-btn-add");
     By loc_lblSpecificProducts = By.cssSelector("[for='radio-type-SPECIFIC_PRODUCTS']");

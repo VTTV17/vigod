@@ -17,7 +17,7 @@ public class CreateEditServiceCollectionElement {
     By loc_lblDrapAndDropPhoto = By.xpath("//input[@type='file']/following-sibling::div[2]");
     By loc_btnSave = By.xpath("//button[string()='Lưu' or string()='Save']");
     By loc_btnCancel = By.cssSelector(".gss-content-header--action-btn button:nth-child(2)");
-    By loc_btnDelete = By.xpath("//div[@id='app-body']//button[contains(@class,'red')]");
+    By loc_btnDelete = By.xpath("//button[string()='Xóa' or string()='Delete']");
     By loc_dlgNotification_btnClose = By.cssSelector(".modal-footer button");
     By loc_dlgNotification_lblMessage = By.cssSelector(".modal-body");
     By loc_dlgConfirmation_btnOK = By.cssSelector("[data-testid='confirmBtn']");

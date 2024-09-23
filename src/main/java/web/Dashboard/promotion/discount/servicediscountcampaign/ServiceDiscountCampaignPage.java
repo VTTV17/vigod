@@ -83,7 +83,7 @@ public class ServiceDiscountCampaignPage {
 	public boolean isServiceShowOnSelectServiceList(String productName){
 		commonAction.inputText(loc_txtSearch,productName);
 		commonAction.sleepInMiliSecond(1000);
-		List<WebElement> productNames = commonAction.getElements(loc_lst_lblServiceName);
+		List<WebElement> productNames = commonAction.getElements(loc_lst_lblServiceName,3);
 		if (productNames.isEmpty()) return false;
 		for (int i=0; i<productNames.size();i++) {
 			if(commonAction.getText(loc_lst_lblServiceName,i).equalsIgnoreCase(productName))

@@ -87,7 +87,7 @@ public class ResellerCustomers extends ResellerCustomersElement{
             String toastMessage = new HomePage(driver).getToastMessage();
             try {
                 assertCustomize.assertEquals(toastMessage, PropertiesUtil.getPropertiesValueByDBLang("affiliate.customers.export.successMessage"),
-                        "Export reseller customer success message should be shown, but '%s' is shown".formatted(toastMessage));
+                        "[Failed] Export reseller customer success message should be shown, but '%s' is shown".formatted(toastMessage));
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

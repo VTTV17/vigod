@@ -25,6 +25,7 @@ import java.util.Random;
 
 import static utilities.account.AccountTest.*;
 import static utilities.account.AccountTest.STAFF_SHOP_VI_PASSWORD;
+import static utilities.character_limit.CharacterLimit.MAX_PRICE;
 
 public class DiscountCampaignPermissionTest extends BaseTest{
     String sellerUserName;
@@ -48,6 +49,7 @@ public class DiscountCampaignPermissionTest extends BaseTest{
         staffUserName = STAFF_SHOP_VI_USERNAME;
         staffPass = STAFF_SHOP_VI_PASSWORD;
         languageDB = language;
+        MAX_PRICE = 999999L;
         ownerCredentials = new Login().setLoginInformation("+84", sellerUserName, sellerPassword).getLoginInformation();
         staffCredentials = new Login().setLoginInformation("+84", staffUserName, staffPass).getLoginInformation();
         // Shop owner create product, service
@@ -137,7 +139,7 @@ public class DiscountCampaignPermissionTest extends BaseTest{
 //                {"101101"},
 //                {"101110"},
 //                {"101111"},
-//                {"110000"},
+////                {"110000"},
 //                {"110001"},
 //                {"110010"},
 //                {"110011"},
@@ -151,29 +153,29 @@ public class DiscountCampaignPermissionTest extends BaseTest{
 //                {"111011"},
 //                {"111100"},
 //                {"111101"},
-                {"111110"},
-                {"111111"},
-                {"1000000"},
-                {"1000001"},
-                {"1000010"},
-                {"1000011"},
-                {"1000100"},
-                {"1000101"},
-                {"1000110"},
-                {"1000111"},
-                {"1001000"},
-                {"1001001"},
-                {"1001010"},
-                {"1001011"},
-                {"1001100"},
-                {"1001101"},
-                {"1001110"},
-                {"1001111"},
-                {"1010000"},
-                {"1010001"},
-                {"1010010"},
-                {"1010011"},
-                {"1010100"},
+//                {"111110"},
+//                {"111111"},
+//                {"1000000"},
+//                {"1000001"},
+//                {"1000010"},
+//                {"1000011"},
+//                {"1000100"},
+//                {"1000101"},
+//                {"1000110"},
+//                {"1000111"},
+//                {"1001000"},
+//                {"1001001"},
+//                {"1001010"},
+//                {"1001011"},
+//                {"1001100"},
+//                {"1001101"},
+//                {"1001110"},
+//                {"1001111"},
+//                {"1010000"},
+//                {"1010001"},
+//                {"1010010"},
+//                {"1010011"},
+//                {"1010100"},
 //                {"1010101"},
 //                {"1010110"},
 //                {"1010111"},
@@ -1084,11 +1086,11 @@ public class DiscountCampaignPermissionTest extends BaseTest{
 //                {"1111111000"},
 //                {"1111111001"},
 //                {"1111111010"},
-//                {"1111111011"},
+                {"1111111011"},
 //                {"1111111100"},
-//                {"1111111101"},
+                {"1111111101"},
 //                {"1111111110"},
-//                {"1111111111"}
+                {"1111111111"}
         };
     }
     CreatePermission setPermissionDiscountCampaignModel(String discountCampaignPermissionBinary) {

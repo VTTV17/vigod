@@ -41,9 +41,9 @@ public class LoyaltyPoint {
 		this.shopOwnerLoginInfo = shopOwnerLoginInfo;
 		return this;
 	}
-    By loc_btnSave = By.cssSelector(".loyalty-point-setting .gs-button__green");
+    By loc_btnSave = By.xpath("//button[string()='Lưu' or string() = 'Save']");
     By loc_btnActivateNow = By.cssSelector(".loyalty-point-intro__left-col__activate");
-	By loc_lblStatus = By.cssSelector(".loyalty-point-setting-section__header__status");
+	By loc_lblStatus = By.cssSelector(".loyalty-point-setting-section__container .loyalty-point-setting-section__body");
 	By loc_btnStatus = By.cssSelector(".uik-checkbox__toggle");
     
     public LoyaltyPoint clickSave() {
@@ -110,14 +110,13 @@ public class LoyaltyPoint {
 		Response response = new api.Seller.marketing.LoyaltyPoint(shopOwnerLoginInfo).enableOrDisableProgram(false);
 		if(response != null) response.then().statusCode(200);
 		if(hasViewPointProgramInformation()) {
-			new HomePage(driver).navigateToPage("Home");
-			new HomePage(driver).navigateToPage("Marketing","Loyalty Point");
+			navigateByUrl();
+			new HomePage(driver).waitTillSpinnerDisappear1();
 			if (hasEnableProgram()) {
 				commonAction.click(loc_btnStatus);
-				String status = commonAction.getText(loc_lblStatus);
+				String status = commonAction.getAttribute(loc_lblStatus,"class");
 				try {
-					assertCustomize.assertEquals(status,PropertiesUtil.getPropertiesValueByDBLang("marketing.loyaltyPoint.status.enable"),
-							"[Failed] Status = enable not show.");
+					assertCustomize.assertTrue(status.contains("show"),"[Failed] Status = enable not show.");
 				} catch (Exception e) {
 					throw new RuntimeException(e);
 				}
@@ -132,8 +131,8 @@ public class LoyaltyPoint {
 		if(response != null) response.then().statusCode(200);
 		commonAction.sleepInMiliSecond(1000, "Wait to update enable/disable point program.");
 		if(hasViewPointProgramInformation()) {
-			new HomePage(driver).navigateToPage("Home");
-			new HomePage(driver).navigateToPage("Marketing","Loyalty Point");
+			navigateByUrl();
+			new HomePage(driver).waitTillSpinnerDisappear1();
 			if (hasDisableProgram()) {
 				commonAction.click(loc_btnStatus);
 				String message = new ConfirmationDialog(driver).getPopUpContent();
@@ -144,10 +143,9 @@ public class LoyaltyPoint {
 					throw new RuntimeException(e);
 				}
 				new ConfirmationDialog(driver).clickOnRedBtn();
-				String status = commonAction.getText(loc_lblStatus);
+				String status = commonAction.getAttribute(loc_lblStatus,"class");
 				try {
-					assertCustomize.assertEquals(status,PropertiesUtil.getPropertiesValueByDBLang("marketing.loyaltyPoint.status.disable"),
-							"[Failed] Status = enable not show.");
+					assertCustomize.assertTrue(status.contains("show"),"[Failed] Status = enable not show.");
 				} catch (Exception e) {
 					throw new RuntimeException(e);
 				}

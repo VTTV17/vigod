@@ -9,6 +9,7 @@ import utilities.commons.UICommonAction;
 import utilities.data.DataGenerator;
 import utilities.links.Links;
 import web.Dashboard.confirmationdialog.ConfirmationDialog;
+import web.Dashboard.home.HomePage;
 
 public class AddPage {
 
@@ -23,10 +24,10 @@ public class AddPage {
 	}
 
 	By loc_btnPageTitle = By.id("title");
-	By loc_btnSave = By.cssSelector(".btn-save div");
-	By loc_btnEditTranslation = By.xpath("//button[contains(@class,'gs-button__green')]/preceding-sibling::button");
+	By loc_btnSave = By.xpath("//button[string()='Lưu' or string()='Save']");
+	By loc_btnEditTranslation =  By.xpath("//button[string()='Sửa bản dịch' or string()='Edit Translation']");
 	By loc_dlgEditTranslation_btnSave = By.cssSelector(".modal-footer .gs-button__green");
-	By loc_btnDelete = By.cssSelector(".icon-delete");
+	By loc_btnDelete = By.xpath("//button[string()='Xóa' or string()='Delete']");
 	By loc_dlgEditTranslation_txtUrlLink = By.cssSelector(".product-translate #seoUrl");
 	public AddPage inputPageTitle(String pageTitle) {
 		commonAction.sendKeys(loc_btnPageTitle, pageTitle);
@@ -37,6 +38,7 @@ public class AddPage {
 		String url = urlEdirPage.formatted(id);
 		commonAction.navigateToURL(url);
 		logger.info("Navigate to url: "+url);
+		new HomePage(driver).waitTillSpinnerDisappear1();
 		commonAction.sleepInMiliSecond(500);
 		return this;
 	}

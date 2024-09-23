@@ -484,6 +484,7 @@ public class UICommonAction {
 
     public void navigateToURL(String url) {
         driver.get(url);
+        logger.info("Navigate to url: {}",url);
     }
 
     public WebElement getElementByXpath(String xpath) {

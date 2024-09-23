@@ -12,6 +12,9 @@ import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.dashboard.onlineshop.ThemeInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class APIThemes {
     private String GET_MY_THEME_LIST_PATH = "/ssrstorefront/api/store-themes/store/%s/management";
     private String PUBLISH_THEME_PATH = "/ssrstorefront/api/store-themes/store/%s/publish";
@@ -32,7 +35,9 @@ public class APIThemes {
         return response;
     }
     public int getThemeStoreId(){
-        Response response = api.get(GET_THEME_STORE_LIST,loginInfo.getAccessToken());
+        Map<String, String> headerMap = new HashMap<>();
+        headerMap.put("langKey", "vi");
+        Response response = api.get(GET_THEME_STORE_LIST,loginInfo.getAccessToken(),headerMap);
         response.then().statusCode(200);
         return response.jsonPath().getInt("[0].id");
     }

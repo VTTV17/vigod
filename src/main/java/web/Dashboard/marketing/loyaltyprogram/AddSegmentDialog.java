@@ -7,6 +7,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.testng.Assert;
 
+import utilities.data.DataGenerator;
 import web.Dashboard.home.HomePage;
 import utilities.commons.UICommonAction;
 
@@ -49,7 +50,7 @@ public class AddSegmentDialog {
 			}
 			Assert.assertTrue(clicked, "Customer Segment '%s' ".formatted(customerSegment) + "is not found");
 		}else {
-			commonAction.click(loc_lblSegments,0);
+			commonAction.click(loc_lblSegments, DataGenerator.generatNumberInBound(0,commonAction.getElements(loc_lblSegments,2).size()-1));
 		}
 
 		return this;

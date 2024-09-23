@@ -50,7 +50,7 @@ public class Themes {
 		themeActiveInfo = new APIThemes(loginInformation).getActiveThemeId();
 		return this;
 	}
-    By loc_btnVisitThemeLibrary = By.cssSelector(".btn-create.ml-auto");
+    By loc_btnVisitThemeLibrary = By.cssSelector(".theme-management-section__body button");
     By loc_dlgModal = By.cssSelector(".modal-content");
 	By loc_btnCustomize = By.cssSelector(".theme-management-section__header .gs-button__green");
 	By loc_blkMyThemes_icnThreeDot = By.cssSelector(".theme-management-section__header__actions");
@@ -72,7 +72,7 @@ public class Themes {
 		String url = Links.DOMAIN + Links.THEMES_PATH;
 		commonAction.navigateToURL(url);
 		logger.info("Navigate to url: "+url);
-		commonAction.sleepInMiliSecond(500);
+		commonAction.sleepInMiliSecond(1000);
 	}
     public void verifyPermissionToCustomizeAppearance(String permission) {
     	String originalWindowHandle = commonAction.getCurrentWindowHandle();

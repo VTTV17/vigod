@@ -9,6 +9,7 @@ import utilities.assert_customize.AssertCustomize;
 import utilities.commons.UICommonAction;
 import utilities.links.Links;
 import utilities.model.staffPermission.AllPermissions;
+import utilities.model.staffPermission.Home.Home;
 import utilities.permission.CheckPermission;
 import utilities.utils.PropertiesUtil;
 import web.Dashboard.confirmationdialog.ConfirmationDialog;
@@ -56,6 +57,7 @@ public class CommissionPage extends CommissionElement{
         common.navigateToURL(url);
         logger.info("Navigate to url: "+url);
         common.sleepInMiliSecond(500);
+        new HomePage(driver).waitTillSpinnerDisappear1();
     }
     public void clickOnAddCommissionBtn(){
         common.click(loc_btnAddCommission);
@@ -67,7 +69,7 @@ public class CommissionPage extends CommissionElement{
         if(hasViewProductCommissionList()){
             assertCustomize.assertTrue(commissionNameList.size()>0,"[Failed] Commission list should be shown");
         }else assertCustomize.assertTrue(commissionNameList.isEmpty(),"[Failed] Commission list should be empty, but it show %s commission.".formatted(commissionNameList.size()));
-        logger.info("Verified View product commisison permission.");
+        logger.info("Verified View product commisison list permission.");
     }
     public void checkViewProductList(String productNameOfShopOwner, String productNameOfStaff){
         createCommissionPage.clickOnSpecificProduct()
@@ -120,7 +122,7 @@ public class CommissionPage extends CommissionElement{
                 "[Failed] Restricted popup should be shown when click on Add Commission button.");
         logger.info("Verified Add commission permission.");
     }
-    public void verifyEditCommission(int id){
+    public void verifyEditCommission(){
         navigateByUrl();
         if(hasViewProductCommissionList()){
             common.getElements(loc_lst_icnEdit,3);
@@ -168,11 +170,11 @@ public class CommissionPage extends CommissionElement{
         AssertCustomize.verifyTest();
         return this;
     }
-    public void verifyCommissionPagePermission(AllPermissions allPermissions, int commissionId, String productOfSeller, String productOfStaff){
+    public void verifyCommissionPagePermission(AllPermissions allPermissions, String productOfSeller, String productOfStaff){
         this.allPermissions = allPermissions;
         verifyViewProductCommissionList();
         verifyAddCommission(productOfSeller,productOfStaff);
-        verifyEditCommission(commissionId);
+        verifyEditCommission();
         verifyDeleteCommission();
         completeVerifyStaffPermissionCommissionPage();
     }

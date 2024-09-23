@@ -26,5 +26,7 @@ LoyaltyPointInfo {
     private Long exchangeAmount;
     private boolean enableExpiryDate;
     private Integer expirySince;
+    private Integer referrerPoint;
+    private Integer refereePoint;
 
 }

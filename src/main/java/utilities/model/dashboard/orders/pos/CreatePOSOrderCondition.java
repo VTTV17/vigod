@@ -10,6 +10,6 @@ public class CreatePOSOrderCondition {
     boolean isGuesCheckout = false;
     boolean hasDelivery  = true;
     List<ProductInfo> productInfoList;
-    int branchId;
+    int branchId = 0;
     int customerId = 0;
 }

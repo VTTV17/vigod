@@ -37,7 +37,7 @@ public class CreatePushNotification {
 	By loc_txtMessage = By.id("message");
 	By loc_btnCreate = By.cssSelector(".btn-send-now");
 	By loc_lst_rdoSendType = By.xpath("//label[contains(@class,'uik-checkbox__radio')]");
-	By loc_ddlEventType = By.xpath("(//input[@name='send-mode'])[3]//following-sibling::div//button");
+	By loc_ddlEventType = By.xpath("(//input[@name='send-mode'])[3]//parent::label//following-sibling::div//button");
 	By loc_ddvEventType = By.cssSelector(".uik-select__option");
 
 	public CreatePushNotification inputCampaignName(String campaignName) {
