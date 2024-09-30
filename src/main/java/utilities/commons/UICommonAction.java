@@ -19,6 +19,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.IntStream;
 
 import static java.lang.Thread.sleep;
@@ -1241,5 +1242,17 @@ public class UICommonAction {
             logger.info(ex);
             selectDropdownOptionByValue(ddvSelectedLocator, index, value);
         }
+    }
+    public void waitTillTextChange(By locator){
+            wait.until(new Function<WebDriver, Boolean>() {
+                String textBefore = getText(locator);
+                @Override
+                public Boolean apply(WebDriver driver) {
+                    if(getText(locator).equals(textBefore))
+                        return false;
+                    return true;
+                }
+            });
+            logger.info("Wait till content text of element change");
     }
 }

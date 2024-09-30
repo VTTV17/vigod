@@ -17,5 +17,5 @@ public class DeliveryDialogElement {
 	By txtCity = By.id("cityName");
 	By txtZipcode = By.id("zipCode");
 	By ddlPhoneCodeValue = By.cssSelector(".phone-code .uik-select__valueWrapper");
-	
+	By loc_lblSelectedDeliveryName = By.cssSelector(".delivery-select-pos__selected-value--title");
 }

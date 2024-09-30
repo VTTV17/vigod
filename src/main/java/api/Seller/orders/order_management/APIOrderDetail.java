@@ -122,15 +122,15 @@ public class APIOrderDetail {
                 Assert.assertEquals(actualInfo.getShippingInfo().getFullAddress(),expectedInfo.getShippingInfo().getFullAddress());
             else Assert.assertEquals(actualInfo.getShippingInfo().getFullAddressEn(),expectedInfo.getShippingInfo().getFullAddressEn());
         }
-        //Verify Billing Addresss
-        if(expectedInfo.getBillingInfo().getContactName()!=null){
-            Assert.assertEquals(actualInfo.getBillingInfo().getContactName(),expectedInfo.getBillingInfo().getContactName());
-            Assert.assertEquals(actualInfo.getBillingInfo().getPhone(),expectedInfo.getBillingInfo().getPhone());
-            Assert.assertEquals(actualInfo.getBillingInfo().getAddress1(),expectedInfo.getBillingInfo().getAddress1());
-            if(language.equalsIgnoreCase("vi"))
-                Assert.assertEquals(actualInfo.getBillingInfo().getFullAddress(),expectedInfo.getBillingInfo().getFullAddress());
-            else Assert.assertEquals(actualInfo.getBillingInfo().getFullAddressEn(),expectedInfo.getBillingInfo().getFullAddressEn());
-        }
+        //Verify Billing Addresss   //4.6 change to billing info (thong tin xuat hoa don)
+//        if(expectedInfo.getBillingInfo().getContactName()!=null){
+//            Assert.assertEquals(actualInfo.getBillingInfo().getContactName(),expectedInfo.getBillingInfo().getContactName());
+//            Assert.assertEquals(actualInfo.getBillingInfo().getPhone(),expectedInfo.getBillingInfo().getPhone());
+//            Assert.assertEquals(actualInfo.getBillingInfo().getAddress1(),expectedInfo.getBillingInfo().getAddress1());
+//            if(language.equalsIgnoreCase("vi"))
+//                Assert.assertEquals(actualInfo.getBillingInfo().getFullAddress(),expectedInfo.getBillingInfo().getFullAddress());
+//            else Assert.assertEquals(actualInfo.getBillingInfo().getFullAddressEn(),expectedInfo.getBillingInfo().getFullAddressEn());
+//        }
         //Verify payment method
         Assert.assertEquals(actualInfo.getOrderInfo().getPaymentMethod(),expectedInfo.getOrderInfo().getPaymentMethod());
         //Verify earning point

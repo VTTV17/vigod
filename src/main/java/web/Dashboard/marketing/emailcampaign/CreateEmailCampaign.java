@@ -24,7 +24,7 @@ public class CreateEmailCampaign {
 	By loc_txtEmailAddress = By.id("receiver");
 	By loc_txtSubject = By.id("title");
 	By loc_btnChooseEmailTemplate = By.cssSelector(".marketing_email_campaign_editor_setting button");
-	By loc_btnSave = By.cssSelector("[name='saveBtn']");
+	By loc_btnSave = By.xpath("//button[string()='Save' or string()='Lưu']");
 	By loc_lstEmailTemplate = By.cssSelector(".marketing_email_campaign_editor_templates_modal__template-item");
 	By loc_ddlSendTo = By.id("campaignEmailTo");
 	By loc_lnkSelectSegment = By.cssSelector(".marketing_email_campaign_editor_setting__email-to-segment span span");
