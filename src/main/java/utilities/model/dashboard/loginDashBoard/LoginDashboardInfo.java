@@ -17,4 +17,5 @@ public class LoginDashboardInfo {
     private List<String> assignedBranchesNames;
     private int ownerId;
     private String userName;
+    private String symbol;
 }

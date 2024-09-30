@@ -531,9 +531,9 @@ public class POSPage extends POSElement {
             itemOrderInfo.setTotalAmount(GetDataByRegex.getAmountByRegex(commonAction.getText(loc_lblPriceTotalAfterDiscount(i+1))));
 
             //Set promotion info of each item
-            commonAction.sleepInMiliSecond(1000);
+//            commonAction.sleepInMiliSecond(1000);
             List<ItemTotalDiscount> itemTotalDiscountList = new ArrayList<>();
-            if(!commonAction.getElements(loc_ddlPromotion(i+1)).isEmpty()) {
+            if(!commonAction.getElements(loc_ddlPromotion(i+1),1).isEmpty()) {
                 commonAction.click(loc_ddlPromotion(i+1));
                 Map<String, Double> itemTotalDiscountMap = getPromotionDetailApply(loc_ddlPromotion(i + 1), loc_tltPromotionApplyOnItem);
                 for (Map.Entry<String, Double> entry : itemTotalDiscountMap.entrySet()) {
@@ -583,7 +583,7 @@ public class POSPage extends POSElement {
     public ShippingInfo getShippingInfo() {
         ShippingInfo shippingInfo = new ShippingInfo();
         if (isDeliveryOpted()) {
-            commonAction.click(loc_icnEditDelivery);
+//            commonAction.click(loc_icnEditDelivery);
             DeliveryDialog deliveryDialog = new DeliveryDialog(driver);
             shippingInfo.setContactName(deliveryDialog.getCustomerName());
             shippingInfo.setPhone(deliveryDialog.getCustomerPhone());
@@ -601,7 +601,7 @@ public class POSPage extends POSElement {
                 shippingInfo.setFullAddressEn(deliveryDialog.getAddress() + ", " + deliveryDialog.getAddress2() + ", " + deliveryDialog.getCity() + ", " + deliveryDialog.getProvince()
                         + ", " + deliveryDialog.getZipcode() + ", " + deliveryDialog.getCountry());
             }
-            new ConfirmationDialog(driver).clickCancelBtn();
+//            new ConfirmationDialog(driver).clickCancelBtn();
         }
         logger.info("shippingInfo: {}", shippingInfo);
         return shippingInfo;
@@ -641,7 +641,7 @@ public class POSPage extends POSElement {
                 billingInfo.setFullAddressEn(customerInfo.getCustomerAddressFull().getCity() + ", " + customerInfo.getCustomerAddressFull().getCountry());
             }
         } else if (isDeliveryOpted()) { //Account or Guest + has delivery : billing get from delivery info
-            commonAction.clickJS(loc_icnEditDelivery);
+//            commonAction.clickJS(loc_icnEditDelivery);
             DeliveryDialog deliveryDialog = new DeliveryDialog(driver);
             billingInfo.setContactName(deliveryDialog.getCustomerName());
             billingInfo.setPhone(deliveryDialog.getCustomerPhone());
@@ -659,7 +659,7 @@ public class POSPage extends POSElement {
                         + ", " + deliveryDialog.getZipcode() + ", " + deliveryDialog.getCountry());
             }
 
-            new ConfirmationDialog(driver).clickCancelBtn();
+//            new ConfirmationDialog(driver).clickCancelBtn();
         }
         logger.info("billingInfo: {}", billingInfo);
         return billingInfo;
@@ -724,12 +724,19 @@ public class POSPage extends POSElement {
         orderDetailInfo.setSummaryDiscounts(getTotalPromotionDetailApply());
         orderDetailInfo.setTotalSummaryDiscounts(-getTotalDiscountAmount());
         CustomerOrderInfo customerOrderInfo = getCustomerOderInfo(customerId);
+        if(isDeliveryOpted()) clickEditDelivery();
         orderDetailInfo.setBillingInfo(getBillingInfo(customerOrderInfo.getName() == null, customerId));
         orderDetailInfo.setShippingInfo(getShippingInfo());
         if(customerOrderInfo.getMainPhone()==null) {
             customerOrderInfo.setMainPhone(orderDetailInfo.getShippingInfo().getPhone());
             customerOrderInfo.setPhone(orderDetailInfo.getShippingInfo().getPhoneCode() + orderDetailInfo.getShippingInfo().getPhone().replaceFirst("^0", ""));
         }
+        if(isDeliveryOpted()){
+            String deliveryMethod = new DeliveryDialog(driver).getSelectedDeliveryName();
+            orderInfo.setDeliveryName(deliveryMethod.equalsIgnoreCase("tự vận chuyển")||deliveryMethod.equalsIgnoreCase("self delivery")?"selfdelivery":GetDataByRegex.normalizeString(deliveryMethod));
+            new ConfirmationDialog(driver).clickCancelBtn();
+        }
+        customerOrderInfo.setCustomerId(customerId);
         orderDetailInfo.setCustomerInfo(customerOrderInfo);
 
         orderDetailInfo.setEarningPoint(getEarnPoint());
@@ -775,5 +782,14 @@ public class POSPage extends POSElement {
         if(loginInfo.getUserRole().contains("ROLE_STORE"))
             return "[shop0wner]";
         return loginInfo.getUserName();
+    }
+    public POSPage clickEditDelivery(){
+        commonAction.click(loc_icnEditDelivery);
+        logger.info("Click on Edit delivery icon.");
+        return this;
+    }
+    public String getCurrencySymbol(){
+        LoginDashboardInfo loginInfo = new Login().getInfo(loginInformation);
+        return loginInfo.getSymbol();
     }
 }

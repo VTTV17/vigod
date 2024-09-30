@@ -25,4 +25,5 @@ public class ItemOrderListInfo {
     private List<Object> orderItemIMEIDTO;
     private String sku;
     private long bcOrderId;
+    private String unit;
 }
