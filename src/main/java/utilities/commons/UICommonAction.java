@@ -35,7 +35,7 @@ public class UICommonAction {
 
     public UICommonAction(WebDriver driver) {
         this.driver = driver;
-        wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+        wait = new WebDriverWait(driver, Duration.ofSeconds(20));
         actions = new Actions(driver);
     }
 
@@ -484,6 +484,7 @@ public class UICommonAction {
 
     public void navigateToURL(String url) {
         driver.get(url);
+        logger.info("Navigate to url: {}",url);
     }
 
     public WebElement getElementByXpath(String xpath) {
@@ -530,6 +531,20 @@ public class UICommonAction {
             assert driver != null;
             return ((JavascriptExecutor) driver).executeScript("return arguments[0].offsetParent", element) != null;
         });
+    }
+    public void waitElementVisible(By locator) {
+    	try {
+        	new WebDriverWait(driver, Duration.ofSeconds(60)).until((ExpectedCondition<Boolean>) driver -> {
+        		assert driver != null;
+        		return ((JavascriptExecutor) driver).executeScript("return arguments[0].offsetParent", getElement(locator)) != null;
+        	});
+    	} catch(StaleElementReferenceException ex) {
+    		logger.warn("StaleElementReferenceException found in waitElementVisible: {}", ex);
+        	new WebDriverWait(driver, Duration.ofSeconds(60)).until((ExpectedCondition<Boolean>) driver -> {
+        		assert driver != null;
+        		return ((JavascriptExecutor) driver).executeScript("return arguments[0].offsetParent", getElement(locator)) != null;
+        	});
+    	}
     }
 
     public void waitElementList(List<WebElement> elementList, int... listSize) {

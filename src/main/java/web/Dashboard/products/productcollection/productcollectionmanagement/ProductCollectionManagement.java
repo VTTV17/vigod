@@ -87,7 +87,7 @@ public class ProductCollectionManagement extends ProductCollectionManagementElem
         commonAction.refreshPage();
         home.waitTillSpinnerDisappear1();
         boolean isSelected = false;
-        List<WebElement> collectionNameElement = commonAction.getElements(loc_lst_lblCollectionName);
+        List<WebElement> collectionNameElement = commonAction.getElements(loc_lst_lblCollectionName,3);
         for (int i = 0; i < collectionNameElement.size(); i++) {
             String collectionNameInList = commonAction.getText(loc_lst_lblCollectionName, i);
             if (collectionNameInList.equalsIgnoreCase(collectionName)) {
@@ -99,7 +99,7 @@ public class ProductCollectionManagement extends ProductCollectionManagementElem
             }
         }
         if (!isSelected) {
-            throw new Exception("Collection not found! Check collection name again!");
+            throw new Exception("Collection '%s' not found! Check collection name again!".formatted(collectionName));
         }
         logger.info("Verify collection info after updated.");
         return this;

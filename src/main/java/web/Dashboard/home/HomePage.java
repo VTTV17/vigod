@@ -282,15 +282,9 @@ public class HomePage extends HomePageElement {
 
     public HomePage selectLanguage(String language) {
         wait.until(ExpectedConditions.visibilityOfElementLocated(loc_btnLanguage));
-        if (!getDashboardLanguage().equals(language)) {
+        if (!getDashboardLanguage().equalsIgnoreCase(language)) {
             commons.click(loc_btnLanguage);
-            List<WebElement> languageElements = commons.getElements(loc_lst_btnLanguages);
-            for (WebElement element : languageElements) {
-                if (element.getText().equals(language)) {
-                    ((JavascriptExecutor) driver).executeScript("arguments[0].click();", element);
-                    break;
-                }
-            }
+            commons.click(loc_btnLanguageInList(language));
         }
         logger.info("Select language: "+language);
         return this;
@@ -502,7 +496,7 @@ public class HomePage extends HomePageElement {
     }
 
     public HomePage verifyPageLoaded() {
-        commons.waitElementVisible(commons.getElement(loc_lblWhatToDoNextTitle));
+        commons.waitElementVisible(loc_lblWhatToDoNextTitle);
         return this;
     }
 
@@ -686,7 +680,7 @@ public class HomePage extends HomePageElement {
     }
     public void checkChangeLanguage(){
         if(hasChangeLanguage()){
-            String language = getDashboardLanguage()=="ENG"?"VIE":"ENG";
+            String language = getDashboardLanguage()=="EN"?"VI":"EN";
             selectLanguage(language);
             commons.sleepInMiliSecond(2000);
             try {
@@ -697,7 +691,7 @@ public class HomePage extends HomePageElement {
             }
         }else {
             commons.click(loc_btnLanguage);
-            assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(loc_lst_btnLanguages,0),
+            assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(loc_btnLanguageInList("EN")),
                     "[Failed] Restricted popup should be shown when click select language");
         }
         logger.info("Verified Change language permission.");

@@ -57,6 +57,9 @@ public class APICreateOrderPOS {
             if(customerId==0) customerId = new APIAllCustomers(loginInformation).getAllAccountCustomerId().get(0);
             customerInfo = new APICustomerDetail(loginInformation).getInfo(customerId);
         }
+        if(branchId==0){
+            branchId = new BranchManagement(loginInformation).getFreeBranch();
+        }
         return this;
     }
 
@@ -94,7 +97,7 @@ public class APICreateOrderPOS {
                         "phoneCode": "%s",
                         %s
                       },
-                    """.formatted(customerInfo.getMainEmailName(),customerInfo.getMainEmail(),customerInfo.getMainPhoneNumber(),customerInfo.getMainPhoneCode());
+                    """.formatted(customerInfo.getMainEmailName(),customerInfo.getMainEmail(),customerInfo.getMainPhoneNumber(),customerInfo.getMainPhoneCode(),getAddressInfo());
         }else {
             String random = new DataGenerator().randomNumberGeneratedFromEpochTime(8);
             deliveryInfo = """
@@ -382,6 +385,7 @@ public class APICreateOrderPOS {
                     "platform": "IN_STORE",
                     "inStore": true,
                     "isAllowEarningPoint": true,
+                    "applyTax":true,
                     "taxAmount": 0,
                     "paymentMposId": 0,
                     "paymentMposDeviceCode": ""

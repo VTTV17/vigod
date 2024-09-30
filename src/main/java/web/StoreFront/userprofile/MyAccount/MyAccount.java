@@ -54,16 +54,14 @@ public class MyAccount extends HeaderSF {
     }
 
 	/**
-	 * <p>
-	 * To retrieve phone number of customers
-	 * <p>
-	 * @return the customer's phone number along with a country code separated by ":". Eg. +84:0841001002
+	 * Retrieves phone number of customers
+	 * @return Eg. +84:0841001002
 	 */
     public String getPhoneNumber() {
         String countryCode = commonAction.getAttribute(myAccountUI.loc_lblCountryCodeValue, "value");
         String phoneNumber = commonAction.getAttribute(myAccountUI.loc_txtPhone, "value");
         String value = countryCode + ":" + phoneNumber;
-        logger.info("Retrieved phone number prefixed with country code: " + value);
+        logger.info("Retrieved phone number: {}", value);
         return value;
     }
 
@@ -451,6 +449,11 @@ public class MyAccount extends HeaderSF {
             commonAction.click(myAccountUI.loc_lst_btnDeleteOtherEmail,0);
         }
         logger.info("Click all delete other email icon.");
+        return this;
+    }
+    public MyAccount refreshPage(){
+        commonAction.refreshPage();
+        waitTillLoaderDisappear();
         return this;
     }
 }

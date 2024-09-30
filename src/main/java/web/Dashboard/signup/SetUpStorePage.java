@@ -31,6 +31,7 @@ public class SetUpStorePage {
 	String loc_ddvStoreLanguage = "//div[contains(@class,'select-country__option') and .=\"%s\"]";
 	By loc_ddlCurrency = By.id("currency--selection");
 	String loc_ddvCurrency = "//div[@class='currency--selection-option' and .=\"%s\"]";
+	By loc_btnContinue = By.cssSelector("form.setup-container button[type='submit']");
 
 	public SetUpStorePage inputStoreName(String storeName) {
 		commonAction.sendKeys(loc_txtStoreName, storeName);
@@ -121,7 +122,7 @@ public class SetUpStorePage {
 		return currency;
 	}      
 	public void clickContinueBtn() {
-		commonAction.click(SignupPage.loc_btnConfirm);
+		commonAction.click(loc_btnContinue);
 		logger.info("Clicked Continue button.");     
 	}
 
@@ -147,7 +148,7 @@ public class SetUpStorePage {
 	}    
 	
 	public void setupShopExp(SetupStoreDG store) {
-		setupShopExp(store.getAccountType(), store.getName(), store.getUrl(), 
+		setupShopExp(store.getAccountType(), store.getName(), store.getStoreURL(), 
 				store.isContactProvided(), store.getContact(), 
 				store.getCountry(), store.getRegion(), store.getTimezone(), 
 				store.getLanguage(), 

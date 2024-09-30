@@ -55,7 +55,9 @@ public class SellerGeneral {
         return this;
     }
     public String getToastMessage() {
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
         String text = common.getText(TOASTMESSAGE);
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(0));
         logger.info("Retrieved toast message: " + text);
         return text;
     }

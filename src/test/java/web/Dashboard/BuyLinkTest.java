@@ -2,6 +2,8 @@ package web.Dashboard;
 
 import api.Seller.login.Login;
 import api.Seller.marketing.APIBuyLink;
+import api.Seller.marketing.membership.APIEditLoyaltyProgram;
+import api.Seller.marketing.membership.LoyaltyProgram;
 import api.Seller.products.all_products.APIProductDetail;
 import api.Seller.promotion.ProductDiscountCode;
 import api.Seller.sale_channel.onlineshop.APIPreferences;
@@ -79,6 +81,7 @@ public class BuyLinkTest extends BaseTest {
         tcsFileName = FILE_BUY_LINK_TCS;
         generate = new DataGenerator();
         new ProductDiscountCampaign(loginInformation).endEarlyDiscountCampaign();
+        new APIEditLoyaltyProgram(loginInformation).turnOffMembershipBenefits();
     }
     @BeforeMethod
     public void setUp(){

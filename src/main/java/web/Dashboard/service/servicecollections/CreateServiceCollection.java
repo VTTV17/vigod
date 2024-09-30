@@ -76,10 +76,10 @@ public class CreateServiceCollection extends CreateEditServiceCollectionElement 
     public CreateServiceCollection navigate(String languageDashboard) throws Exception {
         HomePage home = new HomePage(driver);
         home.waitTillSpinnerDisappear1();
-        home.navigateToPage("Services", "Service Collections");
         home.selectLanguage(languageDashboard);
         home.hideFacebookBubble();
         ServiceCollectionManagement serviceCollectionManagement = new ServiceCollectionManagement(driver);
+        serviceCollectionManagement.navigateToServiceCollectUrl();
         return serviceCollectionManagement.clickCreateServiceCollection();
     }
     public CreateServiceCollection uploadImages(String...fileNames){

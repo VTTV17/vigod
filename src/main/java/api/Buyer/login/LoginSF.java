@@ -72,7 +72,7 @@ public class LoginSF {
         return resetResponse;
     }    
     
-    public Response deletePhoneAccount(String username, String password, String phoneCode) {
+    public Response deleteAccount(String username, String password, String phoneCode) {
     	
     	LoginToSF(username, password, phoneCode);
     	
@@ -85,6 +85,25 @@ public class LoginSF {
     	resetResponse.then().log().ifValidationFails().statusCode(200);
     	
     	return resetResponse;
+    }    
+    
+    /**
+     * That one API with the path /api/account
+     * @param username
+     * @param password
+     * @param phoneCode
+     * @return
+     */
+    public Response getAccountInfo(String username, String password, String phoneCode) {
+    	
+    	LoginToSF(username, password, phoneCode);
+    	
+    	String token = getInfo().getAccessToken();
+    	
+    	Response response = new API().get("/api/account", token);
+    	response.then().log().ifValidationFails().statusCode(200);
+    	
+    	return response;
     }    
     
 }

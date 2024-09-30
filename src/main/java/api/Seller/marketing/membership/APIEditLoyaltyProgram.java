@@ -25,4 +25,16 @@ public class APIEditLoyaltyProgram {
         response.prettyPrint();
         response.then().statusCode(200);
     }
+    public void turnOffMembershipBenefits(){
+        LoyaltyProgramInfo membershipInfo = new LoyaltyProgram(loginInformation).getRandomMembershipDetail();
+        membershipInfo.setEnabledBenefit(false);
+        new APIEditLoyaltyProgram(loginInformation).editLoyaltyProgram(membershipInfo);
+    }
+    public void turnOnMembershipBenefits(){
+        LoyaltyProgramInfo membershipInfo = new LoyaltyProgram(loginInformation).getRandomMembershipDetail();
+        membershipInfo.setEnabledBenefit(true);
+        membershipInfo.setDiscountMaxAmount(5000.0);
+        membershipInfo.setDiscountPercent(20);
+        new APIEditLoyaltyProgram(loginInformation).editLoyaltyProgram(membershipInfo);
+    }
 }

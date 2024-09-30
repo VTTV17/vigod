@@ -87,7 +87,7 @@ public class ServiceCollectionTest extends BaseTest {
 //        super.writeResult(result);
         if (driver != null) driver.quit();
     }
-    @AfterClass
+//    @AfterClass
     public void callAPIDeleteData(){
         //Delete Service
         ServiceInfoAPI serviceInfoAPI = new ServiceInfoAPI(loginInformation);
@@ -234,12 +234,12 @@ public class ServiceCollectionTest extends BaseTest {
         productCollectionSF = new ProductCollectionSF(driver);
         productCollectionSF.verifyProductNameList(productCollectionSF.getProductNameListWithLazyLoad(serviceListExpected.size()/PAGE_SIZE_SF_COLLECTION +1),serviceListExpected);
     }
-    public void checkPlanPermission(String userName, boolean hasPermission) throws Exception {
+    public void checkPlanPermission(String userName, boolean hasPermission) {
         loginDashboard = new LoginPage(driver);
         loginDashboard.navigate().performLogin(userName, passwordCheckPermission);
         new HomePage(driver).selectLanguage(languageDashboard);
         ServiceCollectionManagement serviceCollectionManagement = new ServiceCollectionManagement(driver);
-        serviceCollectionManagement.navigate();
+        serviceCollectionManagement.navigateToServiceCollectUrl();
         if(hasPermission){
             serviceCollectionManagement.clickCreateServiceCollection();
             createServiceCollection = new CreateServiceCollection(driver);
@@ -469,9 +469,9 @@ public class ServiceCollectionTest extends BaseTest {
         testCaseId = "SC14";
         loginDashboard = new LoginPage(driver);
         loginDashboard.navigate().performLogin(userNameDb, passwordDb);
-        new HomePage(driver).waitTillSpinnerDisappear1();
+        new HomePage(driver).selectLanguage(languageDashboard);
         ServiceCollectionManagement serviceCollectionManagement = new ServiceCollectionManagement(driver);
-        serviceCollectionManagement.navigate();
+        serviceCollectionManagement.navigateToServiceCollectUrl();
         String firstCollection = serviceCollectionManagement.getTheFirstCollectionName();
         serviceCollectionManagement.deleteTheFirstCollection();
         serviceCollectionManagement.verifyCollectNameNotDisplayInList(firstCollection);

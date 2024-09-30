@@ -102,17 +102,17 @@ public class MultilanguagePermissionTest extends BaseTest {
         super.writeResult(result);
     }	
 
-    AdditionalLanguages[] getExistingLanguages() {
+    List<AdditionalLanguages> getExistingLanguages() {
     	return storeLanguageAPI.getAdditionalLanguages();
     }
     
     List<Integer> getExistingLanguageIds() {
-    	return Arrays.asList(getExistingLanguages()).stream().map(e -> e.getId()).collect(Collectors.toList());
+    	return getExistingLanguages().stream().map(e -> e.getId()).collect(Collectors.toList());
     }
 
     LanguageCatalog getUniqueLanguage() {
     	List<LanguageCatalog> catalogList = Arrays.asList(languageCatalog);
-    	List<AdditionalLanguages> additionalLanguageList = Arrays.asList(getExistingLanguages());
+    	List<AdditionalLanguages> additionalLanguageList = getExistingLanguages();
     	return catalogList.stream().filter(e -> !additionalLanguageList.stream().map(e1 -> e1.getLangName().toString()).collect(Collectors.toList()).contains(e.getDisplayValue())).findFirst().orElse(null);
     }
     

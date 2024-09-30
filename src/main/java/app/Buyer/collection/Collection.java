@@ -32,7 +32,7 @@ public class Collection {
     By BACK_ICON = By.xpath("//android.widget.ImageView[contains(@resource-id,'iv_back')]");
     By COUNT_ITEM = By.xpath("//*[ends-with(@resource-id,'tv_items_count')]");
     By NO_PRODUCT_MESSAGE = By.xpath("//*[ends-with(@resource-id,'tv_empty')]");
-    public Collection verifyProductsInCollection(List<String> expected, boolean hasCheckPriority){
+    public Collection verifyProductsInCollection(List<String> expected){
         common.sleepInMiliSecond(2000);
         if(expected.size()==0){
             verifyNoProductMessage();
@@ -42,20 +42,14 @@ public class Collection {
         if (productNameElements.size() !=0){
             productNamesActual = common.getListElementText(PRODUCT_NAME_LIST);
         }
-        System.out.println("Size List 1: "+productNamesActual.size());
-
         List<String> productNamesActualToLowerCase =new ArrayList<>();
         for (String productName:productNamesActual) {
             productNamesActualToLowerCase.add(productName.toLowerCase());
         }
-        System.out.println("Size List 2: "+productNamesActualToLowerCase.size());
-
         List<String> toExpectedSort = new ArrayList<>();
         toExpectedSort.addAll(expected);
-        if (!hasCheckPriority){
-            Collections.sort(toExpectedSort);
-            Collections.sort(productNamesActualToLowerCase);
-        }
+        Collections.sort(toExpectedSort);
+        Collections.sort(productNamesActualToLowerCase);
         Assert.assertEquals(productNamesActualToLowerCase,toExpectedSort,"Actual list: %s \nExpected list: %s".formatted(productNamesActualToLowerCase,toExpectedSort));
         logger.info("Verify products in collection.");
         return this;

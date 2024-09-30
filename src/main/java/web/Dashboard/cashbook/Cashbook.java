@@ -40,19 +40,20 @@ public class Cashbook {
 
 	Domain domain;
 	
+	//Index of the columns on the page
 	public static final int OPENINGBALANCE_IDX = 0;
 	public static final int TOTALREVENUE_IDX = 1;
 	public static final int TOTALEXPENDITURE_IDX = 2;
 	public static final int ENDINGBALANCE_IDX = 3;
 	
-	public static final int TRANSACTIONCODE_COL = 0;
-	public static final int CREATEDDATE_COL = 1;
-	public static final int BRANCH_COL = 2;
-	public static final int REVENUETYPE_COL = 3;
-	public static final int EXPENSETYPE_COL = 4;
-	public static final int NAME_COL = 5;
-	public static final int CREATEDBY_COL = 6;
-	public static final int AMOUNT_COL = 7;
+	public static final int ID_IDX = 0;
+	public static final int CREATEDDATE_IDX = 1;
+	public static final int BRANCH_IDX = 2;
+	public static final int REVENUETYPE_IDX = 3;
+	public static final int EXPENSETYPE_IDX = 4;
+	public static final int NAME_IDX = 5;
+	public static final int CREATEDBY_IDX = 6;
+	public static final int AMOUNT_IDX = 7;
 	
 	public Cashbook(WebDriver driver) {
 		this.driver = driver;
@@ -80,9 +81,9 @@ public class Cashbook {
 		return this;
 	}		
 	
+	//Will be removed
 	public Cashbook navigateByURL() {
 		driver.get(DOMAIN + "/cashbook/management");
-//		commonAction.sleepInMiliSecond(3000);
 		commonAction.removeFbBubble();
 		return this;
 	}
@@ -94,9 +95,14 @@ public class Cashbook {
 			navigateByURL(DOMAIN_BIZ + "/cashbook/management");
 		}
 		
-    	commonAction.sleepInMiliSecond(500, "Wait a little after navigation");
+    	waitTillPageReady();
 		return this;
 	}		
+	
+	public void waitTillPageReady() {
+		commonAction.waitInvisibilityOfElementLocated(elements.loc_icnDataLoading);
+		homePage.waitTillSpinnerDisappear1();
+	}
 	
 	public List<Long> getCashbookSummary() {
 		List<Long> summary = new ArrayList<>();
@@ -114,6 +120,8 @@ public class Cashbook {
 	}
 	
 	public List<BigDecimal> getCashbookSummaryBig() {
+		waitTillPageReady();
+		
 		List<BigDecimal> summary = new ArrayList<>();
 		for (int i = 0; i < 4; i++) {
 			String rawAmount = commonAction.getText(elements.loc_lblCashbookSummary, i);
@@ -124,53 +132,11 @@ public class Cashbook {
 	
 	public int getTotalRecordCount() {
 		int recordCount = Integer.valueOf(commonAction.getText(elements.loc_lblTotalRecordCount));
-		
 		logger.debug("Retrieved total record count: {}", recordCount);
 		return recordCount;
 	}
 	
-	
-	/**
-	 * Waits until the newly created record appears on Cash Book table
-	 * @param preTotalRecordCount the number of records initially
-	 */
-	public void waitTillRecordCountIncrease(int preTotalRecordCount) {
-	    int maxRetries = 10;
-	    int sleepDuration = 1000;
-	    int retries = 0;
-
-	    while (retries < maxRetries && getTotalRecordCount()-preTotalRecordCount <1) {
-	        commonAction.sleepInMiliSecond(sleepDuration, "Wait until total record count increases");
-	        retries++;
-	    }
-	}   	
-	
-	public void waitTillRecordsAppear() {
-	    int maxRetries = 10;
-	    int sleepDuration = 500;
-	    int retries = 0;
-
-	    while (retries < maxRetries && commonAction.getElements(elements.loc_tblCashbookRecord).isEmpty()) {
-	    	logger.debug("Table empty. Retrying after {} ms", sleepDuration);
-	        commonAction.sleepInMiliSecond(sleepDuration);
-	        retries++;
-	    }
-	}	
-	public void waitTillTableEmpty() {
-	    int maxRetries = 10;
-	    int sleepDuration = 500;
-	    int retries = 0;
-
-	    while (retries < maxRetries && commonAction.getElements(elements.loc_icnEmptyWallet).isEmpty()) {
-	    	logger.debug("Table not empty. Retrying after {} ms", sleepDuration);
-	        commonAction.sleepInMiliSecond(sleepDuration);
-	        retries++;
-	    }
-	}	
-	
 	public List<String> getSpecificRecord(int index) {
-		
-		waitTillRecordsAppear();
 		
 		/*
 		 * Loop through the columns of the specific record
@@ -196,7 +162,7 @@ public class Cashbook {
 	}
 
 	public List<List<String>> getRecords() {
-		waitTillRecordsAppear();
+		waitTillPageReady();
 		
 		int recordCount = commonAction.getElements(elements.loc_tblCashbookRecord).size();
 		logger.debug("{} cashbook record(s) found", recordCount);
@@ -348,7 +314,7 @@ public class Cashbook {
 		selectRevenueExpense(revenue);
 		selectBranch(branch);
 		selectPaymentMethod(payment);
-		if (senderGroup.contentEquals(CashbookGroup.getTextByLanguage(CashbookGroup.OTHERS))) {
+		if (senderGroup.contentEquals(CashbookGroup.getLocalizedText(CashbookGroup.OTHERS))) {
 			selectName(senderName, false);
 		} else {
 			selectName(senderName, true);
@@ -376,7 +342,7 @@ public class Cashbook {
 
 	public Cashbook clickRecord(String recordID) {
 		commonAction.click(By.xpath("//td[text()='%s']".formatted(recordID)));
-		logger.info("Clicked on cashbook record '%s'.".formatted(recordID));
+		logger.info("Clicked record '%s'.".formatted(recordID));
 		return this;
 	}
 
@@ -734,7 +700,7 @@ public class Cashbook {
 	public Cashbook clickFilterDoneBtn() {
 		commonAction.click(elements.loc_btnFilterDone);
 		logger.info("Clicked on Filter Done button.");
-		commonAction.sleepInMiliSecond(3000, "Wait after clicking Done button"); //This is needed on CI env
+		waitTillPageReady();
 		return this;
 	}
 
@@ -787,11 +753,11 @@ public class Cashbook {
     		BigDecimal amount = BigDecimal.valueOf(0);
     		if (i==0) {
     			type = staffPermission.getCashbook().isViewReceiptTransactionList();
-    			source = records.stream().filter(record -> records.get(TRANSACTIONCODE_COL).contains("RN")).map(record -> record.get(REVENUETYPE_COL)).collect(Collectors.toList());
+    			source = records.stream().filter(record -> records.get(ID_IDX).contains("RN")).map(record -> record.get(REVENUETYPE_IDX)).collect(Collectors.toList());
     			amount = originalSummary.get(TOTALREVENUE_IDX);
     		} else {
     			type = staffPermission.getCashbook().isViewPaymentTransactionList();
-    			source = records.stream().filter(record -> records.get(TRANSACTIONCODE_COL).contains("PN")).map(record -> record.get(EXPENSETYPE_COL)).collect(Collectors.toList());
+    			source = records.stream().filter(record -> records.get(ID_IDX).contains("PN")).map(record -> record.get(EXPENSETYPE_IDX)).collect(Collectors.toList());
     			amount = originalSummary.get(TOTALEXPENDITURE_IDX);
     		}
     		
@@ -858,7 +824,7 @@ public class Cashbook {
     		}
     		
         	if (flag) {
-        		String group = CashbookGroup.getTextByLanguage(CashbookGroup.CUSTOMER);
+        		String group = CashbookGroup.getLocalizedText(CashbookGroup.CUSTOMER);
         		if (staffPermission.getCustomer().getCustomerManagement().isViewAllCustomerList() && staffPermission.getCustomer().getCustomerManagement().isViewAssignedCustomerList()) {
         			selectGroup(group);
         			selectName(nonAssignedCustomer, true);
@@ -877,7 +843,7 @@ public class Cashbook {
         			By customerLocator = By.xpath(elements.searchResultXpath.formatted(""));
         			Assert.assertEquals(commonAction.getListElement(customerLocator).size(), 0);
         		}
-        		group = CashbookGroup.getTextByLanguage(CashbookGroup.SUPPLIER);
+        		group = CashbookGroup.getLocalizedText(CashbookGroup.SUPPLIER);
         		if (staffPermission.getSuppliers().getSupplier().isViewSupplierList()) {
         			selectGroup(group);
         			selectName(supplier, true);
@@ -889,7 +855,7 @@ public class Cashbook {
         			By supplierLocator = By.xpath(elements.searchResultXpath.formatted(""));
         			Assert.assertEquals(commonAction.getListElement(supplierLocator).size(), 0);
         		}
-        		group = CashbookGroup.getTextByLanguage(CashbookGroup.STAFF);
+        		group = CashbookGroup.getLocalizedText(CashbookGroup.STAFF);
         		if (staffPermission.getSetting().getStaffManagement().isViewStaffList()) {
         			commonAction.sleepInMiliSecond(1000, "This is weird!!!");
         			selectGroup(group);
@@ -969,10 +935,10 @@ public class Cashbook {
     	String randomReceipt = null;
     	String randomPayment = null;
     	for (List<String> record : records) {
-    		if (record.get(CREATEDBY_COL).equals("system")) continue;
+    		if (record.get(CREATEDBY_IDX).equals("system")) continue;
     		if (randomReceipt != null && randomPayment != null) break; 
-    		if (randomReceipt == null && record.get(TRANSACTIONCODE_COL).startsWith("RN")) randomReceipt = record.get(TRANSACTIONCODE_COL);
-    		if (randomPayment == null && record.get(TRANSACTIONCODE_COL).startsWith("PN")) randomPayment = record.get(TRANSACTIONCODE_COL);
+    		if (randomReceipt == null && record.get(ID_IDX).startsWith("RN")) randomReceipt = record.get(ID_IDX);
+    		if (randomPayment == null && record.get(ID_IDX).startsWith("PN")) randomPayment = record.get(ID_IDX);
     	}
     	
     	for (int i=0; i<2; i++) {

@@ -87,7 +87,9 @@ public class BuyerHomePage extends BuyerHomeElement {
 
     public BuyerHomePage clickOnMenuItemByText(String menuItemByText) {
         String menuItemNewXpath = MENU_ITEM_XPATH.formatted(menuItemByText.toUpperCase());
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
         commonMobile.clickElement(commonMobile.getElementByXpath(menuItemNewXpath));
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(0));
         logger.info("Click on menu: " + menuItemByText);
         return this;
     }
@@ -100,7 +102,7 @@ public class BuyerHomePage extends BuyerHomeElement {
     }
     public Collection goToCollectionByMenuText(String text){
         clickOnMenuIcon();
-        if(!commonMobile.isElementDisplay(MENU_ITEMS)){
+        if(commonMobile.isElementNotDisplay(MENU_ITEMS,2)){
             clickOnMenuIcon();
         }
         clickOnMenuItemByText(text);

@@ -30,8 +30,18 @@ public class PackagePayment {
 		elements = new PackagePaymentElement();
 	}
 	
-	public List<String> getPackagePeriodOptions() {
+	/**
+	 * This work-around is devised after closely watching the page's behavior.
+	 * What really happens behind the scene is the page actively waits until an API called calculate-amount is executed,
+	 * that's when this element appears on the screen
+	 */
+	void waitTillDataFullyLoaded() {
 		commons.getElement(elements.loc_lblPackageBasePrice); //This implicitly means the options are filled with data, this element appearing means APIs needed are already executed. Reason #1
+	}
+	
+	public List<String> getDurationOptions() {
+		waitTillDataFullyLoaded();
+		
 		List<String> durationOptions = new ArrayList<String>();
 		for(int i=0; i<commons.getElements(elements.loc_rdoDurationOptions).size(); i++) {
 			durationOptions.add(commons.getText(elements.loc_rdoDurationOptions, i));
@@ -45,19 +55,87 @@ public class PackagePayment {
 		return this;
 	}
 	
+	/**
+	 * When refundAmount >= total amount of a package, payment method is hidden. This function helps check that
+	 * @return true if the section is displayed, false otherwise
+	 */
+	public boolean isPaymentMethodSectionDisplayed() {
+		waitTillDataFullyLoaded();
+		
+		boolean isDisplayed = !commons.getElements(elements.loc_blkPaymentMethodSection).isEmpty();
+		logger.info("Payment method section is displayed: {}", isDisplayed);
+		return isDisplayed;
+	}		
+	
+	/**
+	 * When a shop's country is not Vietnam, PayPal is prioritized. This function helps check that
+	 */
+	public boolean isPayPalPrioritized() {
+	    waitTillDataFullyLoaded();
+	    
+	    //These two variables can't be of the same value. When they are, it implicitly means the page is not ready to test
+	    boolean isPrioritized = false;
+	    boolean isTabPresent = false;
+	    
+	    int maxTries = 5;
+	    int attempts = 0;
+	    int sleepDuration = 1000;
+	    
+	    while (attempts < maxTries) {
+	        isPrioritized = !commons.getElements(elements.loc_frmPayPal).isEmpty();
+	        isTabPresent = isOnlinePaymentTabDisplayed();
+	        
+	        if (isPrioritized != isTabPresent) break;
+	        logger.debug("Payment method section is not ready to test. Retrying...");
+	        commons.sleepInMiliSecond(sleepDuration);
+	        attempts++;
+	    }
+	    
+	    logger.info("PayPal is prioritized: {}", isPrioritized);
+	    return isPrioritized;
+	}
+
+	public boolean isBankTransferTabDisplayed() {
+		boolean isDisplayed = !commons.getElements(elements.loc_tabBankTransfer).isEmpty();
+		logger.info("Bank-Transfer tab is displayed: {}", isDisplayed);
+		return isDisplayed;
+	}	
+	public boolean isOnlinePaymentTabDisplayed() {
+		boolean isDisplayed = !commons.getElements(elements.loc_tabOnlinePayment).isEmpty();
+		logger.info("Online Payment tab is displayed: {}", isDisplayed);
+		return isDisplayed;
+	}	
+	/**
+	 * Checks if online payment method is hidden when the total amount a customer has to pay for a package is 0
+	 */
 	public boolean isOnlinePaymentTabHidden() {
 		boolean isHidden = commons.getAttribute(elements.loc_tabOnlinePayment, "hidden") != null;
 		logger.info("Online Payment tab is hidden: {}", isHidden);
 		return isHidden;
 	}
-	public List<String> getOnlinePaymentOptions() {
+	public List<PaymentMethod> getOnlinePaymentOptions() {
 		commons.click(elements.loc_tabOnlinePayment);
 		commons.getElement(elements.loc_rdoPAYPAL); //This implicitly means the options are present ready for further actions
-		List<String> paymentOptions = new ArrayList<String>();
-		if (!commons.getElements(elements.loc_rdoATM).isEmpty()) paymentOptions.add("ATM");
-		if (!commons.getElements(elements.loc_rdoVISA).isEmpty()) paymentOptions.add("VISA");
-		paymentOptions.add("PAYPAL"); //PAYPAL is always available
+		List<PaymentMethod> paymentOptions = new ArrayList<>();
+		if (!commons.getElements(elements.loc_rdoATM).isEmpty()) paymentOptions.add(PaymentMethod.ATM);
+		if (!commons.getElements(elements.loc_rdoVISA).isEmpty()) paymentOptions.add(PaymentMethod.VISA);
+		paymentOptions.add(PaymentMethod.PAYPAL); //PAYPAL is always available
+		return paymentOptions;
+	}
+
+	public List<PaymentMethod> getAvailablePaymentOptions() {
+		List<PaymentMethod> paymentOptions = new ArrayList<>();
+		
+		if (isPayPalPrioritized()) {
+			paymentOptions.add(PaymentMethod.PAYPAL);
+		} else {
+			paymentOptions.addAll(getOnlinePaymentOptions());
+		}
+		
+		if (isBankTransferTabDisplayed()) paymentOptions.add(PaymentMethod.BANKTRANSFER);
+		
 		logger.info("Retrieved payment options available: {}", paymentOptions);
+		
 		return paymentOptions;
 	}	
 	public PlanPaymentReview getFinalizePackageInfo() {
@@ -66,7 +144,7 @@ public class PackagePayment {
 		totalInfo.setDuration(commons.getText(elements.loc_lblPackageDuration));
 		totalInfo.setBasePrice(commons.getText(elements.loc_lblPackageBasePrice));
 		if (!commons.getElements(elements.loc_lblPackageVAT).isEmpty()) totalInfo.setVatPrice(commons.getText(elements.loc_lblPackageVAT)); //Hidden for domain .biz stores
-		if (!commons.getElements(elements.loc_lblRefund).isEmpty()) totalInfo.setRefundAmount(commons.getText(elements.loc_lblRefund)); //Hidden when purchase packages for the 1st time
+		if (!commons.getElements(elements.loc_lblRefund).isEmpty()) totalInfo.setRefundAmount(commons.getText(elements.loc_lblRefund)); //Hidden when purchasing packages for the 1st time
 		totalInfo.setFinalTotal(commons.getText(elements.loc_lblPackageFinalTotal));
 		logger.info("Retrieved finalized package info: {}", totalInfo);
 		return totalInfo;
@@ -76,24 +154,122 @@ public class PackagePayment {
 		logger.info("Clicked 'Place Order' button");
 		return this;
 	}	
-	public PackagePayment selectPaymentMethod(PaymentMethod method) {
-		switch (method) {
-		case BANKTRANSFER:
-			commons.click(elements.loc_tabBankTransfer); break;
-		case ATM:
-			commons.click(elements.loc_tabOnlinePayment); commons.checkTheCheckBoxOrRadio(elements.loc_rdoATM); break;
-		case VISA:
-			commons.click(elements.loc_tabOnlinePayment); commons.checkTheCheckBoxOrRadio(elements.loc_rdoVISA); break;
-		case PAYPAL:
-			commons.click(elements.loc_tabOnlinePayment); commons.checkTheCheckBoxOrRadio(elements.loc_rdoPAYPAL); break;
-		default:
-			logger.info("Input method '{}' is invalid. Selecting Bank-Transfer by default",  method); commons.click(elements.loc_tabBankTransfer); break;
-		}
-		getFinalizePackageInfo();
+
+	/**
+	 * Waits until a new window is launch then switch to it
+	 * @param initialWindowCount the current number of windows, usually 1
+	 */
+	void switchToNewWindow(String originalWindow) {
+	    int maxTries = 5;
+	    int sleepDuration = 1000;
+	    int attempts = 0;
+
+	    while (attempts < maxTries) {
+	        List<String> windowHandles = commons.getAllWindowHandles();
+	        if (windowHandles.size() > 1) {
+	            for (String windowHandle : windowHandles) {
+	                if (!windowHandle.equals(originalWindow)) {
+	                    commons.switchToWindow(windowHandle);
+	                    return;
+	                }
+	            }
+	        }
+	        commons.sleepInMiliSecond(sleepDuration, "Wait till a new window is launched");
+	        attempts++;
+	    }
+	}
+	void switchToOriginalWindow(String originalWindow) {
+	    int maxTries = 5;
+	    int sleepDuration = 2000;
+	    int attempts = 0;
+
+	    while (attempts < maxTries) {
+	        if (commons.getAllWindowHandles().size() == 1) {
+	            commons.switchToWindow(originalWindow);
+	            return;
+	        }
+	        commons.sleepInMiliSecond(sleepDuration, "Wait till the new window is closed");
+	        attempts++;
+	    }
+	}
+	
+	PackagePayment selectBankTransfer() {
+		commons.click(elements.loc_tabBankTransfer);
+		clickPlaceOrderBtn();
+		return this;
+	}
+	String completeBankTransfer() {
+		return getOrderId();
+	}
+	PackagePayment selectATM() {
+		commons.click(elements.loc_tabOnlinePayment);
+		commons.click(elements.loc_rdoATM);
 		clickPlaceOrderBtn();
 		commons.sleepInMiliSecond(1000);
-		logger.info("Selected payment method: " + method);
 		return this;
+	}
+	String completeATM() {
+		String currentWindowHandle = commons.getCurrentWindowHandle();
+		switchToNewWindow(currentWindowHandle);
+		new ATM(driver).completePayment();
+		switchToOriginalWindow(currentWindowHandle);
+		return getOrderId();
+	}
+	void abandonATM() {
+		String currentWindowHandle = commons.getCurrentWindowHandle();
+		switchToNewWindow(currentWindowHandle);
+		new ATM(driver).abandonPayment();
+		switchToOriginalWindow(currentWindowHandle);
+	}
+	PackagePayment selectVISA() {
+		commons.click(elements.loc_tabOnlinePayment);
+		commons.click(elements.loc_rdoVISA);
+		clickPlaceOrderBtn();
+		commons.sleepInMiliSecond(1000);
+		return this;
+	}
+	String completeVISA() {
+		String currentWindowHandle = commons.getCurrentWindowHandle();
+		switchToNewWindow(currentWindowHandle);
+		new VISA(driver).completePayment();
+		switchToOriginalWindow(currentWindowHandle);
+		return getOrderId();
+	}
+	void abandonVISA() {
+		String currentWindowHandle = commons.getCurrentWindowHandle();
+		switchToNewWindow(currentWindowHandle);
+		new VISA(driver).abandonPayment();
+		switchToOriginalWindow(currentWindowHandle);
+	}	
+	PackagePayment selectPayPal() {
+		
+		//Especial logic handling for PayPal
+		if (!isPayPalPrioritized()) {
+			commons.click(elements.loc_tabOnlinePayment);
+			commons.click(elements.loc_rdoPAYPAL);
+		}
+
+		selectPrioritizedPayPal();
+		return this;
+	}
+	PackagePayment selectPrioritizedPayPal() {
+		commons.switchToFrameByElement(commons.getElement(elements.loc_frmPayPal));
+		commons.click(elements.loc_btnPayPal);
+		commons.sleepInMiliSecond(1000);
+		return this;
+	}
+	String completePayPal() {
+		String currentWindowHandle = commons.getCurrentWindowHandle();
+		switchToNewWindow(currentWindowHandle);
+		new PAYPAL(driver).completePayment();
+		switchToOriginalWindow(currentWindowHandle);
+		return getOrderId();
+	}
+	void abandonPayPal() {
+		String currentWindowHandle = commons.getCurrentWindowHandle();
+		switchToNewWindow(currentWindowHandle);
+		new PAYPAL(driver).abandonPayment();
+		switchToOriginalWindow(currentWindowHandle);
 	}	
 	
 	//Will remove later
@@ -104,89 +280,67 @@ public class PackagePayment {
 		return selectPaymentMethod(PaymentMethod.valueOf(method));
 	}
 	
-	public String completePayment(PaymentMethod method) {
-		//Return orderId fast when the payment is Bank-Transfer
-		if (method.equals(PaymentMethod.BANKTRANSFER)) {
-			return getOrderId();
-		}
-		
-		//Get current tab handle
-		String currentWindowHandle = commons.getCurrentWindowHandle();
-		
-		int currentNumberOfWindows = 1;
-		
-		//Wait till a new tab is launch
-		for(int i=0; i<5; i++) {
-			currentNumberOfWindows = commons.getAllWindowHandles().size();
-			if (currentNumberOfWindows >1) break;
-			commons.sleepInMiliSecond(1000, "Wait till a new tab is launch");
-		}
-		
-		//Switch to the newly launched tab
-		commons.switchToWindow(1);
-		
+	public PackagePayment selectPaymentMethod(PaymentMethod method) {
 		switch (method) {
-		case ATM:
-			new ATM(driver).completePayment(); break;
-		case VISA:
-			new VISA(driver).completePayment(); break;
-		case PAYPAL:
-			new PAYPAL(driver).completePayment(); break;
-		default:
-			//No coding is needed
-			break;
+		case BANKTRANSFER -> selectBankTransfer();
+		case ATM -> selectATM();
+		case VISA -> selectVISA();
+		case PAYPAL -> selectPayPal();
+		default -> throw new IllegalArgumentException("Unexpected value: " + method);
 		}
-		
-		//Wait till the latest tab is closed
-		for (int i=9; i>=0; i--) {
-			if (commons.getAllWindowHandles().size() != currentNumberOfWindows) {
-				break;
-			}
-			commons.sleepInMiliSecond(2000);
-		}
-		commons.switchToWindow(currentWindowHandle);
-		return getOrderId();
-	}
-	
-	public String abandonPayment(PaymentMethod method) {
-		//Return orderId fast when the payment is Bank-Transfer
-		if (method.equals(PaymentMethod.BANKTRANSFER)) {
-			return getOrderId();
-		}
-		
-		//Get current tab handle
-		String currentWindowHandle = commons.getCurrentWindowHandle();
-		
-		int currentNumberOfWindows = 1;
-		
-		//Wait till a new tab is launch
-		for(int i=0; i<5; i++) {
-			currentNumberOfWindows = commons.getAllWindowHandles().size();
-			if (currentNumberOfWindows >1) break;
-			commons.sleepInMiliSecond(1000, "Wait till a new tab is launch");
-		}
-		
-		//Switch to the newly launched tab
-		commons.switchToWindow(1);
-		
-		switch (method) {
-		case ATM -> new ATM(driver).abandonPayment();
-		case VISA -> new VISA(driver).abandonPayment();
-		case PAYPAL -> new PAYPAL(driver).abandonPayment();
-		default -> System.out.println(); //No coding is needed
-		}
-		
-		//Wait till the latest tab is closed
-		for (int i=9; i>=0; i--) {
-			if (commons.getAllWindowHandles().size() != currentNumberOfWindows) {
-				break;
-			}
-			commons.sleepInMiliSecond(2000);
-		}
-		commons.switchToWindow(currentWindowHandle);
-		return "";
+		logger.info("Selected payment method: " + method);
+		return this;
 	}
 
+	public String completePayment(PaymentMethod method) {
+		return switch (method) {
+		case BANKTRANSFER: {
+			yield completeBankTransfer();
+		}
+		case ATM: {
+			yield completeATM();
+		}
+		case VISA: {
+			yield completeVISA();
+		}
+		case PAYPAL: {
+			yield completePayPal();
+		}
+		default:
+			throw new IllegalArgumentException("Unexpected value: " + method);
+		};
+	}	
+	
+	public String payThenComplete(PaymentMethod method) {
+		return switch (method) {
+		case BANKTRANSFER: {
+			yield selectPaymentMethod(PaymentMethod.BANKTRANSFER).completePayment(PaymentMethod.BANKTRANSFER);
+		}
+		case ATM: {
+			yield selectPaymentMethod(PaymentMethod.ATM).completePayment(PaymentMethod.ATM);
+		}
+		case VISA: {
+			yield selectPaymentMethod(PaymentMethod.VISA).completePayment(PaymentMethod.VISA);
+		}
+		case PAYPAL: {
+			yield selectPaymentMethod(PaymentMethod.PAYPAL).completePayment(PaymentMethod.PAYPAL);
+		}
+		default:
+			throw new IllegalArgumentException("Unexpected value: " + method);
+		};
+	}
+	
+	public void abandonPayment(PaymentMethod method) {
+		switch (method) {
+		case BANKTRANSFER -> {}
+		case ATM -> abandonATM();
+		case VISA -> abandonVISA();
+		case PAYPAL -> abandonPayPal();
+		default -> throw new IllegalArgumentException("Unexpected value: " + method);
+		};
+	}	
+	
+	//Will be removed
 	/**
 	 * @param method Input value: BANKTRANSFER/ATM/VISA/PAYPAL
 	 */
@@ -223,18 +377,18 @@ public class PackagePayment {
 			internal.openNewTabAndNavigateToInternalTool().login().navigateToPage("GoSell","Packages","New Packages");
 			internal.approveOrder(orderID).closeTab(); break;
 		}
-		case PAYPAL: {
-			internal.openNewTabAndNavigateToInternalTool().login().navigateToPage("GoSell","Packages","New Packages");
-			for (int i=0; i<15; i++) {
-				if (internal.getOrderApprovalStatus(orderID).contentEquals("Approved")) {
-					break;
-				}
-				commons.sleepInMiliSecond(3000);
-				commons.refreshPage();
-			}
-			internal.closeTab();
-			break;
-		}		
+//		case PAYPAL: {
+//			internal.openNewTabAndNavigateToInternalTool().login().navigateToPage("GoSell","Packages","New Packages");
+//			for (int i=0; i<15; i++) {
+//				if (internal.getOrderApprovalStatus(orderID).contentEquals("Approved")) {
+//					break;
+//				}
+//				commons.sleepInMiliSecond(3000);
+//				commons.refreshPage();
+//			}
+//			internal.closeTab();
+//			break;
+//		}		
 		default:
 			//No coding is needed
 		}

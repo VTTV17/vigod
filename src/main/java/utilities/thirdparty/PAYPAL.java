@@ -26,7 +26,7 @@ public class PAYPAL {
 	}
 
 	//Will move these locators to a separate file
-	By loc_btnCancel = By.id("cancelLink");
+	By loc_btnCancel = By.cssSelector("[data-testid='cancel-link']");
 	By loc_txtUsername = By.id("email");
 	By loc_btnNext = By.id("btnNext");
 	By loc_txtPassword = By.id("password");
@@ -78,6 +78,10 @@ public class PAYPAL {
 	}
 	
 	public PAYPAL abandonPayment() {
+		inputUsername(PAYPAL_USERNAME);
+		clickNext();
+		inputPassword(PAYPAL_PASSWORD);
+		clickLogin();
 		clickCancelBtn();
 		return this;
 	}		

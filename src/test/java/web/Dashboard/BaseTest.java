@@ -68,6 +68,6 @@ public class BaseTest {
 
     @AfterSuite
     void tearDownWeb() {
-//        if (driver != null) driver.quit();
+        if (driver != null) driver.quit();
     }
 }

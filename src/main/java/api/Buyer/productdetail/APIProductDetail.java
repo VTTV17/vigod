@@ -1,6 +1,7 @@
 package api.Buyer.productdetail;
 
 import api.Buyer.login.LoginSF;
+import api.Seller.login.Login;
 import io.restassured.response.Response;
 
 import org.apache.logging.log4j.LogManager;
@@ -9,6 +10,9 @@ import org.apache.logging.log4j.Logger;
 import utilities.api.API;
 import utilities.model.dashboard.storefront.loginSF;
 import utilities.model.sellerApp.login.LoginInformation;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class APIProductDetail {
     final static Logger logger = LogManager.getLogger(APIProductDetail.class);
@@ -32,7 +36,9 @@ public class APIProductDetail {
                     "langKey": "en"
                 }
                 """.formatted(itemId,quantity,branchId);
-        Response response =  api.post(ADD_TO_CART_PATH,loginInfo.getAccessToken(),body);
+        Map<String, String> headerMap = new HashMap<>();
+        headerMap.put("StoreId", String.valueOf(new Login().getInfo(loginInformation).getStoreID()));
+        Response response =  api.post(ADD_TO_CART_PATH,loginInfo.getAccessToken(),body,headerMap);
         response.then().statusCode(200);
         logger.info("Call api add to cart.");
     }

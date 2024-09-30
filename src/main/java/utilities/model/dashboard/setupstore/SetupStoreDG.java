@@ -6,15 +6,20 @@ import java.util.Random;
 import lombok.Data;
 import utilities.data.DataGenerator;
 import utilities.data.testdatagenerator.CountryTDG;
+import utilities.enums.Domain;
 import utilities.links.Links;
 
 @Data
 public class SetupStoreDG {
 
-	String domain;
+	public SetupStoreDG(Domain domain) {
+		this.domain = domain;
+	}
+	
+	Domain domain;
 	String referralCode;
 	String accountType;
-	String url;
+	String storeURL;
 	
 	String email;
 	String phone;
@@ -58,8 +63,7 @@ public class SetupStoreDG {
 		password = "fortesting!1";
 		isContactProvided = new Random().nextBoolean();
 
-		if (domain==null) domain = DataGenerator.getRandomListElement(Arrays.asList(new String[] {Links.DOMAIN + Links.SIGNUP_PATH, Links.DOMAIN_BIZ + Links.SIGNUP_PATH}));
-		referralCode = "REFFERAL" + countryCode;
+		referralCode = (new Random().nextBoolean()) ? "REFFERAL" + countryCode : "";
 	}
 	
 	public void randomStoreData() {

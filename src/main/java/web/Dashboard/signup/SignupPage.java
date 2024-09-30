@@ -12,6 +12,9 @@ import org.testng.asserts.SoftAssert;
 
 import utilities.api.thirdparty.KibanaAPI;
 import utilities.commons.UICommonAction;
+import utilities.enums.DisplayLanguage;
+import utilities.enums.Domain;
+import utilities.links.Links;
 import utilities.model.dashboard.setupstore.SetupStoreDG;
 import utilities.utils.PropertiesUtil;
 import web.Dashboard.home.HomePage;
@@ -48,13 +51,12 @@ public class SignupPage {
     By loc_txtUsername = By.id("username");
     By loc_txtPassword = By.id("password");
     By loc_txtReferralCode = By.id("refCode");
-    By loc_btnSignup = By.cssSelector("button.uik-btn__iconRight");
+    By loc_btnSignup = By.cssSelector("form button[type='submit']");
     
     By loc_txtVerificationCode = By.id("verifyCode");
     By loc_lnkResendOTP = By.cssSelector(".resend-otp span.send-code");
     By loc_lblInvalidFeedback = By.cssSelector(".invalid-feedback");
-    static public By loc_btnConfirm = By.cssSelector("button.button-v2.confirm-button"); //Work at verification screen and Setup Store screen
-    
+    By loc_btnConfirm = By.cssSelector("form.verify-signup-container button[type='submit']");
     By loc_lnkLogout = By.xpath("//div[contains(@class,'package-steps')]/following-sibling::*/a");
     
     By loc_lblSignupFailError = By.cssSelector(".alert__wrapper");
@@ -72,6 +74,15 @@ public class SignupPage {
         return navigate(DOMAIN + SIGNUP_PATH);
     }
 
+	public SignupPage navigateToPage(Domain domain, DisplayLanguage lang) {
+		switch (domain) {
+			case VN -> navigate().selectDisplayLanguage(lang);
+			case BIZ -> navigate(Links.DOMAIN_BIZ + SIGNUP_PATH);
+			default -> throw new IllegalArgumentException("Unexpected value: " + domain);
+		}
+		return this;
+	}
+    
     public boolean isLanguageDropdownDisplayed() {
 		boolean isDisplayed = !commonAction.getElements(LoginPage.loc_ddlLanguage).isEmpty();
 		logger.info("Is Display Language Dropdown displayed: {}", isDisplayed);
@@ -80,6 +91,11 @@ public class SignupPage {
 	public SignupPage selectDisplayLanguage(String language) {
 		//Temporarily use the same function from LoginPage. Will think of a better way to handle this
 		new LoginPage(driver).selectDisplayLanguage(language);
+		return this;
+	}    
+	public SignupPage selectDisplayLanguage(DisplayLanguage lang) {
+		//Temporarily use the same function from LoginPage. Will think of a better way to handle this
+		new LoginPage(driver).selectDisplayLanguage(lang);
 		return this;
 	}    
     public SignupPage selectCountry(String country) {
@@ -196,24 +212,38 @@ public class SignupPage {
 //		clickCompleteBtn();
 	}    
     
+	public String getUsernameExistError() {
+		String text = commonAction.getText(loc_lblSignupFailError);
+		logger.info("Retrieve Username Exists error: {}", text);
+		return text;
+	}
     public SignupPage verifyUsernameExistError(String signupLanguage) throws Exception {
-    	String text = commonAction.getText(loc_lblSignupFailError, 1);
-    	logger.info("Retrieve Username Exists error: {}", text);
     	String retrievedMsg = PropertiesUtil.getPropertiesValueByDBLang("signup.screen.error.userExists", signupLanguage);
-    	soft.assertEquals(text,retrievedMsg, "[Signup][Username already exists] Message does not match.");
+    	Assert.assertEquals(getUsernameExistError(),retrievedMsg, "Username exists error");
     	logger.info("verifyUsernameExistError completed");
     	return this;
     }
     
+    public String getVerificationCodeError() {
+    	String text = commonAction.getText(loc_lblInvalidFeedback);
+    	logger.info("Retrieve Verification Code error: {}", text);
+    	return text;
+    }
+    public SignupPage verifyVerificationCodeError(DisplayLanguage language) throws Exception {
+    	String retrievedMsg = PropertiesUtil.getPropertiesValueByDBLang("signup.screen.error.wrongVerificationCode", language.name());
+    	Assert.assertEquals(getVerificationCodeError(), retrievedMsg, "Verification Code error");
+    	logger.info("verifyVerificationCodeError completed");
+    	return this;
+    }
+    //Will be eradicated
     public SignupPage verifyVerificationCodeError(String signupLanguage) throws Exception {
-        String text = commonAction.getText(loc_lblInvalidFeedback);
-        logger.info("Retrieve Verification Code error: {}", text);
     	String retrievedMsg = PropertiesUtil.getPropertiesValueByDBLang("signup.screen.error.wrongVerificationCode", signupLanguage);
-    	Assert.assertEquals(text,retrievedMsg, "[Signup][Wrong Verification Code] Message does not match.");
+    	Assert.assertEquals(getVerificationCodeError(), retrievedMsg, "Verification Code error");
         logger.info("verifyVerificationCodeError completed");
         return this;
     }
 
+    //Remove be eradicated
     public void completeVerify() {
         soft.assertAll();
     }

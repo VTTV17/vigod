@@ -24,10 +24,10 @@ public class CreateArticle {
 
 	By loc_txtArticleName = By.id("title");
 	By loc_txaDescription = By.cssSelector(".fr-view");
-	By loc_btnSave = By.cssSelector(".gs-button__green");
+	By loc_btnSave = By.xpath("//button[string()='Save' or string()='Lưu']");
 	By loc_ddlCategory = By.xpath("//input[contains(@id,'input')]/parent::div");
 	By loc_ddlCategory_lstOption = By.xpath("//div[contains(@id,'option')]");
-	By loc_btnEditTranslation = By.xpath("//button[contains(@class,'gs-button__green')]/preceding-sibling::button");
+	By loc_btnEditTranslation =  By.xpath("//button[string()='Sửa bản dịch' or string()='Edit Translation']");
 	By loc_dlgEditTranslation_btnSave = By.cssSelector(".modal-footer .gs-button__green");
 	public CreateArticle inputTitleName(String articleTitle) {
 		commonAction.sendKeys(loc_txtArticleName, articleTitle);

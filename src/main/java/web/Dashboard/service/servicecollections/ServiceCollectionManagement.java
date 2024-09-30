@@ -159,15 +159,16 @@ public class ServiceCollectionManagement {
 		return this;
 	}
 	public String getTheFirstCollectionName() {
+		commonAction.getElements(loc_lst_lblServiceCollectionName,3);
 		String name = commonAction.getText(loc_lst_lblServiceCollectionName,0);
 		logger.info("Get the first collection name in list: " + name);
 		return name;
 	}
-	public ServiceCollectionManagement navigate(){
-		HomePage home = new HomePage(driver);
-		home.navigateToPage("Services", "Service Collections");
-		return this;
-	}
+//	public ServiceCollectionManagement navigate(){
+//		HomePage home = new HomePage(driver);
+//		home.navigateToPage("Services", "Service Collections");
+////		return this;
+//	}
 	public ServiceCollectionManagement navigateToServiceCollectUrl(){
 		commonAction.navigateToURL(Links.DOMAIN+"/collection_service/list");
 		logger.info("Navigate to service list.");

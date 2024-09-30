@@ -1,0 +1,597 @@
+package web.StoreFront;
+
+import static utilities.account.AccountTest.ADMIN_COUNTRY_TIEN;
+import static utilities.account.AccountTest.ADMIN_PASSWORD_TIEN;
+import static utilities.account.AccountTest.ADMIN_USERNAME_TIEN;
+import static utilities.links.Links.SF_DOMAIN;
+
+import java.util.List;
+import java.util.Random;
+import java.util.stream.Collectors;
+
+import org.testng.Assert;
+import org.testng.ITestResult;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
+
+import api.Buyer.login.LoginSF;
+import api.Seller.login.Login;
+import api.Seller.setting.StoreInformation;
+import api.Seller.setting.StoreLanguageAPI;
+import io.restassured.path.json.JsonPath;
+import utilities.account.AccountTest;
+import utilities.api.thirdparty.KibanaAPI;
+import utilities.commons.UICommonAction;
+import utilities.data.DataGenerator;
+import utilities.data.testdatagenerator.SignupBuyerTDG;
+import utilities.driver.InitWebdriver;
+import utilities.enums.AccountType;
+import utilities.enums.DisplayLanguage;
+import utilities.enums.Domain;
+import utilities.model.dashboard.setting.languages.AdditionalLanguages;
+import utilities.model.dashboard.storefront.BuyerSignupData;
+import utilities.model.sellerApp.login.LoginInformation;
+import web.Dashboard.customers.allcustomers.AllCustomers;
+import web.Dashboard.customers.allcustomers.details.CustomerDetails;
+import web.StoreFront.header.HeaderSF;
+import web.StoreFront.login.LoginPage;
+import web.StoreFront.signup.SignupPage;
+import web.StoreFront.userprofile.MyAccount.MyAccount;
+import web.StoreFront.userprofile.userprofileinfo.UserProfileInfo;
+
+public class RefactoredSignupSF extends BaseTest {
+	
+	Domain primaryDomain;
+	DisplayLanguage primaryLanguage;
+	
+	SignupPage signupPage;
+	HeaderSF headerSection;
+
+	String sellerCountry, sellerUsername, sellerPassword, sellerSFURL;
+	LoginInformation sellerCredentials;
+	
+	LoginSF loginSFAPI;
+	
+	List<AdditionalLanguages> publishedLanguages;
+	
+	@BeforeClass
+	void loadData() {
+		
+		primaryDomain = Domain.valueOf(domain);
+		primaryLanguage = DisplayLanguage.valueOf(language);
+		
+		if(primaryDomain.equals(Domain.VN)) {
+			sellerCountry = ADMIN_COUNTRY_TIEN;
+			sellerUsername = ADMIN_USERNAME_TIEN;
+			sellerPassword = ADMIN_PASSWORD_TIEN;
+		} else {
+			sellerCountry = AccountTest.ADMIN_MAIL_BIZ_COUNTRY;
+			sellerUsername = AccountTest.ADMIN_MAIL_BIZ_USERNAME;
+			sellerPassword = AccountTest.ADMIN_MAIL_BIZ_PASSWORD;
+		}
+		
+		sellerCredentials = new Login().setLoginInformation(DataGenerator.getPhoneCode(sellerCountry), sellerUsername, sellerPassword).getLoginInformation();
+		
+        publishedLanguages = new StoreLanguageAPI(sellerCredentials).getAdditionalLanguages();
+		
+		sellerSFURL = "https://%s".formatted(new StoreInformation(sellerCredentials).getInfo().getStoreURL() + SF_DOMAIN);
+		
+		loginSFAPI = new LoginSF(sellerCredentials);
+        
+	}
+	
+	String getActivationKey(BuyerSignupData data) {
+		return new KibanaAPI().getKeyFromKibana(data.getUsername().matches("^\\d+$") ? "%s:%s".formatted(data.getPhoneCode(), data.getUsername()) : data.getUsername(), "activationKey");
+	}	
+	
+	String randomSFDisplayLanguage() {
+        Random random = new Random();
+        return publishedLanguages.stream()
+        		.filter(AdditionalLanguages::getPublished)
+        		.map(AdditionalLanguages::getLangCode)
+        		.collect(Collectors.collectingAndThen(Collectors.toList(), collected -> collected.get(random.nextInt(collected.size()))));
+	}	
+
+	@BeforeMethod
+	void instantiatePageObjects() {
+		driver = new InitWebdriver().getDriver(browser, headless);
+		signupPage = new SignupPage(driver);
+		commonAction = new UICommonAction(driver);
+		headerSection = new HeaderSF(driver);
+	}	
+
+	/**
+	 * Quickly create an account on SF to test other functionalities
+	 * @param buyerData
+	 * @param langCode language code of the store's published language. Eg. vi, en-au, lo
+	 */
+	void createAccountOnSF(BuyerSignupData buyerData, String langCode) {
+		signupPage.navigate(sellerSFURL);
+		
+		headerSection.clickUserInfoIcon()
+			.changeLanguageByLangCode(langCode);
+		
+		signupPage.fillOutSignupForm(buyerData)
+			.inputVerificationCode(getActivationKey(buyerData))
+			.clickConfirmBtn();
+		
+		if (buyerData.getType().equals(AccountType.MOBILE)) 
+			signupPage.inputEmail(buyerData.getEmail()).clickCompleteBtn();
+		
+		headerSection.clickUserInfoIcon()
+			.clickLogout();
+	}
+	
+	@DataProvider
+	Object[][] accountDataProvider() {
+		return new Object[][] { 
+			{SignupBuyerTDG.buildSignupByEmailData()},
+			{SignupBuyerTDG.buildSignupByPhoneData()},
+		};
+	}
+	
+	@Test(dataProvider = "accountDataProvider")
+	void TC_CreateAccountWithInvalidData(BuyerSignupData buyerData) {
+		
+		//Arrange expected results
+		var expectedEmptyUsernameError = SignupPage.localizedEmptyUsernameError(primaryLanguage);
+		var expectedEmptyPasswordError = SignupPage.localizedEmptyPasswordError(primaryLanguage);
+		var expectedEmptyNameError = SignupPage.localizedEmptyNameError(primaryLanguage);
+		var expectedInvalidUsernameFormatError = SignupPage.localizedInvalidUsernameError(primaryLanguage);
+		
+		
+		//Try creating an account with invalid data
+		signupPage.navigate(sellerSFURL);
+		
+		headerSection.clickUserInfoIcon()
+			.changeLanguage(language);
+		
+		var actualEmptyUsernameError = signupPage.navigate(sellerSFURL)
+				.fillOutSignupForm(buyerData.getCountry(), "", buyerData.getPassword(), buyerData.getDisplayName(), buyerData.getBirthday())
+				.getUsernameError();
+
+		var actualEmptyPasswordError = signupPage.navigate(sellerSFURL)
+				.fillOutSignupForm(buyerData.getCountry(), buyerData.getUsername(), "", buyerData.getDisplayName(), buyerData.getBirthday())
+				.getPasswordError();
+
+		var actualEmptyNameError = signupPage.navigate(sellerSFURL)
+				.fillOutSignupForm(buyerData.getCountry(), buyerData.getUsername(), buyerData.getPassword(), "", buyerData.getBirthday())
+				.getDisplayNameError();
+		
+		var invalidUsername = buyerData.getType().equals(AccountType.MOBILE) ? "098745" : "automation_mail.com";
+		var actualInvalidUsernameFormatError = signupPage.navigate(sellerSFURL)
+				.fillOutSignupForm(buyerData.getCountry(), invalidUsername, buyerData.getPassword(), buyerData.getDisplayName(), buyerData.getBirthday())
+				.getUsernameError();
+
+		
+		//Assertions for errors
+		Assert.assertEquals(actualEmptyUsernameError, expectedEmptyUsernameError);
+		Assert.assertEquals(actualEmptyPasswordError, expectedEmptyPasswordError);
+		Assert.assertEquals(actualEmptyNameError, expectedEmptyNameError);
+		Assert.assertEquals(actualInvalidUsernameFormatError, expectedInvalidUsernameFormatError);
+	}	
+
+	@Test(dataProvider = "accountDataProvider")
+	void TC_CreateAccountWithExistingUsername(BuyerSignupData buyerData) {
+		
+		//Arrange expected results
+		var expectedError = buyerData.getType().equals(AccountType.MOBILE) 
+				? SignupPage.localizedPhoneAlreadyExistError(primaryLanguage) 
+						: SignupPage.localizedEmailAlreadyExistError(primaryLanguage);
+		
+		
+		//Create an account
+		createAccountOnSF(buyerData, randomSFDisplayLanguage());
+		
+		//Try creating an account with the same username
+		headerSection.clickUserInfoIcon()
+			.changeLanguage(language);
+		
+		String actualError = signupPage.fillOutSignupForm(buyerData)
+			.getUsernameExistError();
+		
+		//Assertions for error
+		Assert.assertEquals(actualError, expectedError);
+		
+		
+		//Delete account afterwards
+		loginSFAPI.deleteAccount(buyerData.getUsername(), buyerData.getPassword(), buyerData.getPhoneCode());
+	}
+
+	@Test(dataProvider = "accountDataProvider")
+	void TC_CreateAccountWithWrongVerificationCode(BuyerSignupData buyerData) {
+		
+		//Arrange expected results
+		var expectedError = SignupPage.localizedWrongVerificationCodeError(primaryLanguage);
+		var expected_UserProfile_Name = buyerData.getDisplayName();
+		var expected_UserProfile_Email = buyerData.getEmail();
+		var expected_UserProfile_Birthday = buyerData.getBirthday();
+		var expected_UserProfile_Phone = "%s:%s".formatted(buyerData.getPhoneCode(), buyerData.getUsername());
+		var expected_UserProfile_Country = buyerData.getCountry();
+		var expected_API_LocationCode = buyerData.getCountryCode();
+		var expected_API_LangKey = randomSFDisplayLanguage();
+		
+		//Create an account on SF
+		signupPage.navigate(sellerSFURL);
+		
+		headerSection.clickUserInfoIcon()
+			.changeLanguage(language);
+		
+		signupPage.fillOutSignupForm(buyerData);
+		
+		//Get verification code
+		String code = getActivationKey(buyerData);
+		
+		//Input a wrong verification code
+		signupPage.inputVerificationCode(String.valueOf(Integer.parseInt(code) - 1))
+			.clickConfirmBtn();
+		
+		var actualError = signupPage.getVerificationCodeError();
+		
+		
+		//Assertions for error
+		Assert.assertEquals(actualError, expectedError);
+		
+		
+		//Input the correct code
+		signupPage.inputVerificationCode(code)
+			.clickConfirmBtn();
+		
+		if (buyerData.getType().equals(AccountType.MOBILE)) 
+			signupPage.inputEmail(buyerData.getEmail()).clickCompleteBtn();
+		
+		// Logout
+		headerSection.clickUserInfoIcon()
+			.clickLogout();
+		
+		// Re-login
+		new LoginPage(driver).navigate(sellerSFURL)
+			.performLogin(buyerData.getCountry(), buyerData.getUsername(), buyerData.getPassword());
+		
+		//Retrieve info on SF
+		MyAccount accountPage = headerSection.clickUserInfoIcon()
+			.clickUserProfile()
+			.clickMyAccountSection();
+		var actual_SF_Name = accountPage.getDisplayName();
+		var actual_SF_Email = accountPage.getEmail();
+		var actual_SF_Birthday = accountPage.getBirthday();
+		var actual_SF_Phone = accountPage.getPhoneNumber();
+		var actual_SF_Country = new UserProfileInfo(driver).clickMyAddressSection().getCountry();
+		
+		//Retrieve info on Dashboard
+		new web.Dashboard.login.LoginPage(driver).navigateToPage(primaryDomain, primaryLanguage)
+			.performValidLogin(sellerCountry, sellerUsername, sellerPassword);
+
+		CustomerDetails customerDetailPage = new AllCustomers(driver, primaryDomain).navigateUsingURL()
+			.selectBranch("NONE")
+			.clickUser(buyerData.getDisplayName());
+		var actualDashboardEmail = customerDetailPage.getEmail();
+		var actualDashboardPhone = customerDetailPage.getPhoneNumber();
+		var actualDashboardCountry = customerDetailPage.getCountry();
+		
+		//Retrieve info from API
+		JsonPath buyerAdditionalData = loginSFAPI.getAccountInfo(buyerData.getUsername(), buyerData.getPassword(), buyerData.getPhoneCode()).jsonPath();
+		var actual_API_langKey = buyerAdditionalData.getString("langKey");
+		var actual_API_LocationCode = buyerAdditionalData.getString("locationCode");
+
+		
+		//Assertions for SF
+		Assert.assertEquals(actual_SF_Name, expected_UserProfile_Name);
+		Assert.assertEquals(actual_SF_Email, expected_UserProfile_Email);
+		Assert.assertEquals(actual_SF_Birthday, expected_UserProfile_Birthday);
+		if (buyerData.getType().equals(AccountType.MOBILE)) Assert.assertEquals(actual_SF_Phone, expected_UserProfile_Phone);
+		Assert.assertEquals(actual_SF_Country, expected_UserProfile_Country);
+		
+		//Assertions for Dashboard
+		Assert.assertEquals(actualDashboardEmail, expected_UserProfile_Email);
+		if (buyerData.getType().equals(AccountType.MOBILE)) Assert.assertEquals(actualDashboardPhone, expected_UserProfile_Phone);
+		Assert.assertEquals(actualDashboardCountry, expected_UserProfile_Country);
+		
+		//Assertions for API
+		Assert.assertEquals(actual_API_LocationCode, expected_API_LocationCode);
+		Assert.assertEquals(actual_API_langKey, expected_API_LangKey);
+		
+		
+		//Delete account afterwards
+		loginSFAPI.deleteAccount(buyerData.getUsername(), buyerData.getPassword(), buyerData.getPhoneCode());
+	}		
+
+	@Test(dataProvider = "accountDataProvider")
+	void TC_CreateAccountWithResentVerificationCode(BuyerSignupData buyerData) {
+		
+		//Arrange expected results
+		var expected_UserProfile_Name = buyerData.getDisplayName();
+		var expected_UserProfile_Email = buyerData.getEmail();
+		var expected_UserProfile_Birthday = buyerData.getBirthday();
+		var expected_UserProfile_Phone = "%s:%s".formatted(buyerData.getPhoneCode(), buyerData.getUsername());
+		var expected_UserProfile_Country = buyerData.getCountry();
+		var expected_API_LocationCode = buyerData.getCountryCode();
+		
+		
+		//Create an account on SF
+		signupPage.navigate(sellerSFURL);
+		
+		headerSection.clickUserInfoIcon()
+			.changeLanguage(language);
+		
+		signupPage.fillOutSignupForm(buyerData);
+		
+		//Get 1st verification code
+		var initialCode = getActivationKey(buyerData);
+		
+		if (buyerData.getType().equals(AccountType.MOBILE)) commonAction.sleepInMiliSecond(60000, "Wait 60s before hitting Resend button");
+		
+		//Resend verification code
+		signupPage.clickResendOTP();
+		
+		//Input old verification code
+		signupPage.inputVerificationCode(initialCode)
+			.clickConfirmBtn();
+		
+		signupPage.getVerificationCodeError();
+
+		var resentCode = getActivationKey(buyerData);
+		
+		
+		//Assertions for resent code
+		Assert.assertNotEquals(resentCode, initialCode);
+		
+		
+		//Input resent verification code
+		signupPage.inputVerificationCode(resentCode)
+			.clickConfirmBtn();
+		
+		if (buyerData.getType().equals(AccountType.MOBILE)) 
+			signupPage.inputEmail(buyerData.getEmail()).clickCompleteBtn();
+		
+		// Logout
+		headerSection.clickUserInfoIcon()
+			.clickLogout();
+		
+		// Re-login
+		new LoginPage(driver).navigate(sellerSFURL)
+			.performLogin(buyerData.getCountry(), buyerData.getUsername(), buyerData.getPassword());
+		
+		//Retrieve info on SF
+		MyAccount accountPage = headerSection.clickUserInfoIcon()
+			.clickUserProfile()
+			.clickMyAccountSection();
+		var actual_SF_Name = accountPage.getDisplayName();
+		var actual_SF_Email = accountPage.getEmail();
+		var actual_SF_Birthday = accountPage.getBirthday();
+		var actual_SF_Phone = accountPage.getPhoneNumber();
+		var actual_SF_Country = new UserProfileInfo(driver).clickMyAddressSection().getCountry();
+		
+		//Retrieve info on Dashboard
+		new web.Dashboard.login.LoginPage(driver).navigateToPage(primaryDomain, primaryLanguage)
+			.performValidLogin(sellerCountry, sellerUsername, sellerPassword);
+
+		CustomerDetails customerDetailPage = new AllCustomers(driver, primaryDomain).navigateUsingURL()
+			.selectBranch("NONE")
+			.clickUser(buyerData.getDisplayName());
+		var actualDashboardEmail = customerDetailPage.getEmail();
+		var actualDashboardPhone = customerDetailPage.getPhoneNumber();
+		var actualDashboardCountry = customerDetailPage.getCountry();
+		
+		//Retrieve info from API
+		JsonPath buyerAdditionalData = loginSFAPI.getAccountInfo(buyerData.getUsername(), buyerData.getPassword(), buyerData.getPhoneCode()).jsonPath();
+		var actual_API_langKey = buyerAdditionalData.getString("langKey");
+		var actual_API_LocationCode = buyerAdditionalData.getString("locationCode");
+		System.out.println(actual_API_langKey);
+
+		
+		//Assertions for SF
+		Assert.assertEquals(actual_SF_Name, expected_UserProfile_Name);
+		Assert.assertEquals(actual_SF_Email, expected_UserProfile_Email);
+		Assert.assertEquals(actual_SF_Birthday, expected_UserProfile_Birthday);
+		if (buyerData.getType().equals(AccountType.MOBILE)) Assert.assertEquals(actual_SF_Phone, expected_UserProfile_Phone);
+		Assert.assertEquals(actual_SF_Country, expected_UserProfile_Country);
+		
+		//Assertions for Dashboard
+		Assert.assertEquals(actualDashboardEmail, expected_UserProfile_Email);
+		if (buyerData.getType().equals(AccountType.MOBILE)) Assert.assertEquals(actualDashboardPhone, expected_UserProfile_Phone);
+		Assert.assertEquals(actualDashboardCountry, expected_UserProfile_Country);
+		
+		//Assertions for API
+		Assert.assertEquals(actual_API_LocationCode, expected_API_LocationCode);
+		
+		
+		//Delete account afterwards
+		loginSFAPI.deleteAccount(buyerData.getUsername(), buyerData.getPassword(), buyerData.getPhoneCode());
+	}
+	
+	@Test(dataProvider = "accountDataProvider")
+	void TC_CreateAccountAfterLeaving(BuyerSignupData buyerData) {
+		
+		//Arrange expected results
+		var expected_UserProfile_Name = buyerData.getDisplayName();
+		var expected_UserProfile_Email = buyerData.getEmail();
+		var expected_UserProfile_Birthday = buyerData.getBirthday();
+		var expected_UserProfile_Phone = "%s:%s".formatted(buyerData.getPhoneCode(), buyerData.getUsername());
+		var expected_UserProfile_Country = buyerData.getCountry();
+		var expected_API_LocationCode = buyerData.getCountryCode();
+		var expected_API_LangKey = randomSFDisplayLanguage();
+		
+		
+		//Create an account on SF
+		signupPage.navigate(sellerSFURL);
+		
+		headerSection.clickUserInfoIcon()
+		.changeLanguageByLangCode(expected_API_LangKey);
+		
+		signupPage.fillOutSignupForm(buyerData);
+		
+		//Delete cookies at Verification Code screen
+		driver.manage().deleteAllCookies();
+		commonAction.refreshPage();		
+		
+		//Create the account again
+		headerSection.clickUserInfoIcon()
+		.changeLanguageByLangCode(expected_API_LangKey);
+		
+		signupPage.fillOutSignupForm(buyerData)
+		.inputVerificationCode(getActivationKey(buyerData))
+		.clickConfirmBtn();
+		
+		if (buyerData.getType().equals(AccountType.MOBILE)) 
+			signupPage.inputEmail(buyerData.getEmail()).clickCompleteBtn();
+		
+		// Logout
+		headerSection.clickUserInfoIcon()
+		.clickLogout();
+		
+		// Re-login
+		new LoginPage(driver).navigate(sellerSFURL)
+		.performLogin(buyerData.getCountry(), buyerData.getUsername(), buyerData.getPassword());
+		
+		//Retrieve info on SF
+		MyAccount accountPage = headerSection.clickUserInfoIcon()
+				.clickUserProfile()
+				.clickMyAccountSection();
+		var actual_SF_Name = accountPage.getDisplayName();
+		var actual_SF_Email = accountPage.getEmail();
+		var actual_SF_Birthday = accountPage.getBirthday();
+		var actual_SF_Phone = accountPage.getPhoneNumber();
+		var actual_SF_Country = new UserProfileInfo(driver).clickMyAddressSection().getCountry();
+		
+		//Retrieve info on Dashboard
+		new web.Dashboard.login.LoginPage(driver).navigateToPage(primaryDomain, primaryLanguage)
+		.performValidLogin(sellerCountry, sellerUsername, sellerPassword);
+		
+		CustomerDetails customerDetailPage = new AllCustomers(driver, primaryDomain).navigateUsingURL()
+				.selectBranch("NONE")
+				.clickUser(buyerData.getDisplayName());
+		var actualDashboardEmail = customerDetailPage.getEmail();
+		var actualDashboardPhone = customerDetailPage.getPhoneNumber();
+		var actualDashboardCountry = customerDetailPage.getCountry();
+		
+		//Retrieve info from API
+		JsonPath buyerAdditionalData = loginSFAPI.getAccountInfo(buyerData.getUsername(), buyerData.getPassword(), buyerData.getPhoneCode()).jsonPath();
+		var actual_API_langKey = buyerAdditionalData.getString("langKey");
+		var actual_API_LocationCode = buyerAdditionalData.getString("locationCode");
+		
+		
+		//Assertions for SF
+		Assert.assertEquals(actual_SF_Name, expected_UserProfile_Name);
+		Assert.assertEquals(actual_SF_Email, expected_UserProfile_Email);
+		Assert.assertEquals(actual_SF_Birthday, expected_UserProfile_Birthday);
+		if (buyerData.getType().equals(AccountType.MOBILE)) Assert.assertEquals(actual_SF_Phone, expected_UserProfile_Phone);
+		Assert.assertEquals(actual_SF_Country, expected_UserProfile_Country);
+		
+		//Assertions for Dashboard
+		Assert.assertEquals(actualDashboardEmail, expected_UserProfile_Email);
+		if (buyerData.getType().equals(AccountType.MOBILE)) Assert.assertEquals(actualDashboardPhone, expected_UserProfile_Phone);
+		Assert.assertEquals(actualDashboardCountry, expected_UserProfile_Country);
+		
+		//Assertions for API
+		Assert.assertEquals(actual_API_LocationCode, expected_API_LocationCode);
+		Assert.assertEquals(actual_API_langKey, expected_API_LangKey);
+		
+		
+		//Delete account afterwards
+		loginSFAPI.deleteAccount(buyerData.getUsername(), buyerData.getPassword(), buyerData.getPhoneCode());
+	}
+	
+	@Test(dataProvider = "accountDataProvider")
+	void TC_CreateAccount(BuyerSignupData buyerData) {
+		
+		//Arrange expected results
+		var expected_UserProfile_Name = buyerData.getDisplayName();
+		var expected_UserProfile_Email = buyerData.getEmail();
+		var expected_UserProfile_Birthday = buyerData.getBirthday();
+		var expected_UserProfile_Phone = "%s:%s".formatted(buyerData.getPhoneCode(), buyerData.getUsername());
+		var expected_UserProfile_Country = buyerData.getCountry();
+		var expected_API_LocationCode = buyerData.getCountryCode();
+		var expected_API_LangKey = randomSFDisplayLanguage();
+		
+		
+		//Create an account on SF
+		signupPage.navigate(sellerSFURL);
+		
+		headerSection.clickUserInfoIcon()
+			.changeLanguageByLangCode(expected_API_LangKey);
+		
+		signupPage.fillOutSignupForm(buyerData)
+			.inputVerificationCode(getActivationKey(buyerData))
+			.clickConfirmBtn();
+		
+		if (buyerData.getType().equals(AccountType.MOBILE)) 
+			signupPage.inputEmail(buyerData.getEmail()).clickCompleteBtn();
+		
+		// Logout
+		headerSection.clickUserInfoIcon()
+			.clickLogout();
+		
+		// Re-login
+		new LoginPage(driver).navigate(sellerSFURL)
+			.performLogin(buyerData.getCountry(), buyerData.getUsername(), buyerData.getPassword());
+		
+		//Retrieve info on SF
+		MyAccount accountPage = headerSection.clickUserInfoIcon()
+			.clickUserProfile()
+			.clickMyAccountSection();
+		var actual_SF_Name = accountPage.getDisplayName();
+		var actual_SF_Email = accountPage.getEmail();
+		var actual_SF_Birthday = accountPage.getBirthday();
+		var actual_SF_Phone = accountPage.getPhoneNumber();
+		var actual_SF_Country = new UserProfileInfo(driver).clickMyAddressSection().getCountry();
+		
+		//Retrieve info on Dashboard
+		new web.Dashboard.login.LoginPage(driver).navigateToPage(primaryDomain, primaryLanguage)
+			.performValidLogin(sellerCountry, sellerUsername, sellerPassword);
+
+		CustomerDetails customerDetailPage = new AllCustomers(driver, primaryDomain).navigateUsingURL()
+			.selectBranch("NONE")
+			.clickUser(buyerData.getDisplayName());
+		var actualDashboardEmail = customerDetailPage.getEmail();
+		var actualDashboardPhone = customerDetailPage.getPhoneNumber();
+		var actualDashboardCountry = customerDetailPage.getCountry();
+		
+		//Retrieve info from API
+		JsonPath buyerAdditionalData = loginSFAPI.getAccountInfo(buyerData.getUsername(), buyerData.getPassword(), buyerData.getPhoneCode()).jsonPath();
+		var actual_API_langKey = buyerAdditionalData.getString("langKey");
+		var actual_API_LocationCode = buyerAdditionalData.getString("locationCode");
+
+		
+		//Assertions for SF
+		Assert.assertEquals(actual_SF_Name, expected_UserProfile_Name);
+		Assert.assertEquals(actual_SF_Email, expected_UserProfile_Email);
+		Assert.assertEquals(actual_SF_Birthday, expected_UserProfile_Birthday);
+		if (buyerData.getType().equals(AccountType.MOBILE)) Assert.assertEquals(actual_SF_Phone, expected_UserProfile_Phone);
+		Assert.assertEquals(actual_SF_Country, expected_UserProfile_Country);
+		
+		//Assertions for Dashboard
+		Assert.assertEquals(actualDashboardEmail, expected_UserProfile_Email);
+		if (buyerData.getType().equals(AccountType.MOBILE)) Assert.assertEquals(actualDashboardPhone, expected_UserProfile_Phone);
+		Assert.assertEquals(actualDashboardCountry, expected_UserProfile_Country);
+		
+		//Assertions for API
+		Assert.assertEquals(actual_API_LocationCode, expected_API_LocationCode);
+		Assert.assertEquals(actual_API_langKey, expected_API_LangKey);
+		
+		
+		//Delete account afterwards
+		loginSFAPI.deleteAccount(buyerData.getUsername(), buyerData.getPassword(), buyerData.getPhoneCode());
+	}
+
+	@DataProvider
+	Object[][] accountsToDelete() {
+		return new Object[][] { 
+			{"Belgium", "476518554"},
+		};
+	}	
+//	@Test(dataProvider = "accountsToDelete")
+	void deleteAccount(String country, String username) {
+		new LoginSF(sellerCredentials).deleteAccount(username, "fortesting!1", "+"+DataGenerator.getPhoneCode(country));
+	}		
+	
+    @AfterMethod
+    public void writeResult(ITestResult result) throws Exception {
+        super.writeResult(result);
+        driver.quit();
+    }	
+	
+}

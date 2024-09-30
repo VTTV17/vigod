@@ -281,8 +281,7 @@ public class BranchPage extends BranchElement {
 			
 			if (staffPermission.getSetting().getBranchManagement().isPurchaseBranch()) {
 				PackagePayment planPage = new PackagePayment(driver);
-				planPage.selectPaymentMethod(PaymentMethod.BANKTRANSFER);
-				planPage.completePayment(PaymentMethod.BANKTRANSFER);
+				planPage.payThenComplete(PaymentMethod.BANKTRANSFER);
 				Assert.assertTrue(!planPage.getOrderId().isEmpty(), "OrderId is not empty");
 				//We won't actually purchase branches as there's no way to delete branches
 			} else {

@@ -88,6 +88,7 @@ public class LoginPage {
         return this;
     }
     public LoginPage performLogin(String country, String username, String password) {
+    	new GeneralSF(driver).waitTillLoaderDisappear();
     	new HeaderSF(driver).clickUserInfoIcon().clickLoginIcon();
     	selectCountry(country).login(username, password);
     	return this;

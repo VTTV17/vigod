@@ -1,6 +1,7 @@
 package web.Dashboard.settings.storeinformation;
 
 import static utilities.links.Links.DOMAIN;
+import static utilities.links.Links.DOMAIN_BIZ;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -8,10 +9,12 @@ import org.openqa.selenium.WebDriver;
 import org.testng.Assert;
 
 import utilities.commons.UICommonAction;
+import utilities.enums.Domain;
 import utilities.model.staffPermission.AllPermissions;
 import utilities.permission.CheckPermission;
 import utilities.utils.PropertiesUtil;
 import web.Dashboard.home.HomePage;
+import web.Dashboard.settings.account.AccountPage;
 
 public class StoreInformation {
 
@@ -21,12 +24,18 @@ public class StoreInformation {
 	UICommonAction commonAction;
 	HomePage homePage;
 	StoreInfoPageElement elements;
+	
+	Domain domain;
 
 	public StoreInformation (WebDriver driver) {
 		this.driver = driver;
 		commonAction = new UICommonAction(driver);
 		homePage = new HomePage(driver);
 		elements = new StoreInfoPageElement();
+	}
+	public StoreInformation (WebDriver driver, Domain domain) {
+		this(driver);
+		this.domain = domain;
 	}
 
 	/**
@@ -54,17 +63,29 @@ public class StoreInformation {
 		}
 		return this;
 	}
-
+	
 	StoreInformation navigateByURL(String url) {
 		driver.get(url);
 		logger.info("Navigated to: " + url);
 		commonAction.removeFbBubble();
 		homePage.waitTillSpinnerDisappear1();
 		return this;
-	}		
+	}	
 	
+	//Will be removed
 	public StoreInformation navigateToStoreInfoTabByURL() {
 		navigateByURL(DOMAIN + "/setting?tabId=5");
+		return this;
+	}	
+	
+	public StoreInformation navigateByURL() {
+		if (domain.equals(Domain.VN)) {
+			navigateByURL(DOMAIN + "/setting/store-information");
+		} else {
+			navigateByURL(DOMAIN_BIZ + "/setting/store-information");
+		}
+		
+    	commonAction.sleepInMiliSecond(500, "Wait a little after navigation");
 		return this;
 	}		
 	

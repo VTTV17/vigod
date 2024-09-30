@@ -16,6 +16,8 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static utilities.links.Links.DOMAIN;
 
@@ -36,9 +38,7 @@ public class EditProductCollection extends CreateProductCollection {
     HomePage home;
 
     public EditProductCollection navigateEditCollection(String collectioName, String languageDashboard) throws Exception {
-
-        home.waitTillSpinnerDisappear();
-//        home.navigateToPage("Products", "Product Collections");
+        home.waitTillSpinnerDisappear1();
         home.selectLanguage(languageDashboard);
         home.hideFacebookBubble();
         productCollectionManagement = new ProductCollectionManagement(driver);
@@ -96,10 +96,16 @@ public class EditProductCollection extends CreateProductCollection {
         home.waitTillSpinnerDisappear();
         common.sleepInMiliSecond(1000);
         selectConditionType(conditionType);
-        String[] conditionsAvailable = getCollectionConditionBefore();
-        List<String> allList = new ArrayList<>();
-        allList.addAll(Arrays.stream(conditionsAvailable).toList());
-        allList.addAll(Arrays.stream(conditions).toList());
+//        String[] conditionsAvailable = getCollectionConditionBefore();
+        List<String> conditionsAvailable = Arrays.asList(getCollectionConditionBefore());
+        List<String> conditionList = Arrays.asList(conditions);
+
+        List<String> allList = Stream.concat(conditionsAvailable.stream(),conditionList.stream())
+                .distinct()
+                .collect(Collectors.toList());
+//        allList.addAll(Arrays.stream(conditionsAvailable).toList());
+//        allList.addAll(Arrays.stream(conditions).toList());
+
         System.out.println("allList: " + allList);
         String[] allConditionArr = new String[allList.size()];
         allList.toArray(allConditionArr);

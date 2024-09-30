@@ -25,6 +25,7 @@ import utilities.model.api.promotion.productDiscountCampaign.ProductDiscountCamp
 import utilities.model.dashboard.products.productInfomation.ProductInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 import utilities.model.staffPermission.AllPermissions;
+import utilities.model.staffPermission.Home.Home;
 import utilities.permission.CheckPermission;
 import utilities.utils.PropertiesUtil;
 import web.Dashboard.confirmationdialog.ConfirmationDialog;
@@ -993,6 +994,7 @@ public class DiscountPage extends DiscountElement {
 			navigateUrl();
 			filterDiscountType("Product Discount Campaign");
 			filterDiscountStatus("Scheduled");
+			new HomePage(driver).waitTillSpinnerDisappear1();
 			if(allPermissions.getPromotion().getDiscountCampaign().isViewProductDiscountCampaignDetail()) {
 				//click on promotion name 0 to check access to campaign detail page
 				commonAction.click(loc_lstPromotionName,0);
@@ -1025,6 +1027,7 @@ public class DiscountPage extends DiscountElement {
 				//check navigate to detail page
 				commonAction.navigateToURL(detailUrl);
 				commonAction.sleepInMiliSecond(1000,"Wait to view product campaign detail on detail page");
+				new HomePage(driver).waitTillSpinnerDisappear1();
 				String name = commonAction.getText(productDiscountCampaignEl.loc_detail_lblDiscountCampaignName);
 				assertCustomize.assertFalse(name.isEmpty(), "[Failed] Product discount campaign should be shown name when access to product detail page, but '%s' is shown".formatted(name));
 				//check navigate to edit page
@@ -1097,6 +1100,8 @@ public class DiscountPage extends DiscountElement {
 				//check navigate to detail page
 				commonAction.navigateToURL(detailUrl);
 				commonAction.sleepInMiliSecond(1000);
+				new HomePage(driver).waitTillSpinnerDisappear1();
+				new HomePage(driver).waitTillLoadingDotsDisappear();
 				String name = commonAction.getText(productDiscountCampaignEl.loc_detail_lblDiscountCampaignName);
 				assertCustomize.assertFalse(name.isEmpty(), "[Failed] Service discount campaign should be shown name on service detail page, but '%s' is shown".formatted(name));
 				//check navigate to edit page
@@ -1166,7 +1171,7 @@ public class DiscountPage extends DiscountElement {
 				navigateUrl();
 				filterDiscountType("Product Discount Campaign");
 				assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(loc_lst_icnClone, 0),
-						"[Restricted page not show when click on Clone product campaign]");
+						"[Failed] Restricted page not show when click on Clone product campaign");
 			}else logger.info("Don't has View product list permission, so no need check clone permission");
 		}
 		logger.info("Verified Create product discount campaign permission.");
@@ -1311,7 +1316,7 @@ public class DiscountPage extends DiscountElement {
 				navigateUrl();
 				filterDiscountType("Service Discount Campaign");
 				assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(loc_lst_icnClone, 0),
-						"[Restricted page not show when click on Clone service campaign]");
+						"[Failed] Restricted page not show when click on Clone service campaign");
 			}else logger.info("Don't has View service campaign list permission, so no need check Clone permission ");
 		}
 		logger.info("Verified Create service campaign permission.");
@@ -1330,8 +1335,9 @@ public class DiscountPage extends DiscountElement {
 			commonAction.navigateToURL(editUrl);
 			checkPermissionViewProductCollectionList();
 			//Check edit product campaign permission
+			commonAction.navigateToURL(editUrl);
+			new HomePage(driver).waitTillSpinnerDisappear1();
 			if (allPermissions.getPromotion().getDiscountCampaign().isEditProductDiscountCampaign()) {
-				commonAction.navigateToURL(editUrl);
 				commonAction.click(productDiscountCampaignEl.loc_btnSave);
 				commonAction.getElements(loc_lstPromotionName,3);
 				String currentUrl = commonAction.getCurrentURL();
@@ -1358,8 +1364,9 @@ public class DiscountPage extends DiscountElement {
 			commonAction.navigateToURL(editUrl);
 			checkPermissionViewServiceCollectionList();
 			//Check edit product campaign permission
+			commonAction.navigateToURL(editUrl);
+			new HomePage(driver).waitTillSpinnerDisappear1();
 			if (allPermissions.getPromotion().getDiscountCampaign().isEditServiceDiscountCampaign()) {
-				commonAction.navigateToURL(editUrl);
 				commonAction.click(serviceCampaignPage.loc_btnSave);
 				commonAction.getElements(loc_lstPromotionName,3);
 				String currentUrl = commonAction.getCurrentURL();
@@ -1379,16 +1386,20 @@ public class DiscountPage extends DiscountElement {
 		commonAction.sleepInMiliSecond(500, "Wait in endFirstCampaign");
 		return this;
 	}
-	public DiscountPage verifyPermissionEndProductDiscountCampaign(int productCampaignInprogressId) {
+	public DiscountPage verifyPermissionEndProductDiscountCampaign(int productCampaignInprogressId, int productIdCreateCampaign) {
 		boolean hasEndEarlyPermission = allPermissions.getPromotion().getDiscountCampaign().isEndProductDiscountCampaign();
 		//Check permission end early on detail page
 		String url = DOMAIN + "/discounts/detail/WHOLE_SALE/" + productCampaignInprogressId;
 		commonAction.navigateToURL(url);
+		commonAction.sleepInMiliSecond(2000);
+		new HomePage(driver).waitTillLoadingDotsDisappear();
 		if (allPermissions.getPromotion().getDiscountCampaign().isViewProductDiscountCampaignDetail()) {
 			if (hasEndEarlyPermission) {
 				new ProductDiscountCampaignPage(driver).clickOnEndEarlyBtn();
-				assertCustomize.assertTrue(new CheckPermission(driver).checkAccessedSuccessfully(new ConfirmationDialog(driver).loc_btnOK,
-						"home"), "[Failed] Should be navigate to home page when end early successfully.");
+				new ConfirmationDialog(driver).clickOKBtn();
+				new HomePage(driver).waitTillLoadingDotsDisappear();
+				assertCustomize.assertTrue(commonAction.getCurrentURL().contains("discounts/list"),
+						"[Failed] End product campaign: Should be navigate to discount list page when end early successfully. But show: %s".formatted(commonAction.getCurrentURL()));
 			} else {
 				assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(productDiscountCampaignEl.loc_btnEndEarly),
 						"[Failed]Restricted modal not show.");
@@ -1401,7 +1412,14 @@ public class DiscountPage extends DiscountElement {
 			navigateUrl();
 			filterDiscountType("Product Discount Campaign");
 			filterDiscountStatus("In Progress");
+			if(commonAction.getElements(loc_lst_icnEnd,2).isEmpty()){
+				callAPIgetCampaignId(DiscountType.PRODUCT_DISCOUNT_CAMPAIGN,DiscountStatus.IN_PROGRESS,productIdCreateCampaign);
+				navigateUrl();
+				filterDiscountType("Product Discount Campaign");
+				filterDiscountStatus("In Progress");
+			}
 			if (hasEndEarlyPermission) {
+				commonAction.getElements(loc_lst_icnEnd,2); //wait end icon show.
 				endFirstCampaign();
 				String statusFirstCampaign = commonAction.getText(loc_lst_lblStatus, 0);
 				try {
@@ -1424,11 +1442,14 @@ public class DiscountPage extends DiscountElement {
 		//Check permission end early on detail page
 		String url = DOMAIN + "/discounts/detail/WHOLE_SALE_SERVICE/"+ serviceCampaignInprogessId;
 		commonAction.navigateToURL(url);
+		commonAction.sleepInMiliSecond(2000);
+		new HomePage(driver).waitTillLoadingDotsDisappear();
 		if(allPermissions.getPromotion().getDiscountCampaign().isViewServiceDiscountCampaignDetail()) {
 			if (hasEndEarlyPermission) {
 				new ServiceDiscountCampaignPage(driver).clickOnEndEarlyBtn();
-				assertCustomize.assertTrue(new CheckPermission(driver).checkAccessedSuccessfully(new ConfirmationDialog(driver).loc_btnOK,
-						"home"), "[Failed] Should be navigate to home page when end early successfully.");
+				new ConfirmationDialog(driver).clickOKBtn();
+				new HomePage(driver).waitTillLoadingDotsDisappear();
+				assertCustomize.assertTrue(commonAction.getCurrentURL().contains("discounts/list"), "[Failed] End Service campaign: Should be navigate to discount list page when end early successfully. But show: %s".formatted(commonAction.getCurrentURL()));
 			} else {
 				assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(serviceCampaignPage.loc_btnEndEarly),
 						"[Failed]Restricted modal not show.");
@@ -1442,7 +1463,14 @@ public class DiscountPage extends DiscountElement {
 			navigateUrl();
 			filterDiscountType("Service Discount Campaign");
 			filterDiscountStatus("In Progress");
+			if(commonAction.getElements(loc_lst_icnEnd,2).isEmpty()){
+				callAPIgetCampaignId(DiscountType.SERVICE_DISCOUNT_CAMPAIGN,DiscountStatus.IN_PROGRESS,0);
+				commonAction.refreshPage();
+				filterDiscountType("Service Discount Campaign");
+				filterDiscountStatus("In Progress");
+			}
 			if(hasEndEarlyPermission){
+				commonAction.getElements(loc_lst_icnEnd,2); //wait end icon show.
 				endFirstCampaign();
 				String statusFirstCampaign = commonAction.getText(loc_lst_lblStatus,0);
 				try {
@@ -1474,7 +1502,7 @@ public class DiscountPage extends DiscountElement {
 		verifyPermissionEditProductDiscountCampaign(productCampaignScheduleId,productNameCreatedByShopOwner,productNameCreatedByStaff);
 		verifyPermissionEditServiceDiscountCampaign(serviceCampaignScheduleId,serviceNameCreatedByShopOwner,serviceNameCreatedByStaff);
 		int productCampaignInprogressId = callAPIgetCampaignId(DiscountType.PRODUCT_DISCOUNT_CAMPAIGN,DiscountStatus.IN_PROGRESS,productIdCreateCampaign);
-		verifyPermissionEndProductDiscountCampaign(productCampaignInprogressId);
+		verifyPermissionEndProductDiscountCampaign(productCampaignInprogressId, productIdCreateCampaign);
 		int serviceCampaignInprogessId = callAPIgetCampaignId(DiscountType.SERVICE_DISCOUNT_CAMPAIGN,DiscountStatus.IN_PROGRESS,productIdCreateCampaign);
 		verifyPermissionEndServiceDiscountCampaign(serviceCampaignInprogessId);
 		AssertCustomize.verifyTest();

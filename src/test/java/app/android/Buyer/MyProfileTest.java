@@ -85,8 +85,8 @@ public class MyProfileTest extends BaseTest {
             throw new RuntimeException(e);
         }
         capabilities.setCapability("platformName", "Android");
-        capabilities.setCapability("appPackage", "com.mediastep.shop0037");
-        capabilities.setCapability("appActivity", "com.mediastep.shop0037.ui.modules.splash.SplashScreenActivity");
+        capabilities.setCapability("appPackage", "preprod.mediastep.shop657");
+        capabilities.setCapability("appActivity", "com.mediastep.gosell.ui.modules.splash.SplashScreenActivity");
         capabilities.setCapability("noReset", "false");
         capabilities.setCapability("autoGrantPermissions", "true");
         String url = "http://127.0.0.1:4723/wd/hub";
@@ -105,6 +105,7 @@ public class MyProfileTest extends BaseTest {
     }
 
     public BuyerAccountPage login(String buyerAccount) {
+        new BuyerGeneral(driver).waitLoadingDisapear();
         navigationBar = new NavigationBar(driver);
         navigationBar.tapOnAccountIcon()
                 .clickLoginBtn()
@@ -126,7 +127,7 @@ public class MyProfileTest extends BaseTest {
             userName = "email" + randomName + "@mailnesia.com";
             new SignUp(loginInformation).signUpByMail(userName,"VN","vi","auto "+randomName, passBuyer);
         } else {
-            String random = DataGenerator.randomValidPhoneByCountry("VN");
+            String random = DataGenerator.randomValidPhoneByCountry("Vietnam");
             userName = random;
             new SignUp(loginInformation).signUpByPhoneNumber("+84",userName,"VN","vi","auto "+random,passBuyer);
         }

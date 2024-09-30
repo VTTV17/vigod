@@ -4,12 +4,17 @@ import api.Seller.login.Login;
 import com.google.gson.JsonObject;
 import io.restassured.response.Response;
 import utilities.api.API;
+import utilities.enums.Domain;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.dashboard.marketing.emailCampaign.EmailCampaignInfo;
 import utilities.model.dashboard.marketing.emailCampaign.EmailTemplateInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import static utilities.links.Links.DOMAIN;
 
 public class APIEmailCampaign {
     API api = new API();
@@ -46,7 +51,10 @@ public class APIEmailCampaign {
         requestBody.addProperty("receiver",receiver);
         requestBody.addProperty("storeId",loginInfo.getStoreID());
         requestBody.addProperty("title",emailCampaignInfo.getEmailTitle());
-        Response response = api.put(CREATE_EMAIL_CAMPAIGN_PATH.formatted(loginInfo.getStoreID()),loginInfo.getAccessToken(),requestBody.toString());
+        Map<String, String> headerMap = new HashMap<>();
+        headerMap.put("Referer", DOMAIN+"/");
+        headerMap.put("time-zone", "Asia/Bangkok");
+        Response response = api.put(CREATE_EMAIL_CAMPAIGN_PATH.formatted(loginInfo.getStoreID()),loginInfo.getAccessToken(),requestBody.toString(),headerMap);
         response.then().statusCode(201);
         emailCampaignInfo.setId(response.jsonPath().getInt("id"));
         emailCampaignInfo.setContentHtml(templateContent);
@@ -54,7 +62,9 @@ public class APIEmailCampaign {
         return emailCampaignInfo;
     }
     public int getDraftEmailCampaignId(){
-        Response response = api.get(GET_EMAIL_CAMPAIGN_PATH.formatted(loginInfo.getStoreID(),"DRAFT"),loginInfo.getAccessToken());
+        Map<String, String> headerMap = new HashMap<>();
+        headerMap.put("time-zone", "Asia/Bangkok");
+        Response response = api.get(GET_EMAIL_CAMPAIGN_PATH.formatted(loginInfo.getStoreID(),"DRAFT"),loginInfo.getAccessToken(),headerMap);
         response.then().statusCode(200);
         List<Integer> ids = response.jsonPath().getList("id");
         int id = ids.isEmpty() ? 0 : ids.get(0);

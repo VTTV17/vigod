@@ -4,6 +4,7 @@ import java.util.Random;
 
 import lombok.Data;
 import utilities.data.DataGenerator;
+import utilities.enums.Domain;
 import utilities.enums.PaymentMethod;
 import utilities.enums.newpackage.NewPackage;
 
@@ -15,6 +16,8 @@ public class PurchasePlanDG {
 	int period;
 
 	public void randomPackageAndPaymentMethod (SetupStoreDG store) {
+		period = store.getDomain().equals(Domain.BIZ) ? 1 : new Random().nextInt(1, 4);
+		
 		if (store.getCountry().contentEquals("Vietnam")) {
 			newPackage = DataGenerator.getRandomListElement(NewPackage.forVNStore());
 			paymentMethod = DataGenerator.getRandomListElement(PaymentMethod.forVNShop());
@@ -22,6 +25,5 @@ public class PurchasePlanDG {
 			newPackage = DataGenerator.getRandomListElement(NewPackage.forForeignStore());
 			paymentMethod = DataGenerator.getRandomListElement(PaymentMethod.forForeignShop());
 		}
-		period = store.getDomain().contains("biz") ? 1 : new Random().nextInt(1, 4);
 	}
 }

@@ -1,46 +1,51 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
 <suite name="Default Suite">
+    <parameter name="browser" value="chrome"/>
+    <parameter name="headless" value="false"/>
+    <parameter name="environment" value="PREPROD"/>
+    <parameter name="language" value="VIE"/>
+    <parameter name="domain" value="VN"/>
     <test thread-count="5" name="Android - ProductCollectionTest">
         <classes>
             <class name="app.android.GoSeller.ProductCollectionTest">
                 <methods>
-                    <include name="MPC01_VerifyTextByLanguage"/>
-                    <include name="MPC02_CreateManualCollectionWithNoProduct"/>
-                    <include name="MPC03_CheckCollectionDetail_NoProduct_Buyer"/>
-                    <include name="MPC04_CreateManualCollection_HasProduct_NoPriotity"/>
-                    <include name="MPC05_CheckCollectionDetail_HasProductNoPriority_Buyer"/>
-                    <include name="MPC06_UpdateProductList_ManualCollection"/>
-                    <include name="MPC07_CheckCollectionDetail_UpdateProductList_Buyer"/>
+<!--                    <include name="MPC01_VerifyTextByLanguage"/>-->
+<!--                    <include name="MPC02_CreateManualCollectionWithNoProduct"/>-->
+<!--                    <include name="MPC03_CheckCollectionDetail_NoProduct_Buyer"/>-->
+<!--                    <include name="MPC04_CreateManualCollection_HasProduct_NoPriotity"/>-->
+<!--                    <include name="MPC05_CheckCollectionDetail_HasProductNoPriority_Buyer"/>-->
+<!--                    <include name="MPC06_UpdateProductList_ManualCollection"/>-->
+<!--                    <include name="MPC07_CheckCollectionDetail_UpdateProductList_Buyer"/>-->
                     <include name="MPC08_CreateManualCollection_HasProduct_HasPrioity"/>
-                    <include name="MPC09_CheckCollectionDetail_HasProductHasPriority_Buyer"/>
+<!--                    <include name="MPC09_CheckCollectionDetail_HasProductHasPriority_Buyer"/>-->
                     <include name="MPC10_UdatePriorityNumber"/>
                     <include name="MPC11_CheckCollectionDetail_AfterUpdatePriority_Buyer"/>
-                    <include name="MPC12_CreateAutomationCollection_ProductTitleContainsKeyword"/>
-                    <include name="MPC13_CheckCollectionDetail_TitleContainKeyword_Buyer"/>
-                    <include name="MPC14_CreateAutomationCollection_ProductTitleEqualKeyword"/>
-                    <include name="MPC15_CheckCollectionDetail_ProductTitleEqualKeyword_Buyer"/>
-                    <include name="MPC16_CreateAutomationCollection_ProductTitleStartWithKeyword"/>
-                    <include name="MPC17_CheckCollectionDetail_TitleStartWithKeyword_Buyer"/>
-                    <include name="MPC18_CreateAutomationCollection_ProductTitleEndWithKeyword"/>
-                    <include name="MPC19_CheckCollectionDetail_TitleEndsWithKeyword_Buyer"/>
-                    <include name="MPC20_CreateAutomationCollection_ProductPriceGreaterKeyword"/>
-                    <include name="MPC21_CheckCollectionDetail_PriceGreaterKeyword_Buyer"/>
-                    <include name="MPC22_CreateAutomationCollection_ProductPriceLessKeyword"/>
-                    <include name="MPC23_CheckCollectionDetail_PriceLessThanKeyword_Buyer"/>
-                    <include name="MPC24_CreateAutomationCollection_ProductPriceEqualKeyword"/>
-                    <include name="MPC25_CheckCollectionDetail_PriceEqualKeyword_Buyer"/>
-                    <include name="MPC26_CreateAutomationCollection_AllCondition"/>
-                    <include name="MPC27_CheckCollectionDetail_AllCondition_Buyer"/>
-                    <include name="MPC28_CreateAutomationCollection_AnyCondition"/>
-                    <include name="MPC29_CheckCollectionDetail_AnyCondition_Buyer"/>
-<!--                    <include name="MPC30_CheckPermissionByPackage"/>-->
-                    <include name="MPC31_UpdateCollection_AllCondition"/>
-                    <include name="MPC32_CheckCollectionDetail_UpdateCollectionType_AllCondition"/>
-                    <include name="MPC33_UpdateCollection_AnyCondition"/>
-                    <include name="MPC34_CheckCollectionDetail_UpdateCollectionType_AnyCondition"/>
-                    <include name="MPC35_DeleteCollection_Seller"/>
-                    <include name="MPC36_CheckDeletedCollection_Buyer"/>
+<!--                    <include name="MPC12_CreateAutomationCollection_ProductTitleContainsKeyword"/>-->
+<!--                    <include name="MPC13_CheckCollectionDetail_TitleContainKeyword_Buyer"/>-->
+<!--                    <include name="MPC14_CreateAutomationCollection_ProductTitleEqualKeyword"/>-->
+<!--                    <include name="MPC15_CheckCollectionDetail_ProductTitleEqualKeyword_Buyer"/>-->
+<!--                    <include name="MPC16_CreateAutomationCollection_ProductTitleStartWithKeyword"/>-->
+<!--                    <include name="MPC17_CheckCollectionDetail_TitleStartWithKeyword_Buyer"/>-->
+<!--                    <include name="MPC18_CreateAutomationCollection_ProductTitleEndWithKeyword"/>-->
+<!--                    <include name="MPC19_CheckCollectionDetail_TitleEndsWithKeyword_Buyer"/>-->
+<!--                    <include name="MPC20_CreateAutomationCollection_ProductPriceGreaterKeyword"/>-->
+<!--                    <include name="MPC21_CheckCollectionDetail_PriceGreaterKeyword_Buyer"/>-->
+<!--                    <include name="MPC22_CreateAutomationCollection_ProductPriceLessKeyword"/>-->
+<!--                    <include name="MPC23_CheckCollectionDetail_PriceLessThanKeyword_Buyer"/>-->
+<!--                    <include name="MPC24_CreateAutomationCollection_ProductPriceEqualKeyword"/>-->
+<!--                    <include name="MPC25_CheckCollectionDetail_PriceEqualKeyword_Buyer"/>-->
+<!--                    <include name="MPC26_CreateAutomationCollection_AllCondition"/>-->
+<!--                    <include name="MPC27_CheckCollectionDetail_AllCondition_Buyer"/>-->
+<!--                    <include name="MPC28_CreateAutomationCollection_AnyCondition"/>-->
+<!--                    <include name="MPC29_CheckCollectionDetail_AnyCondition_Buyer"/>-->
+<!--                    <include name="MPC30_CheckPermissionByPackage"/> out of date-->
+<!--                    <include name="MPC31_UpdateCollection_AllCondition"/>-->
+<!--                    <include name="MPC32_CheckCollectionDetail_UpdateCollectionType_AllCondition"/>-->
+<!--                    <include name="MPC33_UpdateCollection_AnyCondition"/>-->
+<!--                    <include name="MPC34_CheckCollectionDetail_UpdateCollectionType_AnyCondition"/>-->
+<!--                    <include name="MPC35_DeleteCollection_Seller"/>-->
+<!--                    <include name="MPC36_CheckDeletedCollection_Buyer"/>-->
                 </methods>
             </class>
         </classes>

@@ -106,6 +106,7 @@ public class OrderAnalytics {
     }
     public void waitOrderMetricLoaded(){
         WebDriverWait expliciWait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        logger.info("Wait metrics loaded.");
         expliciWait.until(new Function<WebDriver, Boolean>() {
             int orderMetricBefore = getOrdersMetric();
             @Override
@@ -124,12 +125,16 @@ public class OrderAnalytics {
     }
     public int  waitOrderMetricUpdated(){
         int orderMetricBefore = getOrdersMetric();
+        logger.info("Start wait metrics update.");
         for(int i = 0;i <10; i++){
             commonAction.refreshPage();
             new HomePage(driver).waitTillSpinnerDisappear1();
             waitOrderMetricLoaded();
             int orderMetricAfter = getOrdersMetric();
-            if(orderMetricAfter!= orderMetricBefore) return orderMetricAfter;
+            if(orderMetricAfter!= orderMetricBefore){
+                logger.info("End wait metrics update.");
+                return orderMetricAfter;
+            }
             commonAction.sleepInMiliSecond(500);
         }
         logger.info("Order Analytics still not updated.");

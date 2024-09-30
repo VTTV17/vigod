@@ -15,9 +15,9 @@ public class CreateEditServiceCollectionElement {
     By loc_lst_btnDelete = By.cssSelector(".btn-remove__row");
     By loc_txtUploadImage = By.xpath("//input[@type='file' and @style ='display: none;']");
     By loc_lblDrapAndDropPhoto = By.xpath("//input[@type='file']/following-sibling::div[2]");
-    By loc_btnSave = By.xpath("(//button[contains(@class,'btn-save')])[1]");
-    By loc_btnCancel = By.xpath("(//div[contains(@class,'action-btn--group')])[1]//button[2]");
-    By loc_btnDelete = By.xpath("//div[@id='app-body']//button[contains(@class,'red')]");
+    By loc_btnSave = By.xpath("//button[string()='Lưu' or string()='Save']");
+    By loc_btnCancel = By.cssSelector(".gss-content-header--action-btn button:nth-child(2)");
+    By loc_btnDelete = By.xpath("//button[string()='Xóa' or string()='Delete']");
     By loc_dlgNotification_btnClose = By.cssSelector(".modal-footer button");
     By loc_dlgNotification_lblMessage = By.cssSelector(".modal-body");
     By loc_dlgConfirmation_btnOK = By.cssSelector("[data-testid='confirmBtn']");
@@ -68,7 +68,7 @@ public class CreateEditServiceCollectionElement {
 
     /*--------------Edit translation-------------*/
 
-    By loc_btnEditTranslation = By.xpath("//button[contains(@class,'gs-button__gray')][1]");
+    By loc_btnEditTranslation = By.xpath("//button[string()='Sửa bản dịch' or string()='Edit Translation']");
     By loc_dlgTranslate_txtName = By.id("name");
     By loc_dlgTranslate_btnSave = By.cssSelector("button[name='submit-translate']");
     By loc_dlgTranslate_txtSEOTitle = By.cssSelector(".product-translate #seoTitle");
