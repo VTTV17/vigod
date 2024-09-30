@@ -6,11 +6,11 @@ import lombok.Data;
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @Data
 public class CustomerOrderInfo {
-    private Long customerId;
+    private Integer customerId;
     private String name;
     private String email;
     private String phone; //+84888980988
-    private Long userId;
+    private Integer userId;
     private double debtAmount;
     private Boolean guest;
     private Avatar avatar;

@@ -133,4 +133,9 @@ public class DeliveryDialog {
 		logger.info("Retrieved phone code: {}",phoneCode);
 		return phoneCode;
 	}
+	public String getSelectedDeliveryName(){
+		String selectedDelivery = commonAction.getText(elements.loc_lblSelectedDeliveryName);
+		logger.info("Retrieved selected delivery name: {}",selectedDelivery);
+		return selectedDelivery;
+	}
 }

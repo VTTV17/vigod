@@ -131,6 +131,9 @@ public class Login {
         //get role
         info.setUserRole(jPath.getList("authorities"));
 
+        //get currency symbol
+        info.setSymbol(res.jsonPath().getString("store.symbol"));
+
         // return login dashboard info
         return info;
     }
