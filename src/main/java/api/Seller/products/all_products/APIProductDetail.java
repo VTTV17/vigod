@@ -712,7 +712,7 @@ public class APIProductDetail {
             ProductInfo productInfo = getInfo(Integer.parseInt(productId), inventory);
             if (productInfo.getManageInventoryByIMEI() != null) {
                 lotAvailable.add(beforeLot.get(lotAvailable.size()) || !productInfo.getManageInventoryByIMEI() && !listProductIdThatIsCanNotManageByLotDate.contains(Integer.parseInt(productId)));
-                expiredQuality.add((!beforeLot.get(expiredQuality.size()) && lotAvailable.get(expiredQuality.size()) && beforeExpiry.get(expiredQuality.size())) || (!beforeLot.get(expiredQuality.size()) && lotAvailable.get(expiredQuality.size()) && isExpiredQuality) || (beforeLot.get(expiredQuality.size()) && beforeExpiry.get(expiredQuality.size())));
+                expiredQuality.add((!beforeLot.get(expiredQuality.size()) && lotAvailable.get(expiredQuality.size()) && isExpiredQuality) || (beforeLot.get(expiredQuality.size()) && beforeExpiry.get(expiredQuality.size())));
             }
         });
         return Map.of("lotAvailable", lotAvailable, "expiredQuality", expiredQuality);
