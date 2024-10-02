@@ -485,7 +485,12 @@ public class APIAllOrders {
         //Approve commission date
         CustomerInfoFull customerInfoFull = new APICustomerDetail(loginInformation).getFullInfo(orderDetailExpected.getCustomerInfo().getCustomerId());
         String approveDate = DataGenerator.getDateByTimeZone(new StoreInformation(loginInformation).getInfo().getTimeZone(),orderInManagement.getApprovedCommissionDate());
-        if(orderDetailExpected.getOrderInfo().getStatus().equals(DELIVERED.toString()) && orderDetailExpected.getCustomerInfo().getCustomerId()!=0 && customerHasApprovedCommisionDate(customerInfoFull)){
+        /*set up auto approve delivery orders.
+        Order need to has Delivered status
+        Customer need to has id (not a guest)
+        Customer need to be DROPSHIP partner or assigned to partner.
+         */
+        if(orderDetailExpected.getOrderInfo().getStatus().equals(DELIVERED.toString()) && orderDetailExpected.getCustomerInfo().getCustomerId()!=0 && customerHasApprovedCommisionDate(customerInfoFull)){  //set up auto approve delivery orders.
                 Assert.assertEquals(approveDate,orderDetailExpected.getOrderInfo().getCreateDate(),
                         "[Failed] Check approve commission date.");
         }else Assert.assertTrue(approveDate==null,"[Failed] Check order don't have approved commission date.");
@@ -501,6 +506,9 @@ public class APIAllOrders {
             return "Shop Owner";
         return loginInfo.getUserName();
     }
+    /*
+    Custormer has approve commission date: customer need to has partner ID or partnerType = DROP_SHIP
+     */
     public boolean customerHasApprovedCommisionDate( CustomerInfoFull customerInfoFull){
         logger.info("Partner Id of customer: {}",customerInfoFull.getPartnerId());
         logger.info("Partner type of customer: {}",customerInfoFull.getPartnerType());
@@ -526,5 +534,9 @@ public class APIAllOrders {
         else orderListSummaryExpected.setToConfirmCount(orderListSummaryBefore.getToConfirmCount() + 1);
 
         Assert.assertEquals(getOrderListSummary(GOSELL),orderListSummaryExpected);
+    }
+    public Double getProuctCostOfOrder(long orderId){
+        OrderInManagement orderInManagement = getOrderInfoInManagement(getOrderListInfo(GOSELL),orderId);
+        return orderInManagement.getItems().stream().mapToDouble(ItemOrderListInfo::getCostPrice).sum();
     }
 }

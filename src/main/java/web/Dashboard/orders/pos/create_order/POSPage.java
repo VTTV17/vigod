@@ -278,7 +278,7 @@ public class POSPage extends POSElement {
         return GetDataByRegex.getAmountByRegex(total);
     }
 
-    public void inputReceiveAmount(double amount) {
+    public void inputReceiveAmount(String amount) {
         commonAction.inputText(loc_txtReceiveAmount, String.valueOf(amount));
         logger.info("Input receive amount: {}", amount);
     }
@@ -287,10 +287,10 @@ public class POSPage extends POSElement {
         double receiveAmount = (Objects.requireNonNull(receivedAmountType) == ReceivedAmountType.FULL)
                 ? getTotalAmount()
                 : ((receivedAmountType == ReceivedAmountType.PARTIAL)
-                ? DataGenerator.generatNumberInBound(1000, getTotalAmount())
+                ? DataGenerator.generatNumberInBound(1, getTotalAmount())
                 : 0);
-        inputReceiveAmount(receiveAmount);
-        return receiveAmount;
+        inputReceiveAmount(String.format("%.0f",receiveAmount));
+        return Double.parseDouble(String.format("%.0f",receiveAmount));
     }
 
     public enum POSPaymentMethod {
