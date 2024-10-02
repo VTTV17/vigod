@@ -784,7 +784,7 @@ public class POSPage extends POSElement {
         return loginInfo.getUserName();
     }
     public POSPage clickEditDelivery(){
-        commonAction.click(loc_icnEditDelivery);
+        commonAction.clickJS(loc_icnEditDelivery);
         logger.info("Click on Edit delivery icon.");
         return this;
     }
