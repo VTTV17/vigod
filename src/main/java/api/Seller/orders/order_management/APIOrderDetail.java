@@ -11,6 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.testng.Assert;
 import utilities.api.API;
 import utilities.data.DataGenerator;
+import utilities.data.GetDataByRegex;
+import utilities.enums.PromotionType;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.dashboard.orders.orderdetail.*;
 import utilities.model.sellerApp.login.LoginInformation;
@@ -252,5 +254,12 @@ public class APIOrderDetail {
         });
 
        return orderItems;
+    }
+    public static Double getPromotionValue(OrderDetailInfo orderDetailInfo, PromotionType promotionType){
+        if(orderDetailInfo.getSummaryDiscounts()==null) return 0.0;
+        Double value = orderDetailInfo.getSummaryDiscounts().stream()
+                .filter(i -> i.getDiscountType().equals(promotionType.toString()))
+                .mapToDouble(SummaryDiscount::getValue).sum();
+        return GetDataByRegex.getAmountByRegex(value.toString());
     }
 }
