@@ -282,9 +282,9 @@ public class HomePage extends HomePageElement {
 
     public HomePage selectLanguage(String language) {
         wait.until(ExpectedConditions.visibilityOfElementLocated(loc_btnLanguage));
-        if (!getDashboardLanguage().equalsIgnoreCase(language)) {
+        if (!getDashboardLanguage().equalsIgnoreCase(language.substring(0,2))) {
             commons.click(loc_btnLanguage);
-            commons.click(loc_btnLanguageInList(language));
+            commons.click(loc_btnLanguageInList(language.substring(0,2)));
             commons.waitTillTextChange(loc_btnLanguage);
         }
         logger.info("Select language: "+language);

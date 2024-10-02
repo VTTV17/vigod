@@ -51,4 +51,5 @@ public class OrderInfo {
     private Double orgTotalPrice;
     private int usePoint;
     private List<OrderCost> orderCosts;
+    private String loyaltyPointExpiredDay;
 }

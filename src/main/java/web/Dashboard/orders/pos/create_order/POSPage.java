@@ -35,6 +35,8 @@ import web.Dashboard.confirmationdialog.ConfirmationDialog;
 import web.Dashboard.home.HomePage;
 import web.Dashboard.orders.pos.create_order.deliverydialog.DeliveryDialog;
 
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.IntStream;
 
@@ -672,8 +674,7 @@ public class POSPage extends POSElement {
         EarningPoint earningPoint = new EarningPoint();
         LoyaltyPointInfo loyaltyPointInfo = new LoyaltyPoint(loginInformation).getLoyaltyPointSetting();
         Long rateAmount = loyaltyPointInfo.getRateAmount();
-
-        if ((double) rateAmount < getTotalAmount())
+        if ((double) rateAmount < getPriceTotalAfterDiscount())
             if (!commonAction.getElements(loc_lblTotalEarningPoint).isEmpty()) {
                 earningPoint.setValue((int) GetDataByRegex.getAmountByRegex(commonAction.getText(loc_lblTotalEarningPoint)));
             } else earningPoint.setValue(0);
@@ -823,7 +824,8 @@ public class POSPage extends POSElement {
         orderInfo.setStatus(getOrderStatusAfterCreated().toString());
         orderInfo.setDebtAmount(getDebtAmount());
         orderInfo.setReceivedAmount(receiveAmount);
-        orderInfo.setCreateDate(DataGenerator.getCurrentDate("yyyy-MM-dd"));
+        orderInfo.setCreateDate(DataGenerator.getDateByTimeZone(new StoreInformation(loginInformation).getInfo().getTimeZone(),
+                String.valueOf(ZonedDateTime.now(ZoneOffset.UTC))));
         orderInfo.setCreatedBy(getCreatedBy());
 
         OrderDetailInfo orderDetailInfo = new OrderDetailInfo();
@@ -899,5 +901,14 @@ public class POSPage extends POSElement {
     public String getCurrencySymbol(){
         LoginDashboardInfo loginInfo = new Login().getInfo(loginInformation);
         return loginInfo.getSymbol();
+    }
+    public double getPriceTotalAfterDiscount(){
+        List<WebElement> productList = commonAction.getElements(loc_lst_lblProductName, 1);
+        double total = 0;
+        for (int i = 0; i < productList.size(); i++) {
+            total = total + GetDataByRegex.getAmountByRegex(commonAction.getText(loc_lblPriceTotalAfterDiscount(i+1)));
+        }
+        logger.info("Get total price after discount (total amount exclude: tax and shipping fee)");
+        return total;
     }
 }
