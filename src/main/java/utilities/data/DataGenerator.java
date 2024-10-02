@@ -112,7 +112,7 @@ public class DataGenerator {
      */
     public static String getPhoneCode(String country) {
         JsonNode data = jsonFileUtility.readJsonFile("CountryCodes.json").findValue(country).findValue("phoneCode");
-        return data.asText();
+        return "+%s".formatted(data.asText());
     }
 
     /**
