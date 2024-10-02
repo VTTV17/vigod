@@ -19,6 +19,7 @@ public class POSElement {
     }
 
     By loc_txtCustomerSearchBox = By.cssSelector("#dropdownSuggestionCustomer input");
+    By loc_icnCustomerSearchBoxLoading = By.cssSelector("#dropdownSuggestionCustomer .loading .lds-ellipsis--grey");
 
     By loc_lstCustomerResult(int customerId) {
         return By.xpath("//*[@class = 'mobile-customer-profile-row__right' and contains(., \"%s\")]".formatted(customerId));
@@ -40,7 +41,7 @@ public class POSElement {
     }
 
     By loc_btnSelectIMEI(String productName, String variationValue, String unitName) {
-        return By.xpath("//tr[td//div[text() =\"%\"] and td//span[text() =\"%s\"] and td//div[text()=\"%s\"]]//*[@class='select-IMEI errorIMEI']".formatted(productName, variationValue, unitName));
+        return By.xpath("//tr[td//div[text() =\"%s\"] and td//span[text() =\"%s\"] and td//div[text()=\"%s\"]]//*[@class='select-IMEI errorIMEI']".formatted(productName, variationValue, unitName));
     }
 
     By loc_btnSelectLot(String productName, String unitName) {

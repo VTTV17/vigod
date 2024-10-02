@@ -4,6 +4,8 @@ import api.Seller.customers.APICustomerDetail;
 import api.Seller.login.Login;
 import api.Seller.marketing.LoyaltyPoint;
 import api.Seller.orders.order_management.APIAllOrders;
+import api.Seller.products.all_products.APIGetProductDetail;
+import api.Seller.products.all_products.APIGetProductDetail.*;
 import api.Seller.products.all_products.APIProductConversionUnit;
 import api.Seller.products.all_products.APIProductConversionUnit.ConversionUnitItem;
 import api.Seller.products.all_products.APIProductDetailV2;
@@ -91,53 +93,116 @@ public class POSPage extends POSElement {
         logger.info("Select branch: {}", branchName);
     }
 
-    public void selectProduct(LoginInformation loginInformation, List<Integer> productIds) {
-        // Select product
-        productIds.forEach(productId -> {
-            // Get product information
-            ProductInfoV2 infoV2 = new APIProductDetailV2(loginInformation).getInfo(productId);
-
-            // Search product
-            commonAction.sendKeys(loc_txtProductSearchBox, infoV2.getName());
-
-            // Log
-            logger.info("Search product, keyword: {}", infoV2.getName());
-
-            // Get list conversion unit
-            List<ConversionUnitItem> unitItems = new APIProductConversionUnit(loginInformation).getItemConversionUnit(productId);
-
-            // If product has conversion unit, only add conversion unit
-            if (unitItems.isEmpty()) {
-                // Select product/variations
-                infoV2.getBarcodeList().forEach(barcode -> {
-                    // Get current stock in branch
-                    int currentStock = infoV2.getProductStockQuantityMap()
-                            .get(infoV2.isHasModel()
-                                    ? infoV2.getVariationModelList()
-                                    .get(infoV2.getBarcodeList().indexOf(barcode))
-                                    : infoV2.getId())
-                            .get(new BranchManagement(loginInformation).getInfo().getBranchName().indexOf(branchName));
-
-                    // Add product/variation to cart
-                    addProductToCart(loginInformation, infoV2, barcode, currentStock, infoV2.getBarcodeList().indexOf(barcode), "-");
-                });
-            } else {
-                // Select conversion unit
-                unitItems.forEach(unit -> {
-                    // Get current stock
-                    int currentStock = infoV2.getProductStockQuantityMap()
-                            .get(infoV2.isHasModel() ? unit.getModelId() : infoV2.getId())
-                            .get(new BranchManagement(loginInformation).getInfo().getBranchName().indexOf(branchName))
-                            / unit.getQuantity();
-
-                    // Add conversion unit to cart
-                    addProductToCart(loginInformation, infoV2, unit.getBarcode(), currentStock, infoV2.getVariationModelList().indexOf(unit.getModelId()), unit.getConversionUnitName());
-                });
-            }
-        });
+//    public void selectProduct(LoginInformation loginInformation, List<Integer> productIds) {
+//        
+//    	int indexOfSelectedBranch = new BranchManagement(loginInformation).getInfo().getBranchName().indexOf(branchName);
+//    	
+////    	productIds = productIds.subList(0, 1);
+//    	productIds = List.of(1033401);
+//    	
+//    	// Select product
+//        productIds.forEach(productId -> {
+//            // Get product information
+//            ProductInfoV2 infoV2 = new APIProductDetailV2(loginInformation).getInfo(productId);
+//
+//            // Search product
+//            commonAction.sendKeys(loc_txtProductSearchBox, infoV2.getName());
+//
+//            // Log
+//            logger.info("Search product, keyword: {}", infoV2.getName());
+//
+//            // Get list conversion unit
+//            List<ConversionUnitItem> unitItems = new APIProductConversionUnit(loginInformation).getItemConversionUnit(productId);
+//
+//            // If product has conversion unit, only add conversion unit
+//            if (unitItems.isEmpty()) {
+//                // Select product/variations
+//            	
+//                infoV2.getBarcodeList().forEach(barcode -> {
+//                    // Get current stock in branch
+//                    int currentStock = infoV2.getProductStockQuantityMap()
+//                            .get(infoV2.isHasModel()
+//                                    ? infoV2.getVariationModelList()
+//                                    .get(infoV2.getBarcodeList().indexOf(barcode))
+//                                    : infoV2.getId())
+//                            .get(indexOfSelectedBranch);
+//
+//                    // Add product/variation to cart
+//                    addProductToCart(loginInformation, infoV2, barcode, currentStock, infoV2.getBarcodeList().indexOf(barcode), "-");
+//                });
+//            } else {
+//                // Select conversion unit
+//                unitItems.forEach(unit -> {
+//                    // Get current stock
+//                    int currentStock = infoV2.getProductStockQuantityMap()
+//                            .get(infoV2.isHasModel() ? unit.getModelId() : infoV2.getId())
+//                            .get(indexOfSelectedBranch)
+//                            / unit.getQuantity();
+//
+//                    // Add conversion unit to cart
+//                    addProductToCart(loginInformation, infoV2, unit.getBarcode(), currentStock, infoV2.getVariationModelList().indexOf(unit.getModelId()), unit.getConversionUnitName());
+//                });
+//            }
+//        });
+//    }
+    
+    public void selectProductExp(LoginInformation loginInformation, List<Integer> productIds) {
+    	
+    	int indexOfSelectedBranch = new BranchManagement(loginInformation).getInfo().getBranchName().indexOf(branchName);
+    	
+    	int branchId = new BranchManagement(loginInformation).getInfo().getBranchID().get(indexOfSelectedBranch);
+    	
+//    	productIds = List.of(1033401);
+    	
+    	
+    	// Select product
+    	productIds.forEach(productId -> {
+    		// Get product information
+    		ProductInfoV2 infoV2 = new APIProductDetailV2(loginInformation).getInfo(productId);
+    		
+    		ProductInformation productDetailInfo = new APIGetProductDetail(loginInformation).getProductInformation(productId);
+    		
+    		// Search product
+    		commonAction.sendKeys(loc_txtProductSearchBox, productDetailInfo.getName());
+    		
+    		// Log
+    		logger.info("Search product, keyword: {}", productDetailInfo.getName());
+    		
+    		// Get list conversion unit
+    		List<ConversionUnitItem> unitItems = new APIProductConversionUnit(loginInformation).getItemConversionUnit(productId);
+    		
+    		// If product has conversion unit, only add conversion unit
+    		if (unitItems.isEmpty()) {
+    			// Select product/variations
+    			
+    			List<Integer> modelIds = productDetailInfo.isHasModel() ? APIGetProductDetail.getVariationModelList(productDetailInfo) : Collections.singletonList(null);
+    			
+    			modelIds.forEach(modelId -> {
+    				// Get current stock in branch
+    				int currentStock = APIGetProductDetail.getStockByModelAndBranch(productDetailInfo, modelId, branchId);
+    				
+    				List<String> barCodes = productDetailInfo.isHasModel() ? APIGetProductDetail.getBarcodeList(productDetailInfo) : List.of(productDetailInfo.getBarcode());
+    				
+    				// Add product/variation to cart
+    				addProductToCart(loginInformation, productDetailInfo, barCodes.get(modelIds.indexOf(modelId)), currentStock, modelIds.indexOf(modelId), "-");
+    			});
+    		} else {
+    			// Select conversion unit
+    			unitItems.forEach(unit -> {
+    				// Get current stock
+    				int currentStock = infoV2.getProductStockQuantityMap()
+    						.get(infoV2.isHasModel() ? unit.getModelId() : infoV2.getId())
+    						.get(indexOfSelectedBranch)
+    						/ unit.getQuantity();
+    				
+    				// Add conversion unit to cart
+    				addProductToCart(loginInformation, productDetailInfo, unit.getBarcode(), currentStock, infoV2.getVariationModelList().indexOf(unit.getModelId()), unit.getConversionUnitName());
+    			});
+    		}
+    	});
     }
 
-    void addProductToCart(LoginInformation loginInformation, ProductInfoV2 infoV2, String barcode, int currentStock, int varIndex, String unitName) {
+    void addProductToCart(LoginInformation loginInformation, ProductInformation infoV2, String barcode, int currentStock, int varIndex, String unitName) {
         // Check stock, only add to cart when in-stock
         if (currentStock > 0) {
             // Add conversion unit to cart
@@ -152,15 +217,15 @@ public class POSPage extends POSElement {
             // Get product name
             String productName = infoV2.getName();
 
+            String langKey = new StoreInformation(loginInformation).getInfo().getDefaultLanguage();
+            
             // Get variation value
             String variationValue = infoV2.isHasModel()
-                    ? infoV2.getVariationValuesMap()
-                    .get(new StoreInformation(loginInformation).getInfo().getDefaultLanguage())
-                    .get(varIndex).replace("|", " | ")
+                    ? APIGetProductDetail.getVariationValue(infoV2, langKey, varIndex).replace("|", " | ")
                     : "";
 
             // Get quantity
-            int quantity = nextInt(currentStock) + 1;
+            int quantity = currentStock >5 ? nextInt(5) + 1 : nextInt(currentStock) + 1; //Restrict the maximum quantity to 5
 
             // Input quantity
             commonAction.sendKeys(infoV2.isHasModel()
@@ -191,15 +256,27 @@ public class POSPage extends POSElement {
                 logger.info("Close Select Lot popup");
             }
 
-            // Select IMEI if product is managed by IMEI
+         // Select IMEI if product is managed by IMEI
             if (!infoV2.getInventoryManageType().equals("PRODUCT")) {
-                // Open Select IMEI popup
-                commonAction.click(infoV2.isHasModel()
+
+                // Retry logic to open Select IMEI popup and confirm it's open
+            	commonAction.attemptWithRetry(5, 1000, () -> {
+                    // Attempt to open the IMEI popup
+                    commonAction.click(infoV2.isHasModel()
                         ? loc_btnSelectIMEI(productName, variationValue, unitName)
                         : loc_btnSelectIMEI(productName, unitName));
 
-                // Log
-                logger.info("Open select IMEI popup");
+                    // Log attempt
+                    logger.info("Attempted to open select IMEI popup");
+
+                    // Check if the popup is open, throw exception if not to trigger retry
+                    if (commonAction.getListElement(loc_dlgSelectIMEI_lstIMEI).isEmpty()) {
+                        throw new IllegalStateException("IMEI popup not opened");
+                    }
+                });
+
+                // Log success
+                logger.info("Successfully opened select IMEI popup");
 
                 // Select IMEI
                 IntStream.range(0, quantity)
@@ -232,8 +309,14 @@ public class POSPage extends POSElement {
     }
 
     public POSPage selectCustomer(String name) {
-        commonAction.inputText(loc_txtCustomerSearchBox, name);
+    	commonAction.inputText(loc_txtCustomerSearchBox, name);
+        logger.info("Input customer to search: {}", name);
+        commonAction.sleepInMiliSecond(500, "Wait for search API to start");
+        
+        commonAction.click(loc_txtCustomerSearchBox);
         commonAction.click(loc_lstCustomerResult(name));
+        
+    	new HomePage(driver).waitTillLoadingDotsDisappear();
         return this;
     }
 
@@ -247,7 +330,7 @@ public class POSPage extends POSElement {
         commonAction.click(loc_ddlDelivery);
 
         int maxRetries = 10;
-        int sleepDuration = 500;
+        int sleepDuration = 1000;
         int retries = 0;
 
         while (retries < maxRetries && !commonAction.getElements(loc_iconLoadingDeliveryProvider).isEmpty()) {
@@ -260,11 +343,11 @@ public class POSPage extends POSElement {
 
     public void createPOSOrder(LoginInformation loginInformation, BranchInfo branchInfo, List<Integer> productIds) {
         // Select branch
-        String branchName = branchInfo.getBranchName().get(nextInt(branchInfo.getBranchName().size()));
+        String branchName = branchInfo.getBranchName().get(0);
         selectBranch(branchName);
 
         // Add product to cart
-        selectProduct(loginInformation, productIds);
+        selectProductExp(loginInformation, productIds);
 
         // Add customer
 
@@ -279,11 +362,15 @@ public class POSPage extends POSElement {
     }
 
     public void inputReceiveAmount(String amount) {
+    	new HomePage(driver).waitTillLoadingDotsDisappear();
+    	commonAction.sleepInMiliSecond(1000, "Wait a little for better UI stability");
         commonAction.inputText(loc_txtReceiveAmount, String.valueOf(amount));
         logger.info("Input receive amount: {}", amount);
     }
 
     public Double inputReceiveAmount(ReceivedAmountType receivedAmountType) {
+    	new HomePage(driver).waitTillLoadingDotsDisappear();
+    	commonAction.sleepInMiliSecond(1000, "Wait a little for better UI stability");
         double receiveAmount = (Objects.requireNonNull(receivedAmountType) == ReceivedAmountType.FULL)
                 ? getTotalAmount()
                 : ((receivedAmountType == ReceivedAmountType.PARTIAL)
@@ -368,7 +455,7 @@ public class POSPage extends POSElement {
             logger.info("Switch to Discount amount tab");
 
             // Get discount amount value
-            long amount = nextLong(MAX_PRICE);
+            long amount = nextLong(20000L);
 
             // Input discount amount
             commonAction.sendKeys(loc_dlgDiscount_txtDiscountAmountValue, String.valueOf(amount));
@@ -463,6 +550,24 @@ public class POSPage extends POSElement {
     }
 
     /**
+     * There are times the element is not rendered with text, this function repeats 5 times until the element has text
+     * @param element
+     * @return text of the WebElement
+     */
+    String getElementText(WebElement element) {
+    	int attempts = 0;
+    	int maxAttempts = 5;
+    	
+    	while (attempts < maxAttempts) {
+    		var text = element.getText();
+    		if (!text.isEmpty()) return text;
+    		commonAction.sleepInMiliSecond(500, "Element's text is empty. Wait a little");
+    		attempts++;
+    	}
+    	return "";
+    }
+    
+    /**
      * @param actionlocator  : locator that user hover or click on it.
      * @param tooltipLocator : tooltip content
      * @return List<ItemTotalDiscount> with fields: Name and Value
@@ -471,12 +576,13 @@ public class POSPage extends POSElement {
         List<WebElement> infoIcon = commonAction.getElements(actionlocator, 1);
         Map<String, Double> itemDiscountList = new HashMap<>();
         if (!infoIcon.isEmpty()) {
-            commonAction.sleepInMiliSecond(1000);
+//            commonAction.sleepInMiliSecond(1000);
             commonAction.clickActions(actionlocator);
             List<WebElement> promotionList = commonAction.getElements(tooltipLocator, 2);
             promotionList.forEach(i -> {
-                logger.info("Promotion: {}", i.getText());
-                String[] promoItem = i.getText().split("\n");
+            	var text = getElementText(i);
+                logger.info("Promotion: {}", text);
+                String[] promoItem = text.split("\n");
                 itemDiscountList.put(promoItem[0].replaceAll("\\.00(?=%)", ""), Double.valueOf(DataGenerator.extractDigits(promoItem[promoItem.length - 1])));
             });
         }
@@ -694,6 +800,8 @@ public class POSPage extends POSElement {
      * @return
      */
     public OrderDetailInfo getOrderInfoBeforeCheckOut(int customerId) {
+    	new HomePage(driver).waitTillLoadingDotsDisappear(); //Wait until Apply Discount API finishes execution
+    	
         OrderInfo orderInfo = new OrderInfo();
         orderInfo.setTotalTaxAmount(getTaxAmount());
         double totalAmount = getTotalAmount();
