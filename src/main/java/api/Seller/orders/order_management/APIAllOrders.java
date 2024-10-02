@@ -537,6 +537,6 @@ public class APIAllOrders {
     }
     public Double getProuctCostOfOrder(long orderId){
         OrderInManagement orderInManagement = getOrderInfoInManagement(getOrderListInfo(GOSELL),orderId);
-        return orderInManagement.getItems().stream().mapToDouble(ItemOrderListInfo::getCostPrice).sum();
+        return orderInManagement.getTotalCostPrice();
     }
 }

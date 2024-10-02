@@ -2,6 +2,7 @@ package api.Seller.analytics;
 
 import api.Seller.login.Login;
 import api.Seller.orders.order_management.APIGetOrderList;
+import api.Seller.orders.order_management.APIOrderDetail;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.response.Response;
 import lombok.SneakyThrows;
@@ -57,27 +58,21 @@ public class APIOrdersAnalytics {
         ObjectMapper objectMapper = new ObjectMapper();
         return objectMapper.readValue(responseJsonObject.get("analyticsOrderSummaryDTO").toString(), AnalyticsOrderSummaryInfo.class);
     }
-    private Double getPromotionValue(OrderDetailInfo orderDetailInfo, PromotionType promotionType){
-        if(orderDetailInfo.getSummaryDiscounts()==null) return 0.0;
-        Double value = orderDetailInfo.getSummaryDiscounts().stream()
-                .filter(i -> i.getDiscountType().equals(promotionType.toString()))
-                .mapToDouble(SummaryDiscount::getValue).sum();
-        return GetDataByRegex.getAmountByRegex(value.toString());
-    }
+
     public void verifyOrderAnalyticAfterCreateOrder(AnalyticsOrderSummaryInfo analyticInfoBefore, OrderDetailInfo orderDetailInfo, TimeFrame timeFrame, Double productCostThisOrder){
         int totalOrderExpected = analyticInfoBefore.getTotalOrders()+1;
         Double totalAmountExpected = analyticInfoBefore.getTotalAmount() + orderDetailInfo.getOrderInfo().getTotalAmount();
         Double averageOrderExpected = totalAmountExpected/totalOrderExpected;
         Double receiveAmount = analyticInfoBefore.getReceivedAmount() + orderDetailInfo.getOrderInfo().getReceivedAmount();
-        Double promotionCampaignExpected = analyticInfoBefore.getPromotionCampaign()+ getPromotionValue(orderDetailInfo,PromotionType.CAMPAIGN)+ getPromotionValue(orderDetailInfo,PromotionType.MEMBERSHIP)+ getPromotionValue(orderDetailInfo,PromotionType.WHOLESALE)+ getPromotionValue(orderDetailInfo,PromotionType.BUY_X_GET_Y);
-        Double promotionCodeExpected = analyticInfoBefore.getPromotionCode() + getPromotionValue(orderDetailInfo, PromotionType.COUPON);
+        Double promotionCampaignExpected = analyticInfoBefore.getPromotionCampaign()+ APIOrderDetail.getPromotionValue(orderDetailInfo,PromotionType.CAMPAIGN)+ APIOrderDetail.getPromotionValue(orderDetailInfo,PromotionType.MEMBERSHIP)+ APIOrderDetail.getPromotionValue(orderDetailInfo,PromotionType.WHOLESALE)+ APIOrderDetail.getPromotionValue(orderDetailInfo,PromotionType.BUY_X_GET_Y);
+        Double promotionCodeExpected = analyticInfoBefore.getPromotionCode() + APIOrderDetail.getPromotionValue(orderDetailInfo, PromotionType.COUPON);
         Double directDiscountExpected = analyticInfoBefore.getDirectDiscount() + (orderDetailInfo.getOrderInfo().getDirectDiscount()!=null ?orderDetailInfo.getOrderInfo().getDirectDiscount().getDiscountValue():0.0);
-        Double redeemPointExpected = analyticInfoBefore.getRedeemPoints() + getPromotionValue(orderDetailInfo,PromotionType.POINT);
-        Double shippingFeeAfterDiscount = orderDetailInfo.getOrderInfo().getOriginalShippingFee()!=null? orderDetailInfo.getOrderInfo().getOriginalShippingFee():0 - getPromotionValue(orderDetailInfo,PromotionType.FEE_SHIPPING);
+        Double redeemPointExpected = analyticInfoBefore.getRedeemPoints() + APIOrderDetail.getPromotionValue(orderDetailInfo,PromotionType.POINT);
+        Double shippingFeeAfterDiscount = orderDetailInfo.getOrderInfo().getOriginalShippingFee()!=null? orderDetailInfo.getOrderInfo().getOriginalShippingFee():0 - APIOrderDetail.getPromotionValue(orderDetailInfo,PromotionType.FEE_SHIPPING);
         Double shippingFeeBefore = analyticInfoBefore.getShippingFee();
         Double shippingFeeAfterDiscountThisOrder = shippingFeeAfterDiscount>0?shippingFeeAfterDiscount:0;
         Double shippingFeeExpected = shippingFeeBefore + shippingFeeAfterDiscountThisOrder;
-        Double shippingDiscountExpected = analyticInfoBefore.getShippingDiscount() + getPromotionValue(orderDetailInfo,PromotionType.FEE_SHIPPING);
+        Double shippingDiscountExpected = analyticInfoBefore.getShippingDiscount() + APIOrderDetail.getPromotionValue(orderDetailInfo,PromotionType.FEE_SHIPPING);
         Double uncollectedAmountExpected = analyticInfoBefore.getUncollectedAmount() + totalAmountExpected - receiveAmount;
         Double taxExpected = analyticInfoBefore.getTax() + orderDetailInfo.getOrderInfo().getTotalTaxAmount();
         Double revenueExpected = totalAmountExpected ;//= total amount - refund amount, but after order create, refund amount always  = 0.
@@ -102,5 +97,6 @@ public class APIOrdersAnalytics {
         Assert.assertEquals(analyticInfoAfter.getRevenue(), revenueExpected, "[Failed] Check revenue.");
         Assert.assertEquals(analyticInfoAfter.getProfit(), profitExpected,"[Failed] Check profit");
         Assert.assertEquals(analyticInfoAfter.getProfitAfterTax(), profitAfterTaxExpected, "[Failed] Check profit after TAX.");
+        Assert.assertEquals(analyticInfoAfter.getProductCost(), productCostExpected, "[Failed] Check product cost.");
     }
 }

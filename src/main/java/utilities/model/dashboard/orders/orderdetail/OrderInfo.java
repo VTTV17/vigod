@@ -50,4 +50,5 @@ public class OrderInfo {
     private DeliveryOrder deliveryOrder;
     private Double orgTotalPrice;
     private int usePoint;
+    private List<OrderCost> orderCosts;
 }
