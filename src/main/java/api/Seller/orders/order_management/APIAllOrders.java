@@ -499,6 +499,7 @@ public class APIAllOrders {
         //Delivery method
         Assert.assertEquals(orderInManagement.getShippingMethod(),orderDetailExpected.getOrderInfo().getDeliveryName(),
                 "[Failed] Check delivery method.");
+        logger.info("Verified order info on order management page.");
     }
     public String getStaff(){
         LoginDashboardInfo loginInfo = new Login().getInfo(loginInformation);
@@ -533,7 +534,8 @@ public class APIAllOrders {
             orderListSummaryExpected.setDeliveredCount(orderListSummaryBefore.getDeliveredCount() + 1);
         else orderListSummaryExpected.setToConfirmCount(orderListSummaryBefore.getToConfirmCount() + 1);
 
-        Assert.assertEquals(getOrderListSummary(GOSELL),orderListSummaryExpected);
+        Assert.assertEquals(getOrderListSummary(GOSELL),orderListSummaryExpected,"[Failed] Check order list summary info.");
+        logger.info("Verified order list summary.");
     }
     public Double getProuctCostOfOrder(long orderId){
         OrderInManagement orderInManagement = getOrderInfoInManagement(getOrderListInfo(GOSELL),orderId);

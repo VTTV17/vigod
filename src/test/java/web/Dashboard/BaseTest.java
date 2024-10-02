@@ -31,7 +31,7 @@ public class BaseTest {
     public void getConfig(@Optional("chrome") String browser,
                    @Optional("false") String headless,
                    @Optional("STAG") String environment,
-                   @Optional("VI") String language,
+                   @Optional("VIE") String language,
                    @Optional("VN") String domain ) { // either VN or BIZ
         this.browser = browser;
         this.headless = headless;

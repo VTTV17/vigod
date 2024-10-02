@@ -7,7 +7,10 @@ import api.Seller.setting.StoreInformation;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import lombok.Data;
+import lombok.extern.flogger.Flogger;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.testng.Assert;
 import utilities.api.API;
 import utilities.data.DataGenerator;
@@ -25,7 +28,7 @@ import static api.Seller.orders.order_management.APIAllOrders.ShippingMethod.sel
 import static api.Seller.orders.order_management.APIAllOrders.ShippingMethod.valueOf;
 @Slf4j
 public class APIOrderDetail {
-//    Logger logger = LogManager.getLogger(APIOrderDetail.class);
+    Logger logger = LogManager.getLogger(APIOrderDetail.class);
 
     API api = new API();
     LoginDashboardInfo loginInfo;
@@ -112,17 +115,17 @@ public class APIOrderDetail {
         OrderDetailInfo actualInfo = getOrderDetail(orderId);
         //Verify Customer info
         if(expectedInfo.getCustomerInfo().getName() != null){
-            Assert.assertEquals(actualInfo.getCustomerInfo().getName().trim(),expectedInfo.getCustomerInfo().getName().trim());
-            Assert.assertEquals(actualInfo.getCustomerInfo().getPhone(),expectedInfo.getCustomerInfo().getPhone());
-            Assert.assertEquals(actualInfo.getCustomerInfo().getDebtAmount(),expectedInfo.getCustomerInfo().getDebtAmount());
+            Assert.assertEquals(actualInfo.getCustomerInfo().getName().trim(),expectedInfo.getCustomerInfo().getName().trim(),"[Failed] Check customer name.");
+            Assert.assertEquals(actualInfo.getCustomerInfo().getPhone(),expectedInfo.getCustomerInfo().getPhone(),"[Failed] Check customer phone.");
+            Assert.assertEquals(actualInfo.getCustomerInfo().getDebtAmount(),expectedInfo.getCustomerInfo().getDebtAmount(),"[Failed] Check customer debt amount.");
         }
         //Verify Shipping Address
         if(expectedInfo.getShippingInfo().getContactName()!=null){
-            Assert.assertEquals(actualInfo.getShippingInfo().getContactName(),expectedInfo.getShippingInfo().getContactName());
-            Assert.assertEquals(actualInfo.getShippingInfo().getPhone(),expectedInfo.getShippingInfo().getPhone());
+            Assert.assertEquals(actualInfo.getShippingInfo().getContactName(),expectedInfo.getShippingInfo().getContactName(),"[Failed] Shipping address - Check contact name.");
+            Assert.assertEquals(actualInfo.getShippingInfo().getPhone(),expectedInfo.getShippingInfo().getPhone(),"[Failed] Shipping address - Check contact phone.");
             if(language.equalsIgnoreCase("vi"))
-                Assert.assertEquals(actualInfo.getShippingInfo().getFullAddress(),expectedInfo.getShippingInfo().getFullAddress());
-            else Assert.assertEquals(actualInfo.getShippingInfo().getFullAddressEn(),expectedInfo.getShippingInfo().getFullAddressEn());
+                Assert.assertEquals(actualInfo.getShippingInfo().getFullAddress(),expectedInfo.getShippingInfo().getFullAddress(),"[Failed] Shipping address - Check full address - langKey = vi.");
+            else Assert.assertEquals(actualInfo.getShippingInfo().getFullAddressEn(),expectedInfo.getShippingInfo().getFullAddressEn(),"[Failed] Shipping address - Check full address - langKey = en.");
         }
         //Verify Billing Addresss   //4.6 change to billing info (thong tin xuat hoa don)
 //        if(expectedInfo.getBillingInfo().getContactName()!=null){
@@ -134,30 +137,29 @@ public class APIOrderDetail {
 //            else Assert.assertEquals(actualInfo.getBillingInfo().getFullAddressEn(),expectedInfo.getBillingInfo().getFullAddressEn());
 //        }
         //Verify payment method
-        Assert.assertEquals(actualInfo.getOrderInfo().getPaymentMethod(),expectedInfo.getOrderInfo().getPaymentMethod());
+        Assert.assertEquals(actualInfo.getOrderInfo().getPaymentMethod(),expectedInfo.getOrderInfo().getPaymentMethod(), "[Failed] Check payment method.");
         //Verify earning point
-        if(expectedInfo.getEarningPoint().getValue()>0){
-            Assert.assertEquals(actualInfo.getEarningPoint().getValue(),expectedInfo.getEarningPoint().getValue());
-        }else Assert.assertEquals(new EarningPoint(),expectedInfo.getEarningPoint());
+        Assert.assertEquals(actualInfo.getEarningPoint().getValue(),expectedInfo.getEarningPoint().getValue(),"[Failed] Check earning point.");
         //Verify order summary
-        Assert.assertEquals(actualInfo.getOrderInfo().getSubTotal(),expectedInfo.getOrderInfo().getSubTotal());
-        Assert.assertEquals(actualInfo.getOrderInfo().getOriginalShippingFee(),expectedInfo.getOrderInfo().getOriginalShippingFee());
-        Assert.assertEquals(actualInfo.getOrderInfo().getShippingFee(),expectedInfo.getOrderInfo().getShippingFee());
-        Assert.assertEquals(actualInfo.getOrderInfo().getTotalDiscount(),expectedInfo.getOrderInfo().getTotalDiscount());
-        Assert.assertEquals(actualInfo.getOrderInfo().getTotalAmount(),expectedInfo.getOrderInfo().getTotalAmount());
-        Assert.assertEquals(actualInfo.getOrderInfo().getTotalTaxAmount(),expectedInfo.getOrderInfo().getTotalTaxAmount());
-        Assert.assertEquals(actualInfo.getOrderInfo().getTotalPrice(),expectedInfo.getOrderInfo().getTotalPrice());
-        Assert.assertEquals(actualInfo.getOrderInfo().getTotalQuantity(),expectedInfo.getOrderInfo().getTotalQuantity());
-        Assert.assertEquals(actualInfo.getOrderInfo().getPaymentMethod(),expectedInfo.getOrderInfo().getPaymentMethod());
-        Assert.assertEquals(actualInfo.getOrderInfo().getPaid(),expectedInfo.getOrderInfo().getPaid());
-        Assert.assertEquals(actualInfo.getOrderInfo().getPayType(),expectedInfo.getOrderInfo().getPayType());
-        Assert.assertEquals(actualInfo.getOrderInfo().getUsePoint(),expectedInfo.getOrderInfo().getUsePoint());
-        Assert.assertEquals(actualInfo.getOrderInfo().getStatus(), expectedInfo.getOrderInfo().getStatus());
-        Assert.assertEquals(actualInfo.getOrderInfo().getDebtAmount(), expectedInfo.getOrderInfo().getDebtAmount());
-        Assert.assertEquals(actualInfo.getOrderInfo().getReceivedAmount(), expectedInfo.getOrderInfo().getReceivedAmount());
+        Assert.assertEquals(actualInfo.getOrderInfo().getSubTotal(),expectedInfo.getOrderInfo().getSubTotal(),"[Failed] Check order info - subtotal.");
+        Assert.assertEquals(actualInfo.getOrderInfo().getOriginalShippingFee(),expectedInfo.getOrderInfo().getOriginalShippingFee(),"[Failed] Check order info - original shipping fee.");
+        Assert.assertEquals(actualInfo.getOrderInfo().getShippingFee(),expectedInfo.getOrderInfo().getShippingFee(),"[Failed] Check order info - shipping fee.");
+        Assert.assertEquals(actualInfo.getOrderInfo().getTotalDiscount(),expectedInfo.getOrderInfo().getTotalDiscount(),"[Failed] Check order info - total discount.");
+        Assert.assertEquals(actualInfo.getOrderInfo().getTotalAmount(),expectedInfo.getOrderInfo().getTotalAmount(),"[Failed] Check order info - total amount.");
+        Assert.assertEquals(actualInfo.getOrderInfo().getTotalTaxAmount(),expectedInfo.getOrderInfo().getTotalTaxAmount(),"[Failed] Check order info - total tax amount.");
+        Assert.assertEquals(actualInfo.getOrderInfo().getTotalPrice(),expectedInfo.getOrderInfo().getTotalPrice(),"[Failed] Check order info - total price.");
+        Assert.assertEquals(actualInfo.getOrderInfo().getTotalQuantity(),expectedInfo.getOrderInfo().getTotalQuantity(),"[Failed] Check order info - total quantity.");
+        Assert.assertEquals(actualInfo.getOrderInfo().getPaymentMethod(),expectedInfo.getOrderInfo().getPaymentMethod(), "[Failed] Check order info - payment method.");
+        Assert.assertEquals(actualInfo.getOrderInfo().getPaid(),expectedInfo.getOrderInfo().getPaid(), "[Failed] Check order info - is Paid.");
+        Assert.assertEquals(actualInfo.getOrderInfo().getPayType(),expectedInfo.getOrderInfo().getPayType(),"[Failed] Check order info - pay type.");
+        Assert.assertEquals(actualInfo.getOrderInfo().getUsePoint(),expectedInfo.getOrderInfo().getUsePoint(), "[Failed] Check order info - use point.");
+        Assert.assertEquals(actualInfo.getOrderInfo().getStatus(), expectedInfo.getOrderInfo().getStatus(),"[Failed] Check order info - order status.");
+        Assert.assertEquals(actualInfo.getOrderInfo().getDebtAmount(), expectedInfo.getOrderInfo().getDebtAmount(), "[Failed] Check order info - debt amount of this order.");
+        Assert.assertEquals(actualInfo.getOrderInfo().getReceivedAmount(), expectedInfo.getOrderInfo().getReceivedAmount(),"[Failed] Check order info - receive amount");
         Assert.assertEquals(DataGenerator.getDateByTimeZone(new StoreInformation(loginInformation).getInfo().getTimeZone(),actualInfo.getOrderInfo().getCreateDate())
-                ,expectedInfo.getOrderInfo().getCreateDate());
-        Assert.assertEquals(actualInfo.getOrderInfo().getCreatedBy(),expectedInfo.getOrderInfo().getCreatedBy());
+                ,expectedInfo.getOrderInfo().getCreateDate(),"[Failed] Check order info - created date");
+        Assert.assertEquals(actualInfo.getOrderInfo().getCreatedBy(),expectedInfo.getOrderInfo().getCreatedBy()
+        ,"[Failed] Check order info - created by.");
 
         //Verify Discount Summary
         List<SummaryDiscount> actualSummaryDiscount = actualInfo.getSummaryDiscounts();
@@ -171,7 +173,7 @@ public class APIOrderDetail {
         });
         actualSummaryDiscountUpdateModel.sort(Comparator.comparing(SummaryDiscount::getLabel));
         expectedSummaryDiscount.sort(Comparator.comparing(SummaryDiscount::getLabel));
-        Assert.assertEquals(actualSummaryDiscountUpdateModel,expectedSummaryDiscount);
+        Assert.assertEquals(actualSummaryDiscountUpdateModel,expectedSummaryDiscount, "[Failed] Check summary discount.");
 
         //Verify item order
         List<ItemOrderInfo> actualItemList = actualInfo.getItems();
@@ -212,9 +214,10 @@ public class APIOrderDetail {
                 .thenComparing(ItemOrderInfo::getVariationName)
                 .thenComparing(ItemOrderInfo::getConversionUnitName));
 
-        Assert.assertEquals(actualItemListUpdateModel,expectedItemList);
+        Assert.assertEquals(actualItemListUpdateModel,expectedItemList, "[Failed] Check order items list.");
         //Verify branch name
-        Assert.assertEquals(actualInfo.getStoreBranch().getName(),expectedInfo.getStoreBranch().getName());
+        Assert.assertEquals(actualInfo.getStoreBranch().getName(),expectedInfo.getStoreBranch().getName(), "[Failed] Check branch name.");
+        logger.info("Verified order detail info after order created.");
         return this;
     }
 
@@ -255,7 +258,7 @@ public class APIOrderDetail {
 
        return orderItems;
     }
-    public static Double getPromotionValue(OrderDetailInfo orderDetailInfo, PromotionType promotionType){
+    public static double getPromotionValue(OrderDetailInfo orderDetailInfo, PromotionType promotionType){
         if(orderDetailInfo.getSummaryDiscounts()==null) return 0.0;
         Double value = orderDetailInfo.getSummaryDiscounts().stream()
                 .filter(i -> i.getDiscountType().equals(promotionType.toString()))

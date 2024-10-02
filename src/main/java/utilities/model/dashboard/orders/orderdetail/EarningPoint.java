@@ -15,4 +15,6 @@ public class EarningPoint {
     private String sourceType;
     private String earnDay;
     private double remainingValue;
+    private String startDay;
+    private String expiredDay;
 }
