@@ -63,7 +63,6 @@ public class APIOrderDetail {
     String getPaymentHistoryPath = "/orderservices2/api/payment-histories/bc-order/%s";
 
     Response getDetailOfOrderResponse(long orderId) {
-        System.out.println(language);
         return api.get(getOrderDetailPath.formatted(orderId,language), loginInfo.getAccessToken(), Map.of("langkey", language));
     }
 

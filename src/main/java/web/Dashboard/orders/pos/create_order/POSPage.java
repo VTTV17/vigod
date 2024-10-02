@@ -383,7 +383,7 @@ public class POSPage extends POSElement {
     }
 
     public enum POSPaymentMethod {
-        CASH, BANKTRANSFER, POS
+        CASH, BANK_TRANSFER, POS
     }
 
     public void clickOnViewAllPayment() {
@@ -400,7 +400,7 @@ public class POSPage extends POSElement {
                 if (!commonAction.getAttribute(loc_lstPaymentMethod, 0, "class").contains("selected-item"))
                     commonAction.click(loc_lstPaymentMethod, 0);
             }
-            case BANKTRANSFER -> {
+            case BANK_TRANSFER -> {
                 if (!commonAction.getAttribute(loc_lstPaymentMethod, 1, "class").contains("selected-item"))
                     commonAction.click(loc_lstPaymentMethod, 1);
             }
@@ -498,7 +498,7 @@ public class POSPage extends POSElement {
     }
 
     public enum UsePointType {
-        SERVERAL, MAX_ORDER, MAX_AVAILABLE
+        SERVERAL, MAX_ORDER, MAX_AVAILABLE, NONE
     }
 
     public int redeemPointNeedForTotal() {
@@ -510,11 +510,14 @@ public class POSPage extends POSElement {
     @SneakyThrows
     public int inputUsePoint(UsePointType usePointType) {
         int point = 0;
-        int availablePoint = Integer.parseInt(commonAction.getText(loc_lblAvailablePoint));
+        int availablePoint = Integer.parseInt(commonAction.getText(loc_lblAvailablePoint).replaceAll(",",""));
         if (availablePoint == 0) throw new Exception("Customer don't have any available point");
         switch (usePointType) {
             case SERVERAL -> point = availablePoint > 1 ? DataGenerator.generatNumberInBound(1, availablePoint - 1) : 1;
             case MAX_AVAILABLE, MAX_ORDER -> point = Math.min(availablePoint, redeemPointNeedForTotal());
+            case NONE -> {
+                return 0;
+            }
         }
         inputUsePoint(point);
         return point;
@@ -717,7 +720,7 @@ public class POSPage extends POSElement {
     public POSPaymentMethod getSelectedPaymentMethod() {
         String paymentMethod = commonAction.getText(loc_lblSelectedPaymentMethod);
         return (paymentMethod.equalsIgnoreCase("cash") || paymentMethod.equalsIgnoreCase("tiền mặt")) ? POSPaymentMethod.CASH :
-                (paymentMethod.equalsIgnoreCase("bank transfer") || paymentMethod.equalsIgnoreCase("chuyển khoản")) ? POSPaymentMethod.BANKTRANSFER : POSPaymentMethod.POS;
+                (paymentMethod.equalsIgnoreCase("bank transfer") || paymentMethod.equalsIgnoreCase("chuyển khoản")) ? POSPaymentMethod.BANK_TRANSFER : POSPaymentMethod.POS;
     }
 
     /**
