@@ -40,6 +40,31 @@ public class UICommonAction {
         actions = new Actions(driver);
     }
 
+    public void attemptWithRetry(int maxRetries, long sleepTimeInMillis, Runnable task) {
+        for (int attempt = 0; attempt < maxRetries; attempt++) {
+            try {
+                // Execute the task
+                task.run();
+                return; // If task succeeds, exit the loop
+            } catch (Exception e) {
+                // Log the exception (optional)
+                LogManager.getLogger().warn("Attempt " + (attempt + 1) + " failed.", e);
+                
+                // If it's the last attempt, throw the exception
+                if (attempt == maxRetries - 1) {
+                    throw new IllegalStateException("Task failed after " + maxRetries + " attempts.", e);
+                }
+                
+                // Otherwise, sleep for the specified time before retrying
+                try {
+                    Thread.sleep(sleepTimeInMillis);
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt(); // Restore interrupted status
+                }
+            }
+        }
+    }    
+    
     public void clickElement(List<WebElement> element, int index) {
         try {
             wait.until(ExpectedConditions.elementToBeClickable(element.get(index))).click();

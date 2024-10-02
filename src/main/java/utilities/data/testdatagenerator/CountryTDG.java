@@ -65,8 +65,9 @@ public class CountryTDG {
 		excludedCountries.add("United States Minor Outlying Islands");
 		excludedCountries.add("Antarctica");
 		excludedCountries.add("South Georgia");
-		//woring phoneCode in database
+		//wrong phoneCode in database
 		excludedCountries.add("Montserrat");
+		excludedCountries.add("Trinidad And Tobago");
 		
 	}
 	

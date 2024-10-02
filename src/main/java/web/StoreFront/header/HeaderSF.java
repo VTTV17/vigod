@@ -76,8 +76,10 @@ public class HeaderSF extends GeneralSF {
     String MENU_ITEM_BY_TEXT = "//div[contains(@class,'desktop')]//a[text()='%s']";
 
     public HeaderSF clickUserInfoIcon() {
+    	waitDotLoadingDisappear();
+	    waitTillLoaderDisappear();
         commons.clickElement(USER_INFO_ICON);
-        logger.info("Clicked on User Info icon.");
+        logger.info("Clicked User Info icon.");
         return this;
     }
 

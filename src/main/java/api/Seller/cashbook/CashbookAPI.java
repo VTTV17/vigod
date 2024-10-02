@@ -17,6 +17,7 @@ import api.Seller.login.Login;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import utilities.api.API;
+import utilities.model.dashboard.cashbook.CashbookRecord;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 
@@ -99,7 +100,9 @@ public class CashbookAPI {
     	response.then().statusCode(200);
     	return response.jsonPath();
     }
-    
+    public List<CashbookRecord> getAllRecords() {
+    	return getAllRecordJsonPath().getList(".", CashbookRecord.class);
+    }
     public List<String> getAllTransactionCodes() {
     	return getAllRecordJsonPath().getList("transactionCode");
     }

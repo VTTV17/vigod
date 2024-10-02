@@ -71,20 +71,30 @@ public class LoginSF {
 
         return resetResponse;
     }    
+  
     
+    /**
+     * Deletes buyer account using his id_token
+     * @param idToken id_token of a buyer, obtained after the buyer is logged in
+     * @return Response object
+     */
+    public Response deleteAccountByTokenId(String idToken) {
+    	
+    	Map<String, String> headerMap = new HashMap<>();
+    	headerMap.put("authorization", "Bearer " + idToken);
+    	
+    	Response deleteResponse = new API().delete("/api/account/delete", idToken, headerMap);
+    	deleteResponse.then().log().ifValidationFails().statusCode(200);
+    	
+    	return deleteResponse;
+    } 
     public Response deleteAccount(String username, String password, String phoneCode) {
     	
     	LoginToSF(username, password, phoneCode);
     	
     	String token = getInfo().getAccessToken();
     	
-    	Map<String, String> headerMap = new HashMap<>();
-    	headerMap.put("authorization", "Bearer " + token);
-    	
-    	Response resetResponse = new API().delete("/api/account/delete", token, headerMap);
-    	resetResponse.then().log().ifValidationFails().statusCode(200);
-    	
-    	return resetResponse;
+    	return deleteAccountByTokenId(token);
     }    
     
     /**

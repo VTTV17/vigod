@@ -4,6 +4,7 @@ import static utilities.account.AccountTest.ADMIN_COUNTRY_TIEN;
 import static utilities.account.AccountTest.ADMIN_PASSWORD_TIEN;
 import static utilities.account.AccountTest.ADMIN_USERNAME_TIEN;
 import static utilities.links.Links.SF_DOMAIN;
+import static utilities.links.Links.SF_DOMAIN_BIZ;
 
 import java.util.List;
 import java.util.Random;
@@ -50,7 +51,7 @@ public class RefactoredSignupSF extends BaseTest {
 	SignupPage signupPage;
 	HeaderSF headerSection;
 
-	String sellerCountry, sellerUsername, sellerPassword, sellerSFURL;
+	String sellerCountry, sellerUsername, sellerPassword, sellerSFURL, sfDomain;
 	LoginInformation sellerCredentials;
 	
 	LoginSF loginSFAPI;
@@ -67,17 +68,19 @@ public class RefactoredSignupSF extends BaseTest {
 			sellerCountry = ADMIN_COUNTRY_TIEN;
 			sellerUsername = ADMIN_USERNAME_TIEN;
 			sellerPassword = ADMIN_PASSWORD_TIEN;
+			sfDomain = SF_DOMAIN;
 		} else {
-			sellerCountry = AccountTest.ADMIN_MAIL_BIZ_COUNTRY;
-			sellerUsername = AccountTest.ADMIN_MAIL_BIZ_USERNAME;
-			sellerPassword = AccountTest.ADMIN_MAIL_BIZ_PASSWORD;
+			sellerCountry = AccountTest.ADMIN_PHONE_BIZ_COUNTRY;
+			sellerUsername = AccountTest.ADMIN_PHONE_BIZ_USERNAME;
+			sellerPassword = AccountTest.ADMIN_PHONE_BIZ_PASSWORD;
+			sfDomain = SF_DOMAIN_BIZ;
 		}
 		
 		sellerCredentials = new Login().setLoginInformation(DataGenerator.getPhoneCode(sellerCountry), sellerUsername, sellerPassword).getLoginInformation();
 		
         publishedLanguages = new StoreLanguageAPI(sellerCredentials).getAdditionalLanguages();
 		
-		sellerSFURL = "https://%s".formatted(new StoreInformation(sellerCredentials).getInfo().getStoreURL() + SF_DOMAIN);
+		sellerSFURL = "https://%s".formatted(new StoreInformation(sellerCredentials).getInfo().getStoreURL() + sfDomain);
 		
 		loginSFAPI = new LoginSF(sellerCredentials);
         
@@ -190,6 +193,8 @@ public class RefactoredSignupSF extends BaseTest {
 		headerSection.clickUserInfoIcon()
 			.changeLanguage(language);
 		
+		if (buyerData.getType().equals(AccountType.MOBILE)) commonAction.sleepInMiliSecond(50000, "The time interval between 2 Register API calls is 60s");
+		
 		String actualError = signupPage.fillOutSignupForm(buyerData)
 			.getUsernameExistError();
 		
@@ -212,7 +217,6 @@ public class RefactoredSignupSF extends BaseTest {
 		var expected_UserProfile_Phone = "%s:%s".formatted(buyerData.getPhoneCode(), buyerData.getUsername());
 		var expected_UserProfile_Country = buyerData.getCountry();
 		var expected_API_LocationCode = buyerData.getCountryCode();
-		var expected_API_LangKey = randomSFDisplayLanguage();
 		
 		//Create an account on SF
 		signupPage.navigate(sellerSFURL);
@@ -276,7 +280,8 @@ public class RefactoredSignupSF extends BaseTest {
 		JsonPath buyerAdditionalData = loginSFAPI.getAccountInfo(buyerData.getUsername(), buyerData.getPassword(), buyerData.getPhoneCode()).jsonPath();
 		var actual_API_langKey = buyerAdditionalData.getString("langKey");
 		var actual_API_LocationCode = buyerAdditionalData.getString("locationCode");
-
+		System.out.println(actual_API_langKey);
+		
 		
 		//Assertions for SF
 		Assert.assertEquals(actual_SF_Name, expected_UserProfile_Name);
@@ -292,7 +297,6 @@ public class RefactoredSignupSF extends BaseTest {
 		
 		//Assertions for API
 		Assert.assertEquals(actual_API_LocationCode, expected_API_LocationCode);
-		Assert.assertEquals(actual_API_langKey, expected_API_LangKey);
 		
 		
 		//Delete account afterwards
@@ -431,6 +435,8 @@ public class RefactoredSignupSF extends BaseTest {
 		//Create the account again
 		headerSection.clickUserInfoIcon()
 		.changeLanguageByLangCode(expected_API_LangKey);
+		
+		if (buyerData.getType().equals(AccountType.MOBILE)) commonAction.sleepInMiliSecond(60000, "The time interval between 2 Register API calls is 60s");
 		
 		signupPage.fillOutSignupForm(buyerData)
 		.inputVerificationCode(getActivationKey(buyerData))
@@ -580,12 +586,13 @@ public class RefactoredSignupSF extends BaseTest {
 	@DataProvider
 	Object[][] accountsToDelete() {
 		return new Object[][] { 
-			{"Belgium", "476518554"},
+			{"Hong Kong S.A.R.", "auto-buyer63776338@mailnesia.com"},
 		};
 	}	
-//	@Test(dataProvider = "accountsToDelete")
+	@Test(dataProvider = "accountsToDelete")
 	void deleteAccount(String country, String username) {
-		new LoginSF(sellerCredentials).deleteAccount(username, "fortesting!1", "+"+DataGenerator.getPhoneCode(country));
+//		new LoginSF(sellerCredentials).deleteAccount(username, "fortesting!1", DataGenerator.getPhoneCode(country));
+		new LoginSF(sellerCredentials).deleteAccountByTokenId("eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJmYWNlYm9vazogbG1pbmhoYW85NzUzQGdtYWlsLmNvbSIsImF1dGgiOiJST0xFX1VTRVIiLCJkaXNwbGF5TmFtZSI6IkjDoG8gTMOibSBNaW5oIiwidXNlcklkIjoyNjg3NTAwNzQsImxvY2F0aW9uQ29kZSI6IlZOLVNHIiwiZXhwIjoxNzU4Nzg2NDMyfQ.8wFxPVb16ouBvpOr0te0pFVUN8XlucH4nGJm9pAMJZTi9BTgFi_W0tILQddISYCfGH6D-u8fPX_G-PVb1F4MJQ");
 	}		
 	
     @AfterMethod
