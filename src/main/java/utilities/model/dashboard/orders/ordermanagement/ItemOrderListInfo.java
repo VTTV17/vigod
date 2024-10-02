@@ -26,4 +26,5 @@ public class ItemOrderListInfo {
     private String sku;
     private long bcOrderId;
     private String unit;
+    private String giftType;
 }

@@ -4,5 +4,8 @@ public enum PromotionType {
     CAMPAIGN,
     COUPON,
     POINT,
-    FEE_SHIPPING
+    FEE_SHIPPING,
+    MEMBERSHIP,
+    BUY_X_GET_Y,
+    WHOLESALE
 }

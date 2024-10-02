@@ -128,7 +128,7 @@ public class APIGetOrderList {
      * @param timeFrame The time frame to filter the orders.
      * @return A String array with the start and end date of the specified time frame.
      */
-    private String[] generateTimeFrame(TimeFrame timeFrame) {
+    public String[] generateTimeFrame(TimeFrame timeFrame) {
         return switch (timeFrame) {
             case TODAY -> DateTimeRangeGenerator.getTodayRange();
             case YESTERDAY -> DateTimeRangeGenerator.getYesterdayRange();

@@ -487,6 +487,7 @@ public class DataGenerator {
 		return rawAmount.replaceAll("[^\\d+\\.-]","");
 	}
     public static String getDateByTimeZone(String timeZone, String utcDate){
+        if(utcDate==null) return null;
         // Parse the text to a ZonedDateTime in UTC
         ZonedDateTime utcDateTime = ZonedDateTime.parse(utcDate, DateTimeFormatter.ISO_DATE_TIME);
 

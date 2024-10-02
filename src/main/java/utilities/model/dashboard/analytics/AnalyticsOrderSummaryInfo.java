@@ -2,6 +2,8 @@ package utilities.model.dashboard.analytics;
 
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 @Data
 public class AnalyticsOrderSummaryInfo {
     private int id;
