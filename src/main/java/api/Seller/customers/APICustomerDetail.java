@@ -7,6 +7,13 @@ import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import utilities.api.API;
 import utilities.model.dashboard.customer.CustomerDebtRecord;
 import utilities.model.dashboard.customer.CustomerInfo;
@@ -128,12 +135,18 @@ public class APICustomerDetail {
      * Retrieve the debt records belonging to a customer
      * @param customerId (customer-profile table)
      * @return CustomerDebtRecord DTO
+     * @throws JsonProcessingException 
+     * @throws JsonMappingException 
      */
-    public List<CustomerDebtRecord> getDebtRecords(int customerId) {
+    public List<CustomerDebtRecord> getDebtRecords(int customerId) throws JsonMappingException, JsonProcessingException {
     	String basePath = debtRecordPath.replaceAll("<storeId>", String.valueOf(loginInfo.getStoreID())).replaceAll("<customerId>", String.valueOf(customerId));
     	String token = loginInfo.getAccessToken();
     	
     	Response response = api.get(basePath, token).then().statusCode(200).extract().response();
-    	return response.jsonPath().getList(".", CustomerDebtRecord.class);
+    	
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS);
+    	
+    	return mapper.readValue(response.asPrettyString(), new TypeReference<List<CustomerDebtRecord>>() {});
     }    
 }

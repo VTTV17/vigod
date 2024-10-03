@@ -52,6 +52,7 @@ public class POSElement {
         return By.xpath("//tr[td//div[text() =\"%s\"] and td//span[text() =\"%s\"] and td//div[text()=\"%s\"]]//following-sibling::tr[1]//img".formatted(productName, variationValue, unitName));
     }
 
+    By loc_dlgSelectIMEI = By.cssSelector(".managed-inventory-POS-modal");
     By loc_dlgSelectIMEI_lstIMEI = By.cssSelector(".content:not(.selected)");
     By loc_dlgSelectIMEI_btnSave = By.cssSelector(".modal-footer .gs-button__green");
     By loc_dlgSelectLot_txtQuantity = By.cssSelector(".modal-lot-select .get-quantity input");
