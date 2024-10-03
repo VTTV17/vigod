@@ -473,7 +473,7 @@ public class APIAllOrders {
         //Redeem point
         Assert.assertEquals(orderInManagement.getRedeemPoint(),orderDetailExpected.getOrderInfo().getUsePoint(),"[Failed] Check redeem point.");
         //Discount amount
-        Assert.assertEquals(orderInManagement.getDiscountAmount(), -orderDetailExpected.getTotalSummaryDiscounts(),"[Failed] Check discount amount.");
+        Assert.assertEquals(orderInManagement.getDiscountAmount(), orderDetailExpected.getTotalSummaryDiscounts(),"[Failed] Check discount amount.");
         //Branch name
         Assert.assertEquals(orderInManagement.getBranchName(),orderDetailExpected.getStoreBranch().getName(),"[Failed] Check branch name.");
         //Payment status

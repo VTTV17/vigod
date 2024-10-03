@@ -261,7 +261,7 @@ public class APIGetOrderList {
         LogManager.getLogger().info("Waiting for the retrieval of the order list from the API for channel: {} and time frame: {}", channel, timeFrame);
         var orderLists = retrieveOrderData(timeFrame, channel);
 
-        OrderList.OrderListSummaryVM summary = summarizeOrderList(orderLists.getFirst());
+        OrderList.OrderListSummaryVM summary = summarizeOrderList(orderLists.get(0));
         List<OrderList.Order> combinedOrders = flattenOrderListResponses(orderLists);
 
         LogManager.getLogger().info("Completed retrieval of the order list from the API. Total orders retrieved: {}", combinedOrders.size());
