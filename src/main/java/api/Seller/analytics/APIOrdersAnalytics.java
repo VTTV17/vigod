@@ -73,9 +73,9 @@ public class APIOrdersAnalytics {
         double promotionCodeExpected = analyticInfoBefore.getPromotionCode() + APIOrderDetail.getPromotionValue(orderDetailInfo, PromotionType.COUPON);
         double directDiscountExpected = analyticInfoBefore.getDirectDiscount() + APIOrderDetail.getPromotionValue(orderDetailInfo,PromotionType.DIRECT_DISCOUNT);
         double redeemPointExpected = analyticInfoBefore.getRedeemPoints() + APIOrderDetail.getPromotionValue(orderDetailInfo,PromotionType.POINT);
-        double shippingFeeAfterDiscount = orderDetailInfo.getOrderInfo().getOriginalShippingFee()!=null? orderDetailInfo.getOrderInfo().getOriginalShippingFee():0 - APIOrderDetail.getPromotionValue(orderDetailInfo,PromotionType.FREE_SHIPPING);
+//        double shippingFeeAfterDiscount = orderDetailInfo.getOrderInfo().getOriginalShippingFee()!=null? orderDetailInfo.getOrderInfo().getOriginalShippingFee():0 - APIOrderDetail.getPromotionValue(orderDetailInfo,PromotionType.FREE_SHIPPING);
         double shippingFeeBefore = analyticInfoBefore.getShippingFee();
-        double shippingFeeAfterDiscountThisOrder = shippingFeeAfterDiscount>0?shippingFeeAfterDiscount:0;
+        double shippingFeeAfterDiscountThisOrder = orderDetailInfo.getOrderInfo().getShippingFee();
         double shippingFeeExpected = shippingFeeBefore + shippingFeeAfterDiscountThisOrder;
         double shippingDiscountExpected = analyticInfoBefore.getShippingDiscount() + APIOrderDetail.getPromotionValue(orderDetailInfo,PromotionType.FREE_SHIPPING);
         double orderCostExpected = analyticInfoBefore.getOrderCost();

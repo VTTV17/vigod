@@ -364,23 +364,23 @@ public class POSPage extends POSElement {
         return GetDataByRegex.getAmountByRegex(total);
     }
 
-    public void inputReceiveAmount(double amount) {
-    	new HomePage(driver).waitTillLoadingDotsDisappear();
-    	commonAction.sleepInMiliSecond(1000, "Wait a little for better UI stability");
-        commonAction.inputText(loc_txtReceiveAmount, String.valueOf(amount));
+    public void inputReceiveAmount(String amount) {
+        new HomePage(driver).waitTillLoadingDotsDisappear();
+        commonAction.sleepInMiliSecond(1000, "Wait a little for better UI stability");
+        commonAction.inputText(loc_txtReceiveAmount, amount);
         logger.info("Input receive amount: {}", amount);
     }
 
     public Double inputReceiveAmount(ReceivedAmountType receivedAmountType) {
-    	new HomePage(driver).waitTillLoadingDotsDisappear();
-    	commonAction.sleepInMiliSecond(1000, "Wait a little for better UI stability");
+        new HomePage(driver).waitTillLoadingDotsDisappear();
+        commonAction.sleepInMiliSecond(1000, "Wait a little for better UI stability");
         double receiveAmount = (Objects.requireNonNull(receivedAmountType) == ReceivedAmountType.FULL)
                 ? getTotalAmount()
                 : ((receivedAmountType == ReceivedAmountType.PARTIAL)
-                ? DataGenerator.generatNumberInBound(1000, getTotalAmount())
+                ? DataGenerator.generatNumberInBound(1, getTotalAmount())
                 : 0);
-        inputReceiveAmount(receiveAmount);
-        return receiveAmount;
+        inputReceiveAmount(String.format("%.0f",receiveAmount));
+        return Double.parseDouble(String.format("%.0f",receiveAmount));
     }
 
     public enum POSPaymentMethod {
@@ -815,12 +815,11 @@ public class POSPage extends POSElement {
         orderInfo.setSubTotal(getSubTotalValue());
         if(getShippingFee()>0) {
             orderInfo.setOriginalShippingFee(getShippingFee());
-            orderInfo.setShippingFee(getShippingFee() > getShippingFeeDiscount() ? getShippingFee() - getShippingFeeDiscount() : 0);
+            orderInfo.setShippingFee(getShippingFee() > getShippingFeeDiscount() ? getShippingFee() - Math.abs(getShippingFeeDiscount()) : 0);
         }
 
         orderInfo.setTotalQuantity(getTotalQuantity());
         orderInfo.setTotalAmount(totalAmount);
-        orderInfo.setTotalDiscount(getTotalDiscountAmount());
         orderInfo.setPaymentMethod(getSelectedPaymentMethod().toString());
         orderInfo.setPaid(receiveAmount==totalAmount);
         orderInfo.setUsePoint(getUsePoint());
@@ -852,7 +851,7 @@ public class POSPage extends POSElement {
         }
         customerOrderInfo.setCustomerId(customerId);
         orderDetailInfo.setCustomerInfo(customerOrderInfo);
-
+        orderDetailInfo.setTotalSummaryDiscounts(getTotalDiscountAmount());
         orderDetailInfo.setEarningPoint(getEarnPoint());
         StoreBranch storeBranch  = new StoreBranch();
         storeBranch.setName(branchName);
@@ -898,7 +897,7 @@ public class POSPage extends POSElement {
         return loginInfo.getUserName();
     }
     public POSPage clickEditDelivery(){
-        commonAction.click(loc_icnEditDelivery);
+        commonAction.clickJS(loc_icnEditDelivery);
         logger.info("Click on Edit delivery icon.");
         return this;
     }

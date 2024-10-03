@@ -143,7 +143,6 @@ public class APIOrderDetail {
         Assert.assertEquals(actualInfo.getOrderInfo().getSubTotal(),expectedInfo.getOrderInfo().getSubTotal(),"[Failed] Check order info - subtotal.");
         Assert.assertEquals(actualInfo.getOrderInfo().getOriginalShippingFee(),expectedInfo.getOrderInfo().getOriginalShippingFee(),"[Failed] Check order info - original shipping fee.");
         Assert.assertEquals(actualInfo.getOrderInfo().getShippingFee(),expectedInfo.getOrderInfo().getShippingFee(),"[Failed] Check order info - shipping fee.");
-        Assert.assertEquals(actualInfo.getOrderInfo().getTotalDiscount(),expectedInfo.getOrderInfo().getTotalDiscount(),"[Failed] Check order info - total discount.");
         Assert.assertEquals(actualInfo.getOrderInfo().getTotalAmount(),expectedInfo.getOrderInfo().getTotalAmount(),"[Failed] Check order info - total amount.");
         Assert.assertEquals(actualInfo.getOrderInfo().getTotalTaxAmount(),expectedInfo.getOrderInfo().getTotalTaxAmount(),"[Failed] Check order info - total tax amount.");
         Assert.assertEquals(actualInfo.getOrderInfo().getTotalPrice(),expectedInfo.getOrderInfo().getTotalPrice(),"[Failed] Check order info - total price.");
@@ -173,6 +172,7 @@ public class APIOrderDetail {
         actualSummaryDiscountUpdateModel.sort(Comparator.comparing(SummaryDiscount::getLabel));
         expectedSummaryDiscount.sort(Comparator.comparing(SummaryDiscount::getLabel));
         Assert.assertEquals(actualSummaryDiscountUpdateModel,expectedSummaryDiscount, "[Failed] Check summary discount.");
+        Assert.assertEquals(actualInfo.getTotalSummaryDiscounts(),-expectedInfo.getTotalSummaryDiscounts(),"[Failed] Check total summary discount.");
 
         //Verify item order
         List<ItemOrderInfo> actualItemList = actualInfo.getItems();
