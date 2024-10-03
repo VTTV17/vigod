@@ -121,7 +121,7 @@ public class APIGetOrderList {
             private String fullShippingAddress;
             private String fullShippingAddressEn;
             private String phoneCode;
-            private List<String> orderTags;
+            private List<Object> orderTags;
             private String madeBy;
             private String statusUpdatedDate;
             private String customerSaleChannel;
