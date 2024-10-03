@@ -34,6 +34,7 @@ import utilities.model.sellerApp.login.LoginInformation;
 import web.Dashboard.confirmationdialog.ConfirmationDialog;
 import web.Dashboard.home.HomePage;
 import web.Dashboard.orders.pos.create_order.deliverydialog.DeliveryDialog;
+import web.Dashboard.orders.pos.create_order.deliverydialog.DeliveryDialogElement;
 
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -840,7 +841,7 @@ public class POSPage extends POSElement {
         if(isDeliveryOpted()) clickEditDelivery();
         orderDetailInfo.setBillingInfo(getBillingInfo(customerOrderInfo.getName() == null, customerId));
         orderDetailInfo.setShippingInfo(getShippingInfo());
-        if(customerOrderInfo.getMainPhone()==null) {
+        if(customerOrderInfo.getMainPhone()==null && isDeliveryOpted()) {
             customerOrderInfo.setMainPhone(orderDetailInfo.getShippingInfo().getPhone());
             customerOrderInfo.setPhone(orderDetailInfo.getShippingInfo().getPhoneCode() + orderDetailInfo.getShippingInfo().getPhone().replaceFirst("^0", ""));
         }

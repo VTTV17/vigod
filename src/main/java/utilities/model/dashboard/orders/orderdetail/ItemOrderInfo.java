@@ -47,4 +47,5 @@ public class ItemOrderInfo {
     private GsOrderBXGYDTO gsOrderBXGYDTO;
     private Long parentItemId;
     private Long parentModelId;
+    private int index;
 }
