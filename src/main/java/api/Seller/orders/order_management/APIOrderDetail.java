@@ -42,7 +42,7 @@ public class APIOrderDetail {
     public APIOrderDetail(LoginInformation loginInformation, String language) {
         this.loginInformation = loginInformation;
         loginInfo = new Login().getInfo(loginInformation);
-        this.language = language.substring(0,2);
+        this.language = language.substring(0, 2);
     }
 
     @Data
@@ -257,11 +257,42 @@ public class APIOrderDetail {
 
        return orderItems;
     }
-    public static double getPromotionValue(OrderDetailInfo orderDetailInfo, PromotionType promotionType){
-        if(orderDetailInfo.getSummaryDiscounts()==null) return 0.0;
-        Double value = orderDetailInfo.getSummaryDiscounts().stream()
+
+    public static double getPromotionValue(OrderDetailInfo orderDetailInfo, PromotionType promotionType) {
+        if (orderDetailInfo.getSummaryDiscounts() == null) return 0.0;
+        return -orderDetailInfo.getSummaryDiscounts().stream()
                 .filter(i -> i.getDiscountType().equals(promotionType.toString()))
                 .mapToDouble(SummaryDiscount::getValue).sum();
-        return GetDataByRegex.getAmountByRegex(value.toString());
+    }
+
+    /**
+     * Retrieves the shipping fee after discount for the given order.
+     * <p>
+     * This method returns the shipping fee for the order after any discounts have been applied.
+     * If the order information or shipping fee is null, it returns 0.0.
+     *
+     * @param orderDetailInfo The details of the order to retrieve the shipping fee from.
+     * @return The shipping fee after discount as a double, or 0.0 if unavailable.
+     */
+    public static double getShippingFeeAfterDiscount(OrderDetailInfo orderDetailInfo) {
+        if (orderDetailInfo.getOrderInfo() == null) return 0.0;
+        if (orderDetailInfo.getOrderInfo().getShippingFee() == null) return 0.0;
+        return orderDetailInfo.getOrderInfo().getShippingFee();
+    }
+
+    /**
+     * Calculates the total order cost for the given order.
+     * <p>
+     * This method sums the amounts of all the order costs associated with the given order.
+     * If the order information or the list of order costs is null, it returns 0.0.
+     *
+     * @param orderDetailInfo The details of the order to retrieve the costs from.
+     * @return The total order cost as a double, or 0.0 if unavailable.
+     */
+    public static double getOrderCost(OrderDetailInfo orderDetailInfo) {
+        if (orderDetailInfo.getOrderInfo() == null) return 0.0;
+        if (orderDetailInfo.getOrderInfo().getOrderCosts() == null) return 0.0;
+        return orderDetailInfo.getOrderInfo().getOrderCosts().stream()
+                .mapToDouble(OrderCost::getAmount).sum();
     }
 }

@@ -364,7 +364,7 @@ public class POSPage extends POSElement {
         return GetDataByRegex.getAmountByRegex(total);
     }
 
-    public void inputReceiveAmount(String amount) {
+    public void inputReceiveAmount(double amount) {
     	new HomePage(driver).waitTillLoadingDotsDisappear();
     	commonAction.sleepInMiliSecond(1000, "Wait a little for better UI stability");
         commonAction.inputText(loc_txtReceiveAmount, String.valueOf(amount));
@@ -377,10 +377,10 @@ public class POSPage extends POSElement {
         double receiveAmount = (Objects.requireNonNull(receivedAmountType) == ReceivedAmountType.FULL)
                 ? getTotalAmount()
                 : ((receivedAmountType == ReceivedAmountType.PARTIAL)
-                ? DataGenerator.generatNumberInBound(1, getTotalAmount())
+                ? DataGenerator.generatNumberInBound(1000, getTotalAmount())
                 : 0);
-        inputReceiveAmount(String.format("%.0f",receiveAmount));
-        return Double.parseDouble(String.format("%.0f",receiveAmount));
+        inputReceiveAmount(receiveAmount);
+        return receiveAmount;
     }
 
     public enum POSPaymentMethod {
@@ -898,7 +898,7 @@ public class POSPage extends POSElement {
         return loginInfo.getUserName();
     }
     public POSPage clickEditDelivery(){
-        commonAction.clickJS(loc_icnEditDelivery);
+        commonAction.click(loc_icnEditDelivery);
         logger.info("Click on Edit delivery icon.");
         return this;
     }

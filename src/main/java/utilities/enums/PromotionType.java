@@ -1,6 +1,7 @@
 package utilities.enums;
 
 public enum PromotionType {
+    FLASH_SALE,
     CAMPAIGN,
     COUPON,
     POINT,

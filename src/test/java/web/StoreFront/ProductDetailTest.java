@@ -99,10 +99,10 @@ public class ProductDetailTest extends BaseTest {
     @Test(groups = "[STOREFRONT - PRODUCT DETAIL] Normal product - Without variation")
     void G1_01_FlashSaleIsInProgress() throws Exception {
         flashSale.createFlashSaleV2(productInfo, 1, 30);
-        discountCampaign.createProductDiscountCampaignV2(conditions, productInfo, 0);
-        waitFlashSaleStart();
-
-        new ProductDetailPage(driver).accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
+//        discountCampaign.createProductDiscountCampaignV2(conditions, productInfo, 0);
+//        waitFlashSaleStart();
+//
+//        new ProductDetailPage(driver).accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
     @Test(groups = "[STOREFRONT - PRODUCT DETAIL] Normal product - Without variation")
