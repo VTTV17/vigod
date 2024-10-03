@@ -34,7 +34,6 @@ import utilities.model.sellerApp.login.LoginInformation;
 import web.Dashboard.confirmationdialog.ConfirmationDialog;
 import web.Dashboard.home.HomePage;
 import web.Dashboard.orders.pos.create_order.deliverydialog.DeliveryDialog;
-import web.Dashboard.orders.pos.create_order.deliverydialog.DeliveryDialogElement;
 
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -45,7 +44,6 @@ import static api.Seller.products.all_products.APIProductDetailV2.ProductInfoV2;
 import static org.apache.commons.lang.math.JVMRandom.nextLong;
 import static org.apache.commons.lang.math.RandomUtils.nextBoolean;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
-import static utilities.character_limit.CharacterLimit.MAX_PRICE;
 import static utilities.links.Links.DOMAIN;
 
 public class POSPage extends POSElement {
@@ -96,67 +94,13 @@ public class POSPage extends POSElement {
         logger.info("Select branch: {}", branchName);
     }
 
-//    public void selectProduct(LoginInformation loginInformation, List<Integer> productIds) {
-//        
-//    	int indexOfSelectedBranch = new BranchManagement(loginInformation).getInfo().getBranchName().indexOf(branchName);
-//    	
-////    	productIds = productIds.subList(0, 1);
-//    	productIds = List.of(1033401);
-//    	
-//    	// Select product
-//        productIds.forEach(productId -> {
-//            // Get product information
-//            ProductInfoV2 infoV2 = new APIProductDetailV2(loginInformation).getInfo(productId);
-//
-//            // Search product
-//            commonAction.sendKeys(loc_txtProductSearchBox, infoV2.getName());
-//
-//            // Log
-//            logger.info("Search product, keyword: {}", infoV2.getName());
-//
-//            // Get list conversion unit
-//            List<ConversionUnitItem> unitItems = new APIProductConversionUnit(loginInformation).getItemConversionUnit(productId);
-//
-//            // If product has conversion unit, only add conversion unit
-//            if (unitItems.isEmpty()) {
-//                // Select product/variations
-//            	
-//                infoV2.getBarcodeList().forEach(barcode -> {
-//                    // Get current stock in branch
-//                    int currentStock = infoV2.getProductStockQuantityMap()
-//                            .get(infoV2.isHasModel()
-//                                    ? infoV2.getVariationModelList()
-//                                    .get(infoV2.getBarcodeList().indexOf(barcode))
-//                                    : infoV2.getId())
-//                            .get(indexOfSelectedBranch);
-//
-//                    // Add product/variation to cart
-//                    addProductToCart(loginInformation, infoV2, barcode, currentStock, infoV2.getBarcodeList().indexOf(barcode), "-");
-//                });
-//            } else {
-//                // Select conversion unit
-//                unitItems.forEach(unit -> {
-//                    // Get current stock
-//                    int currentStock = infoV2.getProductStockQuantityMap()
-//                            .get(infoV2.isHasModel() ? unit.getModelId() : infoV2.getId())
-//                            .get(indexOfSelectedBranch)
-//                            / unit.getQuantity();
-//
-//                    // Add conversion unit to cart
-//                    addProductToCart(loginInformation, infoV2, unit.getBarcode(), currentStock, infoV2.getVariationModelList().indexOf(unit.getModelId()), unit.getConversionUnitName());
-//                });
-//            }
-//        });
-//    }
-    
-    public void selectProductExp(LoginInformation loginInformation, List<Integer> productIds) {
+    public void selectProduct(LoginInformation loginInformation, List<Integer> productIds) {
     	
-    	int indexOfSelectedBranch = new BranchManagement(loginInformation).getInfo().getBranchName().indexOf(branchName);
+    	var branchManagementInfo = new BranchManagement(loginInformation).getInfo();
     	
-    	int branchId = new BranchManagement(loginInformation).getInfo().getBranchID().get(indexOfSelectedBranch);
+    	int selectedBranchIndex = branchManagementInfo.getBranchName().indexOf(branchName);
     	
-//    	productIds = List.of(1033401);
-    	
+    	int branchId = branchManagementInfo.getBranchID().get(selectedBranchIndex);
     	
     	// Select product
     	productIds.forEach(productId -> {
@@ -194,8 +138,8 @@ public class POSPage extends POSElement {
     			unitItems.forEach(unit -> {
     				// Get current stock
     				int currentStock = infoV2.getProductStockQuantityMap()
-    						.get(infoV2.isHasModel() ? unit.getModelId() : infoV2.getId())
-    						.get(indexOfSelectedBranch)
+    						.get(infoV2.isHasModel() ? unit.getModelId() : productDetailInfo.getId())
+    						.get(selectedBranchIndex)
     						/ unit.getQuantity();
     				
     				// Add conversion unit to cart
@@ -228,7 +172,7 @@ public class POSPage extends POSElement {
                     : "";
 
             // Get quantity
-            int quantity = currentStock >5 ? nextInt(5) + 1 : nextInt(currentStock) + 1; //Restrict the maximum quantity to 5
+            int quantity = currentStock >5 ? nextInt(3) + 1 : nextInt(currentStock) + 1; //Restrict the maximum quantity to 3
 
             // Input quantity
             commonAction.sendKeys(infoV2.isHasModel()
@@ -273,7 +217,7 @@ public class POSPage extends POSElement {
                     logger.info("Attempted to open select IMEI popup");
 
                     // Check if the popup is open, throw exception if not to trigger retry
-                    if (commonAction.getListElement(loc_dlgSelectIMEI_lstIMEI).isEmpty()) {
+                    if (commonAction.getListElement(loc_dlgSelectIMEI).isEmpty()) {
                         throw new IllegalStateException("IMEI popup not opened");
                     }
                 });
@@ -343,20 +287,58 @@ public class POSPage extends POSElement {
         }
         return new DeliveryDialog(driver);
     }
-
-    public void createPOSOrder(LoginInformation loginInformation, BranchInfo branchInfo, List<Integer> productIds) {
-        // Select branch
-        String branchName = branchInfo.getBranchName().get(0);
-        selectBranch(branchName);
-
-        // Add product to cart
-        selectProductExp(loginInformation, productIds);
-
-        // Add customer
-
-        // Apply discount
-        applyDiscount();
+    
+    /**
+     * Opt to delivery or not.
+     * This function selects Self-Delivery by default.
+     * Selection of other shipping service providers will be handled later
+     * @param isDeliveryOpted if it is true, Delivery option is checked
+     */
+    public void selectDelivery(boolean isDeliveryOpted) {
+		if (!isDeliveryOpted) return;
+		
+		tickDelivery();
+		clickShippingProviderDropdown();
+		new ConfirmationDialog(driver).clickOKBtn();
+		new HomePage(driver).waitTillLoadingDotsDisappear();
+		
+		// TODO Handle specific delivery service provider
     }
+    
+    /**
+     * Make an order for a list of product on a specific branch
+     * Available discounts are automatically applied
+     * @param loginInformation
+     * @param branchName
+     * @param productIds
+     */
+    public void createPOSOrder(LoginInformation loginInformation, String branchName, List<Integer> productIds) {
+    	// Select branch
+    	selectBranch(branchName);
+    	
+    	// Add product to cart
+    	selectProduct(loginInformation, productIds);
+    	
+    	// Add customer
+    	
+    	// Apply discount
+    	applyDiscount();
+    }
+    /**
+     * Make an order for a list of product on a random branch
+     * Available discounts are automatically applied
+     * @param loginInformation
+     * @param branchInfo
+     * @param productIds
+     */
+    public void createPOSOrder(LoginInformation loginInformation, BranchInfo branchInfo, List<Integer> productIds) {
+        //Randomly select a branch to order from
+    	String branchName = branchInfo.getBranchName().get(nextInt(branchInfo.getBranchName().size()));
+    	
+    	createPOSOrder(loginInformation, branchName, productIds);
+    }
+    
+
 
     public Double getTotalAmount() {
         String total = commonAction.getText(loc_lblTotalAmount);
