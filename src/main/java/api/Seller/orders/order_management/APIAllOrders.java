@@ -483,14 +483,19 @@ public class APIAllOrders {
         //Created by
         Assert.assertEquals(orderInManagement.getMadeBy(),orderDetailExpected.getOrderInfo().getCreatedBy(),"[Failed] Check created by.");
         //Approve commission date
-        CustomerInfoFull customerInfoFull = new APICustomerDetail(loginInformation).getFullInfo(orderDetailExpected.getCustomerInfo().getCustomerId());
-        String approveDate = DataGenerator.getDateByTimeZone(new StoreInformation(loginInformation).getInfo().getTimeZone(),orderInManagement.getApprovedCommissionDate());
+        String approveDate= null;
+        CustomerInfoFull customerInfoFull = new CustomerInfoFull();
+        if(orderDetailExpected.getCustomerInfo().getCustomerId()!=0) {
+            customerInfoFull = new APICustomerDetail(loginInformation).getFullInfo(orderDetailExpected.getCustomerInfo().getCustomerId());
+            approveDate = DataGenerator.getDateByTimeZone(new StoreInformation(loginInformation).getInfo().getTimeZone(), orderInManagement.getApprovedCommissionDate());
+        }
         /*set up auto approve delivery orders.
         Order need to has Delivered status
         Customer need to has id (not a guest)
         Customer need to be DROPSHIP partner or assigned to partner.
          */
-        if(orderDetailExpected.getOrderInfo().getStatus().equals(DELIVERED.toString()) && orderDetailExpected.getCustomerInfo().getCustomerId()!=0 && customerHasApprovedCommisionDate(customerInfoFull)){  //set up auto approve delivery orders.
+        if(orderDetailExpected.getOrderInfo().getStatus().equals(DELIVERED.toString())
+                && orderDetailExpected.getCustomerInfo().getCustomerId()!=0 && customerHasApprovedCommisionDate(customerInfoFull)){  //set up auto approve delivery orders.
                 Assert.assertEquals(approveDate,orderDetailExpected.getOrderInfo().getCreateDate(),
                         "[Failed] Check approve commission date.");
         }else Assert.assertTrue(approveDate==null,"[Failed] Check order don't have approved commission date.");

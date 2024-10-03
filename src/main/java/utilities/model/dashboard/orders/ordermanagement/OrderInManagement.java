@@ -91,4 +91,5 @@ public class OrderInManagement {
     private double pointAmount;
     private double exchangeAmount;
     private String discountType;
+    private String returnStatus;
 }

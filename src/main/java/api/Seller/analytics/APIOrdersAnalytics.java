@@ -61,29 +61,40 @@ public class APIOrdersAnalytics {
 
     public void verifyOrderAnalyticAfterCreateOrder(AnalyticsOrderSummaryInfo analyticInfoBefore, OrderDetailInfo orderDetailInfo, TimeFrame timeFrame, Double productCostThisOrder){
         int totalOrderExpected = analyticInfoBefore.getTotalOrders()+1;
-        Double totalAmountExpected = analyticInfoBefore.getTotalAmount() + orderDetailInfo.getOrderInfo().getTotalAmount();
-        Double averageOrderExpected = totalAmountExpected/totalOrderExpected;
-        Double receiveAmount = analyticInfoBefore.getReceivedAmount() + orderDetailInfo.getOrderInfo().getReceivedAmount();
-        Double promotionCampaignExpected = analyticInfoBefore.getPromotionCampaign()+ APIOrderDetail.getPromotionValue(orderDetailInfo,PromotionType.CAMPAIGN)+ APIOrderDetail.getPromotionValue(orderDetailInfo,PromotionType.MEMBERSHIP)+ APIOrderDetail.getPromotionValue(orderDetailInfo,PromotionType.WHOLESALE)+ APIOrderDetail.getPromotionValue(orderDetailInfo,PromotionType.BUY_X_GET_Y);
-        Double promotionCodeExpected = analyticInfoBefore.getPromotionCode() + APIOrderDetail.getPromotionValue(orderDetailInfo, PromotionType.COUPON);
-        Double directDiscountExpected = analyticInfoBefore.getDirectDiscount() + (orderDetailInfo.getOrderInfo().getDirectDiscount()!=null ?orderDetailInfo.getOrderInfo().getDirectDiscount().getDiscountValue():0.0);
-        Double redeemPointExpected = analyticInfoBefore.getRedeemPoints() + APIOrderDetail.getPromotionValue(orderDetailInfo,PromotionType.POINT);
-        Double shippingFeeAfterDiscount = orderDetailInfo.getOrderInfo().getOriginalShippingFee()!=null? orderDetailInfo.getOrderInfo().getOriginalShippingFee():0 - APIOrderDetail.getPromotionValue(orderDetailInfo,PromotionType.FEE_SHIPPING);
-        Double shippingFeeBefore = analyticInfoBefore.getShippingFee();
-        Double shippingFeeAfterDiscountThisOrder = shippingFeeAfterDiscount>0?shippingFeeAfterDiscount:0;
-        Double shippingFeeExpected = shippingFeeBefore + shippingFeeAfterDiscountThisOrder;
-        Double shippingDiscountExpected = analyticInfoBefore.getShippingDiscount() + APIOrderDetail.getPromotionValue(orderDetailInfo,PromotionType.FEE_SHIPPING);
-        Double uncollectedAmountExpected = analyticInfoBefore.getUncollectedAmount() + totalAmountExpected - receiveAmount;
-        Double taxExpected = analyticInfoBefore.getTax() + orderDetailInfo.getOrderInfo().getTotalTaxAmount();
-        Double revenueExpected = totalAmountExpected ;//= total amount - refund amount, but after order create, refund amount always  = 0.
-        Double productCostExpected = analyticInfoBefore.getProductCost() + productCostThisOrder;
-        Double profitExpected = revenueExpected - productCostExpected - shippingFeeExpected;
-        Double profitAfterTaxExpected = profitExpected - taxExpected;
+        double totalAmountExpected = analyticInfoBefore.getTotalAmount() + orderDetailInfo.getOrderInfo().getTotalAmount();
+        int cancelledOrdersExpected = analyticInfoBefore.getTotalCancelledOrders();
+        double cancelledAmountExpected = analyticInfoBefore.getTotalCancelledAmount();
+        int returnedOrdersExpected = analyticInfoBefore.getTotalReturnedOrders();
+        double refundAmountExpected = analyticInfoBefore.getTotalRefundAmount();
+        double confirmedRefundedAmount = analyticInfoBefore.getConfirmedRefundedAmount();
+        double averageOrderExpected = totalAmountExpected/totalOrderExpected;
+        double productCostExpected = analyticInfoBefore.getProductCost() + productCostThisOrder;
+        double promotionCampaignExpected = analyticInfoBefore.getPromotionCampaign()+ APIOrderDetail.getPromotionValue(orderDetailInfo,PromotionType.CAMPAIGN)+ APIOrderDetail.getPromotionValue(orderDetailInfo,PromotionType.MEMBERSHIP)+ APIOrderDetail.getPromotionValue(orderDetailInfo,PromotionType.WHOLESALE)+ APIOrderDetail.getPromotionValue(orderDetailInfo,PromotionType.BUY_X_GET_Y);
+        double promotionCodeExpected = analyticInfoBefore.getPromotionCode() + APIOrderDetail.getPromotionValue(orderDetailInfo, PromotionType.COUPON);
+        double directDiscountExpected = analyticInfoBefore.getDirectDiscount() + APIOrderDetail.getPromotionValue(orderDetailInfo,PromotionType.DIRECT_DISCOUNT);
+        double redeemPointExpected = analyticInfoBefore.getRedeemPoints() + APIOrderDetail.getPromotionValue(orderDetailInfo,PromotionType.POINT);
+        double shippingFeeAfterDiscount = orderDetailInfo.getOrderInfo().getOriginalShippingFee()!=null? orderDetailInfo.getOrderInfo().getOriginalShippingFee():0 - APIOrderDetail.getPromotionValue(orderDetailInfo,PromotionType.FREE_SHIPPING);
+        double shippingFeeBefore = analyticInfoBefore.getShippingFee();
+        double shippingFeeAfterDiscountThisOrder = shippingFeeAfterDiscount>0?shippingFeeAfterDiscount:0;
+        double shippingFeeExpected = shippingFeeBefore + shippingFeeAfterDiscountThisOrder;
+        double shippingDiscountExpected = analyticInfoBefore.getShippingDiscount() + APIOrderDetail.getPromotionValue(orderDetailInfo,PromotionType.FREE_SHIPPING);
+        double orderCostExpected = analyticInfoBefore.getOrderCost();
+        double receiveAmountExpected = analyticInfoBefore.getReceivedAmount() + orderDetailInfo.getOrderInfo().getReceivedAmount();
+        double uncollectedAmountExpected = totalAmountExpected - receiveAmountExpected;
+        double taxExpected = analyticInfoBefore.getTax() + orderDetailInfo.getOrderInfo().getTotalTaxAmount();
+        double revenueExpected = totalAmountExpected -refundAmountExpected;
+        double profitExpected = revenueExpected - productCostExpected - shippingFeeExpected;
+        double profitAfterTaxExpected = profitExpected - taxExpected;
         //Get analytics order after order created
         AnalyticsOrderSummaryInfo analyticInfoAfter = getOrderAnalyticsSummary(timeFrame);
         //Verify
         Assert.assertEquals(analyticInfoAfter.getTotalOrders(),totalOrderExpected,"[Failed] Check order total.");
         Assert.assertEquals(analyticInfoAfter.getTotalAmount(),totalAmountExpected,"[Failed] Check total amount.");
+        Assert.assertEquals(analyticInfoAfter.getTotalCancelledOrders(),cancelledOrdersExpected,"[Failed] Check total cancel orders number.");
+        Assert.assertEquals(analyticInfoAfter.getTotalCancelledAmount(), cancelledAmountExpected,"[Failed] Check total cancel amount.");
+        Assert.assertEquals(analyticInfoAfter.getTotalReturnedOrders(), returnedOrdersExpected,"[Failed] Check return orders number.");
+        Assert.assertEquals(analyticInfoAfter.getTotalRefundAmount(), refundAmountExpected, "[Failed] Check total refund amount");
+        Assert.assertEquals(analyticInfoAfter.getConfirmedRefundedAmount(), confirmedRefundedAmount, "[Failed] Check confirmed refunded amount.");
         Assert.assertEquals(analyticInfoAfter.getAverageOrderValue(),averageOrderExpected,"[Failed] Check average order value.");
         Assert.assertEquals(analyticInfoAfter.getPromotionCampaign(),promotionCampaignExpected,"[Failed] Check promotion campaign.");
         Assert.assertEquals(analyticInfoAfter.getPromotionCode(),promotionCodeExpected,"[Failed] Check promotion code.");
@@ -91,8 +102,9 @@ public class APIOrdersAnalytics {
         Assert.assertEquals(analyticInfoAfter.getRedeemPoints(),redeemPointExpected,"[Failed] Check redeem point.");
         Assert.assertEquals(analyticInfoAfter.getShippingFee(),shippingFeeExpected,"[Failed] Check shipping fee.");
         Assert.assertEquals(analyticInfoAfter.getShippingDiscount(),shippingDiscountExpected,"[Failed] Check shipping discount.");
+        Assert.assertEquals(analyticInfoAfter.getOrderCost(), orderCostExpected, "[Failed] Check total order cost.");
         Assert.assertEquals(analyticInfoAfter.getTax(),taxExpected,"[Failed] Check TAX.");
-        Assert.assertEquals(analyticInfoAfter.getReceivedAmount(),receiveAmount,"[Failed] Check receive amount.");
+        Assert.assertEquals(analyticInfoAfter.getReceivedAmount(),receiveAmountExpected,"[Failed] Check receive amount.");
         Assert.assertEquals(analyticInfoAfter.getUncollectedAmount(),uncollectedAmountExpected,"[Failed] Check uncollected amount.");
         Assert.assertEquals(analyticInfoAfter.getRevenue(), revenueExpected, "[Failed] Check revenue.");
         Assert.assertEquals(analyticInfoAfter.getProfit(), profitExpected,"[Failed] Check profit");

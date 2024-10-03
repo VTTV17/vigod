@@ -28,4 +28,5 @@ public class DeliveryOrder {
     private int length;
     private int width;
     private int height;
+    private double codAmount;
 }
