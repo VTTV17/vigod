@@ -15,9 +15,7 @@ import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
 
 import utilities.commons.UICommonAction;
-import utilities.model.dashboard.customer.create.CreateCustomerModel;
 import utilities.model.dashboard.customer.create.UICreateCustomerData;
-import utilities.model.dashboard.customer.create.UICreateCustomerData.UICreateCustomerDataBuilder;
 
 public class CreateCustomerPopup {
     public String customerName;
@@ -160,24 +158,34 @@ public class CreateCustomerPopup {
     	
     	return this;
     }
-
+    
+    /**
+     * Handles inputing address based on country.
+     * Vietnamese address and foreign address are handled differently
+     * @param data
+     */
+    public void fillAddress(UICreateCustomerData data) {
+    	if(data.getCountry().contentEquals("Vietnam")) {
+    		fillVNAddress(data.getCountry(), data.getAddress(), data.getProvince(), data.getDistrict(), data.getWard());
+    	}
+    	fillForeignAddress(data.getCountry(), data.getAddress(), data.getAddress2(), data.getProvince(), data.getCity(), data.getZipCode());
+    }
+    
     public CreateCustomerPopup createCustomer(UICreateCustomerData data) {
     	inputCustomerName(data.getName());
     	inputCustomerPhone(data.getPhone());
     	inputEmail(data.getEmail());
-    	//gender
-    	//birthday
-    	if(data.getCountry().contentEquals("Vietnam")) {
-    		fillVNAddress(data.getCountry(), data.getAddress(), data.getProvince(), data.getDistrict(), data.getWard());
-    	} else {
-    		fillForeignAddress(data.getCountry(), data.getAddress(), data.getAddress2(), data.getProvince(), data.getCity(), data.getZipCode());
-    	}
+    	
+    	//TODO: Define gender and birthday
+    	
+    	fillAddress(data);
     	
     	inputTags(data.getTags());
 
-    	//note
+    	//TODO: Input customer note
     	
-    	clickCustomerCreationCheckbox(); // Remember to check status before the click
+    	//TODO: Check status before the click
+    	clickCustomerCreationCheckbox();
     	return this;
     }    
     

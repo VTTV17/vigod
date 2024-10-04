@@ -1,7 +1,5 @@
 package web.Dashboard;
 
-import static org.apache.commons.lang.math.RandomUtils.nextInt;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
@@ -25,6 +23,7 @@ import api.Seller.orders.order_management.APIAllOrders.OrderStatus;
 import api.Seller.products.all_products.APIAllProducts;
 import api.Seller.setting.BranchManagement;
 import utilities.commons.UICommonAction;
+import utilities.data.DataGenerator;
 import utilities.data.testdatagenerator.CreateCustomerTDG;
 import utilities.driver.InitWebdriver;
 import utilities.enums.DebtActionEnum;
@@ -95,9 +94,8 @@ public class POSOrderTest extends BaseTest{
 		
 		if (orderStatus.equals(OrderStatus.DELIVERED)) {
 			return (previousEarningPoints - uiUsedPoints) + uiEarningPoints;
-		} else {
-			return (previousEarningPoints - uiUsedPoints);
 		}
+		return (previousEarningPoints - uiUsedPoints);
 	}
 	public Integer workoutExpectedTotalOrderCount(Integer previousTotalOrderCount, OrderDetailInfo orderDetailsBeforeCheckout) {
 		
@@ -172,8 +170,8 @@ public class POSOrderTest extends BaseTest{
 		int userId = 44213179;
 		
 		BranchInfo branchInfo = new BranchManagement(credentials).getInfo();
+		String branchName = DataGenerator.getRandomListElement(branchInfo.getBranchName());
 		APIAllProducts allProduct = new APIAllProducts(credentials);
-		String branchName = branchInfo.getBranchName().get(nextInt(branchInfo.getBranchName().size()));
 		
 		System.out.println("Payment type: " + receivedAmountType);
 		System.out.println("Delivery selected: " + isDeliveryOpted);

@@ -4,7 +4,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
 
+import app.GoSeller.home.HomePage;
 import utilities.commons.UICommonAction;
+import utilities.model.dashboard.customer.create.UICreateCustomerData;
+import web.Dashboard.confirmationdialog.ConfirmationDialog;
 
 public class DeliveryDialog {
 
@@ -69,10 +72,26 @@ public class DeliveryDialog {
 		logger.info("Retrieved address: {}", address);
 		return address;
 	}
+	
+	/**
+	 * Select province (Vietnamese address) or state (foreign address)
+	 * @param province
+	 * @return
+	 */
 	public DeliveryDialog selectProvince(String province) {
 		commonAction.selectByVisibleText(elements.ddlProvince, province);
 		logger.info("Selected province: {}", province);
 		return this;
+	}	
+	/**
+	 * Checks if the Province/State field is not provided with a value.
+	 * @return true/false
+	 */
+	public boolean isProvinceUndefined() {
+		boolean isDefined = commonAction.getAttribute(elements.ddlProvince, "class").contains("av-invalid") ? true : false;
+		
+		logger.info("Is Province/State field undefined: {}", isDefined);
+		return isDefined;
 	}	
 	public String getProvince() {
 		logger.info("Retrieving province/state...");
@@ -133,9 +152,59 @@ public class DeliveryDialog {
 		logger.info("Retrieved phone code: {}",phoneCode);
 		return phoneCode;
 	}
+	
+    public DeliveryDialog clickShippingProviderDropdown() {
+        commonAction.click(elements.loc_ddlDelivery);
+
+        int maxRetries = 10;
+        int sleepDuration = 1000;
+        int retries = 0;
+
+        while (retries < maxRetries && !commonAction.getElements(elements.loc_iconLoadingDeliveryProvider).isEmpty()) {
+            logger.debug("Loading icon still appears. Retrying after {} ms", sleepDuration);
+            commonAction.sleepInMiliSecond(sleepDuration);
+            retries++;
+        }
+        return this;
+    }
 	public String getSelectedDeliveryName(){
 		String selectedDelivery = commonAction.getText(elements.loc_lblSelectedDeliveryName);
 		logger.info("Retrieved selected delivery name: {}",selectedDelivery);
 		return selectedDelivery;
 	}
+	
+    public DeliveryDialog fillVNAddress(String country, String address, String province, String district, String ward) {
+    	selectCountry(country);
+    	inputAddress(address);
+    	selectProvince(province);
+    	selectDistrict(district);
+    	selectWard(ward);
+    	return this;
+    }    
+    public DeliveryDialog fillForeignAddress(String country, String address, String address2, String province, String city, String zipCode) {
+    	selectCountry(country);
+    	inputAddress(address);
+    	inputAddress2(address2);
+    	selectProvince(province);
+    	inputCity(city);
+    	inputZipcode(zipCode);
+    	return this;
+    } 
+    
+    /**
+     * Handles inputing address based on country.
+     * Vietnamese address and foreign address are handled differently
+     * @param data
+     */
+    public DeliveryDialog fillAddress(UICreateCustomerData data) {
+    	if(data.getCountry().contentEquals("Vietnam")) {
+    		return fillVNAddress(data.getCountry(), data.getAddress(), data.getProvince(), data.getDistrict(), data.getWard());
+    	}
+    	return fillForeignAddress(data.getCountry(), data.getAddress(), data.getAddress2(), data.getProvince(), data.getCity(), data.getZipCode());
+    }
+    
+    public void clickSaveBtn() {
+    	new ConfirmationDialog(driver).clickGreenBtn();
+    	logger.info("Clicked Save button");
+    }
 }
