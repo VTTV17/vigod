@@ -26,6 +26,7 @@ import utilities.enums.PaymentStatus;
 import utilities.enums.pos.ReceivedAmountType;
 import utilities.model.dashboard.customer.CustomerInfoFull;
 import utilities.model.dashboard.customer.CustomerPhone;
+import utilities.model.dashboard.customer.create.UICreateCustomerData;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.dashboard.marketing.loyaltyPoint.LoyaltyPointInfo;
 import utilities.model.dashboard.orders.orderdetail.*;
@@ -273,40 +274,53 @@ public class POSPage extends POSElement {
         return new DeliveryDialog(driver);
     }
 
-    public DeliveryDialog clickShippingProviderDropdown() {
-        commonAction.click(loc_ddlDelivery);
-
-        int maxRetries = 10;
-        int sleepDuration = 1000;
-        int retries = 0;
-
-        while (retries < maxRetries && !commonAction.getElements(loc_iconLoadingDeliveryProvider).isEmpty()) {
-            logger.debug("Loading icon still appears. Retrying after {} ms", sleepDuration);
-            commonAction.sleepInMiliSecond(sleepDuration);
-            retries++;
-        }
-        return new DeliveryDialog(driver);
-    }
-    
     /**
      * Opt to delivery or not.
-     * This function selects Self-Delivery by default.
+     * Self-Delivery is selected by default.
      * Selection of other shipping service providers will be handled later
      * @param isDeliveryOpted if it is true, Delivery option is checked
      */
     public void selectDelivery(boolean isDeliveryOpted) {
 		if (!isDeliveryOpted) return;
 		
-		tickDelivery();
-		clickShippingProviderDropdown();
-		new ConfirmationDialog(driver).clickOKBtn();
+		tickDelivery().clickShippingProviderDropdown().clickSaveBtn();
 		new HomePage(driver).waitTillLoadingDotsDisappear();
 		
 		// TODO Handle specific delivery service provider
     }
     
     /**
-     * Make an order for a list of product on a specific branch
+     * Opt to delivery or not.
+     * This function randomly inputs an phone and an address if they are undefined.
+     * Self-Delivery is selected by default.
+     * Selection of other shipping service providers will be handled later
+     * @param isDeliveryOpted if it is true, Delivery option is checked
+     * @param customerData
+     */
+    public void selectDelivery(boolean isDeliveryOpted, UICreateCustomerData customerData) {
+    	if (!isDeliveryOpted) return;
+    	
+    	DeliveryDialog deliveryDlg = tickDelivery();
+    	
+    	if (deliveryDlg.getCustomerPhone().isEmpty()) {
+    		logger.info("Customer phone is undefined. Randomly filling the phone...");
+    		deliveryDlg.inputCustomerPhone(customerData.getPhone());
+    	}
+    	
+    	if (deliveryDlg.isProvinceUndefined()) {
+    		logger.info("Customer address is undefined. Randomly filling the address...");
+    		deliveryDlg.fillAddress(customerData);
+    	}
+    	
+    	deliveryDlg.clickShippingProviderDropdown().clickSaveBtn();
+    	
+    	new HomePage(driver).waitTillLoadingDotsDisappear();
+    	
+    	// TODO Handle specific delivery service provider
+    }
+    
+    /**
+     * Make an order for a list of products on a specific branch
      * Available discounts are automatically applied
      * @param loginInformation
      * @param branchName
@@ -325,7 +339,7 @@ public class POSPage extends POSElement {
     	applyDiscount();
     }
     /**
-     * Make an order for a list of product on a random branch
+     * Make an order for a list of products on a random branch
      * Available discounts are automatically applied
      * @param loginInformation
      * @param branchInfo
