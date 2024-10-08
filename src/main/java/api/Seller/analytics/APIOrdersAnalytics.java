@@ -25,6 +25,7 @@ import web.Dashboard.marketing.affiliate.payout.payoutinformation.PayoutInformat
 import java.math.BigDecimal;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class APIOrdersAnalytics {
@@ -42,7 +43,6 @@ public class APIOrdersAnalytics {
     public AnalyticsOrderSummaryInfo getOrderAnalyticsSummary(TimeFrame timeFrame){
         Map<String, String> headerMap = new HashMap<>();
         headerMap.put("Time-Zone", "Asia/Bangkok");
-
         if(timeFrame.equals(TimeFrame.CUSTOM_RANGE))
         {
             //Get startdate, enddate when timeFrame is custom
@@ -54,14 +54,22 @@ public class APIOrdersAnalytics {
         Response response = api.get(GET_ORDER_ANALYTICS.formatted(loginInfo.getStoreID(),timeFrame.toString()),loginInfo.getAccessToken(),headerMap);
         response.then().statusCode(200);
         JSONObject responseJsonObject = new JSONObject(response.getBody().asString());
-        System.out.println("responseJsonObject: "+responseJsonObject.get("analyticsOrderSummaryDTO"));
         ObjectMapper objectMapper = new ObjectMapper();
         return objectMapper.readValue(responseJsonObject.get("analyticsOrderSummaryDTO").toString(), AnalyticsOrderSummaryInfo.class);
     }
 
     public void verifyOrderAnalyticAfterCreateOrder(AnalyticsOrderSummaryInfo analyticInfoBefore, OrderDetailInfo orderDetailInfo, TimeFrame timeFrame, Double productCostThisOrder){
+        //Get analytics order after order created
+        AnalyticsOrderSummaryInfo analyticInfoAfter = getOrderAnalyticsSummary(timeFrame);
+        List<TimeFrame> pastTimeFrame = List.of(TimeFrame.YESTERDAY,TimeFrame.YESTERDAY,
+                TimeFrame.LAST_MONTH, TimeFrame.LAST_WEEK, TimeFrame.LAST_YEAR);
+
+        if(pastTimeFrame.contains(timeFrame)){
+            Assert.assertEquals(analyticInfoBefore,analyticInfoAfter,"[Failed] Check analytic order info at yesterday.");
+            return;
+        }
         int totalOrderExpected = analyticInfoBefore.getTotalOrders()+1;
-        double totalAmountExpected = analyticInfoBefore.getTotalAmount() + orderDetailInfo.getOrderInfo().getTotalAmount();
+        double totalAmountExpected = analyticInfoBefore.getTotalAmount() + orderDetailInfo.getOrderInfo().getTotalPrice();
         int cancelledOrdersExpected = analyticInfoBefore.getTotalCancelledOrders();
         double cancelledAmountExpected = analyticInfoBefore.getTotalCancelledAmount();
         int returnedOrdersExpected = analyticInfoBefore.getTotalReturnedOrders();
@@ -73,9 +81,8 @@ public class APIOrdersAnalytics {
         double promotionCodeExpected = analyticInfoBefore.getPromotionCode() + APIOrderDetail.getPromotionValue(orderDetailInfo, PromotionType.COUPON);
         double directDiscountExpected = analyticInfoBefore.getDirectDiscount() + APIOrderDetail.getPromotionValue(orderDetailInfo,PromotionType.DIRECT_DISCOUNT);
         double redeemPointExpected = analyticInfoBefore.getRedeemPoints() + APIOrderDetail.getPromotionValue(orderDetailInfo,PromotionType.POINT);
-//        double shippingFeeAfterDiscount = orderDetailInfo.getOrderInfo().getOriginalShippingFee()!=null? orderDetailInfo.getOrderInfo().getOriginalShippingFee():0 - APIOrderDetail.getPromotionValue(orderDetailInfo,PromotionType.FREE_SHIPPING);
         double shippingFeeBefore = analyticInfoBefore.getShippingFee();
-        double shippingFeeAfterDiscountThisOrder = orderDetailInfo.getOrderInfo().getShippingFee();
+        double shippingFeeAfterDiscountThisOrder = orderDetailInfo.getOrderInfo().getShippingFee()==null?0 : orderDetailInfo.getOrderInfo().getShippingFee();
         double shippingFeeExpected = shippingFeeBefore + shippingFeeAfterDiscountThisOrder;
         double shippingDiscountExpected = analyticInfoBefore.getShippingDiscount() + APIOrderDetail.getPromotionValue(orderDetailInfo,PromotionType.FREE_SHIPPING);
         double orderCostExpected = analyticInfoBefore.getOrderCost();
@@ -85,8 +92,7 @@ public class APIOrdersAnalytics {
         double revenueExpected = totalAmountExpected -refundAmountExpected;
         double profitExpected = revenueExpected - productCostExpected - shippingFeeExpected;
         double profitAfterTaxExpected = profitExpected - taxExpected;
-        //Get analytics order after order created
-        AnalyticsOrderSummaryInfo analyticInfoAfter = getOrderAnalyticsSummary(timeFrame);
+
         //Verify
         Assert.assertEquals(analyticInfoAfter.getTotalOrders(),totalOrderExpected,"[Failed] Check order total.");
         Assert.assertEquals(analyticInfoAfter.getTotalAmount(),totalAmountExpected,"[Failed] Check total amount.");
@@ -110,5 +116,17 @@ public class APIOrdersAnalytics {
         Assert.assertEquals(analyticInfoAfter.getProfit(), profitExpected,"[Failed] Check profit");
         Assert.assertEquals(analyticInfoAfter.getProfitAfterTax(), profitAfterTaxExpected, "[Failed] Check profit after TAX.");
         Assert.assertEquals(analyticInfoAfter.getProductCost(), productCostExpected, "[Failed] Check product cost.");
+    }
+    @SneakyThrows
+    public void waitOrderAnalyticsUpdateData(int totalOrderBefore, TimeFrame timeFrame ){
+        for (int i= 0; i<10;i++){
+            int totalOrderCurrent = getOrderAnalyticsSummary(timeFrame).getTotalOrders();
+            if(totalOrderCurrent != totalOrderBefore){
+                logger.info("Total order updated.");
+                return;
+            }
+            logger.info("Wait analytic order summary update.");
+            Thread.sleep(500);
+        }
     }
 }
