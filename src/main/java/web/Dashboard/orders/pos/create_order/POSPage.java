@@ -393,19 +393,23 @@ public class POSPage extends POSElement {
     public void selectPaymentMethod(POSPaymentMethod paymentMethod) {
         clickOnViewAllPayment();
         //wait popup show
-        commonAction.getElements(loc_lstPaymentMethod, 2);
+        commonAction.getElements(loc_icnPaymentPOS);
+        
+        //TODO: Think of a better way to handle this. Without this delay, Bank-Transfer is assumed selected sometimes on the DOM
+        commonAction.sleepInMiliSecond(500, "Wait a little for better UI stability");
+        
         switch (paymentMethod) {
             case CASH -> {
-                if (!commonAction.getAttribute(loc_lstPaymentMethod, 0, "class").contains("selected-item"))
-                    commonAction.click(loc_lstPaymentMethod, 0);
+                if (!commonAction.getAttribute(loc_icnPaymentCash , "class").contains("selected-item"))
+                    commonAction.click(loc_icnPaymentCash);
             }
             case BANK_TRANSFER -> {
-                if (!commonAction.getAttribute(loc_lstPaymentMethod, 1, "class").contains("selected-item"))
-                    commonAction.click(loc_lstPaymentMethod, 1);
+                if (!commonAction.getAttribute(loc_icnPaymentBankTransfer, "class").contains("selected-item"))
+                	commonAction.click(loc_icnPaymentBankTransfer);
             }
             case POS -> {
-                if (!commonAction.getAttribute(loc_lstPaymentMethod, 2, "class").contains("selected-item")) {
-                    commonAction.click(loc_lstPaymentMethod, 2);
+                if (!commonAction.getAttribute(loc_icnPaymentPOS, "class").contains("selected-item")) {
+                    commonAction.click(loc_icnPaymentPOS);
                     commonAction.inputText(loc_txtPOSReceiptCode, new DataGenerator().generateString(10));
                 }
             }
@@ -841,7 +845,7 @@ public class POSPage extends POSElement {
         orderDetailInfo.setTotalSummaryDiscounts(-getTotalDiscountAmount());
         CustomerOrderInfo customerOrderInfo = getCustomerOderInfo(customerId);
         if(isDeliveryOpted()) clickEditDelivery();
-        orderDetailInfo.setBillingInfo(getBillingInfo(customerOrderInfo.getName() == null, customerId));
+//        orderDetailInfo.setBillingInfo(getBillingInfo(customerOrderInfo.getName() == null, customerId));
         orderDetailInfo.setShippingInfo(getShippingInfo());
         if(customerOrderInfo.getMainPhone()==null && isDeliveryOpted()) {
             customerOrderInfo.setMainPhone(orderDetailInfo.getShippingInfo().getPhone());
