@@ -1,6 +1,8 @@
 package api.Seller.customers;
 
 import api.Seller.login.Login;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.core.type.TypeReference;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
@@ -88,6 +90,24 @@ public class APIAllCustomers {
         return info;
     }
 
+    /**
+     * The use of @JsonIgnoreProperties(ignoreUnknown = true) is intentional.
+     * Because only the fields included in the class are needed.
+     * We don't need to deserialize other fields for now.
+     */
+    @Data
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class CustomerManagementRecord {
+    	Integer id;
+        String fullName;
+        String userId;
+        Boolean guest;
+    }    
+    public List<CustomerManagementRecord> getProfileRecords() {
+    	return getAllCustomerResponse(0).jsonPath().getList(".", CustomerManagementRecord.class);
+    }    
+    
+    
     public List<Integer> getListSegmentOfCustomer(int customerId) {
         if (customerId != 0) {
             Response customerInfo = api.get(GET_LIST_SEGMENT_OF_CUSTOMER.formatted(loginInfo.getStoreID(), customerId), loginInfo.getAccessToken());

@@ -61,6 +61,9 @@ public class POSElement {
     By loc_txtReceiveAmount = By.cssSelector(".order-pos__received-input");
     By loc_lnkViewAllPayment = By.cssSelector(".view-all-payment");
     By loc_lstPaymentMethod = By.cssSelector(".modal-content .payment-item");
+    By loc_icnPaymentCash = By.xpath("//img[contains(@src,'payment-method-crash')]//parent::*[starts-with(@class,'payment-item')]");
+    By loc_icnPaymentBankTransfer = By.xpath("//img[contains(@src,'payment-method-bank-transfer')]//parent::*[starts-with(@class,'payment-item')]");
+    By loc_icnPaymentPOS = By.xpath("//img[contains(@src,'payment-method-pos')]//parent::*[starts-with(@class,'payment-item')]");
     By loc_txtPOSReceiptCode = By.cssSelector(".payment-method-mpos-list-wraper input");
     By loc_chkNotApplyEarningPoint = By.cssSelector(".custom-check-box input");
     By loc_lblNotApplyEarningPoint = By.cssSelector(".custom-check-box div span");

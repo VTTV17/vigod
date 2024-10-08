@@ -102,14 +102,14 @@ public class APICustomerDetail {
      * @param userId Do not mistake userId (jhi_user table) for customerId (customer-profile table)
      * @return Response object
      */
-    public Response getPoint(int userId) {
+    public Response getPoint(String userId) {
     	String basePath = pointPath.formatted(loginInfo.getStoreID(), userId);
     	String token = loginInfo.getAccessToken();
     	
     	Response response = api.get(basePath, token).then().statusCode(200).extract().response();
     	return response;
     }
-    public int getEarningPoint(int userId) {
+    public int getEarningPoint(String userId) {
     	Object earningPoint = getPoint(userId).jsonPath().get("findAll { it.'event' == 'EARN' }.value[0]");
     	
     	if (earningPoint ==null) return 0;
@@ -123,7 +123,7 @@ public class APICustomerDetail {
      * @param userId (jhi_user table) for customerId (customer-profile table)
      * @return CustomerOrder DTO
      */
-    public List<CustomerOrder> getOrders(int customerId, int userId) {
+    public List<CustomerOrder> getOrders(int customerId, String userId) {
     	String basePath = orderPath.formatted(loginInfo.getStoreID(), userId, customerId);
     	String token = loginInfo.getAccessToken();
     	

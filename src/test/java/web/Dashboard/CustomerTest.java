@@ -319,7 +319,7 @@ public class CustomerTest {
 		
 		credentials = new Login().setLoginInformation("tienvan-staging-vn@mailnesia.com", "fortesting!1").getLoginInformation();
 		int customerId = 4516272;
-		int userId = 53825261;
+		String userId = "53825261";
 		
 		ObjectMapper mapper = new ObjectMapper();
 		
@@ -366,7 +366,7 @@ public class CustomerTest {
 			CustomerOrderSummary orderSummary = customerDetailAPI.getOrderSummary(customerId);
 			System.out.println("Order summary: " + mapper.writeValueAsString(orderSummary));
 			
-			List<CustomerOrder> orders = customerDetailAPI.getOrders(customerId, Integer.valueOf(userId));
+			List<CustomerOrder> orders = customerDetailAPI.getOrders(customerId, userId);
 			System.out.println("Orders: " + mapper.writeValueAsString(orders));
 			
 			List<CustomerDebtRecord> debtRecords = customerDetailAPI.getDebtRecords(customerId);
@@ -375,7 +375,7 @@ public class CustomerTest {
 			LoyaltyProgramInfo membership = customerDetailAPI.getMembership(customerId);
 			System.out.println("Membership: " + mapper.writeValueAsString(membership));
 			
-			List<Object> points = customerDetailAPI.getPoint(Integer.valueOf(userId)).jsonPath().getList(".");
+			List<Object> points = customerDetailAPI.getPoint(userId).jsonPath().getList(".");
 			System.out.println("Points: " + mapper.writeValueAsString(points));
 		}
 	}	

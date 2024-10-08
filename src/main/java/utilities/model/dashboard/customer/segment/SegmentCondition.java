@@ -6,4 +6,5 @@ import lombok.Data;
 public class SegmentCondition {
 	String name;
 	String value;
+	String expiredTime;
 }
