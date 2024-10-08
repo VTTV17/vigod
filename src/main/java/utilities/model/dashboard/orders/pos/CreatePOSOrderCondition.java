@@ -3,6 +3,7 @@ package utilities.model.dashboard.orders.pos;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import utilities.enums.PaymentMethod;
 import utilities.enums.PaymentStatus;
 import utilities.enums.pos.ReceivedAmountType;

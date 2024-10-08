@@ -106,7 +106,7 @@ public class WholesaleProduct {
                         ? productInfo.getProductSellingPrice().get(i)
                         : nextLong(productInfo.getProductSellingPrice().get(i)) + 1;
                 int maxStock = Collections.max(productInfo.getProductStockQuantityMap().get(productInfo.getVariationModelList().get(i)));
-                int stock = nextInt(Math.min(MAX_STOCK_QUANTITY, Math.max(maxStock, 1))) + 1;
+                int stock = 1;
                 String title = randomAlphabetic(nextInt(MAX_WHOLESALE_PRICE_TITLE) + 1);
                 String variationWholesaleConfig = """
                         {
@@ -127,7 +127,7 @@ public class WholesaleProduct {
             String title = randomAlphabetic(nextInt(MAX_WHOLESALE_PRICE_TITLE) + 1);
             long price = nextLong(productInfo.isHasModel() ? productInfo.getProductSellingPrice().get(0) : productInfo.getNewPrice()) + 1;
             int maxStock = Collections.max(productInfo.getProductStockQuantityMap().get(productInfo.isHasModel() ? productInfo.getVariationModelList().get(0) : productInfo.getId()));
-            int stock = nextInt(Math.min(MAX_STOCK_QUANTITY, Math.max(maxStock, 1))) + 1;
+            int stock = 1;
             String variationWholesaleConfig = """
                     {
                         "id": null,

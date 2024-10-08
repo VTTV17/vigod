@@ -17,6 +17,7 @@ import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.testng.Assert;
 import utilities.assert_customize.AssertCustomize;
 import utilities.commons.UICommonAction;
 import utilities.constant.Constant;
@@ -32,6 +33,7 @@ import utilities.model.dashboard.marketing.loyaltyPoint.LoyaltyPointInfo;
 import utilities.model.dashboard.orders.orderdetail.*;
 import utilities.model.dashboard.setting.branchInformation.BranchInfo;
 import utilities.model.sellerApp.login.LoginInformation;
+import utilities.utils.PropertiesUtil;
 import web.Dashboard.confirmationdialog.ConfirmationDialog;
 import web.Dashboard.home.HomePage;
 import web.Dashboard.orders.pos.create_order.deliverydialog.DeliveryDialog;
@@ -487,7 +489,7 @@ public class POSPage extends POSElement {
 
     public void inputUsePoint(int point) {
         if (!commonAction.getAttribute(loc_chkUsePointValue, "class").contains("checked")) {
-            commonAction.click(loc_chkUsePointAction);
+            commonAction.clickJS(loc_chkUsePoint);
             logger.info("Click on Use point.");
         }
         commonAction.inputText(loc_txtInputPoint, String.valueOf(point));
@@ -501,7 +503,9 @@ public class POSPage extends POSElement {
     public int redeemPointNeedForTotal() {
         LoyaltyPointInfo loyaltyPointInfo = new LoyaltyPoint(loginInformation).getLoyaltyPointSetting();
         Long exchangeAmount = loyaltyPointInfo.getExchangeAmount();
-        return (int) (getTotalAmount() / exchangeAmount);
+        int redeemPoint = (int) (getSubTotalAfterDiscount() / exchangeAmount);
+        logger.info("Redeem point can use for this order: "+redeemPoint);
+        return redeemPoint;
     }
 
     @SneakyThrows
@@ -509,14 +513,17 @@ public class POSPage extends POSElement {
         int point = 0;
         int availablePoint = Integer.parseInt(commonAction.getText(loc_lblAvailablePoint).replaceAll(",",""));
         if (availablePoint == 0) throw new Exception("Customer don't have any available point");
+        int redeemPointMax = Math.min(availablePoint, redeemPointNeedForTotal());
         switch (usePointType) {
-            case SERVERAL -> point = availablePoint > 1 ? DataGenerator.generatNumberInBound(1, availablePoint - 1) : 1;
-            case MAX_AVAILABLE, MAX_ORDER -> point = Math.min(availablePoint, redeemPointNeedForTotal());
+            case SERVERAL -> point = redeemPointMax==0?0: DataGenerator.generatNumberInBound(1, redeemPointMax);
+            case MAX_AVAILABLE, MAX_ORDER -> point = redeemPointMax;
             case NONE -> {
                 return 0;
             }
         }
         inputUsePoint(point);
+        new HomePage(driver).waitTillSpinnerDisappear1();
+        commonAction.sleepInMiliSecond(2000,"Wait total amount updated.");
         return point;
     }
 
@@ -646,7 +653,7 @@ public class POSPage extends POSElement {
                 Map<String, Double> itemTotalDiscountMap = getPromotionDetailApply(loc_ddlPromotion(i + 1), loc_tltPromotionApplyOnItem);
                 for (Map.Entry<String, Double> entry : itemTotalDiscountMap.entrySet()) {
                     ItemTotalDiscount itemTotalDiscount = new ItemTotalDiscount();
-                    itemTotalDiscount.setLabel(entry.getKey());
+                    itemTotalDiscount.setLabel(entry.getKey().equals("Giá sỉ")?"Bán sỉ":entry.getKey());
                     itemTotalDiscount.setValue(entry.getValue());
                     itemTotalDiscountList.add(itemTotalDiscount);
                 }
@@ -674,7 +681,7 @@ public class POSPage extends POSElement {
         EarningPoint earningPoint = new EarningPoint();
         LoyaltyPointInfo loyaltyPointInfo = new LoyaltyPoint(loginInformation).getLoyaltyPointSetting();
         Long rateAmount = loyaltyPointInfo.getRateAmount();
-        if ((double) rateAmount < getPriceTotalAfterDiscount())
+        if ((double) rateAmount < getSubTotalAfterDiscount())
             if (!commonAction.getElements(loc_lblTotalEarningPoint).isEmpty()) {
                 earningPoint.setValue((int) GetDataByRegex.getAmountByRegex(commonAction.getText(loc_lblTotalEarningPoint)));
             } else earningPoint.setValue(0);
@@ -815,7 +822,7 @@ public class POSPage extends POSElement {
         }
 
         orderInfo.setTotalQuantity(getTotalQuantity());
-        orderInfo.setTotalAmount(totalAmount);
+//        orderInfo.setTotalAmount(totalAmount);
         orderInfo.setPaymentMethod(getSelectedPaymentMethod().toString());
         orderInfo.setPaid(receiveAmount==totalAmount);
         orderInfo.setUsePoint(getUsePoint());
@@ -863,7 +870,7 @@ public class POSPage extends POSElement {
     }
     public int getUsePoint(){
         int usePoint = commonAction.getElements(loc_txtInputPoint).isEmpty()
-                ? 0 :Integer.parseInt(commonAction.getValue(loc_txtInputPoint));
+                ? 0 :Integer.parseInt(commonAction.getValue(loc_txtInputPoint).replaceAll(",",""));
         logger.info("Use point: {}",usePoint);
         return usePoint;
     }
@@ -901,13 +908,14 @@ public class POSPage extends POSElement {
         LoginDashboardInfo loginInfo = new Login().getInfo(loginInformation);
         return loginInfo.getSymbol();
     }
-    public double getPriceTotalAfterDiscount(){
-        List<WebElement> productList = commonAction.getElements(loc_lst_lblProductName, 1);
-        double total = 0;
-        for (int i = 0; i < productList.size(); i++) {
-            total = total + GetDataByRegex.getAmountByRegex(commonAction.getText(loc_lblPriceTotalAfterDiscount(i+1)));
-        }
-        logger.info("Get total price after discount (total amount exclude: tax and shipping fee)");
-        return total;
+    public double getSubTotalAfterDiscount(){
+        double totalAmountAfterDiscount = getTotalAmount() - getTaxAmount() - getShippingFee();
+        logger.info("Get subtotal after discount (total amount exclude: tax and shipping fee): {}",totalAmountAfterDiscount);
+        return totalAmountAfterDiscount;
+    }
+    @SneakyThrows
+    public void verifyCreateOrderSuccessMessage(){
+        Assert.assertEquals(new HomePage(driver).getToastMessage(), PropertiesUtil.getPropertiesValueByDBLang("order.pos.create.successMessage"),
+                "[Failed] Check success message.");
     }
 }

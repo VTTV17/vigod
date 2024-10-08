@@ -10,6 +10,7 @@ import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import io.restassured.response.ResponseBodyExtractionOptions;
 import lombok.Data;
+import lombok.SneakyThrows;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.testng.Assert;
@@ -461,7 +462,7 @@ public class APIAllOrders {
             Assert.assertEquals(itemActualList.get(i).getQuantity(),itemExpectedList.get(i).getQuantity(),"[Failed] Check quantity with index: "+i);
         }
         //Total Amount
-        Assert.assertEquals(orderInManagement.getTotal(),orderDetailExpected.getOrderInfo().getTotalAmount(),"[Failed] Check total amount.");
+        Assert.assertEquals(orderInManagement.getTotal(),orderDetailExpected.getOrderInfo().getTotalPrice(),"[Failed] Check total amount.");
         //Payment method
         Assert.assertEquals(orderInManagement.getPaymentMethod(),orderDetailExpected.getOrderInfo().getPaymentMethod(),"[Failed] Check payment method.");
         //Shipping fee
@@ -529,7 +530,7 @@ public class APIAllOrders {
     public void verifyOrderListSummary(OrderListSummaryVM orderListSummaryBefore, OrderDetailInfo newOrderInfo){
         OrderListSummaryVM orderListSummaryExpected = orderListSummaryBefore;
 
-        orderListSummaryExpected.setTotalAmount(orderListSummaryBefore.getTotalAmount() + newOrderInfo.getOrderInfo().getTotalAmount());
+        orderListSummaryExpected.setTotalAmount(orderListSummaryBefore.getTotalAmount() + newOrderInfo.getOrderInfo().getTotalPrice());
         if(newOrderInfo.getOrderInfo().getDebtAmount()>0){
             orderListSummaryExpected.setCustomerDebt(orderListSummaryBefore.getCustomerDebt() + newOrderInfo.getOrderInfo().getDebtAmount());
         }else orderListSummaryExpected.setSellerDebt(orderListSummaryBefore.getSellerDebt() + newOrderInfo.getOrderInfo().getDebtAmount());
@@ -545,5 +546,22 @@ public class APIAllOrders {
     public Double getProuctCostOfOrder(long orderId){
         OrderInManagement orderInManagement = getOrderInfoInManagement(getOrderListInfo(GOSELL),orderId);
         return orderInManagement.getTotalCostPrice();
+    }
+    @SneakyThrows
+    public long waitAndGetUntilNewOrderCreated(long orderNewestBeforeCreateOrder, Channel channel){
+        boolean isUpdated = false;
+        for (int i= 0; i<10;i++){
+            long newestOrderCurrent= Long.parseLong(new APIAllOrders(loginInformation).getOrderListInfo(channel).getResponse().get(0).getId());
+            if(newestOrderCurrent!= orderNewestBeforeCreateOrder) {
+                logger.info("Newest order: "+newestOrderCurrent);
+                return newestOrderCurrent;
+            }
+            logger.info("Waiting new order show in list.");
+            Thread.sleep(1000);
+        }
+        if(!isUpdated){
+            throw new Exception("New order not show in list.");
+        }
+        return 0;
     }
 }
