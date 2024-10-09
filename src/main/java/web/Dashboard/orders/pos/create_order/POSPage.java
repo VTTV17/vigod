@@ -303,7 +303,11 @@ public class POSPage extends POSElement {
     	if (!isDeliveryOpted) return;
     	
     	DeliveryDialog deliveryDlg = tickDelivery();
-    	
+
+        if (deliveryDlg.getCustomerName().isEmpty()) {
+            logger.info("Customer phone is undefined. Randomly filling the name...");
+            deliveryDlg.inputCustomerName(customerData.getName());
+        }
     	if (deliveryDlg.getCustomerPhone().isEmpty()) {
     		logger.info("Customer phone is undefined. Randomly filling the phone...");
     		deliveryDlg.inputCustomerPhone(customerData.getPhone());
@@ -519,7 +523,7 @@ public class POSPage extends POSElement {
         if (availablePoint == 0) throw new Exception("Customer don't have any available point");
         int redeemPointMax = Math.min(availablePoint, redeemPointNeedForTotal());
         switch (usePointType) {
-            case SERVERAL -> point = redeemPointMax==0?0: DataGenerator.generatNumberInBound(1, redeemPointMax);
+            case SERVERAL -> point = redeemPointMax==0?0: DataGenerator.generatNumberInBound(1, redeemPointMax+1);
             case MAX_AVAILABLE, MAX_ORDER -> point = redeemPointMax;
             case NONE -> {
                 return 0;
@@ -789,6 +793,7 @@ public class POSPage extends POSElement {
         if (!commonAction.getElements(loc_lblCustomerNameAndPhone, 1).isEmpty()) {
             CustomerInfoFull customerDetail = new APICustomerDetail(loginInformation).getFullInfo(customerId);
             customerOrderInfo.setName(customerDetail.getFullName());
+            customerOrderInfo.setGuest(customerDetail.getGuest());
             Optional<String> mainPhoneNumber = customerDetail.getPhones().stream()
                     .filter(phone -> "main".equalsIgnoreCase(phone.getPhoneType()))
                     .map(CustomerPhone::getPhoneNumber)
@@ -826,7 +831,6 @@ public class POSPage extends POSElement {
         }
 
         orderInfo.setTotalQuantity(getTotalQuantity());
-//        orderInfo.setTotalAmount(totalAmount);
         orderInfo.setPaymentMethod(getSelectedPaymentMethod().toString());
         orderInfo.setPaid(receiveAmount==totalAmount);
         orderInfo.setUsePoint(getUsePoint());
@@ -845,11 +849,12 @@ public class POSPage extends POSElement {
         orderDetailInfo.setTotalSummaryDiscounts(-getTotalDiscountAmount());
         CustomerOrderInfo customerOrderInfo = getCustomerOderInfo(customerId);
         if(isDeliveryOpted()) clickEditDelivery();
-//        orderDetailInfo.setBillingInfo(getBillingInfo(customerOrderInfo.getName() == null, customerId));
         orderDetailInfo.setShippingInfo(getShippingInfo());
         if(customerOrderInfo.getMainPhone()==null && isDeliveryOpted()) {
             customerOrderInfo.setMainPhone(orderDetailInfo.getShippingInfo().getPhone());
             customerOrderInfo.setPhone(orderDetailInfo.getShippingInfo().getPhoneCode() + orderDetailInfo.getShippingInfo().getPhone().replaceFirst("^0", ""));
+            customerOrderInfo.setName(orderDetailInfo.getShippingInfo().getContactName());
+            customerOrderInfo.setGuest(true);
         }
         if(isDeliveryOpted()){
             String deliveryMethod = new DeliveryDialog(driver).getSelectedDeliveryName();
