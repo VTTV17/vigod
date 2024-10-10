@@ -130,7 +130,7 @@ public class APIGetReturnOrdersById {
 
         return returnOrders.parallelStream()
                 .filter(returnOrder -> returnOrder.getStatus().equals("COMPLETED"))
-                .map(ReturnOrder::getRefundAmount)
+                .map(ReturnOrder::getTotalRefund)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 

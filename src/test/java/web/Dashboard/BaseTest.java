@@ -32,7 +32,7 @@ public class BaseTest {
                    @Optional("false") String headless,
                    @Optional("STAG") String environment,
                    @Optional("ENG") String language,
-                   @Optional("VN") String domain ) { // either VN or BIZ
+                   @Optional("BIZ") String domain ) { // either VN or BIZ
         this.browser = browser;
         this.headless = headless;
         this.language = language;

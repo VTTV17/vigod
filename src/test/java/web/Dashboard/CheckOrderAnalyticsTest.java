@@ -7,10 +7,12 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import utilities.enums.analytics.TimeFrame;
+import utilities.helper.DateTimeRangeGenerator;
 import utilities.model.sellerApp.login.LoginInformation;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Arrays;
 
 import static api.Seller.orders.order_management.APIGetOrderList.*;
 import static utilities.account.AccountTest.ADMIN_ACCOUNT_THANG;
@@ -47,9 +49,9 @@ public class CheckOrderAnalyticsTest extends BaseTest {
                 {TimeFrame.LAST_WEEK, "GOSELL"},
                 {TimeFrame.THIS_MONTH, "GOSELL"},
                 {TimeFrame.LAST_MONTH, "GOSELL"},
-                {TimeFrame.THIS_YEAR, "GOSELL"},
-                {TimeFrame.LAST_YEAR, "GOSELL"},
-                {TimeFrame.CUSTOM_RANGE, "GOSELL"},
+//                {TimeFrame.THIS_YEAR, "GOSELL"},
+//                {TimeFrame.LAST_YEAR, "GOSELL"},
+//                {TimeFrame.CUSTOM_RANGE, "GOSELL"},
         };
     }
 

@@ -122,7 +122,7 @@ public class DateTimeRangeGenerator {
      * @return an array of strings, where the first element is the start date and the second element is the end date
      */
     public static String[] getLast7DaysRange() {
-        LocalDateTime start = LocalDate.now().minusDays(7).atStartOfDay();
+        LocalDateTime start = LocalDate.now().minusDays(6).atStartOfDay();
         LocalDateTime end = LocalDate.now().atTime(LocalTime.MAX);
         return new String[]{formatDateTime(start), formatDateTime(end)};
     }
@@ -133,7 +133,7 @@ public class DateTimeRangeGenerator {
      * @return an array of strings, where the first element is the start date and the second element is the end date
      */
     public static String[] getLast30DaysRange() {
-        LocalDateTime start = LocalDate.now().minusDays(30).atStartOfDay();
+        LocalDateTime start = LocalDate.now().minusDays(29).atStartOfDay();
         LocalDateTime end = LocalDate.now().atTime(LocalTime.MAX);
         return new String[]{formatDateTime(start), formatDateTime(end)};
     }

@@ -415,7 +415,7 @@ public class APIGetProductDetail {
         if (!productInformation.isHasModel()) {
             // No variations; map stock by branch with null as the modelId key
             Map<Integer, Integer> branchStockMap = new HashMap<>();
-            productInformation.getBranches().forEach(branch -> branchStockMap.put(branch.getBranchId(), branch.getTotalItem() - branch.getSoldItem()));
+            productInformation.getBranches().forEach(branch -> branchStockMap.put(branch.getBranchId(), branch.getTotalItem()));
             return Collections.singletonMap(null, new TreeMap<>(branchStockMap));
         }
 
@@ -428,7 +428,7 @@ public class APIGetProductDetail {
             Map<Integer, Integer> branchStockMap = new HashMap<>();
 
             // Populate branchId -> stock map for this model
-            model.getBranches().forEach(branch -> branchStockMap.put(branch.getBranchId(), branch.getTotalItem() - branch.getSoldItem()));
+            model.getBranches().forEach(branch -> branchStockMap.put(branch.getBranchId(), branch.getTotalItem()));
 
             // Add modelId -> branchId -> stock map to the main map
             modelBranchStockMap.put(model.getId(), new TreeMap<>(branchStockMap));

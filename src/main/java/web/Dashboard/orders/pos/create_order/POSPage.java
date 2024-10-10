@@ -5,10 +5,9 @@ import api.Seller.login.Login;
 import api.Seller.marketing.LoyaltyPoint;
 import api.Seller.orders.order_management.APIAllOrders;
 import api.Seller.products.all_products.APIGetProductDetail;
-import api.Seller.products.all_products.APIGetProductDetail.*;
+import api.Seller.products.all_products.APIGetProductDetail.ProductInformation;
 import api.Seller.products.all_products.APIProductConversionUnit;
 import api.Seller.products.all_products.APIProductConversionUnit.ConversionUnitItem;
-import api.Seller.products.all_products.APIProductDetailV2;
 import api.Seller.setting.BranchManagement;
 import api.Seller.setting.StoreInformation;
 import lombok.SneakyThrows;
@@ -46,7 +45,6 @@ import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.IntStream;
 
-import static api.Seller.products.all_products.APIProductDetailV2.ProductInfoV2;
 import static org.apache.commons.lang.math.JVMRandom.nextLong;
 import static org.apache.commons.lang.math.RandomUtils.nextBoolean;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
@@ -60,11 +58,13 @@ public class POSPage extends POSElement {
     Logger logger = LogManager.getLogger();
     LoginInformation loginInformation;
     Domain domain = Domain.VN;
+
     public POSPage(WebDriver driver) {
         this.driver = driver;
         assertCustomize = new AssertCustomize(driver);
         commonAction = new UICommonAction(driver);
     }
+
     public POSPage(WebDriver driver, Domain domain) {
         this(driver);
         this.domain = domain;
@@ -76,7 +76,7 @@ public class POSPage extends POSElement {
     }
 
     public POSPage navigateToPOSPage() {
-        String url = domain.equals(Domain.VN)?DOMAIN : DOMAIN_BIZ;
+        String url = domain.equals(Domain.VN) ? DOMAIN : DOMAIN_BIZ;
         // Navigate to POS page
         driver.get("%s/order/instore-purchase".formatted(url));
 
@@ -107,65 +107,63 @@ public class POSPage extends POSElement {
     }
 
     public void selectProduct(LoginInformation loginInformation, List<Integer> productIds) {
-    	
-    	var branchManagementInfo = new BranchManagement(loginInformation).getInfo();
-    	
-    	int selectedBranchIndex = branchManagementInfo.getBranchName().indexOf(branchName);
-    	
-    	int branchId = branchManagementInfo.getBranchID().get(selectedBranchIndex);
-    	
-    	// Select product
-    	productIds.forEach(productId -> {
-    		// Get product information
-    		ProductInfoV2 infoV2 = new APIProductDetailV2(loginInformation).getInfo(productId);
-    		
-    		ProductInformation productDetailInfo = new APIGetProductDetail(loginInformation).getProductInformation(productId);
-    		
-    		// Search product
-    		commonAction.sendKeys(loc_txtProductSearchBox, productDetailInfo.getName());
-    		
-    		// Log
-    		logger.info("Search product, keyword: {}", productDetailInfo.getName());
-    		
-    		// Get list conversion unit
-    		List<ConversionUnitItem> unitItems = new APIProductConversionUnit(loginInformation).getItemConversionUnit(productId);
-    		
-    		// If product has conversion unit, only add conversion unit
-    		if (unitItems.isEmpty()) {
-    			// Select product/variations
-    			
-    			List<Integer> modelIds = productDetailInfo.isHasModel() ? APIGetProductDetail.getVariationModelList(productDetailInfo) : Collections.singletonList(null);
-    			
-    			modelIds.forEach(modelId -> {
-    				// Get current stock in branch
-    				int currentStock = APIGetProductDetail.getStockByModelAndBranch(productDetailInfo, modelId, branchId);
-    				
-    				List<String> barCodes = productDetailInfo.isHasModel() ? APIGetProductDetail.getBarcodeList(productDetailInfo) : List.of(productDetailInfo.getBarcode());
-    				
-    				// Add product/variation to cart
-    				addProductToCart(loginInformation, productDetailInfo, barCodes.get(modelIds.indexOf(modelId)), currentStock, modelIds.indexOf(modelId), "-");
-    			});
-    		} else {
-    			// Select conversion unit
-    			unitItems.forEach(unit -> {
-    				// Get current stock
-    				int currentStock = infoV2.getProductStockQuantityMap()
-    						.get(infoV2.isHasModel() ? unit.getModelId() : productDetailInfo.getId())
-    						.get(selectedBranchIndex)
-    						/ unit.getQuantity();
-    				
-    				// Add conversion unit to cart
-    				addProductToCart(loginInformation, productDetailInfo, unit.getBarcode(), currentStock, infoV2.getVariationModelList().indexOf(unit.getModelId()), unit.getConversionUnitName());
-    			});
-    		}
-    	});
+
+        var branchManagementInfo = new BranchManagement(loginInformation).getInfo();
+
+        int selectedBranchIndex = branchManagementInfo.getBranchName().indexOf(branchName);
+
+        int branchId = branchManagementInfo.getBranchID().get(selectedBranchIndex);
+
+        // Select product
+        productIds.forEach(productId -> {
+            ProductInformation productDetailInfo = new APIGetProductDetail(loginInformation).getProductInformation(productId);
+
+            // Search product
+            commonAction.sendKeys(loc_txtProductSearchBox, productDetailInfo.getName());
+            commonAction.click(loc_txtProductSearchBox);
+
+            // Log
+            logger.info("Search product, keyword: {}", productDetailInfo.getName());
+
+            // Get list conversion unit
+            List<ConversionUnitItem> unitItems = new APIProductConversionUnit(loginInformation).getItemConversionUnit(productId);
+
+            // If product has conversion unit, only add conversion unit
+            if (unitItems.isEmpty()) {
+                // Select product/variations
+
+                List<Integer> modelIds = productDetailInfo.isHasModel() ? APIGetProductDetail.getVariationModelList(productDetailInfo) : Collections.singletonList(null);
+
+                modelIds.forEach(modelId -> {
+                    // Get current stock in branch
+                    int currentStock = APIGetProductDetail.getStockByModelAndBranch(productDetailInfo, modelId, branchId);
+
+                    List<String> barCodes = productDetailInfo.isHasModel() ? APIGetProductDetail.getBarcodeList(productDetailInfo) : List.of(productDetailInfo.getBarcode());
+
+                    // Add product/variation to cart
+                    addProductToCart(loginInformation, productDetailInfo, barCodes.get(modelIds.indexOf(modelId)), currentStock, modelIds.indexOf(modelId), "-");
+                });
+            } else {
+                // Select conversion unit
+                unitItems.forEach(unit -> {
+                    // Get current stock
+                    int currentStock = APIGetProductDetail.getStockByModelAndBranch(productDetailInfo, unit.getModelId(), branchId)
+                                       / unit.getQuantity();
+
+                    // Add conversion unit to cart
+                    addProductToCart(loginInformation, productDetailInfo, unit.getBarcode(), currentStock, APIGetProductDetail.getVariationModelList(productDetailInfo).indexOf(unit.getModelId()), unit.getConversionUnitName());
+                });
+            }
+        });
     }
 
-    void addProductToCart(LoginInformation loginInformation, ProductInformation infoV2, String barcode, int currentStock, int varIndex, String unitName) {
-        
-    	//Return early if the stock is less than 1
-    	if (currentStock <1) return;
-    	
+    void addProductToCart(LoginInformation loginInformation, ProductInformation productInfo, String barcode, int currentStock, int varIndex, String unitName) {
+        // Return early if the current stock is zero or less
+        if (currentStock < 1) {
+            logger.info("Stock for Product/Variation is {}. Item will not be added to the cart.", currentStock);
+            return;
+        }
+
         // Add conversion unit to cart
         commonAction.clickJS(loc_lstProductResult(barcode));
 
@@ -176,28 +174,28 @@ public class POSPage extends POSElement {
         logger.info("Add product/variation/conversion unit to cart, barcode: {}", barcode);
 
         // Get product name
-        String productName = infoV2.getName();
+        String productName = productInfo.getName();
 
         String langKey = new StoreInformation(loginInformation).getInfo().getDefaultLanguage();
-        
+
         // Get variation value
-        String variationValue = infoV2.isHasModel()
-                ? APIGetProductDetail.getVariationValue(infoV2, langKey, varIndex).replace("|", " | ")
+        String variationValue = productInfo.isHasModel()
+                ? APIGetProductDetail.getVariationValue(productInfo, langKey, varIndex).replace("|", " | ")
                 : "";
 
         // Get quantity
-        int quantity = currentStock >5 ? nextInt(3) + 1 : nextInt(currentStock) + 1; //Restrict the maximum quantity to 3
+        int quantity = currentStock > 5 ? nextInt(3) + 1 : nextInt(currentStock) + 1; //Restrict the maximum quantity to 3
 
         // Input quantity
-        commonAction.sendKeys(infoV2.isHasModel()
+        commonAction.sendKeys(productInfo.isHasModel()
                         ? loc_txtProductQuantity(productName, variationValue, unitName)
                         : loc_txtProductQuantity(productName, unitName),
                 String.valueOf(quantity));
 
         // Select Lot if product quantity is managed by Lot
-        if (infoV2.isLotAvailable()) {
+        if (productInfo.isLotAvailable()) {
             // Open Select Lot popup
-            commonAction.click(infoV2.isHasModel()
+            commonAction.click(productInfo.isHasModel()
                     ? loc_btnSelectLot(productName, variationValue, unitName)
                     : loc_btnSelectLot(productName, unitName));
 
@@ -217,15 +215,15 @@ public class POSPage extends POSElement {
             logger.info("Close Select Lot popup");
         }
 
-     // Select IMEI if product is managed by IMEI
-        if (!infoV2.getInventoryManageType().equals("PRODUCT")) {
+        // Select IMEI if product is managed by IMEI
+        if (!productInfo.getInventoryManageType().equals("PRODUCT")) {
 
             // Retry logic to open Select IMEI popup and confirm it's open
-        	commonAction.attemptWithRetry(5, 1000, () -> {
+            commonAction.attemptWithRetry(5, 1000, () -> {
                 // Attempt to open the IMEI popup
-                commonAction.click(infoV2.isHasModel()
-                    ? loc_btnSelectIMEI(productName, variationValue, unitName)
-                    : loc_btnSelectIMEI(productName, unitName));
+                commonAction.click(productInfo.isHasModel()
+                        ? loc_btnSelectIMEI(productName, variationValue, unitName)
+                        : loc_btnSelectIMEI(productName, unitName));
 
                 // Log attempt
                 logger.info("Attempted to open select IMEI popup");
@@ -269,22 +267,22 @@ public class POSPage extends POSElement {
     }
 
     public POSPage selectCustomer(String name) {
-    	
-    	//After customer name is input, the text box is still empty. The retry mechanism below helps resolve the issue by retrying to input the customer name a few times
-    	commonAction.attemptWithRetry(5, 1000, () -> {
-        	commonAction.inputText(loc_txtCustomerSearchBox, name);
+
+        //After customer name is input, the text box is still empty. The retry mechanism below helps resolve the issue by retrying to input the customer name a few times
+        commonAction.attemptWithRetry(5, 1000, () -> {
+            commonAction.inputText(loc_txtCustomerSearchBox, name);
             logger.info("Input customer to search: {}", name);
             commonAction.sleepInMiliSecond(500, "Wait for search API to start");
-            
+
             if (commonAction.getValue(loc_txtCustomerSearchBox).isEmpty()) {
                 throw new IllegalStateException("Search customer text box is empty after being filled with data");
             }
-    	});
-    	
+        });
+
         commonAction.click(loc_txtCustomerSearchBox);
         commonAction.click(loc_lstCustomerResult(name));
-        
-    	new HomePage(driver).waitTillLoadingDotsDisappear();
+
+        new HomePage(driver).waitTillLoadingDotsDisappear();
         return this;
     }
 
@@ -298,84 +296,88 @@ public class POSPage extends POSElement {
      * Opt to delivery or not.
      * Self-Delivery is selected by default.
      * Selection of other shipping service providers will be handled later
+     *
      * @param isDeliveryOpted if it is true, Delivery option is checked
      */
     public void selectDelivery(boolean isDeliveryOpted) {
-		if (!isDeliveryOpted) return;
-		
-		tickDelivery().clickShippingProviderDropdown().clickSaveBtn();
-		new HomePage(driver).waitTillLoadingDotsDisappear();
-		
-		// TODO Handle specific delivery service provider
+        if (!isDeliveryOpted) return;
+
+        tickDelivery().clickShippingProviderDropdown().clickSaveBtn();
+        new HomePage(driver).waitTillLoadingDotsDisappear();
+
+        // TODO Handle specific delivery service provider
     }
-    
+
     /**
      * Opt to delivery or not.
      * This function randomly inputs an phone and an address if they are undefined.
      * Self-Delivery is selected by default.
      * Selection of other shipping service providers will be handled later
+     *
      * @param isDeliveryOpted if it is true, Delivery option is checked
      * @param customerData
      */
     public void selectDelivery(boolean isDeliveryOpted, UICreateCustomerData customerData) {
-    	if (!isDeliveryOpted) return;
-    	
-    	DeliveryDialog deliveryDlg = tickDelivery();
+        if (!isDeliveryOpted) return;
+
+        DeliveryDialog deliveryDlg = tickDelivery();
 
         if (deliveryDlg.getCustomerName().isEmpty()) {
             logger.info("Customer phone is undefined. Randomly filling the name...");
             deliveryDlg.inputCustomerName(customerData.getName());
         }
-    	if (deliveryDlg.getCustomerPhone().isEmpty()) {
-    		logger.info("Customer phone is undefined. Randomly filling the phone...");
-    		deliveryDlg.inputCustomerPhone(customerData.getPhone());
-    	}
-    	
-    	if (deliveryDlg.isProvinceUndefined()) {
-    		logger.info("Customer address is undefined. Randomly filling the address...");
-    		deliveryDlg.fillAddress(customerData);
-    	}
-    	
-    	deliveryDlg.clickShippingProviderDropdown().clickSaveBtn();
-    	
-    	new HomePage(driver).waitTillLoadingDotsDisappear();
-    	
-    	// TODO Handle specific delivery service provider
+        if (deliveryDlg.getCustomerPhone().isEmpty()) {
+            logger.info("Customer phone is undefined. Randomly filling the phone...");
+            deliveryDlg.inputCustomerPhone(customerData.getPhone());
+        }
+
+        if (deliveryDlg.isProvinceUndefined()) {
+            logger.info("Customer address is undefined. Randomly filling the address...");
+            deliveryDlg.fillAddress(customerData);
+        }
+
+        deliveryDlg.clickShippingProviderDropdown().clickSaveBtn();
+
+        new HomePage(driver).waitTillLoadingDotsDisappear();
+
+        // TODO Handle specific delivery service provider
     }
-    
+
     /**
      * Make an order for a list of products on a specific branch
      * Available discounts are automatically applied
+     *
      * @param loginInformation
      * @param branchName
      * @param productIds
      */
     public void createPOSOrder(LoginInformation loginInformation, String branchName, List<Integer> productIds) {
-    	// Select branch
-    	selectBranch(branchName);
-    	
-    	// Add product to cart
-    	selectProduct(loginInformation, productIds);
-    	
-    	// Add customer
-    	
-    	// Apply discount
-    	applyDiscount();
+        // Select branch
+        selectBranch(branchName);
+
+        // Add product to cart
+        selectProduct(loginInformation, productIds);
+
+        // Add customer
+
+        // Apply discount
+        applyDiscount();
     }
+
     /**
      * Make an order for a list of products on a random branch
      * Available discounts are automatically applied
+     *
      * @param loginInformation
      * @param branchInfo
      * @param productIds
      */
     public void createPOSOrder(LoginInformation loginInformation, BranchInfo branchInfo, List<Integer> productIds) {
         //Randomly select a branch to order from
-    	String branchName = branchInfo.getBranchName().get(nextInt(branchInfo.getBranchName().size()));
-    	
-    	createPOSOrder(loginInformation, branchName, productIds);
+        String branchName = branchInfo.getBranchName().get(nextInt(branchInfo.getBranchName().size()));
+
+        createPOSOrder(loginInformation, branchName, productIds);
     }
-    
 
 
     public Double getTotalAmount() {
@@ -390,13 +392,13 @@ public class POSPage extends POSElement {
         commonAction.click(loc_txtReceiveAmount);
         Actions actions = new Actions(driver);
         // Select all text (Ctrl + A for Windows/Linux, Command + A for Mac)
-            actions.keyDown(Keys.CONTROL) // Or Keys.COMMAND for Mac
-                    .sendKeys("a")
-                    .keyUp(Keys.CONTROL)     // Or Keys.COMMAND for Mac
-                    .perform();
+        actions.keyDown(Keys.CONTROL) // Or Keys.COMMAND for Mac
+                .sendKeys("a")
+                .keyUp(Keys.CONTROL)     // Or Keys.COMMAND for Mac
+                .perform();
 
-            // Press the Delete key
-            actions.sendKeys(Keys.DELETE).perform();
+        // Press the Delete key
+        actions.sendKeys(Keys.DELETE).perform();
         commonAction.inputText(loc_txtReceiveAmount, amount);
         logger.info("Input receive amount: {}", amount);
     }
@@ -405,16 +407,16 @@ public class POSPage extends POSElement {
         new HomePage(driver).waitTillLoadingDotsDisappear();
         commonAction.sleepInMiliSecond(1000, "Wait a little for better UI stability");
         String currency = getCurrencySymbol();
-        double randomFrom = currency.equals("đ")?1: 0.01;
-        String formatReceiveAmount = currency.equals("đ")?"%.0f": "%.2f";
+        double randomFrom = currency.equals("đ") ? 1 : 0.01;
+        String formatReceiveAmount = currency.equals("đ") ? "%.0f" : "%.2f";
         double receiveAmount = (Objects.requireNonNull(receivedAmountType) == ReceivedAmountType.FULL)
                 ? getTotalAmount()
                 : ((receivedAmountType == ReceivedAmountType.PARTIAL)
                 ? DataGenerator.generatNumberInBound(randomFrom, getTotalAmount())
                 : 0);
         commonAction.sleepInMiliSecond(3000, "Wait a little for better UI stability");
-        inputReceiveAmount(String.format(formatReceiveAmount,receiveAmount));
-        return Double.parseDouble(String.format(formatReceiveAmount,receiveAmount));
+        inputReceiveAmount(String.format(formatReceiveAmount, receiveAmount));
+        return Double.parseDouble(String.format(formatReceiveAmount, receiveAmount));
     }
 
     public enum POSPaymentMethod {
@@ -430,18 +432,18 @@ public class POSPage extends POSElement {
         clickOnViewAllPayment();
         //wait popup show
         commonAction.getElements(loc_icnPaymentPOS);
-        
+
         //TODO: Think of a better way to handle this. Without this delay, Bank-Transfer is assumed selected sometimes on the DOM
         commonAction.sleepInMiliSecond(500, "Wait a little for better UI stability");
-        
+
         switch (paymentMethod) {
             case CASH -> {
-                if (!commonAction.getAttribute(loc_icnPaymentCash , "class").contains("selected-item"))
+                if (!commonAction.getAttribute(loc_icnPaymentCash, "class").contains("selected-item"))
                     commonAction.click(loc_icnPaymentCash);
             }
             case BANK_TRANSFER -> {
                 if (!commonAction.getAttribute(loc_icnPaymentBankTransfer, "class").contains("selected-item"))
-                	commonAction.click(loc_icnPaymentBankTransfer);
+                    commonAction.click(loc_icnPaymentBankTransfer);
             }
             case POS -> {
                 if (!commonAction.getAttribute(loc_icnPaymentPOS, "class").contains("selected-item")) {
@@ -544,18 +546,19 @@ public class POSPage extends POSElement {
         LoyaltyPointInfo loyaltyPointInfo = new LoyaltyPoint(loginInformation).getLoyaltyPointSetting();
         Long exchangeAmount = loyaltyPointInfo.getExchangeAmount();
         int redeemPoint = (int) (getSubTotalAfterDiscount() / exchangeAmount);
-        logger.info("Redeem point can use for this order: "+redeemPoint);
+        logger.info("Redeem point can use for this order: " + redeemPoint);
         return redeemPoint;
     }
 
     @SneakyThrows
     public int inputUsePoint(UsePointType usePointType) {
         int point = 0;
-        int availablePoint = Integer.parseInt(commonAction.getText(loc_lblAvailablePoint).replaceAll(",",""));
+        int availablePoint = Integer.parseInt(commonAction.getText(loc_lblAvailablePoint).replaceAll(",", ""));
         if (availablePoint == 0) throw new Exception("Customer don't have any available point");
         int redeemPointMax = Math.min(availablePoint, redeemPointNeedForTotal());
         switch (usePointType) {
-            case SERVERAL -> point = redeemPointMax==0?0: DataGenerator.generatNumberInBound(1, redeemPointMax+1);
+            case SERVERAL ->
+                    point = redeemPointMax == 0 ? 0 : DataGenerator.generatNumberInBound(1, redeemPointMax + 1);
             case MAX_AVAILABLE, MAX_ORDER -> point = redeemPointMax;
             case NONE -> {
                 return 0;
@@ -563,7 +566,7 @@ public class POSPage extends POSElement {
         }
         inputUsePoint(point);
         new HomePage(driver).waitTillSpinnerDisappear1();
-        commonAction.sleepInMiliSecond(2000,"Wait total amount updated.");
+        commonAction.sleepInMiliSecond(2000, "Wait total amount updated.");
         return point;
     }
 
@@ -600,22 +603,23 @@ public class POSPage extends POSElement {
 
     /**
      * There are times the element is not rendered with text, this function repeats 5 times until the element has text
+     *
      * @param element
      * @return text of the WebElement
      */
     String getElementText(WebElement element) {
-    	int attempts = 0;
-    	int maxAttempts = 5;
-    	
-    	while (attempts < maxAttempts) {
-    		var text = element.getText();
-    		if (!text.isEmpty()) return text;
-    		commonAction.sleepInMiliSecond(500, "Element's text is empty. Wait a little");
-    		attempts++;
-    	}
-    	return "";
+        int attempts = 0;
+        int maxAttempts = 5;
+
+        while (attempts < maxAttempts) {
+            var text = element.getText();
+            if (!text.isEmpty()) return text;
+            commonAction.sleepInMiliSecond(500, "Element's text is empty. Wait a little");
+            attempts++;
+        }
+        return "";
     }
-    
+
     /**
      * @param actionlocator  : locator that user hover or click on it.
      * @param tooltipLocator : tooltip content
@@ -629,7 +633,7 @@ public class POSPage extends POSElement {
             commonAction.clickActions(actionlocator);
             List<WebElement> promotionList = commonAction.getElements(tooltipLocator, 2);
             promotionList.forEach(i -> {
-            	var text = getElementText(i);
+                var text = getElementText(i);
                 logger.info("Promotion: {}", text);
                 String[] promoItem = text.split("\n");
                 itemDiscountList.put(promoItem[0].replaceAll("\\.00(?=%)", ""), Double.valueOf(DataGenerator.extractDigits(promoItem[promoItem.length - 1])));
@@ -669,31 +673,32 @@ public class POSPage extends POSElement {
             if (!conversionUnit.equals("-"))
                 itemOrderInfo.setConversionUnitName(conversionUnit);
             //Variation
-            if (!commonAction.getElements(loc_lblVariationByProductIndex(i+1)).isEmpty()){
-                itemOrderInfo.setVariationName(commonAction.getText(loc_lblVariationByProductIndex(i+1)).replaceAll(" ",""));
+            if (!commonAction.getElements(loc_lblVariationByProductIndex(i + 1)).isEmpty()) {
+                itemOrderInfo.setVariationName(commonAction.getText(loc_lblVariationByProductIndex(i + 1)).replaceAll(" ", ""));
             }
-            itemOrderInfo.setQuantity(Integer.parseInt(commonAction.getValue(loc_txtProductQuantity(i+1))));
+            itemOrderInfo.setQuantity(Integer.parseInt(commonAction.getValue(loc_txtProductQuantity(i + 1))));
 
             if (!commonAction.getElements(loc_lblGift(productName)).isEmpty()) {
                 GsOrderBXGYDTO gsOrderBXGYDTO = new GsOrderBXGYDTO();
                 gsOrderBXGYDTO.setGiftType("BUY_X_GET_Y");
                 itemOrderInfo.setGsOrderBXGYDTO(gsOrderBXGYDTO);
             }
-            if(!commonAction.getElements(loc_lblSellingPriceForOne(i+1)).isEmpty())
-                itemOrderInfo.setPrice(GetDataByRegex.getAmountByRegex(commonAction.getText(loc_lblSellingPriceForOne(i+1))));
-            else itemOrderInfo.setPrice(GetDataByRegex.getAmountByRegex(commonAction.getText(loc_lblSellingPriceAfterDiscountForOne(i+1))));
-            itemOrderInfo.setPriceDiscount(GetDataByRegex.getAmountByRegex(commonAction.getText(loc_lblSellingPriceAfterDiscountForOne(i+1))));
-            itemOrderInfo.setTotalAmount(GetDataByRegex.getAmountByRegex(commonAction.getText(loc_lblPriceTotalAfterDiscount(i+1))));
+            if (!commonAction.getElements(loc_lblSellingPriceForOne(i + 1)).isEmpty())
+                itemOrderInfo.setPrice(GetDataByRegex.getAmountByRegex(commonAction.getText(loc_lblSellingPriceForOne(i + 1))));
+            else
+                itemOrderInfo.setPrice(GetDataByRegex.getAmountByRegex(commonAction.getText(loc_lblSellingPriceAfterDiscountForOne(i + 1))));
+            itemOrderInfo.setPriceDiscount(GetDataByRegex.getAmountByRegex(commonAction.getText(loc_lblSellingPriceAfterDiscountForOne(i + 1))));
+            itemOrderInfo.setTotalAmount(GetDataByRegex.getAmountByRegex(commonAction.getText(loc_lblPriceTotalAfterDiscount(i + 1))));
 
             //Set promotion info of each item
 //            commonAction.sleepInMiliSecond(1000);
             List<ItemTotalDiscount> itemTotalDiscountList = new ArrayList<>();
-            if(!commonAction.getElements(loc_ddlPromotion(i+1),1).isEmpty()) {
-                commonAction.click(loc_ddlPromotion(i+1));
+            if (!commonAction.getElements(loc_ddlPromotion(i + 1), 1).isEmpty()) {
+                commonAction.click(loc_ddlPromotion(i + 1));
                 Map<String, Double> itemTotalDiscountMap = getPromotionDetailApply(loc_ddlPromotion(i + 1), loc_tltPromotionApplyOnItem);
                 for (Map.Entry<String, Double> entry : itemTotalDiscountMap.entrySet()) {
                     ItemTotalDiscount itemTotalDiscount = new ItemTotalDiscount();
-                    itemTotalDiscount.setLabel(entry.getKey().equals("Giá sỉ")?"Bán sỉ":entry.getKey());
+                    itemTotalDiscount.setLabel(entry.getKey().equals("Giá sỉ") ? "Bán sỉ" : entry.getKey());
                     itemTotalDiscount.setValue(entry.getValue());
                     itemTotalDiscountList.add(itemTotalDiscount);
                 }
@@ -701,21 +706,21 @@ public class POSPage extends POSElement {
             itemOrderInfo.setItemTotalDiscounts(itemTotalDiscountList);
             itemDiscountList.add(itemOrderInfo);
         }
-        logger.info("itemDiscountList: {}",itemDiscountList);
+        logger.info("itemDiscountList: {}", itemDiscountList);
         return itemDiscountList;
     }
 
 
     public double getShippingFeeDiscount() {
         Map<String, Double> shippingDiscountMap = getPromotionDetailApply(loc_ddlShippingPromotion, loc_tltShippingPromotion);
-        double discountAmount =  shippingDiscountMap.values().stream().mapToDouble(Double::doubleValue).sum();
-        logger.info("Shipping fee discount amount: {}",discountAmount);
+        double discountAmount = shippingDiscountMap.values().stream().mapToDouble(Double::doubleValue).sum();
+        logger.info("Shipping fee discount amount: {}", discountAmount);
         return discountAmount;
     }
 
     public double getReceiveAmount() {
         double receiveAmount = GetDataByRegex.getAmountByRegex(commonAction.getValue(loc_txtReceiveAmount));
-        logger.info("Get receive amount: {}",receiveAmount);
+        logger.info("Get receive amount: {}", receiveAmount);
         return receiveAmount;
     }
 
@@ -748,14 +753,14 @@ public class POSPage extends POSElement {
             shippingInfo.setCountry(deliveryDialog.getCountry());
             if (shippingInfo.getCountry().equals("Vietnam")) {
                 shippingInfo.setFullAddress(deliveryDialog.getAddress() + ", " + deliveryDialog.getWard() + ", " + deliveryDialog.getDistrict()
-                        + ", " + deliveryDialog.getProvince() + ", " + Constant.VIETNAM);
+                                            + ", " + deliveryDialog.getProvince() + ", " + Constant.VIETNAM);
                 shippingInfo.setFullAddressEn(deliveryDialog.getAddress() + ", " + deliveryDialog.getWard() + ", " + deliveryDialog.getDistrict()
-                        + ", " + deliveryDialog.getProvince() + ", " + Constant.VIETNAM);
+                                              + ", " + deliveryDialog.getProvince() + ", " + Constant.VIETNAM);
             } else {
                 shippingInfo.setFullAddress(deliveryDialog.getAddress() + ", " + deliveryDialog.getAddress2() + ", " + deliveryDialog.getCity() + ", " + deliveryDialog.getProvince()
-                        + ", " + deliveryDialog.getZipcode() + ", " + deliveryDialog.getCountry());
+                                            + ", " + deliveryDialog.getZipcode() + ", " + deliveryDialog.getCountry());
                 shippingInfo.setFullAddressEn(deliveryDialog.getAddress() + ", " + deliveryDialog.getAddress2() + ", " + deliveryDialog.getCity() + ", " + deliveryDialog.getProvince()
-                        + ", " + deliveryDialog.getZipcode() + ", " + deliveryDialog.getCountry());
+                                              + ", " + deliveryDialog.getZipcode() + ", " + deliveryDialog.getCountry());
             }
 //            new ConfirmationDialog(driver).clickCancelBtn();
         }
@@ -784,14 +789,14 @@ public class POSPage extends POSElement {
                     .filter(phone -> "main".equalsIgnoreCase(phone.getPhoneType()))
                     .map(CustomerPhone::getPhoneNumber)
                     .findFirst();
-            if(mainPhoneNumber.isPresent())billingInfo.setPhone(mainPhoneNumber.get());
+            if (mainPhoneNumber.isPresent()) billingInfo.setPhone(mainPhoneNumber.get());
             billingInfo.setCountry(customerInfo.getCustomerAddressFull().getCountry());
             billingInfo.setAddress1(customerInfo.getCustomerAddress().getAddress());
             if (billingInfo.getCountry().equals(Constant.VIETNAM)) {
-                billingInfo.setFullAddress( customerInfo.getCustomerAddressFull().getWard() + ", " + customerInfo.getCustomerAddressFull().getDistrict()
-                        + ", " + customerInfo.getCustomerAddressFull().getCity() + ", " + customerInfo.getCustomerAddressFull().getCountry());
+                billingInfo.setFullAddress(customerInfo.getCustomerAddressFull().getWard() + ", " + customerInfo.getCustomerAddressFull().getDistrict()
+                                           + ", " + customerInfo.getCustomerAddressFull().getCity() + ", " + customerInfo.getCustomerAddressFull().getCountry());
                 billingInfo.setFullAddressEn(customerInfo.getCustomerAddressFull().getWard() + ", " + customerInfo.getCustomerAddressFull().getDistrict()
-                        + ", " + customerInfo.getCustomerAddressFull().getCity() + ", " + customerInfo.getCustomerAddressFull().getCountry());
+                                             + ", " + customerInfo.getCustomerAddressFull().getCity() + ", " + customerInfo.getCustomerAddressFull().getCountry());
             } else {
                 billingInfo.setFullAddress(customerInfo.getCustomerAddressFull().getCity() + ", " + customerInfo.getCustomerAddressFull().getCountry());
                 billingInfo.setFullAddressEn(customerInfo.getCustomerAddressFull().getCity() + ", " + customerInfo.getCustomerAddressFull().getCountry());
@@ -805,14 +810,14 @@ public class POSPage extends POSElement {
             billingInfo.setCountry(deliveryDialog.getCountry());
             if (billingInfo.getCountry().equals("Vietnam")) {
                 billingInfo.setFullAddress(deliveryDialog.getAddress() + ", " + deliveryDialog.getWard() + ", " + deliveryDialog.getDistrict()
-                        + ", " + deliveryDialog.getProvince() + ", " + Constant.VIETNAM);
+                                           + ", " + deliveryDialog.getProvince() + ", " + Constant.VIETNAM);
                 billingInfo.setFullAddressEn(deliveryDialog.getAddress() + ", " + deliveryDialog.getWard() + ", " + deliveryDialog.getDistrict()
-                        + ", " + deliveryDialog.getProvince() + ", " + Constant.VIETNAM);
+                                             + ", " + deliveryDialog.getProvince() + ", " + Constant.VIETNAM);
             } else {
                 billingInfo.setFullAddress(deliveryDialog.getAddress() + ", " + deliveryDialog.getCity() + ", " + deliveryDialog.getProvince()
-                        + ", " + deliveryDialog.getZipcode() + ", " + deliveryDialog.getCountry());
+                                           + ", " + deliveryDialog.getZipcode() + ", " + deliveryDialog.getCountry());
                 billingInfo.setFullAddressEn(deliveryDialog.getAddress() + ", " + deliveryDialog.getCity() + ", " + deliveryDialog.getProvince()
-                        + ", " + deliveryDialog.getZipcode() + ", " + deliveryDialog.getCountry());
+                                             + ", " + deliveryDialog.getZipcode() + ", " + deliveryDialog.getCountry());
             }
 
 //            new ConfirmationDialog(driver).clickCancelBtn();
@@ -823,7 +828,7 @@ public class POSPage extends POSElement {
 
     public CustomerOrderInfo getCustomerOderInfo(int customerId) {
         CustomerOrderInfo customerOrderInfo = new CustomerOrderInfo();
-        double currentDebt=0;
+        double currentDebt = 0;
         if (!commonAction.getElements(loc_lblCustomerNameAndPhone, 1).isEmpty()) {
             CustomerInfoFull customerDetail = new APICustomerDetail(loginInformation).getFullInfo(customerId);
             customerOrderInfo.setName(customerDetail.getFullName());
@@ -832,7 +837,7 @@ public class POSPage extends POSElement {
                     .filter(phone -> "main".equalsIgnoreCase(phone.getPhoneType()))
                     .map(CustomerPhone::getPhoneNumber)
                     .findFirst();
-            if(mainPhoneNumber.isPresent()){
+            if (mainPhoneNumber.isPresent()) {
                 customerOrderInfo.setMainPhone(mainPhoneNumber.get());
                 customerOrderInfo.setPhone(customerDetail.getPhoneNumberWithPhoneCode());
                 customerOrderInfo.setPhoneWithoutPhoneCode(customerDetail.getPhone());
@@ -841,8 +846,8 @@ public class POSPage extends POSElement {
             //debt format: -1111 or 1111
             currentDebt = Double.parseDouble(DataGenerator.extractDigits(commonAction.getText(loc_lblDebt)));
         }
-        customerOrderInfo.setDebtAmount(Double.parseDouble(String.format("%.2f",currentDebt + getDebtAmount())));
-        logger.info("customerOrderInfo: {}",customerOrderInfo);
+        customerOrderInfo.setDebtAmount(Double.parseDouble(String.format("%.2f", currentDebt + getDebtAmount())));
+        logger.info("customerOrderInfo: {}", customerOrderInfo);
         return customerOrderInfo;
     }
 
@@ -851,24 +856,24 @@ public class POSPage extends POSElement {
      * @return
      */
     public OrderDetailInfo getOrderInfoBeforeCheckOut(int customerId) {
-    	new HomePage(driver).waitTillLoadingDotsDisappear(); //Wait until Apply Discount API finishes execution
-    	
+        new HomePage(driver).waitTillLoadingDotsDisappear(); //Wait until Apply Discount API finishes execution
+
         OrderInfo orderInfo = new OrderInfo();
         orderInfo.setTotalTaxAmount(getTaxAmount());
         double totalAmount = getTotalAmount();
         double receiveAmount = getReceiveAmount();
         orderInfo.setTotalPrice(totalAmount);
         orderInfo.setSubTotal(getSubTotalValue());
-        if(getShippingFee()>0) {
+        if (getShippingFee() > 0) {
             orderInfo.setOriginalShippingFee(getShippingFee());
             orderInfo.setShippingFee(getShippingFee() > getShippingFeeDiscount() ? getShippingFee() - Math.abs(getShippingFeeDiscount()) : 0);
         }
 
         orderInfo.setTotalQuantity(getTotalQuantity());
         orderInfo.setPaymentMethod(getSelectedPaymentMethod().toString());
-        orderInfo.setPaid(receiveAmount==totalAmount);
+        orderInfo.setPaid(receiveAmount == totalAmount);
         orderInfo.setUsePoint(getUsePoint());
-        orderInfo.setPayType(getPayType(receiveAmount,totalAmount).toString());
+        orderInfo.setPayType(getPayType(receiveAmount, totalAmount).toString());
         orderInfo.setStatus(getOrderStatusAfterCreated().toString());
         orderInfo.setDebtAmount(getDebtAmount());
         orderInfo.setReceivedAmount(receiveAmount);
@@ -882,27 +887,27 @@ public class POSPage extends POSElement {
         orderDetailInfo.setSummaryDiscounts(getTotalPromotionDetailApply());
         orderDetailInfo.setTotalSummaryDiscounts(-getTotalDiscountAmount());
         CustomerOrderInfo customerOrderInfo = getCustomerOderInfo(customerId);
-        if(isDeliveryOpted()) clickEditDelivery();
+        if (isDeliveryOpted()) clickEditDelivery();
         orderDetailInfo.setShippingInfo(getShippingInfo());
-        if(customerOrderInfo.getMainPhone()==null) {
+        if (customerOrderInfo.getMainPhone() == null) {
             customerOrderInfo.setMainPhone(orderDetailInfo.getShippingInfo().getPhone());
             customerOrderInfo.setPhone(orderDetailInfo.getShippingInfo().getPhoneCode() + orderDetailInfo.getShippingInfo().getPhone().replaceFirst("^0", ""));
             customerOrderInfo.setName(orderDetailInfo.getShippingInfo().getContactName());
             customerOrderInfo.setGuest(true);
         }
-        if(isDeliveryOpted()){
+        if (isDeliveryOpted()) {
             String deliveryMethod = new DeliveryDialog(driver).getSelectedDeliveryName();
-            orderInfo.setDeliveryName(deliveryMethod.equalsIgnoreCase("tự vận chuyển")||deliveryMethod.equalsIgnoreCase("self delivery")?"selfdelivery":GetDataByRegex.normalizeString(deliveryMethod));
+            orderInfo.setDeliveryName(deliveryMethod.equalsIgnoreCase("tự vận chuyển") || deliveryMethod.equalsIgnoreCase("self delivery") ? "selfdelivery" : GetDataByRegex.normalizeString(deliveryMethod));
             new ConfirmationDialog(driver).clickCancelBtn();
         }
         customerOrderInfo.setCustomerId(customerId);
         orderDetailInfo.setCustomerInfo(customerOrderInfo);
         orderDetailInfo.setTotalSummaryDiscounts(getTotalDiscountAmount());
         orderDetailInfo.setEarningPoint(getEarnPoint());
-        StoreBranch storeBranch  = new StoreBranch();
+        StoreBranch storeBranch = new StoreBranch();
         storeBranch.setName(branchName);
         orderDetailInfo.setStoreBranch(storeBranch);
-        logger.info("orderDetailInfo: {}",orderDetailInfo);
+        logger.info("orderDetailInfo: {}", orderDetailInfo);
         return orderDetailInfo;
     }
 
@@ -911,53 +916,63 @@ public class POSPage extends POSElement {
         logger.info("Click on Complete button");
         return this;
     }
-    public int getUsePoint(){
+
+    public int getUsePoint() {
         int usePoint = commonAction.getElements(loc_txtInputPoint).isEmpty()
-                ? 0 :Integer.parseInt(commonAction.getValue(loc_txtInputPoint).replaceAll(",",""));
-        logger.info("Use point: {}",usePoint);
+                ? 0 : Integer.parseInt(commonAction.getValue(loc_txtInputPoint).replaceAll(",", ""));
+        logger.info("Use point: {}", usePoint);
         return usePoint;
     }
-    public PaymentStatus getPayType(double receiveAmount, double totalAmount){
-        PaymentStatus paymentStatus = receiveAmount==totalAmount ? PaymentStatus.PAID
-                : receiveAmount == 0? PaymentStatus.UNPAID : PaymentStatus.PARTIAL;
-        logger.info("Payment status: {}",paymentStatus);
+
+    public PaymentStatus getPayType(double receiveAmount, double totalAmount) {
+        PaymentStatus paymentStatus = receiveAmount == totalAmount ? PaymentStatus.PAID
+                : receiveAmount == 0 ? PaymentStatus.UNPAID : PaymentStatus.PARTIAL;
+        logger.info("Payment status: {}", paymentStatus);
         return paymentStatus;
     }
-    public APIAllOrders.OrderStatus getOrderStatusAfterCreated(){
-        if(isDeliveryOpted()) return APIAllOrders.OrderStatus.TO_SHIP;
+
+    public APIAllOrders.OrderStatus getOrderStatusAfterCreated() {
+        if (isDeliveryOpted()) return APIAllOrders.OrderStatus.TO_SHIP;
         return APIAllOrders.OrderStatus.DELIVERED;
     }
-    public double getDebtAmount(){
+
+    public double getDebtAmount() {
         if (isDeliveryOpted()) return -getReceiveAmount();
         return getTotalAmount() - getReceiveAmount();
     }
+
     public boolean isDeliveryOpted() {
         boolean isDisplayed = !commonAction.getElements(loc_icnEditDelivery).isEmpty();
-        logger.info("Is Edit Delivery icon present: {}",isDisplayed);
+        logger.info("Is Edit Delivery icon present: {}", isDisplayed);
         return isDisplayed;
     }
-    public String getCreatedBy(){
+
+    public String getCreatedBy() {
         LoginDashboardInfo loginInfo = new Login().getInfo(loginInformation);
-        if(loginInfo.getUserRole().contains("ROLE_STORE"))
+        if (loginInfo.getUserRole().contains("ROLE_STORE"))
             return "[shop0wner]";
         return loginInfo.getUserName();
     }
-    public POSPage clickEditDelivery(){
+
+    public POSPage clickEditDelivery() {
         commonAction.clickJS(loc_icnEditDelivery);
         logger.info("Click on Edit delivery icon.");
         return this;
     }
-    public String getCurrencySymbol(){
+
+    public String getCurrencySymbol() {
         LoginDashboardInfo loginInfo = new Login().getInfo(loginInformation);
         return loginInfo.getSymbol();
     }
-    public double getSubTotalAfterDiscount(){
+
+    public double getSubTotalAfterDiscount() {
         double totalAmountAfterDiscount = getTotalAmount() - getTaxAmount() - getShippingFee();
-        logger.info("Get subtotal after discount (total amount exclude: tax and shipping fee): {}",totalAmountAfterDiscount);
+        logger.info("Get subtotal after discount (total amount exclude: tax and shipping fee): {}", totalAmountAfterDiscount);
         return totalAmountAfterDiscount;
     }
+
     @SneakyThrows
-    public void verifyCreateOrderSuccessMessage(){
+    public void verifyCreateOrderSuccessMessage() {
         Assert.assertEquals(new HomePage(driver).getToastMessage(), PropertiesUtil.getPropertiesValueByDBLang("order.pos.create.successMessage"),
                 "[Failed] Check success message.");
     }
