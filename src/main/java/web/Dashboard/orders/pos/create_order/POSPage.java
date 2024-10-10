@@ -15,14 +15,17 @@ import lombok.SneakyThrows;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Actions;
 import org.testng.Assert;
 import utilities.assert_customize.AssertCustomize;
 import utilities.commons.UICommonAction;
 import utilities.constant.Constant;
 import utilities.data.DataGenerator;
 import utilities.data.GetDataByRegex;
+import utilities.enums.Domain;
 import utilities.enums.PaymentStatus;
 import utilities.enums.pos.ReceivedAmountType;
 import utilities.model.dashboard.customer.CustomerInfoFull;
@@ -48,6 +51,7 @@ import static org.apache.commons.lang.math.JVMRandom.nextLong;
 import static org.apache.commons.lang.math.RandomUtils.nextBoolean;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static utilities.links.Links.DOMAIN;
+import static utilities.links.Links.DOMAIN_BIZ;
 
 public class POSPage extends POSElement {
     WebDriver driver;
@@ -55,11 +59,15 @@ public class POSPage extends POSElement {
     UICommonAction commonAction;
     Logger logger = LogManager.getLogger();
     LoginInformation loginInformation;
-
+    Domain domain = Domain.VN;
     public POSPage(WebDriver driver) {
         this.driver = driver;
         assertCustomize = new AssertCustomize(driver);
         commonAction = new UICommonAction(driver);
+    }
+    public POSPage(WebDriver driver, Domain domain) {
+        this(driver);
+        this.domain = domain;
     }
 
     public POSPage getLoginInfo(LoginInformation loginInformation) {
@@ -68,8 +76,9 @@ public class POSPage extends POSElement {
     }
 
     public POSPage navigateToPOSPage() {
+        String url = domain.equals(Domain.VN)?DOMAIN : DOMAIN_BIZ;
         // Navigate to POS page
-        driver.get("%s/order/instore-purchase".formatted(DOMAIN));
+        driver.get("%s/order/instore-purchase".formatted(url));
 
         // Log
         logger.info("Navigate to POS page by URL");
@@ -369,6 +378,16 @@ public class POSPage extends POSElement {
     public void inputReceiveAmount(String amount) {
         new HomePage(driver).waitTillLoadingDotsDisappear();
         commonAction.sleepInMiliSecond(1000, "Wait a little for better UI stability");
+        commonAction.click(loc_txtReceiveAmount);
+        Actions actions = new Actions(driver);
+        // Select all text (Ctrl + A for Windows/Linux, Command + A for Mac)
+            actions.keyDown(Keys.CONTROL) // Or Keys.COMMAND for Mac
+                    .sendKeys("a")
+                    .keyUp(Keys.CONTROL)     // Or Keys.COMMAND for Mac
+                    .perform();
+
+            // Press the Delete key
+            actions.sendKeys(Keys.DELETE).perform();
         commonAction.inputText(loc_txtReceiveAmount, amount);
         logger.info("Input receive amount: {}", amount);
     }
@@ -381,6 +400,8 @@ public class POSPage extends POSElement {
                 : ((receivedAmountType == ReceivedAmountType.PARTIAL)
                 ? DataGenerator.generatNumberInBound(1, getTotalAmount())
                 : 0);
+        System.out.println(String.format("%.0f",receiveAmount));
+        commonAction.sleepInMiliSecond(3000, "Wait a little for better UI stability");
         inputReceiveAmount(String.format("%.0f",receiveAmount));
         return Double.parseDouble(String.format("%.0f",receiveAmount));
     }
@@ -850,7 +871,7 @@ public class POSPage extends POSElement {
         CustomerOrderInfo customerOrderInfo = getCustomerOderInfo(customerId);
         if(isDeliveryOpted()) clickEditDelivery();
         orderDetailInfo.setShippingInfo(getShippingInfo());
-        if(customerOrderInfo.getMainPhone()==null && isDeliveryOpted()) {
+        if(customerOrderInfo.getMainPhone()==null) {
             customerOrderInfo.setMainPhone(orderDetailInfo.getShippingInfo().getPhone());
             customerOrderInfo.setPhone(orderDetailInfo.getShippingInfo().getPhoneCode() + orderDetailInfo.getShippingInfo().getPhone().replaceFirst("^0", ""));
             customerOrderInfo.setName(orderDetailInfo.getShippingInfo().getContactName());

@@ -21,11 +21,8 @@ import static web.Dashboard.orders.pos.create_order.POSPage.UsePointType.NONE;
 @NoArgsConstructor
 @Data
 public class CreatePOSOrderCondition {
-    boolean isGuesCheckout = false;
+    boolean isWalkInGuest = false;
     boolean hasDelivery  = true;
-    List<ProductInfo> productInfoList;
-    int branchId = 0;
-    int customerId = 0;
     boolean isStaffCreateOrder;
     POSPage.UsePointType usePointType = NONE;
     ReceivedAmountType receivedAmountType = FULL;

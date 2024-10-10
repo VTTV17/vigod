@@ -20,7 +20,6 @@ import utilities.driver.InitWebdriver;
 import utilities.enums.ApproveStatus;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.dashboard.marketing.affiliate.CommissionInfo;
-import utilities.model.dashboard.orders.pos.CreatePOSOrderCondition;
 import utilities.model.dashboard.products.productInfomation.ProductInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 import utilities.model.staffPermission.AllPermissions;
@@ -346,7 +345,7 @@ public class AffiliatePermissionTest extends BaseTest{
         for(int i=0; i< 3 - orderProductListSize; i++){
             //Get customer
             int customer = new APIAllCustomers(ownerCredentials).getAllAccountCustomerId().get(0);
-            CreatePOSOrderCondition condition = new CreatePOSOrderCondition();
+            APICreateOrderPOS.APICreatePOSCondition condition = new APICreateOrderPOS.APICreatePOSCondition();
             condition.setCustomerId(customer);
             condition.setProductInfoList(List.of(new APIProductDetail(ownerCredentials).getInfo(productIds.get(0))));
             if (i == 0) {
