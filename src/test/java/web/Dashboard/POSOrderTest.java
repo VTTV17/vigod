@@ -1,8 +1,5 @@
 package web.Dashboard;
 
-import static utilities.account.AccountTest.ADMIN_MAIL_BIZ_PASSWORD;
-import static utilities.account.AccountTest.ADMIN_PHONE_BIZ_COUNTRY;
-import static utilities.account.AccountTest.ADMIN_PHONE_BIZ_USERNAME;
 import static utilities.account.AccountTest.STAFF_SHOP_VI_PASSWORD;
 import static utilities.account.AccountTest.STAFF_SHOP_VI_USERNAME;
 
@@ -32,9 +29,7 @@ import api.Seller.login.Login;
 import api.Seller.orders.order_management.APIAllOrders;
 import api.Seller.orders.order_management.APIAllOrders.OrderStatus;
 import api.Seller.orders.order_management.APIOrderDetail;
-import api.Seller.products.all_products.APIAllProducts;
 import api.Seller.setting.BranchManagement;
-import io.restassured.path.json.JsonPath;
 import utilities.account.AccountTest;
 import utilities.commons.UICommonAction;
 import utilities.data.DataGenerator;
@@ -52,24 +47,16 @@ import utilities.model.dashboard.customer.CustomerDebtRecord;
 import utilities.model.dashboard.customer.CustomerInfoFull;
 import utilities.model.dashboard.customer.CustomerOrder;
 import utilities.model.dashboard.customer.CustomerOrderSummary;
-import utilities.model.dashboard.customer.create.UICreateCustomerData;
-import utilities.model.dashboard.customer.segment.CreateSegment;
-import utilities.model.dashboard.customer.segment.SegmentCondition;
-import utilities.model.dashboard.customer.segment.SegmentList;
 import utilities.model.dashboard.orders.orderdetail.OrderDetailInfo;
 import utilities.model.dashboard.orders.ordermanagement.OrderListSummaryVM;
 import utilities.model.dashboard.orders.pos.CreatePOSOrderCondition;
 import utilities.model.dashboard.setting.branchInformation.BranchInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 import web.Dashboard.confirmationdialog.ConfirmationDialog;
-import web.Dashboard.customers.allcustomers.AllCustomers;
 import web.Dashboard.home.HomePage;
 import web.Dashboard.login.LoginPage;
 import web.Dashboard.orders.pos.create_order.POSPage;
-import web.Dashboard.orders.pos.create_order.POSPage.POSPaymentMethod;
-import web.Dashboard.orders.pos.create_order.deliverydialog.DeliveryDialog;
 
-import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static utilities.account.AccountTest.*;
 
 public class POSOrderTest extends BaseTest{
@@ -99,7 +86,6 @@ public class POSOrderTest extends BaseTest{
 		return createSegmentAPI.getSegmentList().stream().filter(it -> it.getId().equals(segmentId)).findFirst().orElse(null).getUserCount();
 	}
 	int calculateEarningPoints(APICustomerDetail customerDetailAPI, CustomerInfoFull customerDetail) {
-		
 	    if (customerDetail ==null || customerDetail.getGuest() || customerDetail.getUserId() == null) {
 	        return 0;
 	    }
@@ -272,6 +258,7 @@ public class POSOrderTest extends BaseTest{
 		BigDecimal previousDebtAmount = BigDecimal.ZERO;
 		Integer firstDebtRecordId = -1;
 		boolean isGuestFromProfile = true;
+		
 		/** Retrieve pre-order data **/
 		if(!condition.isWalkInGuest()) {
 			selectedProfileId = getRandomProfileId(allCustomerAPI);
@@ -332,7 +319,7 @@ public class POSOrderTest extends BaseTest{
 			posPage.applyDiscount();
 			new HomePage(driver).waitTillLoadingDotsDisappear();
 			if(condition.isHasDelivery()){
-				posPage.clickEditDelivery();new DeliveryDialog(driver).clickShippingProviderDropdown();
+				posPage.clickEditDelivery().clickShippingProviderDropdown();
 				new ConfirmationDialog(driver).clickGreenBtn();
 				new HomePage(driver).waitTillLoadingDotsDisappear();
 			}
@@ -367,7 +354,7 @@ public class POSOrderTest extends BaseTest{
 		BigDecimal expectedOrderTotalAmount = BigDecimal.valueOf(orderDetailsBeforeCheckout.getOrderInfo().getTotalPrice());
 		
 		//Debt tab
-		DebtActionEnum expectedDebtAction = posPage.isDeliveryOpted() ? DebtActionEnum.POS_DELIVERY_ORDER : DebtActionEnum.POS_NOW_ORDER;
+		DebtActionEnum expectedDebtAction = condition.isHasDelivery() ? DebtActionEnum.POS_DELIVERY_ORDER : DebtActionEnum.POS_NOW_ORDER;
 		BigDecimal expectedDebtRecordAmount = BigDecimal.valueOf(orderDetailsBeforeCheckout.getOrderInfo().getDebtAmount());
 		
 		posPage.clickCompleteCheckout();

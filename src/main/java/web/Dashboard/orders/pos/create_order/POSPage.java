@@ -954,10 +954,10 @@ public class POSPage extends POSElement {
         return loginInfo.getUserName();
     }
 
-    public POSPage clickEditDelivery() {
+    public DeliveryDialog clickEditDelivery() {
         commonAction.clickJS(loc_icnEditDelivery);
         logger.info("Click on Edit delivery icon.");
-        return this;
+        return new DeliveryDialog(driver);
     }
 
     public String getCurrencySymbol() {
