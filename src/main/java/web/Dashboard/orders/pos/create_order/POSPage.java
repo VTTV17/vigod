@@ -162,105 +162,106 @@ public class POSPage extends POSElement {
     }
 
     void addProductToCart(LoginInformation loginInformation, ProductInformation infoV2, String barcode, int currentStock, int varIndex, String unitName) {
-        // Check stock, only add to cart when in-stock
-        if (currentStock > 0) {
-            // Add conversion unit to cart
-            commonAction.clickJS(loc_lstProductResult(barcode));
+        
+    	//Return early if the stock is less than 1
+    	if (currentStock <1) return;
+    	
+        // Add conversion unit to cart
+        commonAction.clickJS(loc_lstProductResult(barcode));
 
-            // Wait API response
-            commonAction.sleepInMiliSecond(500, "Wait product/variation/conversion unit is added to cart");
+        // Wait API response
+        commonAction.sleepInMiliSecond(500, "Wait product/variation/conversion unit is added to cart");
 
-            // Log
-            logger.info("Add product/variation/conversion unit to cart, barcode: {}", barcode);
+        // Log
+        logger.info("Add product/variation/conversion unit to cart, barcode: {}", barcode);
 
-            // Get product name
-            String productName = infoV2.getName();
+        // Get product name
+        String productName = infoV2.getName();
 
-            String langKey = new StoreInformation(loginInformation).getInfo().getDefaultLanguage();
-            
-            // Get variation value
-            String variationValue = infoV2.isHasModel()
-                    ? APIGetProductDetail.getVariationValue(infoV2, langKey, varIndex).replace("|", " | ")
-                    : "";
+        String langKey = new StoreInformation(loginInformation).getInfo().getDefaultLanguage();
+        
+        // Get variation value
+        String variationValue = infoV2.isHasModel()
+                ? APIGetProductDetail.getVariationValue(infoV2, langKey, varIndex).replace("|", " | ")
+                : "";
 
-            // Get quantity
-            int quantity = currentStock >5 ? nextInt(3) + 1 : nextInt(currentStock) + 1; //Restrict the maximum quantity to 3
+        // Get quantity
+        int quantity = currentStock >5 ? nextInt(3) + 1 : nextInt(currentStock) + 1; //Restrict the maximum quantity to 3
 
-            // Input quantity
-            commonAction.sendKeys(infoV2.isHasModel()
-                            ? loc_txtProductQuantity(productName, variationValue, unitName)
-                            : loc_txtProductQuantity(productName, unitName),
-                    String.valueOf(quantity));
+        // Input quantity
+        commonAction.sendKeys(infoV2.isHasModel()
+                        ? loc_txtProductQuantity(productName, variationValue, unitName)
+                        : loc_txtProductQuantity(productName, unitName),
+                String.valueOf(quantity));
 
-            // Select Lot if product quantity is managed by Lot
-            if (infoV2.isLotAvailable()) {
-                // Open Select Lot popup
-                commonAction.click(infoV2.isHasModel()
-                        ? loc_btnSelectLot(productName, variationValue, unitName)
-                        : loc_btnSelectLot(productName, unitName));
-
-                // Log
-                logger.info("Open Select Lot popup");
-
-                // Add lot quantity
-                commonAction.sendKeys(loc_dlgSelectLot_txtQuantity, String.valueOf(quantity));
-
-                // Log
-                logger.info("Select lot quantity: {}", quantity);
-
-                // Save changes
-                commonAction.click(loc_dlgSelectLot_btnSave);
-
-                // Log
-                logger.info("Close Select Lot popup");
-            }
-
-         // Select IMEI if product is managed by IMEI
-            if (!infoV2.getInventoryManageType().equals("PRODUCT")) {
-
-                // Retry logic to open Select IMEI popup and confirm it's open
-            	commonAction.attemptWithRetry(5, 1000, () -> {
-                    // Attempt to open the IMEI popup
-                    commonAction.click(infoV2.isHasModel()
-                        ? loc_btnSelectIMEI(productName, variationValue, unitName)
-                        : loc_btnSelectIMEI(productName, unitName));
-
-                    // Log attempt
-                    logger.info("Attempted to open select IMEI popup");
-
-                    // Check if the popup is open, throw exception if not to trigger retry
-                    if (commonAction.getListElement(loc_dlgSelectIMEI).isEmpty()) {
-                        throw new IllegalStateException("IMEI popup not opened");
-                    }
-                });
-
-                // Log success
-                logger.info("Successfully opened select IMEI popup");
-
-                // Select IMEI
-                IntStream.range(0, quantity)
-                        .mapToObj(a -> commonAction.getText(loc_dlgSelectIMEI_lstIMEI)) // Get IMEI value
-                        .forEach(imeiValue -> {
-                            // Select IMEI
-                            commonAction.click(loc_dlgSelectIMEI_lstIMEI);
-                            // Log
-                            logger.info("Select IMEI: {}", imeiValue);
-                        });
-
-                // Save changes
-                commonAction.click(loc_dlgSelectIMEI_btnSave);
-
-                // Log
-                logger.info("Close Select IMEI popup");
-            }
+        // Select Lot if product quantity is managed by Lot
+        if (infoV2.isLotAvailable()) {
+            // Open Select Lot popup
+            commonAction.click(infoV2.isHasModel()
+                    ? loc_btnSelectLot(productName, variationValue, unitName)
+                    : loc_btnSelectLot(productName, unitName));
 
             // Log
-            logger.info("Add conversion unit to cart, productName: {}, variationValue: {}, unitName: {}, quantity: {}",
-                    productName,
-                    variationValue.isEmpty() ? "None" : variationValue,
-                    unitName.equals("-") ? "None" : unitName,
-                    quantity);
+            logger.info("Open Select Lot popup");
+
+            // Add lot quantity
+            commonAction.sendKeys(loc_dlgSelectLot_txtQuantity, String.valueOf(quantity));
+
+            // Log
+            logger.info("Select lot quantity: {}", quantity);
+
+            // Save changes
+            commonAction.click(loc_dlgSelectLot_btnSave);
+
+            // Log
+            logger.info("Close Select Lot popup");
         }
+
+     // Select IMEI if product is managed by IMEI
+        if (!infoV2.getInventoryManageType().equals("PRODUCT")) {
+
+            // Retry logic to open Select IMEI popup and confirm it's open
+        	commonAction.attemptWithRetry(5, 1000, () -> {
+                // Attempt to open the IMEI popup
+                commonAction.click(infoV2.isHasModel()
+                    ? loc_btnSelectIMEI(productName, variationValue, unitName)
+                    : loc_btnSelectIMEI(productName, unitName));
+
+                // Log attempt
+                logger.info("Attempted to open select IMEI popup");
+
+                // Check if the popup is open, throw exception if not to trigger retry
+                if (commonAction.getListElement(loc_dlgSelectIMEI).isEmpty()) {
+                    throw new IllegalStateException("IMEI popup not opened");
+                }
+            });
+
+            // Log success
+            logger.info("Successfully opened select IMEI popup");
+
+            // Select IMEI
+            IntStream.range(0, quantity)
+                    .mapToObj(a -> commonAction.getText(loc_dlgSelectIMEI_lstIMEI)) // Get IMEI value
+                    .forEach(imeiValue -> {
+                        // Select IMEI
+                        commonAction.click(loc_dlgSelectIMEI_lstIMEI);
+                        // Log
+                        logger.info("Select IMEI: {}", imeiValue);
+                    });
+
+            // Save changes
+            commonAction.click(loc_dlgSelectIMEI_btnSave);
+
+            // Log
+            logger.info("Close Select IMEI popup");
+        }
+
+        // Log
+        logger.info("Add conversion unit to cart, productName: {}, variationValue: {}, unitName: {}, quantity: {}",
+                productName,
+                variationValue.isEmpty() ? "None" : variationValue,
+                unitName.equals("-") ? "None" : unitName,
+                quantity);
     }
 
     void addCustomer(int customerId) {
@@ -268,10 +269,18 @@ public class POSPage extends POSElement {
     }
 
     public POSPage selectCustomer(String name) {
-    	commonAction.inputText(loc_txtCustomerSearchBox, name);
-        logger.info("Input customer to search: {}", name);
-        commonAction.sleepInMiliSecond(500, "Wait for search API to start");
-        
+    	
+    	//After customer name is input, the text box is still empty. The retry mechanism below helps resolve the issue by retrying to input the customer name a few times
+    	commonAction.attemptWithRetry(5, 1000, () -> {
+        	commonAction.inputText(loc_txtCustomerSearchBox, name);
+            logger.info("Input customer to search: {}", name);
+            commonAction.sleepInMiliSecond(500, "Wait for search API to start");
+            
+            if (commonAction.getValue(loc_txtCustomerSearchBox).isEmpty()) {
+                throw new IllegalStateException("Search customer text box is empty after being filled with data");
+            }
+    	});
+    	
         commonAction.click(loc_txtCustomerSearchBox);
         commonAction.click(loc_lstCustomerResult(name));
         
