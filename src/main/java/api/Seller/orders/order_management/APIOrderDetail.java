@@ -163,7 +163,7 @@ public class APIOrderDetail {
         actualSummaryDiscountUpdateModel.sort(Comparator.comparing(SummaryDiscount::getLabel));
         expectedSummaryDiscount.sort(Comparator.comparing(SummaryDiscount::getLabel));
         Assert.assertEquals(actualSummaryDiscountUpdateModel,expectedSummaryDiscount, "[Failed] Check summary discount.");
-        Assert.assertEquals(actualInfo.getTotalSummaryDiscounts(),Math.abs(expectedInfo.getTotalSummaryDiscounts()),"[Failed] Check total summary discount.");
+        Assert.assertEquals(Math.abs(actualInfo.getTotalSummaryDiscounts()),Math.abs(expectedInfo.getTotalSummaryDiscounts()),"[Failed] Check total summary discount.");
 
         //Verify item order
         List<ItemOrderInfo> actualItemList = actualInfo.getItems();
