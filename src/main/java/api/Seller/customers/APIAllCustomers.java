@@ -102,6 +102,7 @@ public class APIAllCustomers {
         String fullName;
         String userId;
         Boolean guest;
+        String saleChannel;
     }    
     public List<CustomerManagementRecord> getProfileRecords() {
     	return getAllCustomerResponse(0).jsonPath().getList(".", CustomerManagementRecord.class);
