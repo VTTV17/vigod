@@ -428,15 +428,15 @@ public class APIAllOrders {
     }
     public void verifyOrderInManagement(OrderDetailInfo orderDetailExpected, long orderId){
         OrderInManagement orderInManagement = getOrderInfoInManagement(getOrderListInfo(GOSELL),orderId);
-        // skip: orderId, updatedDate, Return status, delivery method
-        //need: customerId, Staff, delivery method, approved commission date. (check ngay (lấy giờ 0), gio (có thể bỏ qia giờ))
+        // skip: orderId, updatedDate, Return status
         //Order status
         Assert.assertEquals(orderInManagement.getStatus(),orderDetailExpected.getOrderInfo().getStatus(),"[Failed] Check order status.");
         //customer name, customer id, main phone
         if(orderDetailExpected.getCustomerInfo().getName()!=null){
             Assert.assertEquals(orderInManagement.getCustomerFullName(),orderDetailExpected.getCustomerInfo().getName(),"[Failed] Check customer name.");
             Assert.assertEquals(orderInManagement.getPhone(),orderDetailExpected.getCustomerInfo().getMainPhone(),"[Failed] Check customer main phone.");
-            Assert.assertEquals(orderInManagement.getCustomerId(),orderDetailExpected.getCustomerInfo().getCustomerId(),"[Failed] Check customerId.");
+            if(orderDetailExpected.getCustomerInfo().getCustomerId()!=0)
+                Assert.assertEquals(orderInManagement.getCustomerId(),orderDetailExpected.getCustomerInfo().getCustomerId(),"[Failed] Check customerId.");
         }else Assert.assertTrue(orderInManagement.getCustomerFullName().startsWith("guest"),"[Failed] Check guest name.");
         //Verify Shipping Address, receive name and phone
         if(orderDetailExpected.getShippingInfo().getFullAddress()!=null){

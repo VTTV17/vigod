@@ -7,6 +7,12 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+import api.Seller.analytics.APIOrdersAnalytics;
+import api.Seller.customers.APIUpdatePoint;
+import api.Seller.orders.order_management.APIAllOrders;
+import api.Seller.orders.order_management.APIOrderDetail;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.testng.Assert;
 import org.testng.ITestResult;
 import org.testng.annotations.AfterMethod;
@@ -31,7 +37,10 @@ import utilities.data.testdatagenerator.CreateCustomerTDG;
 import utilities.driver.InitWebdriver;
 import utilities.enums.DebtActionEnum;
 import utilities.enums.DisplayLanguage;
+import utilities.enums.Domain;
+import utilities.enums.analytics.TimeFrame;
 import utilities.enums.pos.ReceivedAmountType;
+import utilities.model.dashboard.analytics.AnalyticsOrderSummaryInfo;
 import utilities.model.dashboard.cashbook.CashbookRecord;
 import utilities.model.dashboard.customer.CustomerDebtRecord;
 import utilities.model.dashboard.customer.CustomerInfoFull;
@@ -42,6 +51,8 @@ import utilities.model.dashboard.customer.segment.CreateSegment;
 import utilities.model.dashboard.customer.segment.SegmentCondition;
 import utilities.model.dashboard.customer.segment.SegmentList;
 import utilities.model.dashboard.orders.orderdetail.OrderDetailInfo;
+import utilities.model.dashboard.orders.ordermanagement.OrderListSummaryVM;
+import utilities.model.dashboard.orders.pos.CreatePOSOrderCondition;
 import utilities.model.dashboard.setting.branchInformation.BranchInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 import web.Dashboard.confirmationdialog.ConfirmationDialog;
@@ -50,12 +61,18 @@ import web.Dashboard.home.HomePage;
 import web.Dashboard.login.LoginPage;
 import web.Dashboard.orders.pos.create_order.POSPage;
 import web.Dashboard.orders.pos.create_order.POSPage.POSPaymentMethod;
+import web.Dashboard.orders.pos.create_order.deliverydialog.DeliveryDialog;
+
+import static org.apache.commons.lang.math.RandomUtils.nextInt;
+import static utilities.account.AccountTest.*;
+import static utilities.enums.Domain.BIZ;
 
 public class POSOrderTest extends BaseTest{
-
-//	LoginInformation credentials = new Login().setLoginInformation("tham1babe@mailnesia.com", "fortesting!1").getLoginInformation();
-	LoginInformation credentials = new Login().setLoginInformation("tienvan-staging-vn@mailnesia.com", "fortesting!1").getLoginInformation();
-
+	String phoneCode = DataGenerator.getPhoneCode(ADMIN_PHONE_BIZ_COUNTRY);
+	String userName = ADMIN_PHONE_BIZ_USERNAME;
+	String pass = ADMIN_MAIL_BIZ_PASSWORD;
+	LoginInformation credentials = new Login().setLoginInformation(phoneCode,userName, pass).getLoginInformation();
+	Logger logger = LogManager.getLogger(POSOrderTest.class);
 	public void createVNCustomer() {
 
 		driver = new InitWebdriver().getDriver(browser, headless);
@@ -79,7 +96,7 @@ public class POSOrderTest extends BaseTest{
 		
 		driver = new InitWebdriver().getDriver(browser, headless);
 		commonAction = new UICommonAction(driver);
-		
+
 		LoginPage loginPage = new LoginPage(driver);
 		
 		loginPage.navigate().selectDisplayLanguage(language).performValidLogin("Vietnam", credentials.getEmail(), credentials.getPassword());
@@ -200,47 +217,106 @@ public class POSOrderTest extends BaseTest{
             { ReceivedAmountType.NONE, false, POSPaymentMethod.POS }
         };
     }
-	@Test(dataProvider = "receivedAmountAndDeliveryOptions")
-	public void TC_CheckCustomerInfoPostOrder(ReceivedAmountType receivedAmountType, boolean isDeliveryOpted, POSPaymentMethod paymentMethod) throws JsonMappingException, JsonProcessingException {
-		
-		System.out.println("Combination being executed: %s - %s - %s".formatted(receivedAmountType, isDeliveryOpted, paymentMethod));
-		
+	@DataProvider
+	public Object[][] dataTest(){
+		return new Object[][]{
+				// Seller create order
+
+//				{new CreatePOSOrderCondition(true,false,false,POSPage.UsePointType.NONE,ReceivedAmountType.NONE,true,false, POSPage.POSPaymentMethod.CASH),TimeFrame.TODAY},   //guest checkout, no delivery
+//				{new CreatePOSOrderCondition(true,true,false,POSPage.UsePointType.NONE,ReceivedAmountType.NONE,true,false, POSPage.POSPaymentMethod.CASH),TimeFrame.TODAY},   //guest checkout, has delivery
+				{new CreatePOSOrderCondition(false,false,false,POSPage.UsePointType.SERVERAL,ReceivedAmountType.NONE,true,false, POSPage.POSPaymentMethod.CASH),TimeFrame.TODAY}, // checkout with customer, no delivery.
+//				{new CreatePOSOrderCondition(false,true,false,POSPage.UsePointType.SERVERAL,ReceivedAmountType.NONE,true,false, POSPage.POSPaymentMethod.CASH),TimeFrame.TODAY},  //checkout customer, has delivery
+//				{new CreatePOSOrderCondition(false,true,false,POSPage.UsePointType.SERVERAL,ReceivedAmountType.NONE,false,false, POSPage.POSPaymentMethod.CASH),TimeFrame.TODAY}, // no apply earn point
+//				{new CreatePOSOrderCondition(false,false,false,POSPage.UsePointType.NONE,ReceivedAmountType.NONE,false,true, POSPage.POSPaymentMethod.CASH),TimeFrame.TODAY},    // apply promotion, no delivery
+//				{new CreatePOSOrderCondition(false,true,false,POSPage.UsePointType.SERVERAL,ReceivedAmountType.NONE,true,true, POSPage.POSPaymentMethod.CASH),TimeFrame.TODAY},    // apply promotion, has delivery
+//				{new CreatePOSOrderCondition(false,false,false,POSPage.UsePointType.NONE,ReceivedAmountType.PARTIAL,false,true, POSPage.POSPaymentMethod.CASH),TimeFrame.TODAY},   //receive amount = partial
+//				{new CreatePOSOrderCondition(false,false,false,POSPage.UsePointType.NONE,ReceivedAmountType.FULL,false,true, POSPage.POSPaymentMethod.CASH),TimeFrame.TODAY}, //receive amount = full
+//				{new CreatePOSOrderCondition(false,false,false,POSPage.UsePointType.NONE,ReceivedAmountType.FULL,false,true, POSPage.POSPaymentMethod.BANK_TRANSFER),TimeFrame.TODAY}, //Payment method = bank transfer
+//				{new CreatePOSOrderCondition(false,false,false,POSPage.UsePointType.MAX_ORDER,ReceivedAmountType.FULL,false,true, POSPage.POSPaymentMethod.BANK_TRANSFER),TimeFrame.TODAY}, //POSPage.UsePointType.MAX_ORDER
+//				{new CreatePOSOrderCondition(true,false,false,POSPage.UsePointType.NONE,ReceivedAmountType.FULL,true,true, POSPage.POSPaymentMethod.CASH),TimeFrame.YESTERDAY},   //guest checkout, no delivery, apply direct discount
+//				{new CreatePOSOrderCondition(false,false ,false,POSPage.UsePointType.MAX_AVAILABLE,ReceivedAmountType.FULL,false,true, POSPage.POSPaymentMethod.CASH),TimeFrame.TODAY}, //POSPage.UsePointType.MAX_AVAILABLE
+//				{new CreatePOSOrderCondition(false,false,false,POSPage.UsePointType.SERVERAL,ReceivedAmountType.FULL,false,true, POSPage.POSPaymentMethod.CASH),TimeFrame.THIS_WEEK}, //TimeFrame.THIS_WEEK
+//				{new CreatePOSOrderCondition(false,false,false,POSPage.UsePointType.SERVERAL,ReceivedAmountType.FULL,false,true, POSPage.POSPaymentMethod.CASH),TimeFrame.THIS_MONTH},   //TimeFrame.THIS_MONTH
+//				{new CreatePOSOrderCondition(false,false,false,POSPage.UsePointType.SERVERAL,ReceivedAmountType.FULL,false,true, POSPage.POSPaymentMethod.CASH),TimeFrame.LAST_7_DAYS},   //TimeFrame.LAST_7_DAYS
+//				{new CreatePOSOrderCondition(false,false,false,POSPage.UsePointType.SERVERAL,ReceivedAmountType.FULL,false,true, POSPage.POSPaymentMethod.CASH),TimeFrame.LAST_30_DAYS},   //TimeFrame.LAST_30_DAYS
+//				{new CreatePOSOrderCondition(false,false,false,POSPage.UsePointType.SERVERAL,ReceivedAmountType.FULL,false,true, POSPage.POSPaymentMethod.CASH),TimeFrame.LAST_WEEK},   //TimeFrame.LAST_WEEK
+//				{new CreatePOSOrderCondition(false,true,false,POSPage.UsePointType.SERVERAL,ReceivedAmountType.FULL,false,true, POSPage.POSPaymentMethod.CASH),TimeFrame.LAST_MONTH},   //TimeFrame.LAST_MONTH
+
+				/**Staff create order*/
+//				{new CreatePOSOrderCondition(true,false,true,POSPage.UsePointType.NONE,ReceivedAmountType.NONE,true,false, POSPage.POSPaymentMethod.CASH),TimeFrame.TODAY},   //guest checkout, no delivery
+//				{new CreatePOSOrderCondition(false,false,true,POSPage.UsePointType.SERVERAL,ReceivedAmountType.NONE,true,false, POSPage.POSPaymentMethod.CASH),TimeFrame.TODAY}, // checkout with customer, no delivery.
+//				{new CreatePOSOrderCondition(false,true,true,POSPage.UsePointType.SERVERAL,ReceivedAmountType.NONE,true,false, POSPage.POSPaymentMethod.CASH),TimeFrame.TODAY},  //checkout customer, has delivery
+//				{new CreatePOSOrderCondition(false,true,true,POSPage.UsePointType.SERVERAL,ReceivedAmountType.NONE,false,false, POSPage.POSPaymentMethod.CASH),TimeFrame.TODAY}, // no apply earn point
+//				{new CreatePOSOrderCondition(false,false,true,POSPage.UsePointType.NONE,ReceivedAmountType.NONE,false,true, POSPage.POSPaymentMethod.CASH),TimeFrame.TODAY},    // apply promotion, no delivery
+//				{new CreatePOSOrderCondition(false,true,true,POSPage.UsePointType.NONE,ReceivedAmountType.NONE,false,true, POSPage.POSPaymentMethod.CASH),TimeFrame.TODAY},    // apply promotion, has delivery
+//				{new CreatePOSOrderCondition(false,true,true,POSPage.UsePointType.NONE,ReceivedAmountType.PARTIAL,false,true, POSPage.POSPaymentMethod.CASH),TimeFrame.TODAY},   //receive amount = partial
+//				{new CreatePOSOrderCondition(false,false,true,POSPage.UsePointType.NONE,ReceivedAmountType.FULL,false,true, POSPage.POSPaymentMethod.CASH),TimeFrame.TODAY}, //receive amount = full
+//				{new CreatePOSOrderCondition(false,false,true,POSPage.UsePointType.NONE,ReceivedAmountType.FULL,false,true, POSPage.POSPaymentMethod.BANK_TRANSFER),TimeFrame.TODAY}, //Payment method = bank transfer
+//				{new CreatePOSOrderCondition(false,false,true,POSPage.UsePointType.MAX_ORDER,ReceivedAmountType.FULL,false,true, POSPage.POSPaymentMethod.BANK_TRANSFER), TimeFrame.TODAY}, //POSPage.UsePointType.MAX_ORDER
+//				{new CreatePOSOrderCondition(true,false,true,POSPage.UsePointType.NONE,ReceivedAmountType.FULL,true,true, POSPage.POSPaymentMethod.CASH),TimeFrame.TODAY},   //guest checkout, no delivery, apply direct discount
+
+		};
+	}
+	@Test(dataProvider = "dataTest")
+	public void TC_CheckCustomerInfoPostOrder(CreatePOSOrderCondition condition, TimeFrame timeFrame) throws JsonMappingException, JsonProcessingException {
+		System.out.println("Combination being executed: %s".formatted(condition));
+		logger.info("Combination being executed: "+condition);
+		logger.info("Run with timeframe: "+timeFrame);
 		/** Test case input **/
-		
-		LoginInformation credentials = new Login().setLoginInformation("tienvan-staging-vn@mailnesia.com", "fortesting!1").getLoginInformation();
-		
+		//login
+		if(condition.isStaffCreateOrder()){
+			credentials = new Login().setLoginInformation("+84",STAFF_SHOP_VI_USERNAME,STAFF_SHOP_VI_PASSWORD).getLoginInformation();
+		}
+		long newestOrderbefore = Long.parseLong(new APIAllOrders(credentials).getOrderListInfo(APIAllOrders.Channel.GOSELL).getResponse().get(0).getId());
+		logger.info("Newest order before: "+newestOrderbefore);
+		AnalyticsOrderSummaryInfo ordersAnalyticsSummaryBefore = new APIOrdersAnalytics(credentials).getOrderAnalyticsSummary(timeFrame);
+		OrderListSummaryVM orderListSummaryBefore = new APIAllOrders(credentials).getOrderListSummary(APIAllOrders.Channel.GOSELL);
+
 		BranchInfo branchInfo = new BranchManagement(credentials).getInfo();
 		String branchName = DataGenerator.getRandomListElement(branchInfo.getBranchName());
 		APIAllProducts allProduct = new APIAllProducts(credentials);
 		CashbookAPI cashbookAPI = new CashbookAPI(credentials);
-		
-		Integer selectedProfileId = DataGenerator.getRandomListElement(new APIAllCustomers(credentials).getAllCustomerIds());
-		
+		Integer selectedProfileId;
 		APICustomerDetail customerDetailAPI = new APICustomerDetail(credentials);
-		
-		CustomerInfoFull selectedProfile = customerDetailAPI.getFullInfo(selectedProfileId);
-
-		String customerName = selectedProfile.getFullName();
-		int customerId = selectedProfile.getId();
-		String userId = selectedProfile.getUserId();
-		
-		
+		CustomerInfoFull selectedProfile;
+		String customerName ="";
+		int customerId = 0;
+		String userId = null;
+		int previousEarningPoints = 0;
+		CustomerOrderSummary previousOrderSummary;
+		Integer previousTotalOrderCount = 0;
+		BigDecimal previousTotalPurchase = BigDecimal.ZERO;
+		BigDecimal previousTotalPurchaseLast3Months = BigDecimal.ZERO;
+		BigDecimal previousDebtAmount = BigDecimal.ZERO;
+		Integer firstDebtRecordId = -1;
+		boolean isGuestFromProfile = true;
 		/** Retrieve pre-order data **/
-		//Earning point
-		int previousEarningPoints = calculateEarningPoints(customerDetailAPI, selectedProfile);
-		
-		//Order summary
-		CustomerOrderSummary previousOrderSummary = customerDetailAPI.getOrderSummary(customerId);
-		Integer previousTotalOrderCount = previousOrderSummary.getTotalOrder();
-		BigDecimal previousTotalPurchase = previousOrderSummary.getTotalPurchase();
-		BigDecimal previousTotalPurchaseLast3Months = previousOrderSummary.getTotalPurchaseLast3Month();
-		BigDecimal previousDebtAmount = previousOrderSummary.getDebtAmount();
-		
-		//Order tab
-		String firstOrderId = getLatestOrderId(customerDetailAPI, selectedProfile);
-		
-		//Debt tab
-		Integer firstDebtRecordId = getLatestDebtRecordId(customerDetailAPI, selectedProfile);
+		if(!condition.isWalkInGuest()) {
+			selectedProfileId = 5130589;
+//					DataGenerator.getRandomListElement(new APIAllCustomers(credentials).getAllCustomerIds());
+
+			selectedProfile = customerDetailAPI.getFullInfo(selectedProfileId);
+
+			customerName = selectedProfile.getFullName();
+			customerId = selectedProfile.getId();
+			userId = selectedProfile.getUserId();
+			isGuestFromProfile = selectedProfile.getGuest();
+
+			//Earning point
+			previousEarningPoints = calculateEarningPoints(customerDetailAPI, selectedProfile);;
+			//Update earning point if point = 0
+			if(!isGuestFromProfile && previousEarningPoints == 0) new APIUpdatePoint(credentials).addMorePoint(Integer.parseInt(userId),1000);
+			//Order summary
+			previousOrderSummary = customerDetailAPI.getOrderSummary(customerId);
+			previousTotalOrderCount = previousOrderSummary.getTotalOrder();
+			previousTotalPurchase = previousOrderSummary.getTotalPurchase();
+			previousTotalPurchaseLast3Months = previousOrderSummary.getTotalPurchaseLast3Month();
+			previousDebtAmount = previousOrderSummary.getDebtAmount();
+
+			//Debt tab
+			firstDebtRecordId = getLatestDebtRecordId(customerDetailAPI, selectedProfile);
+		}
+
 		
 		//Cashbook summary
 		List<BigDecimal> previousSummary = cashbookAPI.getCasbookSummary();
@@ -255,17 +331,38 @@ public class POSOrderTest extends BaseTest{
 		commonAction = new UICommonAction(driver);
 		
 		LoginPage loginPage = new LoginPage(driver);
-		loginPage.navigate().selectDisplayLanguage(language).performValidLogin("Vietnam", credentials.getEmail(), credentials.getPassword());
+		loginPage.navigateToPage(Domain.valueOf(domain),DisplayLanguage.valueOf(language)).performValidLogin(ADMIN_PHONE_BIZ_COUNTRY, credentials.getPhoneNumber(), credentials.getPassword());
 		
-		POSPage posPage = new POSPage(driver).getLoginInfo(credentials).navigateToPOSPage();
-		
-		posPage.createPOSOrder(credentials, branchName, allProduct.getListProductId());
-		posPage.selectCustomer(customerName);
-		posPage.selectPaymentMethod(paymentMethod);
-		posPage.selectDelivery(isDeliveryOpted, CreateCustomerTDG.buildVNCustomerUIData(DisplayLanguage.valueOf(language)));
-		Double receivedAmount =  posPage.inputReceiveAmount(receivedAmountType);
-		
-		
+		POSPage posPage = new POSPage(driver,Domain.valueOf(domain)).getLoginInfo(credentials).navigateToPOSPage();
+
+		// Select branch
+		posPage.selectBranch(branchName);
+
+		// Add product to cart
+		posPage.selectProduct(credentials, List.of(1284713));
+		//Select customer
+		if(!condition.isWalkInGuest()) posPage.selectCustomer(customerName);
+		posPage.selectPaymentMethod(condition.getPaymentMethod());
+		posPage.selectDelivery(condition.isHasDelivery(), CreateCustomerTDG.buildVNCustomerUIData(DisplayLanguage.valueOf(language)));
+		//apply discount
+		if(condition.isApplyPromotion()) {
+			posPage.applyDiscount();
+			new HomePage(driver).waitTillLoadingDotsDisappear();
+			if(condition.isHasDelivery()){
+				posPage.clickEditDelivery();new DeliveryDialog(driver).clickShippingProviderDropdown();
+				new ConfirmationDialog(driver).clickGreenBtn();
+				new HomePage(driver).waitTillLoadingDotsDisappear();
+			}
+		}
+		//input use point
+		if(!isGuestFromProfile) {
+			posPage.inputUsePoint(condition.getUsePointType());
+			//config not apply earnPoint
+			posPage.configApplyEarningPoint(condition.isHasEarnPoint());
+		}
+		//get receive amount
+		Double receivedAmount =  posPage.inputReceiveAmount(condition.getReceivedAmountType());
+
 		/** Organize expected results **/
 		//Order details
 		OrderDetailInfo orderDetailsBeforeCheckout = posPage.getOrderInfoBeforeCheckOut(customerId);
@@ -291,14 +388,19 @@ public class POSOrderTest extends BaseTest{
 		BigDecimal expectedDebtRecordAmount = BigDecimal.valueOf(orderDetailsBeforeCheckout.getOrderInfo().getDebtAmount());
 		
 		posPage.clickCompleteCheckout();
-		if (!receivedAmountType.equals(ReceivedAmountType.FULL)) new ConfirmationDialog(driver).clickOKBtn();
-		new HomePage(driver).getToastMessage();
+		if (!condition.getReceivedAmountType().equals(ReceivedAmountType.FULL)) new ConfirmationDialog(driver).clickOKBtn();
+		posPage.verifyCreateOrderSuccessMessage();
 		
 		//Order date is the moment the order is placed successfully
 		String expectedOrderDate = LocalDate.now(ZoneId.of("UTC")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-		
+		//Get order detail
+		long orderId = new APIAllOrders(credentials).waitAndGetUntilNewOrderCreated(newestOrderbefore, APIAllOrders.Channel.GOSELL);
+		OrderDetailInfo orderDetailInfo = new APIOrderDetail(credentials).getOrderDetail(orderId);
+		if(condition.isWalkInGuest()){
+			customerId = orderDetailInfo.getCustomerInfo().getCustomerId();
+		}
 		//After an order is place, an userId is given to the customer if it's previously undefined
-		userId = (userId ==null) ? customerDetailAPI.getFullInfo(selectedProfileId).getUserId() : userId;
+		userId = (userId ==null) ? String.valueOf(orderDetailInfo.getCustomerInfo().getUserId()) : userId;
 		
 		//Cashbook summary
 		BigDecimal expectedTotalRevenue = previousTotalRevenue.add(BigDecimal.valueOf(receivedAmount));
@@ -308,10 +410,10 @@ public class POSOrderTest extends BaseTest{
 		String expectedCashbookRecordCreatedDate = expectedOrderDate;
 		String expectedCashbookRecordGroupType = "CUSTOMER";
 		String expectedCashbookRecordCustomerName = customerName;
-		String expectedCashbookSourceType = workoutExpectedCashbookRecordSourceType(isDeliveryOpted, BigDecimal.valueOf(orderDetailsBeforeCheckout.getOrderInfo().getDebtAmount()));
+		String expectedCashbookSourceType = workoutExpectedCashbookRecordSourceType(condition.isHasDelivery(), BigDecimal.valueOf(orderDetailsBeforeCheckout.getOrderInfo().getDebtAmount()));
 		String expectedCashbookRecordBranch = branchName;
 		BigDecimal expectedCashbookRecordAmount = BigDecimal.valueOf(receivedAmount);
-		String expectedCashbookRecordPaymentMethod = paymentMethod.name();
+		String expectedCashbookRecordPaymentMethod = condition.getPaymentMethod().name();
 		
 		
 		/** Retrieve post-order data **/
@@ -356,13 +458,24 @@ public class POSOrderTest extends BaseTest{
 		String postCashbookRecordCreatedDate = postCashbookRecords.get(0).getCreatedDate().replaceAll("T.*", "");
 		String postCashbookRecordGroupType = postCashbookRecords.get(0).getGroupType();
 		String postCashbookRecordCustomerName = postCashbookRecords.get(0).getCustomerName();
-		String postCashbookSourceType = workoutExpectedCashbookRecordSourceType(isDeliveryOpted, BigDecimal.valueOf(orderDetailsBeforeCheckout.getOrderInfo().getDebtAmount()));
+		String postCashbookSourceType = workoutExpectedCashbookRecordSourceType(condition.isHasDelivery(), BigDecimal.valueOf(orderDetailsBeforeCheckout.getOrderInfo().getDebtAmount()));
 		String postCashbookRecordBranch = postCashbookRecords.get(0).getBranchName();
 		BigDecimal postCashbookRecordAmount = postCashbookRecords.get(0).getAmount();
 		String postCashbookRecordPaymentMethod = postCashbookRecords.get(0).getPaymentMethod();
-		
-		
+		//Product cost
+		Double productCost = new APIAllOrders(credentials).getProuctCostOfOrder(orderId);
+
 		/** Assertions **/
+		//Verify Order detail
+		new APIOrderDetail(credentials,language).verifyOrderDetailAPI(orderDetailsBeforeCheckout,orderId)
+				.verifyPaymentHistoryAfterCreateOrder(orderId,orderDetailsBeforeCheckout.getOrderInfo().getReceivedAmount(),condition.getReceivedAmountType());
+		//Verify order in management
+		new APIAllOrders(credentials,language).verifyOrderInManagement(orderDetailsBeforeCheckout,orderId);
+		new APIAllOrders(credentials,language).verifyOrderListSummary(orderListSummaryBefore,orderDetailsBeforeCheckout);
+		//Verify order analytic
+		new APIOrdersAnalytics(credentials).waitOrderAnalyticsUpdateData(ordersAnalyticsSummaryBefore.getTotalOrders(),timeFrame);
+		new APIOrdersAnalytics(credentials).verifyOrderAnalyticAfterCreateOrder(ordersAnalyticsSummaryBefore,orderDetailInfo,timeFrame,productCost);
+
 		//Earning points
 		Assert.assertEquals(postEarningPoints, expectedEarningPoints, "Earning points");
 		
@@ -374,7 +487,7 @@ public class POSOrderTest extends BaseTest{
 		Assert.assertTrue(postDebtAmount.compareTo(expectedDebtAmount) == 0, "Debt amount expected: " + expectedDebtAmount + ", but got: " + postDebtAmount);
 		
 		//Order tab
-		Assert.assertNotEquals(postFirstOrderId, firstOrderId, "Latest order record id");
+		Assert.assertEquals(postFirstOrderId, String.valueOf(orderId), "Latest order record id");
 		Assert.assertEquals(postOrderChannel, "GOSELL", "Sale channel");
 		Assert.assertEquals(postOrderDate, expectedOrderDate, "Order date");
 		Assert.assertEquals(postOrderPaymentStatus, expectedPaidStatus, "Payment status");
@@ -418,7 +531,7 @@ public class POSOrderTest extends BaseTest{
 	@Test
 	public void TC_CheckCustomerSegment() throws JsonMappingException, JsonProcessingException {
 		
-		ReceivedAmountType receivedAmountType = ReceivedAmountType.FULL; 
+		ReceivedAmountType receivedAmountType = ReceivedAmountType.FULL;
 		boolean isDeliveryOpted = false; 
 		POSPaymentMethod paymentMethod = POSPaymentMethod.CASH;
 		

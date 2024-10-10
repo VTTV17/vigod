@@ -20,4 +20,5 @@ public class PickUpAddress {
     private String wardCode;
     private String city;
     private String zipCode;
+    private String phoneCode;
 }

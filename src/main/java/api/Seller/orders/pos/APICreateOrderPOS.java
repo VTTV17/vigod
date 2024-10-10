@@ -47,11 +47,19 @@ public class APICreateOrderPOS {
         this.loginInformation = loginInformation;
         loginInfo = new Login().getInfo(loginInformation);
     }
-    public APICreateOrderPOS getInfo(CreatePOSOrderCondition condition) {
+    @Data
+    public static class APICreatePOSCondition{
+        boolean isGuestCheckout = false;
+        boolean hasDelivery  = true;
+        List<ProductInfo> productInfoList;
+        int branchId = 0;
+        int customerId = 0;
+    }
+    public APICreateOrderPOS getInfo(APICreatePOSCondition condition) {
         productInfoList = condition.getProductInfoList();
         branchId = condition.getBranchId();
         hasDelivery = condition.isHasDelivery();
-        isGuestCheckout = condition.isGuesCheckout();
+        isGuestCheckout = condition.isGuestCheckout();
         customerId = condition.getCustomerId();
         if(!isGuestCheckout){
             if(customerId==0) customerId = new APIAllCustomers(loginInformation).getAllAccountCustomerId().get(0);

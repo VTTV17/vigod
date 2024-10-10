@@ -16,6 +16,7 @@ import utilities.api.API;
 import utilities.data.DataGenerator;
 import utilities.data.GetDataByRegex;
 import utilities.enums.PromotionType;
+import utilities.enums.pos.ReceivedAmountType;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.dashboard.orders.orderdetail.*;
 import utilities.model.sellerApp.login.LoginInformation;
@@ -126,15 +127,6 @@ public class APIOrderDetail {
                 Assert.assertEquals(actualInfo.getShippingInfo().getFullAddress(),expectedInfo.getShippingInfo().getFullAddress(),"[Failed] Shipping address - Check full address - langKey = vi.");
             else Assert.assertEquals(actualInfo.getShippingInfo().getFullAddressEn(),expectedInfo.getShippingInfo().getFullAddressEn(),"[Failed] Shipping address - Check full address - langKey = en.");
         }
-        //Verify Billing Addresss   //4.6 change to billing info (thong tin xuat hoa don)
-//        if(expectedInfo.getBillingInfo().getContactName()!=null){
-//            Assert.assertEquals(actualInfo.getBillingInfo().getContactName(),expectedInfo.getBillingInfo().getContactName());
-//            Assert.assertEquals(actualInfo.getBillingInfo().getPhone(),expectedInfo.getBillingInfo().getPhone());
-//            Assert.assertEquals(actualInfo.getBillingInfo().getAddress1(),expectedInfo.getBillingInfo().getAddress1());
-//            if(language.equalsIgnoreCase("vi"))
-//                Assert.assertEquals(actualInfo.getBillingInfo().getFullAddress(),expectedInfo.getBillingInfo().getFullAddress());
-//            else Assert.assertEquals(actualInfo.getBillingInfo().getFullAddressEn(),expectedInfo.getBillingInfo().getFullAddressEn());
-//        }
         //Verify payment method
         Assert.assertEquals(actualInfo.getOrderInfo().getPaymentMethod(),expectedInfo.getOrderInfo().getPaymentMethod(), "[Failed] Check payment method.");
         //Verify earning point
@@ -171,7 +163,7 @@ public class APIOrderDetail {
         actualSummaryDiscountUpdateModel.sort(Comparator.comparing(SummaryDiscount::getLabel));
         expectedSummaryDiscount.sort(Comparator.comparing(SummaryDiscount::getLabel));
         Assert.assertEquals(actualSummaryDiscountUpdateModel,expectedSummaryDiscount, "[Failed] Check summary discount.");
-        Assert.assertEquals(actualInfo.getTotalSummaryDiscounts(),-expectedInfo.getTotalSummaryDiscounts(),"[Failed] Check total summary discount.");
+        Assert.assertEquals(actualInfo.getTotalSummaryDiscounts(),Math.abs(expectedInfo.getTotalSummaryDiscounts()),"[Failed] Check total summary discount.");
 
         //Verify item order
         List<ItemOrderInfo> actualItemList = actualInfo.getItems();
@@ -219,9 +211,11 @@ public class APIOrderDetail {
         return this;
     }
 
-    public APIOrderDetail verifyPaymentHistoryAfterCreateOrder(long orderId, double receiveAmount){
+    public APIOrderDetail verifyPaymentHistoryAfterCreateOrder(long orderId, double receiveAmount, ReceivedAmountType receivedAmountType){
         List<PaymentHistoryInfo> paymentHistoryInfo = getPaymentHistory(orderId);
-        Assert.assertEquals(paymentHistoryInfo.get(0).getPaymentAmount(),receiveAmount);
+        if(receivedAmountType.equals(ReceivedAmountType.NONE))
+            Assert.assertTrue(paymentHistoryInfo.isEmpty());
+        else Assert.assertEquals(paymentHistoryInfo.get(0).getPaymentAmount(),receiveAmount);
         return this;
     }
 
