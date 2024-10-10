@@ -15,15 +15,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.testng.Assert;
 import org.testng.ITestResult;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.testng.annotations.*;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 
 import api.Seller.cashbook.CashbookAPI;
-import api.Seller.customers.APIAllCustomers;
 import api.Seller.customers.APICustomerDetail;
 import api.Seller.customers.APISegment;
 import api.Seller.login.Login;
@@ -31,6 +28,7 @@ import api.Seller.orders.order_management.APIAllOrders.OrderStatus;
 import api.Seller.products.all_products.APIAllProducts;
 import api.Seller.setting.BranchManagement;
 import io.restassured.path.json.JsonPath;
+import utilities.account.AccountTest;
 import utilities.commons.UICommonAction;
 import utilities.data.DataGenerator;
 import utilities.data.testdatagenerator.CreateCustomerTDG;
@@ -65,13 +63,13 @@ import web.Dashboard.orders.pos.create_order.deliverydialog.DeliveryDialog;
 
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static utilities.account.AccountTest.*;
-import static utilities.enums.Domain.BIZ;
 
 public class POSOrderTest extends BaseTest{
-	String phoneCode = DataGenerator.getPhoneCode(ADMIN_PHONE_BIZ_COUNTRY);
-	String userName = ADMIN_PHONE_BIZ_USERNAME;
-	String pass = ADMIN_MAIL_BIZ_PASSWORD;
-	LoginInformation credentials = new Login().setLoginInformation(phoneCode,userName, pass).getLoginInformation();
+	String country = "Vietnam";
+	String phoneCode ;
+	String username = ADMIN_SHOP_VI_USERNAME;
+	String pass = ADMIN_SHOP_VI_PASSWORD;
+	LoginInformation credentials ;
 	Logger logger = LogManager.getLogger(POSOrderTest.class);
 	public void createVNCustomer() {
 
@@ -193,7 +191,20 @@ public class POSOrderTest extends BaseTest{
 		if (debt.compareTo(BigDecimal.ZERO) ==0) return "PAYMENT_FOR_ORDER";
 		return "DEBT_COLLECTION_FROM_CUSTOMER";
 	}
-	
+	@BeforeClass
+	public void beforeClass(){
+		if(Domain.valueOf(domain).equals(Domain.VN)) {
+			country = AccountTest.ADMIN_COUNTRY_TIEN;
+			username = ADMIN_SHOP_VI_USERNAME;
+			pass = ADMIN_SHOP_VI_PASSWORD;
+		} else {
+			country = AccountTest.ADMIN_MAIL_BIZ_COUNTRY;
+			username = AccountTest.ADMIN_MAIL_BIZ_USERNAME;
+			pass = AccountTest.ADMIN_MAIL_BIZ_PASSWORD;
+		}
+		phoneCode = DataGenerator.getPhoneCode(country);
+		credentials = new Login().setLoginInformation(phoneCode, username, pass).getLoginInformation();
+	}
     @DataProvider
     public static Object[][] receivedAmountAndDeliveryOptions() {
         return new Object[][] {
@@ -292,7 +303,7 @@ public class POSOrderTest extends BaseTest{
 		boolean isGuestFromProfile = true;
 		/** Retrieve pre-order data **/
 		if(!condition.isWalkInGuest()) {
-			selectedProfileId = 5130589;
+			selectedProfileId = 3719379;//5130589
 //					DataGenerator.getRandomListElement(new APIAllCustomers(credentials).getAllCustomerIds());
 
 			selectedProfile = customerDetailAPI.getFullInfo(selectedProfileId);
@@ -331,7 +342,7 @@ public class POSOrderTest extends BaseTest{
 		commonAction = new UICommonAction(driver);
 		
 		LoginPage loginPage = new LoginPage(driver);
-		loginPage.navigateToPage(Domain.valueOf(domain),DisplayLanguage.valueOf(language)).performValidLogin(ADMIN_PHONE_BIZ_COUNTRY, credentials.getPhoneNumber(), credentials.getPassword());
+		loginPage.navigateToPage(Domain.valueOf(domain),DisplayLanguage.valueOf(language)).performValidLogin(country, credentials.getPhoneNumber(), credentials.getPassword());
 		
 		POSPage posPage = new POSPage(driver,Domain.valueOf(domain)).getLoginInfo(credentials).navigateToPOSPage();
 
@@ -339,7 +350,7 @@ public class POSOrderTest extends BaseTest{
 		posPage.selectBranch(branchName);
 
 		// Add product to cart
-		posPage.selectProduct(credentials, List.of(1284713));
+		posPage.selectProduct(credentials, List.of(1058837));//1284713
 		//Select customer
 		if(!condition.isWalkInGuest()) posPage.selectCustomer(customerName);
 		posPage.selectPaymentMethod(condition.getPaymentMethod());
@@ -378,7 +389,7 @@ public class POSOrderTest extends BaseTest{
 		BigDecimal expectedTotalPurchase = workoutExpectedTotalPurchase(previousTotalPurchase, orderDetailsBeforeCheckout);
 		BigDecimal expectedTotalPurchaseLast3Months = workoutExpectedTotalPurchaseLast3Months(previousTotalPurchaseLast3Months, orderDetailsBeforeCheckout);
 		BigDecimal expectedAverageOrderValue = workoutExpectedAverageOrderValue(new BigDecimal(expectedTotalOrderCount), expectedTotalPurchase);
-		BigDecimal expectedDebtAmount = previousDebtAmount.add(BigDecimal.valueOf(orderDetailsBeforeCheckout.getOrderInfo().getDebtAmount()));
+		BigDecimal expectedDebtAmount = previousDebtAmount.add(BigDecimal.valueOf(orderDetailsBeforeCheckout.getOrderInfo().getDebtAmount())).setScale(2, RoundingMode.HALF_UP);
 		
 		//Order tab
 		BigDecimal expectedOrderTotalAmount = BigDecimal.valueOf(orderDetailsBeforeCheckout.getOrderInfo().getTotalPrice());

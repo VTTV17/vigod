@@ -95,27 +95,27 @@ public class APIOrdersAnalytics {
 
         //Verify
         Assert.assertEquals(analyticInfoAfter.getTotalOrders(),totalOrderExpected,"[Failed] Check order total.");
-        Assert.assertEquals(analyticInfoAfter.getTotalAmount(),totalAmountExpected,"[Failed] Check total amount.");
+        Assert.assertEquals(String.format("%.2f",analyticInfoAfter.getTotalAmount()),String.format("%.2f",totalAmountExpected),"[Failed] Check total amount.");
         Assert.assertEquals(analyticInfoAfter.getTotalCancelledOrders(),cancelledOrdersExpected,"[Failed] Check total cancel orders number.");
         Assert.assertEquals(analyticInfoAfter.getTotalCancelledAmount(), cancelledAmountExpected,"[Failed] Check total cancel amount.");
         Assert.assertEquals(analyticInfoAfter.getTotalReturnedOrders(), returnedOrdersExpected,"[Failed] Check return orders number.");
-        Assert.assertEquals(analyticInfoAfter.getTotalRefundAmount(), refundAmountExpected, "[Failed] Check total refund amount");
-        Assert.assertEquals(analyticInfoAfter.getConfirmedRefundedAmount(), confirmedRefundedAmount, "[Failed] Check confirmed refunded amount.");
+        Assert.assertEquals(String.format("%.2f",analyticInfoAfter.getTotalRefundAmount()), String.format("%.2f",refundAmountExpected), "[Failed] Check total refund amount");
+        Assert.assertEquals(String.format("%.2f",analyticInfoAfter.getConfirmedRefundedAmount()), String.format("%.2f",confirmedRefundedAmount), "[Failed] Check confirmed refunded amount.");
         Assert.assertEquals(String.format("%.2f",analyticInfoAfter.getAverageOrderValue()),String.format("%.2f",averageOrderExpected),"[Failed] Check average order value.");
-        Assert.assertEquals(analyticInfoAfter.getPromotionCampaign(),promotionCampaignExpected,"[Failed] Check promotion campaign.");
-        Assert.assertEquals(analyticInfoAfter.getPromotionCode(),promotionCodeExpected,"[Failed] Check promotion code.");
-        Assert.assertEquals(analyticInfoAfter.getDirectDiscount().toString(),String.format("%.2f",directDiscountExpected),"[Failed] Check direct discount.");
-        Assert.assertEquals(analyticInfoAfter.getRedeemPoints(),redeemPointExpected,"[Failed] Check redeem point.");
-        Assert.assertEquals(analyticInfoAfter.getShippingFee(),shippingFeeExpected,"[Failed] Check shipping fee.");
-        Assert.assertEquals(analyticInfoAfter.getShippingDiscount(),shippingDiscountExpected,"[Failed] Check shipping discount.");
-        Assert.assertEquals(analyticInfoAfter.getOrderCost(), orderCostExpected, "[Failed] Check total order cost.");
-        Assert.assertEquals(analyticInfoAfter.getTax(),taxExpected,"[Failed] Check TAX.");
-        Assert.assertEquals(analyticInfoAfter.getReceivedAmount(),receiveAmountExpected,"[Failed] Check receive amount.");
-        Assert.assertEquals(analyticInfoAfter.getUncollectedAmount(),uncollectedAmountExpected,"[Failed] Check uncollected amount.");
-        Assert.assertEquals(analyticInfoAfter.getRevenue(), revenueExpected, "[Failed] Check revenue.");
-        Assert.assertEquals(analyticInfoAfter.getProfit(), profitExpected,"[Failed] Check profit");
-        Assert.assertEquals(analyticInfoAfter.getProfitAfterTax(), profitAfterTaxExpected, "[Failed] Check profit after TAX.");
-        Assert.assertEquals(analyticInfoAfter.getProductCost(), productCostExpected, "[Failed] Check product cost.");
+        Assert.assertEquals(String.format("%.2f",analyticInfoAfter.getPromotionCampaign()),String.format("%.2f",promotionCampaignExpected),"[Failed] Check promotion campaign.");
+        Assert.assertEquals(String.format("%.2f",analyticInfoAfter.getPromotionCode()),String.format("%.2f",promotionCodeExpected),"[Failed] Check promotion code.");
+        Assert.assertEquals(String.format("%.2f",analyticInfoAfter.getDirectDiscount()),String.format("%.2f",directDiscountExpected),"[Failed] Check direct discount.");
+        Assert.assertEquals(String.format("%.2f",analyticInfoAfter.getRedeemPoints()),String.format("%.2f",redeemPointExpected),"[Failed] Check redeem point.");
+        Assert.assertEquals(String.format("%.2f",analyticInfoAfter.getShippingFee()),String.format("%.2f",shippingFeeExpected),"[Failed] Check shipping fee.");
+        Assert.assertEquals(String.format("%.2f",analyticInfoAfter.getShippingDiscount()),String.format("%.2f",shippingDiscountExpected),"[Failed] Check shipping discount.");
+        Assert.assertEquals(String.format("%.2f",analyticInfoAfter.getOrderCost()), String.format("%.2f",orderCostExpected), "[Failed] Check total order cost.");
+        Assert.assertEquals(String.format("%.2f",analyticInfoAfter.getTax()),String.format("%.2f",taxExpected),"[Failed] Check TAX.");
+        Assert.assertEquals(String.format("%.2f",analyticInfoAfter.getReceivedAmount()),String.format("%.2f",receiveAmountExpected),"[Failed] Check receive amount.");
+        Assert.assertEquals(String.format("%.2f",analyticInfoAfter.getUncollectedAmount()),String.format("%.2f",uncollectedAmountExpected),"[Failed] Check uncollected amount.");
+        Assert.assertEquals(String.format("%.2f",analyticInfoAfter.getRevenue()), String.format("%.2f",revenueExpected), "[Failed] Check revenue.");
+        Assert.assertEquals(String.format("%.2f",analyticInfoAfter.getProfit()), String.format("%.2f",profitExpected),"[Failed] Check profit");
+        Assert.assertEquals(String.format("%.2f",analyticInfoAfter.getProfitAfterTax()), String.format("%.2f",profitAfterTaxExpected), "[Failed] Check profit after TAX.");
+        Assert.assertEquals(String.format("%.2f",analyticInfoAfter.getProductCost()), String.format("%.2f",productCostExpected), "[Failed] Check product cost.");
     }
     @SneakyThrows
     public void waitOrderAnalyticsUpdateData(int totalOrderBefore, TimeFrame timeFrame ){
