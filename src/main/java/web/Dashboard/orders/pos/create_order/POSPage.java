@@ -404,14 +404,17 @@ public class POSPage extends POSElement {
     public Double inputReceiveAmount(ReceivedAmountType receivedAmountType) {
         new HomePage(driver).waitTillLoadingDotsDisappear();
         commonAction.sleepInMiliSecond(1000, "Wait a little for better UI stability");
+        String currency = getCurrencySymbol();
+        double randomFrom = currency.equals("đ")?1: 0.01;
+        String formatReceiveAmount = currency.equals("đ")?"%.0f": "%.2f";
         double receiveAmount = (Objects.requireNonNull(receivedAmountType) == ReceivedAmountType.FULL)
                 ? getTotalAmount()
                 : ((receivedAmountType == ReceivedAmountType.PARTIAL)
-                ? DataGenerator.generatNumberInBound(1, getTotalAmount())
+                ? DataGenerator.generatNumberInBound(randomFrom, getTotalAmount())
                 : 0);
         commonAction.sleepInMiliSecond(3000, "Wait a little for better UI stability");
-        inputReceiveAmount(String.format("%.0f",receiveAmount));
-        return Double.parseDouble(String.format("%.0f",receiveAmount));
+        inputReceiveAmount(String.format(formatReceiveAmount,receiveAmount));
+        return Double.parseDouble(String.format(formatReceiveAmount,receiveAmount));
     }
 
     public enum POSPaymentMethod {
@@ -468,7 +471,6 @@ public class POSPage extends POSElement {
     public void applyDiscount() {
         // Open Discount popup
         commonAction.click(loc_btnPromotion);
-
         // Log
         logger.info("Open Discount popup");
 
@@ -493,7 +495,8 @@ public class POSPage extends POSElement {
             logger.info("Switch to Discount amount tab");
 
             // Get discount amount value
-            long amount = nextLong(20000L);
+            Long totalAmount = Math.round(getTotalAmount());
+            long amount = nextLong(totalAmount);
 
             // Input discount amount
             commonAction.sendKeys(loc_dlgDiscount_txtDiscountAmountValue, String.valueOf(amount));
@@ -508,7 +511,7 @@ public class POSPage extends POSElement {
             logger.info("Switch to Discount percentage tab");
 
             // Get discount percent value
-            long percent = nextInt(100);
+            long percent = nextInt(99);
 
             // Input percent amount
             commonAction.sendKeys(loc_dlgDiscount_txtDiscountPercentValue, String.valueOf(percent));

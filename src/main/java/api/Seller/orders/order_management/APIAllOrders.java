@@ -480,7 +480,7 @@ public class APIAllOrders {
         //Payment status
         Assert.assertEquals(orderInManagement.getPayType(),orderDetailExpected.getOrderInfo().getPayType(),"[Failed] Check pay type.");
         //debt
-        Assert.assertEquals(orderInManagement.getDebtAmount(),orderDetailExpected.getOrderInfo().getDebtAmount(),"[Failed] Check debt amounnt.");
+        Assert.assertEquals(String.format("%.2f",orderInManagement.getDebtAmount()),String.format("%.2f",orderDetailExpected.getOrderInfo().getDebtAmount()),"[Failed] Check debt amounnt.");
         //Created by
         Assert.assertEquals(orderInManagement.getMadeBy(),orderDetailExpected.getOrderInfo().getCreatedBy(),"[Failed] Check created by.");
         //Approve commission date
@@ -544,7 +544,7 @@ public class APIAllOrders {
         Assert.assertEquals(getOrderListSummary(GOSELL).getShippedCount(), orderListSummaryExpected.getShippedCount(),"[Failed][order management summary] Check shipped count.");
         Assert.assertEquals(getOrderListSummary(GOSELL).getDeliveredCount(), orderListSummaryExpected.getDeliveredCount(),"[Failed][order management summary] Check delivered count.");
         Assert.assertEquals(String.format("%.2f",getOrderListSummary(GOSELL).getCustomerDebt()),String.format("%.2f",orderListSummaryExpected.getCustomerDebt()));
-        Assert.assertEquals(getOrderListSummary(GOSELL).getReceivedAmount(), orderListSummaryExpected.getReceivedAmount(),"[Failed][order management summary] Check received amount.");
+        Assert.assertEquals(String.format("%.2f",getOrderListSummary(GOSELL).getReceivedAmount()), String.format("%.2f",orderListSummaryExpected.getReceivedAmount()),"[Failed][order management summary] Check received amount.");
         Assert.assertEquals(getOrderListSummary(GOSELL).getShippedCount(), orderListSummaryExpected.getShippedCount(),"[Failed][order management summary] Check shipped count.");
         Assert.assertEquals(getOrderListSummary(GOSELL).getSellerDebt(), orderListSummaryExpected.getSellerDebt(),"[Failed][order management summary] Check seller debt.");
 

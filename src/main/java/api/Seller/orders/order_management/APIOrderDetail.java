@@ -143,7 +143,7 @@ public class APIOrderDetail {
         Assert.assertEquals(actualInfo.getOrderInfo().getPayType(),expectedInfo.getOrderInfo().getPayType(),"[Failed] Check order info - pay type.");
         Assert.assertEquals(actualInfo.getOrderInfo().getUsePoint(),expectedInfo.getOrderInfo().getUsePoint(), "[Failed] Check order info - use point.");
         Assert.assertEquals(actualInfo.getOrderInfo().getStatus(), expectedInfo.getOrderInfo().getStatus(),"[Failed] Check order info - order status.");
-        Assert.assertEquals(actualInfo.getOrderInfo().getDebtAmount(), expectedInfo.getOrderInfo().getDebtAmount(), "[Failed] Check order info - debt amount of this order.");
+        Assert.assertEquals(String.format("%.2f",actualInfo.getOrderInfo().getDebtAmount()), String.format("%.2f",expectedInfo.getOrderInfo().getDebtAmount()), "[Failed] Check order info - debt amount of this order.");
         Assert.assertEquals(actualInfo.getOrderInfo().getReceivedAmount(), expectedInfo.getOrderInfo().getReceivedAmount(),"[Failed] Check order info - receive amount");
         Assert.assertEquals(DataGenerator.getDateByTimeZone(new StoreInformation(loginInformation).getInfo().getTimeZone(),actualInfo.getOrderInfo().getCreateDate())
                 ,expectedInfo.getOrderInfo().getCreateDate(),"[Failed] Check order info - created date");
