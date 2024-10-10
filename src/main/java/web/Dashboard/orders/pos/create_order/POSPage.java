@@ -702,7 +702,9 @@ public class POSPage extends POSElement {
     }
 
     public double getReceiveAmount() {
-        return GetDataByRegex.getAmountByRegex(commonAction.getValue(loc_txtReceiveAmount));
+        double receiveAmount = GetDataByRegex.getAmountByRegex(commonAction.getValue(loc_txtReceiveAmount));
+        logger.info("Get receive amount: {}",receiveAmount);
+        return receiveAmount;
     }
 
     public EarningPoint getEarnPoint() {
@@ -827,7 +829,7 @@ public class POSPage extends POSElement {
             //debt format: -1111 or 1111
             currentDebt = Double.parseDouble(DataGenerator.extractDigits(commonAction.getText(loc_lblDebt)));
         }
-        customerOrderInfo.setDebtAmount(currentDebt + getDebtAmount());
+        customerOrderInfo.setDebtAmount(Double.parseDouble(String.format("%.2f",currentDebt + getDebtAmount())));
         logger.info("customerOrderInfo: {}",customerOrderInfo);
         return customerOrderInfo;
     }
