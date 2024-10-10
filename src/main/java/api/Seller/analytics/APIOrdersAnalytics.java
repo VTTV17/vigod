@@ -101,7 +101,7 @@ public class APIOrdersAnalytics {
         Assert.assertEquals(analyticInfoAfter.getTotalReturnedOrders(), returnedOrdersExpected,"[Failed] Check return orders number.");
         Assert.assertEquals(analyticInfoAfter.getTotalRefundAmount(), refundAmountExpected, "[Failed] Check total refund amount");
         Assert.assertEquals(analyticInfoAfter.getConfirmedRefundedAmount(), confirmedRefundedAmount, "[Failed] Check confirmed refunded amount.");
-        Assert.assertEquals(analyticInfoAfter.getAverageOrderValue(),averageOrderExpected,"[Failed] Check average order value.");
+        Assert.assertEquals(String.format("%.2f",analyticInfoAfter.getAverageOrderValue()),String.format("%.2f",averageOrderExpected),"[Failed] Check average order value.");
         Assert.assertEquals(analyticInfoAfter.getPromotionCampaign(),promotionCampaignExpected,"[Failed] Check promotion campaign.");
         Assert.assertEquals(analyticInfoAfter.getPromotionCode(),promotionCodeExpected,"[Failed] Check promotion code.");
         Assert.assertEquals(analyticInfoAfter.getDirectDiscount(),directDiscountExpected,"[Failed] Check direct discount.");

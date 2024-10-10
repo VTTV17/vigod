@@ -400,7 +400,6 @@ public class POSPage extends POSElement {
                 : ((receivedAmountType == ReceivedAmountType.PARTIAL)
                 ? DataGenerator.generatNumberInBound(1, getTotalAmount())
                 : 0);
-        System.out.println(String.format("%.0f",receiveAmount));
         commonAction.sleepInMiliSecond(3000, "Wait a little for better UI stability");
         inputReceiveAmount(String.format("%.0f",receiveAmount));
         return Double.parseDouble(String.format("%.0f",receiveAmount));

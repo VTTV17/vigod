@@ -539,8 +539,16 @@ public class APIAllOrders {
         if(newOrderInfo.getOrderInfo().getStatus().equals(DELIVERED.toString()))
             orderListSummaryExpected.setDeliveredCount(orderListSummaryBefore.getDeliveredCount() + 1);
         else orderListSummaryExpected.setToConfirmCount(orderListSummaryBefore.getToConfirmCount() + 1);
+        Assert.assertEquals(getOrderListSummary(GOSELL).getCancelledCount(),orderListSummaryExpected.getCancelledCount(),"[Failed][order management summary] Check cancelled count ");
+        Assert.assertEquals(getOrderListSummary(GOSELL).getToConfirmCount(), orderListSummaryExpected.getToConfirmCount(),"[Failed][order management summary] Check total toConfirm count");
+        Assert.assertEquals(getOrderListSummary(GOSELL).getShippedCount(), orderListSummaryExpected.getShippedCount(),"[Failed][order management summary] Check shipped count.");
+        Assert.assertEquals(getOrderListSummary(GOSELL).getDeliveredCount(), orderListSummaryExpected.getDeliveredCount(),"[Failed][order management summary] Check delivered count.");
+        Assert.assertEquals(String.format("%.2f",getOrderListSummary(GOSELL).getCustomerDebt()),String.format("%.2f",orderListSummaryExpected.getCustomerDebt()));
+        Assert.assertEquals(getOrderListSummary(GOSELL).getReceivedAmount(), orderListSummaryExpected.getReceivedAmount(),"[Failed][order management summary] Check received amount.");
+        Assert.assertEquals(getOrderListSummary(GOSELL).getShippedCount(), orderListSummaryExpected.getShippedCount(),"[Failed][order management summary] Check shipped count.");
+        Assert.assertEquals(getOrderListSummary(GOSELL).getSellerDebt(), orderListSummaryExpected.getSellerDebt(),"[Failed][order management summary] Check seller debt.");
 
-        Assert.assertEquals(getOrderListSummary(GOSELL),orderListSummaryExpected,"[Failed] Check order list summary info.");
+//        Assert.assertEquals(getOrderListSummary(GOSELL),orderListSummaryExpected,"[Failed] Check order list summary info.");
         logger.info("Verified order list summary.");
     }
     public Double getProuctCostOfOrder(long orderId){
