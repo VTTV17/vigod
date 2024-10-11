@@ -415,8 +415,9 @@ public class POSPage extends POSElement {
                 ? DataGenerator.generatNumberInBound(randomFrom, getTotalAmount())
                 : 0);
         commonAction.sleepInMiliSecond(3000, "Wait a little for better UI stability");
-        inputReceiveAmount(String.format(formatReceiveAmount, receiveAmount));
-        return Double.parseDouble(String.format(formatReceiveAmount, receiveAmount));
+        if(receivedAmountType != ReceivedAmountType.FULL)
+            inputReceiveAmount(String.format(formatReceiveAmount,receiveAmount));
+        return Double.parseDouble(String.format(formatReceiveAmount,receiveAmount));
     }
 
     public enum POSPaymentMethod {
@@ -889,10 +890,13 @@ public class POSPage extends POSElement {
         CustomerOrderInfo customerOrderInfo = getCustomerOderInfo(customerId);
         if (isDeliveryOpted()) clickEditDelivery();
         orderDetailInfo.setShippingInfo(getShippingInfo());
-        if (customerOrderInfo.getMainPhone() == null) {
+        /** get customer when guest checkout  */
+        if(customerId==0 && isDeliveryOpted()) {
             customerOrderInfo.setMainPhone(orderDetailInfo.getShippingInfo().getPhone());
             customerOrderInfo.setPhone(orderDetailInfo.getShippingInfo().getPhoneCode() + orderDetailInfo.getShippingInfo().getPhone().replaceFirst("^0", ""));
             customerOrderInfo.setName(orderDetailInfo.getShippingInfo().getContactName());
+            customerOrderInfo.setGuest(true);
+        }else if(customerId==0 && !isDeliveryOpted()){
             customerOrderInfo.setGuest(true);
         }
         if (isDeliveryOpted()) {
