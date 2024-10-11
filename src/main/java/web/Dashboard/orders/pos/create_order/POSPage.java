@@ -891,15 +891,11 @@ public class POSPage extends POSElement {
         if (isDeliveryOpted()) clickEditDelivery();
         orderDetailInfo.setShippingInfo(getShippingInfo());
         /** get customer when guest checkout  */
-        if(customerId==0 && isDeliveryOpted()) {
-            customerOrderInfo.setMainPhone(orderDetailInfo.getShippingInfo().getPhone());
-            customerOrderInfo.setPhone(orderDetailInfo.getShippingInfo().getPhoneCode() + orderDetailInfo.getShippingInfo().getPhone().replaceFirst("^0", ""));
-            customerOrderInfo.setName(orderDetailInfo.getShippingInfo().getContactName());
-            customerOrderInfo.setGuest(true);
-        }else if(customerId==0 && !isDeliveryOpted()){
-            customerOrderInfo.setGuest(true);
-        }
-        if (isDeliveryOpted()) {
+        if(customerId==0) customerOrderInfo.setGuest(true);
+        if(isDeliveryOpted()) {
+            if(customerOrderInfo.getMainPhone()==null)customerOrderInfo.setMainPhone(orderDetailInfo.getShippingInfo().getPhone());
+            if(customerOrderInfo.getPhone()==null)customerOrderInfo.setPhone(orderDetailInfo.getShippingInfo().getPhoneCode() + orderDetailInfo.getShippingInfo().getPhone().replaceFirst("^0", ""));
+            if(customerOrderInfo.getName()==null)customerOrderInfo.setName(orderDetailInfo.getShippingInfo().getContactName());
             String deliveryMethod = new DeliveryDialog(driver).getSelectedDeliveryName();
             orderInfo.setDeliveryName(deliveryMethod.equalsIgnoreCase("tự vận chuyển") || deliveryMethod.equalsIgnoreCase("self delivery") ? "selfdelivery" : GetDataByRegex.normalizeString(deliveryMethod));
             new ConfirmationDialog(driver).clickCancelBtn();
@@ -941,7 +937,7 @@ public class POSPage extends POSElement {
     }
 
     public double getDebtAmount() {
-        if (isDeliveryOpted()) return -getReceiveAmount();
+        if (isDeliveryOpted()) return getReceiveAmount()==0? 0: -getReceiveAmount();
         return getTotalAmount() - getReceiveAmount();
     }
 
