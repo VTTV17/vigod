@@ -51,15 +51,17 @@ public class APIAllOrders {
     API api = new API();
     LoginDashboardInfo loginInfo;
     LoginInformation loginInformation;
-    String language ="vi";
+    String language = "vi";
+
     public APIAllOrders(LoginInformation loginInformation) {
         this.loginInformation = loginInformation;
         loginInfo = new Login().getInfo(loginInformation);
     }
-    public APIAllOrders(LoginInformation loginInformation,String language) {
+
+    public APIAllOrders(LoginInformation loginInformation, String language) {
         this.loginInformation = loginInformation;
         loginInfo = new Login().getInfo(loginInformation);
-        this.language = language.substring(0,2);
+        this.language = language.substring(0, 2);
     }
 
     @Data
@@ -111,7 +113,7 @@ public class APIAllOrders {
 
     public Response getAllOrderResponse(int pageIndex, String branchQuery, Channel channel) {
         String status = Optional.ofNullable(orderStatus).map(Enum::toString).orElse("");
-        return api.get(getAllOrderPath.formatted(loginInfo.getStoreID(), pageIndex, branchQuery, channel, status,language), loginInfo.getAccessToken());
+        return api.get(getAllOrderPath.formatted(loginInfo.getStoreID(), pageIndex, branchQuery, channel, status, language), loginInfo.getAccessToken());
     }
 
     public AllOrdersInformation getAllOrderInformation(Channel channel) {
@@ -209,8 +211,8 @@ public class APIAllOrders {
         return ids.stream()
                 .mapToLong(id -> id)
                 .filter(id -> assignedBranchIds.contains(branchIds.get(ids.indexOf(id)))
-                              && Optional.ofNullable(madeBy.get(ids.indexOf(id))).isPresent()
-                              && madeBy.get(ids.indexOf(id)).equals(staffName))
+                        && Optional.ofNullable(madeBy.get(ids.indexOf(id))).isPresent()
+                        && madeBy.get(ids.indexOf(id)).equals(staffName))
                 .boxed()
                 .toList();
     }
@@ -233,7 +235,7 @@ public class APIAllOrders {
         List<OrderStatus> orderStatuses = new ArrayList<>(info.getStatues());
         return ids.stream()
                 .mapToLong(id -> id).filter(id -> assignedBranchIds.contains(branchIds.get(ids.indexOf(id)))
-                                                  && Objects.equals(orderStatuses.get(ids.indexOf(id)), TO_SHIP))
+                        && Objects.equals(orderStatuses.get(ids.indexOf(id)), TO_SHIP))
                 .findFirst()
                 .orElse(0L);
     }
@@ -248,11 +250,11 @@ public class APIAllOrders {
         List<ShippingMethod> shippingMethods = new ArrayList<>(info.getShippingMethods());
         return ids.stream()
                 .mapToLong(id -> id).filter(id -> assignedBranchIds.contains(branchIds.get(ids.indexOf(id)))
-                                                  && Objects.equals(shippingMethods.get(ids.indexOf(id)), selfdelivery)
-                                                  && Objects.equals(orderStatuses.get(ids.indexOf(id)), TO_SHIP)
-                                                  && !Objects.equals(paymentMethods.get(ids.indexOf(id)), ONLINE_BANKING)
-                                                  && !Objects.equals(paymentMethods.get(ids.indexOf(id)), CREDIT_DEBIT_CARD)
-                                                  && !Objects.equals(paymentMethods.get(ids.indexOf(id)), MPOS))
+                        && Objects.equals(shippingMethods.get(ids.indexOf(id)), selfdelivery)
+                        && Objects.equals(orderStatuses.get(ids.indexOf(id)), TO_SHIP)
+                        && !Objects.equals(paymentMethods.get(ids.indexOf(id)), ONLINE_BANKING)
+                        && !Objects.equals(paymentMethods.get(ids.indexOf(id)), CREDIT_DEBIT_CARD)
+                        && !Objects.equals(paymentMethods.get(ids.indexOf(id)), MPOS))
                 .findFirst()
                 .orElse(0L);
     }
@@ -267,15 +269,15 @@ public class APIAllOrders {
         return ids.stream()
                 .mapToLong(id -> id)
                 .filter(id -> assignedBranchIds.contains(branchIds.get(ids.indexOf(id)))
-                              && (Objects.equals(orderStatuses.get(ids.indexOf(id)), TO_SHIP)
-                                  || (Objects.equals(shippingMethods.get(ids.indexOf(id)), selfdelivery)
-                                      && (Objects.equals(channel, GOSELL) || Objects.equals(channel, BEECOW))
-                                      && !Objects.equals(orderStatuses.get(ids.indexOf(id)), CANCELLED)
-                                      && !Objects.equals(orderStatuses.get(ids.indexOf(id)), DELIVERED)
-                                      && !Objects.equals(orderStatuses.get(ids.indexOf(id)), FAILED)
-                                      && !Objects.equals(orderStatuses.get(ids.indexOf(id)), COMPLETED)
-                                      && !Objects.equals(orderStatuses.get(ids.indexOf(id)), RETURNED)
-                                      && !Objects.equals(orderStatuses.get(ids.indexOf(id)), PENDING))))
+                        && (Objects.equals(orderStatuses.get(ids.indexOf(id)), TO_SHIP)
+                        || (Objects.equals(shippingMethods.get(ids.indexOf(id)), selfdelivery)
+                        && (Objects.equals(channel, GOSELL) || Objects.equals(channel, BEECOW))
+                        && !Objects.equals(orderStatuses.get(ids.indexOf(id)), CANCELLED)
+                        && !Objects.equals(orderStatuses.get(ids.indexOf(id)), DELIVERED)
+                        && !Objects.equals(orderStatuses.get(ids.indexOf(id)), FAILED)
+                        && !Objects.equals(orderStatuses.get(ids.indexOf(id)), COMPLETED)
+                        && !Objects.equals(orderStatuses.get(ids.indexOf(id)), RETURNED)
+                        && !Objects.equals(orderStatuses.get(ids.indexOf(id)), PENDING))))
                 .findFirst()
                 .orElse(0L);
     }
@@ -290,8 +292,8 @@ public class APIAllOrders {
         return ids.stream()
                 .mapToLong(id -> id)
                 .filter(id -> (assignedBranchIds.contains(branchIds.get(ids.indexOf(id)))
-                               && Objects.equals(shippingMethods.get(ids.indexOf(id)), selfdelivery)
-                               && Objects.equals(orderStatuses.get(ids.indexOf(id)), SHIPPED)))
+                        && Objects.equals(shippingMethods.get(ids.indexOf(id)), selfdelivery)
+                        && Objects.equals(orderStatuses.get(ids.indexOf(id)), SHIPPED)))
                 .findFirst()
                 .orElse(0L);
     }
@@ -307,9 +309,9 @@ public class APIAllOrders {
         return ids.parallelStream()
                 .mapToLong(id -> id)
                 .filter(id -> (assignedBranchIds.contains(branchIds.get(ids.indexOf(id)))
-                               && Objects.equals(shippingMethods.get(ids.indexOf(id)), selfdelivery)
-                               && Objects.equals(orderStatuses.get(ids.indexOf(id)), SHIPPED))
-                              && apiPartialDeliveryOrders.getPartialDeliveryWithAvailableItemResponse(id).getStatusCode() == 200)
+                        && Objects.equals(shippingMethods.get(ids.indexOf(id)), selfdelivery)
+                        && Objects.equals(orderStatuses.get(ids.indexOf(id)), SHIPPED))
+                        && apiPartialDeliveryOrders.getPartialDeliveryWithAvailableItemResponse(id).getStatusCode() == 200)
                 .findAny()
                 .orElse(0L);
     }
@@ -324,7 +326,7 @@ public class APIAllOrders {
         return ids.stream()
                 .mapToLong(id -> id)
                 .filter(id -> assignedBranchIds.contains(branchIds.get(ids.indexOf(id)))
-                              && !orderTags.get(ids.indexOf(id)).getTagIds().isEmpty())
+                        && !orderTags.get(ids.indexOf(id)).getTagIds().isEmpty())
                 .findFirst()
                 .orElse(0L);
     }
@@ -342,7 +344,7 @@ public class APIAllOrders {
         return ids.stream()
                 .mapToLong(id -> id)
                 .filter(id -> (assignedBranchIds.contains(branchIds.get(ids.indexOf(id)))
-                               && isShowConfirmPayment(orderStatuses.get(ids.indexOf(id)),
+                        && isShowConfirmPayment(orderStatuses.get(ids.indexOf(id)),
                         paymentMethods.get(ids.indexOf(id)),
                         payTypes.get(ids.indexOf(id)),
                         inStores.get(ids.indexOf(id))))
@@ -357,10 +359,10 @@ public class APIAllOrders {
                                  InStore inStore) {
         List<PaymentMethod> paymentMethodList = List.of(COD, BANK_TRANSFER, MOMO, PAYPAL, ONLINE_BANKING, CREDIT_DEBIT_CARD);
         return !(Objects.equals(inStore, InStore.GO_SOCIAL) || // ignore GoSocial order
-                 paymentMethodList.contains(paymentMethod) ||
-                 (Objects.equals(status, DELIVERED) || Objects.equals(status, RETURNED)) && Objects.equals(payType, PAID) || // order with payType PAID and status in (DELIVERED, RETURNED) or
-                 Objects.equals(payType, UNPAID) && (Objects.equals(status, CANCELLED)) || // or order with payType UNPAID and paymentMethod in (COD, BANK_TRANSFER, MOMO, PAYPAL, ONLINE_BANKING, CREDIT_DEBIT_CARD) or status CANCELLED
-                 Objects.equals(paymentMethod, DEBT) && (Objects.equals(status, DELIVERED) || Objects.equals(status, CANCELLED))); // or order with paymentMethod DEBT and status in (DELIVERED, CANCELLED) are not count debt
+                paymentMethodList.contains(paymentMethod) ||
+                (Objects.equals(status, DELIVERED) || Objects.equals(status, RETURNED)) && Objects.equals(payType, PAID) || // order with payType PAID and status in (DELIVERED, RETURNED) or
+                Objects.equals(payType, UNPAID) && (Objects.equals(status, CANCELLED)) || // or order with payType UNPAID and paymentMethod in (COD, BANK_TRANSFER, MOMO, PAYPAL, ONLINE_BANKING, CREDIT_DEBIT_CARD) or status CANCELLED
+                Objects.equals(paymentMethod, DEBT) && (Objects.equals(status, DELIVERED) || Objects.equals(status, CANCELLED))); // or order with paymentMethod DEBT and status in (DELIVERED, CANCELLED) are not count debt
     }
 
     public boolean isPrintOrder() {
@@ -385,8 +387,8 @@ public class APIAllOrders {
         return ids.stream()
                 .mapToLong(id -> id)
                 .filter(id -> assignedBranchIds.contains(branchIds.get(ids.indexOf(id)))
-                              && Objects.equals(shippingMethods.get(ids.indexOf(id)), selfdelivery)
-                              && canReturnOrder(id))
+                        && Objects.equals(shippingMethods.get(ids.indexOf(id)), selfdelivery)
+                        && canReturnOrder(id))
                 .findFirst()
                 .orElse(0L);
     }
@@ -400,93 +402,95 @@ public class APIAllOrders {
 
     /**
      * Get order summary and order list info.
+     *
      * @param channel
      * @return OrderListInfo
      */
-    public OrderListInfo getOrderListInfo(Channel channel){
-        Response response = getAllOrderResponse(0,"branch=",channel);
+    public OrderListInfo getOrderListInfo(Channel channel) {
+        Response response = getAllOrderResponse(0, "branch=", channel);
         response.then().statusCode(200);
         OrderListInfo orderListInfo = response.as(OrderListInfo.class);
         return orderListInfo;
     }
 
     /**
-     *
      * @param orderListInfo Call getOrderListInfo before to get OrderListInfo
-     * @param orderId orderId in order list by channel
+     * @param orderId       orderId in order list by channel
      * @return OrderInManagement
      */
-    public OrderInManagement getOrderInfoInManagement(OrderListInfo orderListInfo, long orderId){
-        List<OrderInManagement>orderFound = orderListInfo.getResponse().stream().filter(it -> it.getId().equals(String.valueOf(orderId))).collect(Collectors.toList());
-        System.out.println(orderFound.get(0) );
-        if(orderFound.size()>0) return orderFound.get(0);
+    public OrderInManagement getOrderInfoInManagement(OrderListInfo orderListInfo, long orderId) {
+        List<OrderInManagement> orderFound = orderListInfo.getResponse().stream().filter(it -> it.getId().equals(String.valueOf(orderId))).collect(Collectors.toList());
+        System.out.println(orderFound.get(0));
+        if (orderFound.size() > 0) return orderFound.get(0);
         else try {
             throw new Exception("OrderId: %s not found.".formatted(orderId));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
-    public void verifyOrderInManagement(OrderDetailInfo orderDetailExpected, long orderId){
-        OrderInManagement orderInManagement = getOrderInfoInManagement(getOrderListInfo(GOSELL),orderId);
+
+    public void verifyOrderInManagement(OrderDetailInfo orderDetailExpected, long orderId) {
+        OrderInManagement orderInManagement = getOrderInfoInManagement(getOrderListInfo(GOSELL), orderId);
         // skip: orderId, updatedDate, Return status
         //Order status
-        Assert.assertEquals(orderInManagement.getStatus(),orderDetailExpected.getOrderInfo().getStatus(),"[Failed] Check order status.");
+        Assert.assertEquals(orderInManagement.getStatus(), orderDetailExpected.getOrderInfo().getStatus(), "[Failed] Check order status.");
         //customer name, customer id, main phone
-        if(orderDetailExpected.getCustomerInfo().getName()!=null){
-            Assert.assertEquals(orderInManagement.getCustomerFullName(),orderDetailExpected.getCustomerInfo().getName(),"[Failed] Check customer name.");
-            Assert.assertEquals(orderInManagement.getPhone(),orderDetailExpected.getCustomerInfo().getMainPhone(),"[Failed] Check customer main phone.");
-            if(orderDetailExpected.getCustomerInfo().getCustomerId()!=0)
-                Assert.assertEquals(orderInManagement.getCustomerId(),orderDetailExpected.getCustomerInfo().getCustomerId(),"[Failed] Check customerId.");
-        }else Assert.assertTrue(orderInManagement.getCustomerFullName().startsWith("guest"),"[Failed] Check guest name.");
+        if (orderDetailExpected.getCustomerInfo().getName() != null) {
+            Assert.assertEquals(orderInManagement.getCustomerFullName(), orderDetailExpected.getCustomerInfo().getName(), "[Failed] Check customer name.");
+            if (orderDetailExpected.getCustomerInfo().getCustomerId() != 0)
+                Assert.assertEquals(orderInManagement.getCustomerId(), orderDetailExpected.getCustomerInfo().getCustomerId(), "[Failed] Check customerId.");
+        } else
+            Assert.assertTrue(orderInManagement.getCustomerFullName().startsWith("guest"), "[Failed] Check guest name.");
         //Verify Shipping Address, receive name and phone
-        if(orderDetailExpected.getShippingInfo().getFullAddress()!=null){
-            if(language.equalsIgnoreCase("vi"))
-                Assert.assertEquals(orderInManagement.getFullShippingAddress(),orderDetailExpected.getShippingInfo().getFullAddress(),"[Failed] Check full address in vietnamese");
-            else Assert.assertEquals(orderInManagement.getFullShippingAddressEn(),orderDetailExpected.getShippingInfo().getFullAddressEn(),"[Failed] Check full address in english.");
-            Assert.assertEquals(orderInManagement.getReceiverDisplayName(),orderDetailExpected.getShippingInfo().getContactName(), "[Failed] Check contact name in shipping info.");
-            Assert.assertEquals(orderInManagement.getReceiverPhone(),orderDetailExpected.getShippingInfo().getPhone(),"[Failed] Check phone in shipping info.");
+        if (orderDetailExpected.getShippingInfo().getFullAddress() != null) {
+            if (language.equalsIgnoreCase("vi"))
+                Assert.assertEquals(orderInManagement.getFullShippingAddress(), orderDetailExpected.getShippingInfo().getFullAddress(), "[Failed] Check full address in vietnamese");
+            else
+                Assert.assertEquals(orderInManagement.getFullShippingAddressEn(), orderDetailExpected.getShippingInfo().getFullAddressEn(), "[Failed] Check full address in english.");
+            Assert.assertEquals(orderInManagement.getReceiverDisplayName(), orderDetailExpected.getShippingInfo().getContactName(), "[Failed] Check contact name in shipping info.");
+            Assert.assertEquals(orderInManagement.getReceiverPhone(), orderDetailExpected.getShippingInfo().getPhone(), "[Failed] Check phone in shipping info.");
         }
         //isPaid
-        Assert.assertEquals(orderInManagement.getIsPaid(),orderDetailExpected.getOrderInfo().getPaid(),"[Failed] Check isPaid.");
+        Assert.assertEquals(orderInManagement.getIsPaid(), orderDetailExpected.getOrderInfo().getPaid(), "[Failed] Check isPaid.");
         //Items
-        List<ItemOrderInfo> itemExpectedList= orderDetailExpected.getItems();
+        List<ItemOrderInfo> itemExpectedList = orderDetailExpected.getItems();
         List<ItemOrderListInfo> itemActualList = orderInManagement.getItems();
-        Assert.assertEquals(itemActualList.size(),itemExpectedList.size(),"[Failed] Check item list size.");
+        Assert.assertEquals(itemActualList.size(), itemExpectedList.size(), "[Failed] Check item list size.");
         itemExpectedList.sort(Comparator.comparing(ItemOrderInfo::getName)
                 .thenComparing(ItemOrderInfo::getVariationName));
         itemActualList.sort(Comparator.comparing(ItemOrderListInfo::getName)
                 .thenComparing(ItemOrderListInfo::getModelName));
-        for (int i=0;i<itemExpectedList.size();i++){
-            Assert.assertEquals(itemActualList.get(i).getName(),itemExpectedList.get(i).getName(),"[Failed] Check item name with index: "+i);
-            Assert.assertEquals(itemActualList.get(i).getModelName(),itemExpectedList.get(i).getVariationName(),"[Failed] Check variation name with index: "+i);
-            Assert.assertEquals(itemActualList.get(i).getQuantity(),itemExpectedList.get(i).getQuantity(),"[Failed] Check quantity with index: "+i);
+        for (int i = 0; i < itemExpectedList.size(); i++) {
+            Assert.assertEquals(itemActualList.get(i).getName(), itemExpectedList.get(i).getName(), "[Failed] Check item name with index: " + i);
+            Assert.assertEquals(itemActualList.get(i).getModelName(), itemExpectedList.get(i).getVariationName(), "[Failed] Check variation name with index: " + i);
+            Assert.assertEquals(itemActualList.get(i).getQuantity(), itemExpectedList.get(i).getQuantity(), "[Failed] Check quantity with index: " + i);
         }
         //Total Amount
-        Assert.assertEquals(orderInManagement.getTotal(),orderDetailExpected.getOrderInfo().getTotalPrice(),"[Failed] Check total amount.");
+        Assert.assertEquals(orderInManagement.getTotal(), orderDetailExpected.getOrderInfo().getTotalPrice(), "[Failed] Check total amount.");
         //Payment method
-        Assert.assertEquals(orderInManagement.getPaymentMethod(),orderDetailExpected.getOrderInfo().getPaymentMethod(),"[Failed] Check payment method.");
+        Assert.assertEquals(orderInManagement.getPaymentMethod(), orderDetailExpected.getOrderInfo().getPaymentMethod(), "[Failed] Check payment method.");
         //Shipping fee
-        if(orderDetailExpected.getOrderInfo().getOriginalShippingFee()!= null)
-            Assert.assertEquals(orderInManagement.getShippingFee(),orderDetailExpected.getOrderInfo().getOriginalShippingFee(),"[Failed] Check shipping fee.");
-        else Assert.assertEquals(orderInManagement.getShippingFee(),0,"[Failed] Check shipping when no shipping fee");
+        if (orderDetailExpected.getOrderInfo().getOriginalShippingFee() != null)
+            Assert.assertEquals(orderInManagement.getShippingFee(), orderDetailExpected.getOrderInfo().getOriginalShippingFee(), "[Failed] Check shipping fee.");
+        else Assert.assertEquals(orderInManagement.getShippingFee(), 0, "[Failed] Check shipping when no shipping fee");
         //Earning point
-        Assert.assertEquals(orderInManagement.getEarningPoint(),orderDetailExpected.getEarningPoint().getValue(),"[Failed] Check earning point.");
+        Assert.assertEquals(orderInManagement.getEarningPoint(), orderDetailExpected.getEarningPoint().getValue(), "[Failed] Check earning point.");
         //Redeem point
-        Assert.assertEquals(orderInManagement.getRedeemPoint(),orderDetailExpected.getOrderInfo().getUsePoint(),"[Failed] Check redeem point.");
+        Assert.assertEquals(orderInManagement.getRedeemPoint(), orderDetailExpected.getOrderInfo().getUsePoint(), "[Failed] Check redeem point.");
         //Discount amount
-        Assert.assertEquals(orderInManagement.getDiscountAmount(), orderDetailExpected.getTotalSummaryDiscounts(),"[Failed] Check discount amount.");
+        Assert.assertEquals(orderInManagement.getDiscountAmount(), orderDetailExpected.getTotalSummaryDiscounts(), "[Failed] Check discount amount.");
         //Branch name
-        Assert.assertEquals(orderInManagement.getBranchName(),orderDetailExpected.getStoreBranch().getName(),"[Failed] Check branch name.");
+        Assert.assertEquals(orderInManagement.getBranchName(), orderDetailExpected.getStoreBranch().getName(), "[Failed] Check branch name.");
         //Payment status
-        Assert.assertEquals(orderInManagement.getPayType(),orderDetailExpected.getOrderInfo().getPayType(),"[Failed] Check pay type.");
+        Assert.assertEquals(orderInManagement.getPayType(), orderDetailExpected.getOrderInfo().getPayType(), "[Failed] Check pay type.");
         //debt
-        Assert.assertEquals(String.format("%.2f",orderInManagement.getDebtAmount()),String.format("%.2f",orderDetailExpected.getOrderInfo().getDebtAmount()),"[Failed] Check debt amounnt.");
+        Assert.assertEquals(String.format("%.2f", orderInManagement.getDebtAmount()), String.format("%.2f", orderDetailExpected.getOrderInfo().getDebtAmount()), "[Failed] Check debt amounnt.");
         //Created by
-        Assert.assertEquals(orderInManagement.getMadeBy(),orderDetailExpected.getOrderInfo().getCreatedBy(),"[Failed] Check created by.");
+        Assert.assertEquals(orderInManagement.getMadeBy(), orderDetailExpected.getOrderInfo().getCreatedBy(), "[Failed] Check created by.");
         //Approve commission date
-        String approveDate= null;
+        String approveDate = null;
         CustomerInfoFull customerInfoFull = new CustomerInfoFull();
-        if(orderDetailExpected.getCustomerInfo().getCustomerId()!=0) {
+        if (orderDetailExpected.getCustomerInfo().getCustomerId() != 0) {
             customerInfoFull = new APICustomerDetail(loginInformation).getFullInfo(orderDetailExpected.getCustomerInfo().getCustomerId());
             approveDate = DataGenerator.getDateByTimeZone(new StoreInformation(loginInformation).getInfo().getTimeZone(), orderInManagement.getApprovedCommissionDate());
         }
@@ -495,81 +499,93 @@ public class APIAllOrders {
         Customer need to has id (not a guest)
         Customer need to be DROPSHIP partner or assigned to partner.
          */
-        if(orderDetailExpected.getOrderInfo().getStatus().equals(DELIVERED.toString())
-                && orderDetailExpected.getCustomerInfo().getCustomerId()!=0 && customerHasApprovedCommisionDate(customerInfoFull)){  //set up auto approve delivery orders.
-                Assert.assertEquals(approveDate,orderDetailExpected.getOrderInfo().getCreateDate(),
-                        "[Failed] Check approve commission date.");
-        }else Assert.assertTrue(approveDate==null,"[Failed] Check order don't have approved commission date.");
+        if (orderDetailExpected.getOrderInfo().getStatus().equals(DELIVERED.toString())
+                && orderDetailExpected.getCustomerInfo().getCustomerId() != 0 && customerHasApprovedCommisionDate(customerInfoFull)) {  //set up auto approve delivery orders.
+            Assert.assertEquals(approveDate, orderDetailExpected.getOrderInfo().getCreateDate(),
+                    "[Failed] Check approve commission date.");
+        } else Assert.assertTrue(approveDate == null, "[Failed] Check order don't have approved commission date.");
         //Staff
-        Assert.assertEquals(orderInManagement.getUserName(),getStaff(),"[Failed] Check staff name.");
+        Assert.assertEquals(orderInManagement.getUserName(), getStaff(), "[Failed] Check staff name.");
         //Delivery method
-        Assert.assertEquals(orderInManagement.getShippingMethod(),orderDetailExpected.getOrderInfo().getDeliveryName(),
+        Assert.assertEquals(orderInManagement.getShippingMethod(), orderDetailExpected.getOrderInfo().getDeliveryName(),
                 "[Failed] Check delivery method.");
         logger.info("Verified order info on order management page.");
     }
-    public String getStaff(){
+
+    public String getStaff() {
         LoginDashboardInfo loginInfo = new Login().getInfo(loginInformation);
-        if(loginInfo.getUserRole().contains("ROLE_STORE"))
+        if (loginInfo.getUserRole().contains("ROLE_STORE"))
             return "Shop Owner";
         return loginInfo.getUserName();
     }
+
     /*
     Custormer has approve commission date: customer need to has partner ID or partnerType = DROP_SHIP
      */
-    public boolean customerHasApprovedCommisionDate( CustomerInfoFull customerInfoFull){
-        logger.info("Partner Id of customer: {}",customerInfoFull.getPartnerId());
-        logger.info("Partner type of customer: {}",customerInfoFull.getPartnerType());
-        return customerInfoFull.getPartnerId()!=null || customerInfoFull.getPartnerType().equals(PartnerType.DROP_SHIP);
+    public boolean customerHasApprovedCommisionDate(CustomerInfoFull customerInfoFull) {
+        logger.info("Partner Id of customer: {}", customerInfoFull.getPartnerId());
+        logger.info("Partner type of customer: {}", customerInfoFull.getPartnerType());
+        return customerInfoFull.getPartnerId() != null || customerInfoFull.getPartnerType().equals(PartnerType.DROP_SHIP.name());
     }
-    public OrderListSummaryVM getOrderListSummary(Channel channel){
-        Response response = new APIAllOrders(loginInformation).getAllOrderResponse(0,"branch=", channel);
+
+    public OrderListSummaryVM getOrderListSummary(Channel channel) {
+        Response response = new APIAllOrders(loginInformation).getAllOrderResponse(0, "branch=", channel);
         OrderListSummaryVM orderListSummaryVM = response.as(OrderListInfo.class).getOrderListSummaryVM();
         orderListSummaryVM.setTotalAmount(GetDataByRegex.getAmountByRegex(response.getHeader("x-total-revenue")));
         return orderListSummaryVM;
     }
-    public void verifyOrderListSummary(OrderListSummaryVM orderListSummaryBefore, OrderDetailInfo newOrderInfo){
+
+    public void verifyOrderListSummary(OrderListSummaryVM orderListSummaryBefore, OrderDetailInfo newOrderInfo) {
         OrderListSummaryVM orderListSummaryExpected = orderListSummaryBefore;
 
         orderListSummaryExpected.setTotalAmount(orderListSummaryBefore.getTotalAmount() + newOrderInfo.getOrderInfo().getTotalPrice());
-        if(newOrderInfo.getOrderInfo().getDebtAmount()>0){
+        if (newOrderInfo.getOrderInfo().getDebtAmount() > 0) {
             orderListSummaryExpected.setCustomerDebt(orderListSummaryBefore.getCustomerDebt() + newOrderInfo.getOrderInfo().getDebtAmount());
-        }else orderListSummaryExpected.setSellerDebt(orderListSummaryBefore.getSellerDebt() + newOrderInfo.getOrderInfo().getDebtAmount());
+        } else
+            orderListSummaryExpected.setSellerDebt(orderListSummaryBefore.getSellerDebt() + newOrderInfo.getOrderInfo().getDebtAmount());
         double receiveAmount = orderListSummaryBefore.getReceivedAmount() + newOrderInfo.getOrderInfo().getReceivedAmount();
         orderListSummaryExpected.setReceivedAmount(receiveAmount);
-        if(newOrderInfo.getOrderInfo().getStatus().equals(DELIVERED.toString()))
+        if (newOrderInfo.getOrderInfo().getStatus().equals(DELIVERED.toString()))
             orderListSummaryExpected.setDeliveredCount(orderListSummaryBefore.getDeliveredCount() + 1);
         else orderListSummaryExpected.setToConfirmCount(orderListSummaryBefore.getToConfirmCount() + 1);
-        Assert.assertEquals(getOrderListSummary(GOSELL).getCancelledCount(),orderListSummaryExpected.getCancelledCount(),"[Failed][order management summary] Check cancelled count ");
-        Assert.assertEquals(getOrderListSummary(GOSELL).getToConfirmCount(), orderListSummaryExpected.getToConfirmCount(),"[Failed][order management summary] Check total toConfirm count");
-        Assert.assertEquals(getOrderListSummary(GOSELL).getShippedCount(), orderListSummaryExpected.getShippedCount(),"[Failed][order management summary] Check shipped count.");
-        Assert.assertEquals(getOrderListSummary(GOSELL).getDeliveredCount(), orderListSummaryExpected.getDeliveredCount(),"[Failed][order management summary] Check delivered count.");
-        Assert.assertEquals(String.format("%.2f",getOrderListSummary(GOSELL).getCustomerDebt()),String.format("%.2f",orderListSummaryExpected.getCustomerDebt()));
-        Assert.assertEquals(String.format("%.2f",getOrderListSummary(GOSELL).getReceivedAmount()), String.format("%.2f",orderListSummaryExpected.getReceivedAmount()),"[Failed][order management summary] Check received amount.");
-        Assert.assertEquals(getOrderListSummary(GOSELL).getShippedCount(), orderListSummaryExpected.getShippedCount(),"[Failed][order management summary] Check shipped count.");
-        Assert.assertEquals(String.format("%.2f",getOrderListSummary(GOSELL).getSellerDebt()), String.format("%.2f",orderListSummaryExpected.getSellerDebt()),"[Failed][order management summary] Check seller debt.");
+        Assert.assertEquals(getOrderListSummary(GOSELL).getCancelledCount(), orderListSummaryExpected.getCancelledCount(), "[Failed][order management summary] Check cancelled count ");
+        Assert.assertEquals(getOrderListSummary(GOSELL).getToConfirmCount(), orderListSummaryExpected.getToConfirmCount(), "[Failed][order management summary] Check total toConfirm count");
+        Assert.assertEquals(getOrderListSummary(GOSELL).getShippedCount(), orderListSummaryExpected.getShippedCount(), "[Failed][order management summary] Check shipped count.");
+        Assert.assertEquals(getOrderListSummary(GOSELL).getDeliveredCount(), orderListSummaryExpected.getDeliveredCount(), "[Failed][order management summary] Check delivered count.");
+        Assert.assertEquals(String.format("%.2f", getOrderListSummary(GOSELL).getCustomerDebt()), String.format("%.2f", orderListSummaryExpected.getCustomerDebt()));
+        Assert.assertEquals(String.format("%.2f", getOrderListSummary(GOSELL).getReceivedAmount()), String.format("%.2f", orderListSummaryExpected.getReceivedAmount()), "[Failed][order management summary] Check received amount.");
+        Assert.assertEquals(getOrderListSummary(GOSELL).getShippedCount(), orderListSummaryExpected.getShippedCount(), "[Failed][order management summary] Check shipped count.");
+        Assert.assertEquals(String.format("%.2f", getOrderListSummary(GOSELL).getSellerDebt()), String.format("%.2f", orderListSummaryExpected.getSellerDebt()), "[Failed][order management summary] Check seller debt.");
 
 //        Assert.assertEquals(getOrderListSummary(GOSELL),orderListSummaryExpected,"[Failed] Check order list summary info.");
         logger.info("Verified order list summary.");
     }
-    public Double getProuctCostOfOrder(long orderId){
-        OrderInManagement orderInManagement = getOrderInfoInManagement(getOrderListInfo(GOSELL),orderId);
+
+    public Double getProuctCostOfOrder(long orderId) {
+        OrderInManagement orderInManagement = getOrderInfoInManagement(getOrderListInfo(GOSELL), orderId);
         return orderInManagement.getTotalCostPrice();
     }
+
     @SneakyThrows
-    public long waitAndGetUntilNewOrderCreated(long orderNewestBeforeCreateOrder, Channel channel){
+    public long waitAndGetUntilNewOrderCreated(long orderNewestBeforeCreateOrder, Channel channel) {
         boolean isUpdated = false;
-        for (int i= 0; i<10;i++){
-            long newestOrderCurrent= Long.parseLong(new APIAllOrders(loginInformation).getOrderListInfo(channel).getResponse().get(0).getId());
-            if(newestOrderCurrent!= orderNewestBeforeCreateOrder) {
-                logger.info("Newest order: "+newestOrderCurrent);
+        for (int i = 0; i < 10; i++) {
+            long newestOrderCurrent = Long.parseLong(new APIAllOrders(loginInformation).getOrderListInfo(channel).getResponse().get(0).getId());
+            if (newestOrderCurrent != orderNewestBeforeCreateOrder) {
+                logger.info("Newest order: " + newestOrderCurrent);
                 return newestOrderCurrent;
             }
             logger.info("Waiting new order show in list.");
             Thread.sleep(1000);
         }
-        if(!isUpdated){
+        if (!isUpdated) {
             throw new Exception("New order not show in list.");
         }
+        return 0;
+    }
+    public long getNewestOrderId(){
+        List<OrderInManagement> orderListInManagement = getOrderListInfo(APIAllOrders.Channel.GOSELL).getResponse();
+        if(orderListInManagement.size()>0) return Long.parseLong(orderListInManagement.get(0).getId());
         return 0;
     }
 }
