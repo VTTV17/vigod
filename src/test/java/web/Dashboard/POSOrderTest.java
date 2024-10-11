@@ -23,7 +23,6 @@ import api.Seller.analytics.APIOrdersAnalytics;
 import api.Seller.cashbook.CashbookAPI;
 import api.Seller.customers.APIAllCustomers;
 import api.Seller.customers.APICustomerDetail;
-import api.Seller.customers.APISegment;
 import api.Seller.customers.APIUpdatePoint;
 import api.Seller.login.Login;
 import api.Seller.orders.order_management.APIAllOrders;
@@ -31,7 +30,6 @@ import api.Seller.orders.order_management.APIAllOrders.OrderStatus;
 import api.Seller.orders.order_management.APIOrderDetail;
 import api.Seller.setting.BranchManagement;
 import utilities.account.AccountTest;
-import utilities.commons.UICommonAction;
 import utilities.data.DataGenerator;
 import utilities.data.testdatagenerator.CreateCustomerTDG;
 import utilities.driver.InitWebdriver;
@@ -67,30 +65,65 @@ public class POSOrderTest extends BaseTest{
 	LoginInformation credentials ;
 	Logger logger = LogManager.getLogger(POSOrderTest.class);
 	
-	int getRandomProfileId(APIAllCustomers allCustomerAPI) {
-		
+	
+	int getRandomCustomerId(APIAllCustomers allCustomerAPI) {
 		//Get a list of profile ids whose saleChannel is GOSELL
 		var profileIdPool = allCustomerAPI.getProfileRecords().stream().filter(pro -> pro.getSaleChannel().contentEquals("GOSELL")).map(id -> id.getId()).toList();
 		
 		//Get a random profileId from the pool
 		return DataGenerator.getRandomListElement(profileIdPool);
 	}
-	
+
 	/**
-	 * Gets user count of a segment
-	 * @param createSegmentAPI
-	 * @param segmentId
-	 * @return the number of users belonging to the segment
+	 * Retrieves detail of a customer
+	 * @param customerDetailAPI
+	 * @param profileId
+	 * @return POJO object representing the customer's detail, 
+	 * or null if the input profileId is less than 1
 	 */
-	int getSegmentUserCount(APISegment createSegmentAPI, int segmentId) {
-		return createSegmentAPI.getSegmentList().stream().filter(it -> it.getId().equals(segmentId)).findFirst().orElse(null).getUserCount();
-	}
+	CustomerInfoFull getCustomerDetail(APICustomerDetail customerDetailAPI, int profileId) {
+		if (profileId < 1) {
+			return null;
+		}
+		return customerDetailAPI.getFullInfo(profileId);
+	}	
+	
 	int calculateEarningPoints(APICustomerDetail customerDetailAPI, CustomerInfoFull customerDetail) {
 	    if (customerDetail ==null || customerDetail.getGuest() || customerDetail.getUserId() == null) {
 	        return 0;
 	    }
 		return customerDetailAPI.getEarningPoint(customerDetail.getUserId());
 	}
+	
+	int setEarningPoints(boolean isWalkInGuest, CustomerInfoFull customerDetail, int existingEarningPoints) {
+		if (isWalkInGuest) {
+			return existingEarningPoints;
+		}
+		if (customerDetail == null) {
+			return existingEarningPoints;
+		}
+		if (customerDetail.getGuest()) {
+			return existingEarningPoints;
+		}
+		if (existingEarningPoints >0) {
+			return existingEarningPoints;
+		}
+		if(customerDetail.getUserId() == null) {
+			return existingEarningPoints;
+		}
+		
+		int point = 1000;
+		new APIUpdatePoint(credentials).addMorePoint(Integer.parseInt(customerDetail.getUserId()), point);
+		return point;
+	}
+
+	CustomerOrderSummary getCustomerOrderSummary(APICustomerDetail customerDetailAPI, int profileId) {
+		if (profileId < 1) {
+			return null;
+		}
+		return customerDetailAPI.getOrderSummary(profileId);
+	}		
+	
 	String getLatestOrderId(APICustomerDetail customerDetailAPI, CustomerInfoFull customerDetail) {
 		if (customerDetail.getUserId() == null) {
 			return "";
@@ -103,6 +136,10 @@ public class POSOrderTest extends BaseTest{
 				.orElse("");
 	}
 	int getLatestDebtRecordId(APICustomerDetail customerDetailAPI, CustomerInfoFull customerDetail) throws JsonMappingException, JsonProcessingException {
+		if (customerDetail ==null) {
+			return -1;
+		}
+		
 		List<CustomerDebtRecord> previousDebtList = customerDetailAPI.getDebtRecords(customerDetail.getId());
 		return previousDebtList.stream()
 				.findFirst()
@@ -241,48 +278,39 @@ public class POSOrderTest extends BaseTest{
 
 		BranchInfo branchInfo = new BranchManagement(credentials).getInfo();
 		String branchName = DataGenerator.getRandomListElement(branchInfo.getBranchName());
+		
 		APIAllCustomers allCustomerAPI = new APIAllCustomers(credentials);
-		CashbookAPI cashbookAPI = new CashbookAPI(credentials);
-		Integer selectedProfileId;
 		APICustomerDetail customerDetailAPI = new APICustomerDetail(credentials);
-		CustomerInfoFull selectedProfile;
-		String customerName ="";
-		int customerId = 0;
-		String userId = null;
-		int previousEarningPoints = 0;
-		CustomerOrderSummary previousOrderSummary;
-		Integer previousTotalOrderCount = 0;
-		BigDecimal previousTotalPurchase = BigDecimal.ZERO;
-		BigDecimal previousTotalPurchaseLast3Months = BigDecimal.ZERO;
-		BigDecimal previousDebtAmount = BigDecimal.ZERO;
-		Integer firstDebtRecordId = -1;
-		boolean isGuestFromProfile = true;
+		
+		CashbookAPI cashbookAPI = new CashbookAPI(credentials);
+		
+		int selectedCustomerId = 0;
+		
+		if(!condition.isWalkInGuest()) {
+			selectedCustomerId = getRandomCustomerId(allCustomerAPI);
+		}
+		
+		CustomerInfoFull selectedProfile = getCustomerDetail(customerDetailAPI, selectedCustomerId);
+		String customerName = (selectedProfile != null) ? selectedProfile.getFullName() : null;
+		String userId = (selectedProfile != null) ? selectedProfile.getUserId() : null;
+		boolean isGuestFromProfile = (selectedProfile != null) ? selectedProfile.getGuest() : true;
+
 		
 		/** Retrieve pre-order data **/
-		if(!condition.isWalkInGuest()) {
-			selectedProfileId = getRandomProfileId(allCustomerAPI);
-			selectedProfile = customerDetailAPI.getFullInfo(selectedProfileId);
-
-			customerName = selectedProfile.getFullName();
-			customerId = selectedProfile.getId();
-			userId = selectedProfile.getUserId();
-			isGuestFromProfile = selectedProfile.getGuest();
-
-			//Earning point
-			previousEarningPoints = calculateEarningPoints(customerDetailAPI, selectedProfile);;
-			//Update earning point if point = 0
-			if(!isGuestFromProfile && previousEarningPoints == 0) new APIUpdatePoint(credentials).addMorePoint(Integer.parseInt(userId),1000);
-			//Order summary
-			previousOrderSummary = customerDetailAPI.getOrderSummary(customerId);
-			previousTotalOrderCount = previousOrderSummary.getTotalOrder();
-			previousTotalPurchase = previousOrderSummary.getTotalPurchase();
-			previousTotalPurchaseLast3Months = previousOrderSummary.getTotalPurchaseLast3Month();
-			previousDebtAmount = previousOrderSummary.getDebtAmount();
-
-			//Debt tab
-			firstDebtRecordId = getLatestDebtRecordId(customerDetailAPI, selectedProfile);
-		}
-
+		//Earning point
+		int previousEarningPoints = calculateEarningPoints(customerDetailAPI, selectedProfile);
+		
+		//Set earning points for later use
+		previousEarningPoints = setEarningPoints(condition.isWalkInGuest(), selectedProfile, previousEarningPoints);
+		
+		CustomerOrderSummary previousOrderSummary = getCustomerOrderSummary(customerDetailAPI, selectedCustomerId);
+		int previousTotalOrderCount = (previousOrderSummary != null) ? previousOrderSummary.getTotalOrder() : 0;
+		BigDecimal previousTotalPurchase = (previousOrderSummary != null) ? previousOrderSummary.getTotalPurchase() : BigDecimal.ZERO;
+		BigDecimal previousTotalPurchaseLast3Months = (previousOrderSummary != null) ? previousOrderSummary.getTotalPurchaseLast3Month() : BigDecimal.ZERO;
+		BigDecimal previousDebtAmount = (previousOrderSummary != null) ? previousOrderSummary.getDebtAmount() : BigDecimal.ZERO;
+		
+		//Debt tab
+		int firstDebtRecordId = getLatestDebtRecordId(customerDetailAPI, selectedProfile);
 		
 		//Cashbook summary
 		List<BigDecimal> previousSummary = cashbookAPI.getCasbookSummary();
@@ -295,7 +323,6 @@ public class POSOrderTest extends BaseTest{
 		
 		/** Place an order in POS **/
 		driver = new InitWebdriver().getDriver(browser, headless);
-		commonAction = new UICommonAction(driver);
 		
 		LoginPage loginPage = new LoginPage(driver);
 		loginPage.navigateToPage(Domain.valueOf(domain),DisplayLanguage.valueOf(language)).performValidLogin(country, credentials.getPhoneNumber(), credentials.getPassword());
@@ -331,9 +358,10 @@ public class POSOrderTest extends BaseTest{
 		//get receive amount
 		Double receivedAmount =  posPage.inputReceiveAmount(condition.getReceivedAmountType());
 
+		
 		/** Organize expected results **/
 		//Order details
-		OrderDetailInfo orderDetailsBeforeCheckout = posPage.getOrderInfoBeforeCheckOut(customerId);
+		OrderDetailInfo orderDetailsBeforeCheckout = posPage.getOrderInfoBeforeCheckOut(selectedCustomerId);
 		Boolean expectedPaidStatus = orderDetailsBeforeCheckout.getOrderInfo().getPaid();
 		String expectedDeliveryStatus = orderDetailsBeforeCheckout.getOrderInfo().getStatus();
 		Integer expectedProductCount = orderDetailsBeforeCheckout.getItems().size();
@@ -365,7 +393,7 @@ public class POSOrderTest extends BaseTest{
 		long orderId = new APIAllOrders(credentials).waitAndGetUntilNewOrderCreated(newestOrderbefore, APIAllOrders.Channel.GOSELL);
 		OrderDetailInfo orderDetailInfo = new APIOrderDetail(credentials).getOrderDetail(orderId);
 		if(condition.isWalkInGuest()){
-			customerId = orderDetailInfo.getCustomerInfo().getCustomerId();
+			selectedCustomerId = orderDetailInfo.getCustomerInfo().getCustomerId();
 			customerName = orderDetailInfo.getCustomerInfo().getName();
 		}
 		//After an order is place, an userId is given to the customer if it's previously undefined
@@ -390,7 +418,7 @@ public class POSOrderTest extends BaseTest{
 		int postEarningPoints = customerDetailAPI.getEarningPoint(userId);
 		
 		//Order summary
-		CustomerOrderSummary postOrderSummary = customerDetailAPI.getOrderSummary(customerId);
+		CustomerOrderSummary postOrderSummary = customerDetailAPI.getOrderSummary(selectedCustomerId);
 		Integer postTotalOrderCount = postOrderSummary.getTotalOrder();
 		BigDecimal postTotalPurchase = postOrderSummary.getTotalPurchase();
 		BigDecimal postTotalPurchaseLast3Months = postOrderSummary.getTotalPurchaseLast3Month();
@@ -398,7 +426,7 @@ public class POSOrderTest extends BaseTest{
 		BigDecimal postDebtAmount = postOrderSummary.getDebtAmount();
 		
 		//Order tab
-		List<CustomerOrder> postOrderList = customerDetailAPI.getOrders(customerId, userId);
+		List<CustomerOrder> postOrderList = customerDetailAPI.getOrders(selectedCustomerId, userId);
 		String postFirstOrderId = postOrderList.get(0).getId(); // 13339499
 		String postOrderChannel = postOrderList.get(0).getChannel(); // GOSELL
 		String postOrderDate = postOrderList.get(0).getCreatedDate().replaceAll("T.*", ""); // 2024-08-26T08:42:29.427377Z
@@ -408,7 +436,7 @@ public class POSOrderTest extends BaseTest{
 		BigDecimal postOrderTotalAmount = postOrderList.get(0).getTotal(); // 221000
 		
 		//Debt tab
-		List<CustomerDebtRecord> postDebtList = customerDetailAPI.getDebtRecords(customerId);
+		List<CustomerDebtRecord> postDebtList = customerDetailAPI.getDebtRecords(selectedCustomerId);
 		Integer postFirstDebtRecordId = postDebtList.stream().findFirst().map(CustomerDebtRecord::getId).orElse(-1);
 		DebtActionEnum postDebtAction = postDebtList.stream().findFirst().map(CustomerDebtRecord::getAction).orElse(DebtActionEnum.POS_NOW_ORDER);
 		BigDecimal postDebtRecordAmount = postDebtList.stream().findFirst().map(CustomerDebtRecord::getAmount).orElse(BigDecimal.ZERO);
