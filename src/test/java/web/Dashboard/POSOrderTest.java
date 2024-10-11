@@ -1,5 +1,10 @@
 package web.Dashboard;
 
+import static utilities.account.AccountTest.ADMIN_PHONE_BIZ_COUNTRY;
+import static utilities.account.AccountTest.ADMIN_PHONE_BIZ_PASSWORD;
+import static utilities.account.AccountTest.ADMIN_PHONE_BIZ_USERNAME;
+import static utilities.account.AccountTest.ADMIN_SHOP_VI_PASSWORD;
+import static utilities.account.AccountTest.ADMIN_SHOP_VI_USERNAME;
 import static utilities.account.AccountTest.STAFF_SHOP_VI_PASSWORD;
 import static utilities.account.AccountTest.STAFF_SHOP_VI_USERNAME;
 
@@ -8,13 +13,18 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.testng.Assert;
 import org.testng.ITestResult;
-import org.testng.annotations.*;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -28,6 +38,12 @@ import api.Seller.login.Login;
 import api.Seller.orders.order_management.APIAllOrders;
 import api.Seller.orders.order_management.APIAllOrders.OrderStatus;
 import api.Seller.orders.order_management.APIOrderDetail;
+import api.Seller.products.all_products.APIAddConversionUnit;
+import api.Seller.products.all_products.APICreateProduct;
+import api.Seller.products.all_products.APIProductDetailV2;
+import api.Seller.products.all_products.WholesaleProduct;
+import api.Seller.products.lot_date.APICreateLotDate;
+import api.Seller.products.lot_date.APIEditLotDate;
 import api.Seller.setting.BranchManagement;
 import utilities.account.AccountTest;
 import utilities.data.DataGenerator;
@@ -55,8 +71,6 @@ import web.Dashboard.home.HomePage;
 import web.Dashboard.login.LoginPage;
 import web.Dashboard.orders.pos.create_order.POSPage;
 
-import static utilities.account.AccountTest.*;
-
 public class POSOrderTest extends BaseTest {
     String country;
     String phoneCode;
@@ -65,6 +79,55 @@ public class POSOrderTest extends BaseTest {
     LoginInformation credentials;
     Logger logger = LogManager.getLogger(POSOrderTest.class);
 
+    
+    private List<Integer> createProductForPOSCart(LoginInformation loginInformation, BranchInfo branchInfo, int stockQuantity) {
+        long MAX_PRICE = 999999L;
+
+        // Create lot
+        int lotId = new APICreateLotDate(loginInformation).createLotDateAndGetLotId();
+
+        // Init cart items
+        List<Integer> items = new ArrayList<>();
+
+        // Init stock
+        int[] stock = new int[branchInfo.getBranchID().size()];
+        Arrays.fill(stock, stockQuantity);
+
+        // Init API create product
+        APICreateProduct apiCreateProduct = new APICreateProduct(loginInformation);
+
+        // Create lot product
+        int withoutVariationProductIdWithLot = apiCreateProduct.setLotAvailable(true).createWithoutVariationProduct(false, stock).getProductID();
+        int withVariationProductIdWithLot = apiCreateProduct.setLotAvailable(true).createVariationProduct(false, 0, stock).getProductID();
+
+        // Create conversion unit
+        int withoutVariationProductIdWithConversionUnit = apiCreateProduct.createWithoutVariationProduct(false, stock).getProductID();
+        int withVariationProductIdWithConversionUnit = apiCreateProduct.createVariationProduct(false, 0, stock).getProductID();
+
+        // Create without variation product
+        int productWholesaleId = apiCreateProduct.createWithoutVariationProduct(false, stock).getProductID();
+        items.add(productWholesaleId);
+        items.add(apiCreateProduct.createWithoutVariationProduct(true, stock).getProductID());
+        new WholesaleProduct(loginInformation).addWholesalePriceProduct(new APIProductDetailV2(loginInformation).getInfo(productWholesaleId));
+
+        // Create with variation product
+        items.add(apiCreateProduct.createVariationProduct(false, 0, stock).getProductID());
+        items.add(apiCreateProduct.createVariationProduct(true, 0, stock).getProductID());
+
+        // Add product to lot and update stock
+        new APIEditLotDate(loginInformation).addProductIntoLot(lotId, withoutVariationProductIdWithLot, 5);
+        new APIEditLotDate(loginInformation).addProductIntoLot(lotId, withVariationProductIdWithLot, 5);
+        items.add(withoutVariationProductIdWithLot);
+        items.add(withVariationProductIdWithLot);
+
+        // Add conversion unit to product
+        new APIAddConversionUnit(loginInformation).addConversionUnitToProduct(withoutVariationProductIdWithConversionUnit);
+        new APIAddConversionUnit(loginInformation).addConversionUnitToProduct(withVariationProductIdWithConversionUnit);
+        items.add(withoutVariationProductIdWithConversionUnit);
+        items.add(withVariationProductIdWithConversionUnit);
+
+        return items;
+    }    
 
     int getRandomCustomerId(APIAllCustomers allCustomerAPI) {
         //Get a list of profile ids whose saleChannel is GOSELL
@@ -76,14 +139,13 @@ public class POSOrderTest extends BaseTest {
 
     /**
      * Retrieves detail of a customer
-     *
      * @param customerDetailAPI
-     * @param profileId
+     * @param profileId id of the customer - 0 for walk-in guest
      * @return POJO object representing the customer's detail,
-     * or null if the input profileId is less than 1
+     * or null if that's a walk-in guest
      */
     CustomerInfoFull getCustomerDetail(APICustomerDetail customerDetailAPI, int profileId) {
-        if (profileId < 1) {
+    	if (profileId == 0) {
             return null;
         }
         return customerDetailAPI.getFullInfo(profileId);
@@ -96,7 +158,15 @@ public class POSOrderTest extends BaseTest {
         return customerDetailAPI.getEarningPoint(customerDetail.getUserId());
     }
 
-    int setEarningPoints(boolean isWalkInGuest, CustomerInfoFull customerDetail, int existingEarningPoints) {
+    /**
+     * Sets earning point for a customer so that he can redeem it when buying products.
+     * When the customer already has some points, we don't give him points
+     * @param isWalkInGuest
+     * @param customerDetail
+     * @param existingEarningPoints
+     * @return the number of points given to the customer. 1000 by default
+     */
+    int setEarningPointsWhenNeeded(boolean isWalkInGuest, CustomerInfoFull customerDetail, int existingEarningPoints) {
         if (isWalkInGuest) {
             return existingEarningPoints;
         }
@@ -119,7 +189,7 @@ public class POSOrderTest extends BaseTest {
     }
 
     CustomerOrderSummary getCustomerOrderSummary(APICustomerDetail customerDetailAPI, int profileId) {
-        if (profileId < 1) {
+    	if (profileId == 0) {
             return null;
         }
         return customerDetailAPI.getOrderSummary(profileId);
@@ -169,7 +239,6 @@ public class POSOrderTest extends BaseTest {
     }
 
     public int workoutExpectedTotalOrderCount(Integer previousTotalOrderCount, OrderDetailInfo orderDetailsBeforeCheckout) {
-
         var orderStatus = OrderStatus.valueOf(orderDetailsBeforeCheckout.getOrderInfo().getStatus()); //DELIVERED/TO_SHIP
 
         if (orderStatus.equals(OrderStatus.DELIVERED)) {
@@ -179,23 +248,19 @@ public class POSOrderTest extends BaseTest {
     }
 
     public BigDecimal workoutExpectedTotalPurchase(BigDecimal previousTotalPurchase, OrderDetailInfo orderDetailsBeforeCheckout) {
-
-        double uiTotalOrderAmount = orderDetailsBeforeCheckout.getOrderInfo().getTotalPrice();
-
         var orderStatus = OrderStatus.valueOf(orderDetailsBeforeCheckout.getOrderInfo().getStatus()); //DELIVERED/TO_SHIP
 
         if (orderStatus.equals(OrderStatus.DELIVERED)) {
-            return previousTotalPurchase.add(BigDecimal.valueOf(uiTotalOrderAmount));
+            return previousTotalPurchase.add(BigDecimal.valueOf(orderDetailsBeforeCheckout.getOrderInfo().getTotalPrice()));
         }
         return previousTotalPurchase;
     }
 
     public BigDecimal workoutExpectedTotalPurchaseLast3Months(BigDecimal previousTotalPurchaseLast3Months, OrderDetailInfo orderDetailsBeforeCheckout) {
-        double uiTotalOrderAmount = orderDetailsBeforeCheckout.getOrderInfo().getTotalPrice();
         var orderStatus = OrderStatus.valueOf(orderDetailsBeforeCheckout.getOrderInfo().getStatus()); //DELIVERED/TO_SHIP
 
         if (orderStatus.equals(OrderStatus.DELIVERED)) {
-            return previousTotalPurchaseLast3Months.add(BigDecimal.valueOf(uiTotalOrderAmount));
+            return previousTotalPurchaseLast3Months.add(BigDecimal.valueOf(orderDetailsBeforeCheckout.getOrderInfo().getTotalPrice()));
         }
         return previousTotalPurchaseLast3Months;
     }
@@ -286,17 +351,25 @@ public class POSOrderTest extends BaseTest {
         AnalyticsOrderSummaryInfo ordersAnalyticsSummaryBefore = new APIOrdersAnalytics(credentials).getOrderAnalyticsSummary(timeFrame);
         OrderListSummaryVM orderListSummaryBefore = new APIAllOrders(credentials).getOrderListSummary(APIAllOrders.Channel.GOSELL);
 
+        //Get branch info
         BranchInfo branchInfo = new BranchManagement(credentials).getInfo();
         String branchName = DataGenerator.getRandomListElement(branchInfo.getBranchName());
 
+        // Set stock quantity
+        int stockQuantity = 5;
+        // Create products for test
+        List<Integer> productIds = createProductForPOSCart(credentials, branchInfo, stockQuantity);
+        
         APIAllCustomers allCustomerAPI = new APIAllCustomers(credentials);
         APICustomerDetail customerDetailAPI = new APICustomerDetail(credentials);
 
         CashbookAPI cashbookAPI = new CashbookAPI(credentials);
 
+        //Walk-in guest is 0
         int selectedCustomerId = 0;
 
         if (!condition.isWalkInGuest()) {
+        	//Existing customers
             selectedCustomerId = getRandomCustomerId(allCustomerAPI);
         }
 
@@ -311,7 +384,7 @@ public class POSOrderTest extends BaseTest {
         int previousEarningPoints = calculateEarningPoints(customerDetailAPI, selectedProfile);
 
         //Set earning points for later use
-        previousEarningPoints = setEarningPoints(condition.isWalkInGuest(), selectedProfile, previousEarningPoints);
+        previousEarningPoints = setEarningPointsWhenNeeded(condition.isWalkInGuest(), selectedProfile, previousEarningPoints);
 
         CustomerOrderSummary previousOrderSummary = getCustomerOrderSummary(customerDetailAPI, selectedCustomerId);
         int previousTotalOrderCount = (previousOrderSummary != null) ? previousOrderSummary.getTotalOrder() : 0;
@@ -344,11 +417,13 @@ public class POSOrderTest extends BaseTest {
         posPage.selectBranch(branchName);
 
         // Add product to cart
-        posPage.selectProduct(credentials, List.of(1284713));// 1058837
+        posPage.selectProduct(credentials, productIds);
+        
         //Select customer
         if (!condition.isWalkInGuest()) posPage.selectCustomer(customerName);
         posPage.selectPaymentMethod(condition.getPaymentMethod());
         posPage.selectDelivery(condition.isHasDelivery(), CreateCustomerTDG.buildVNCustomerUIData(DisplayLanguage.valueOf(language)));
+        
         //apply discount
         if (condition.isApplyPromotion()) {
             posPage.applyDiscount();
@@ -359,12 +434,14 @@ public class POSOrderTest extends BaseTest {
                 new HomePage(driver).waitTillLoadingDotsDisappear();
             }
         }
+        
         //input use point
         if (!isGuestFromProfile) {
             posPage.inputUsePoint(condition.getUsePointType());
             //config not apply earnPoint
             posPage.configApplyEarningPoint(condition.isHasEarnPoint());
         }
+        
         //get receive amount
         Double receivedAmount = posPage.inputReceiveAmount(condition.getReceivedAmountType());
 
@@ -400,6 +477,7 @@ public class POSOrderTest extends BaseTest {
 
         //Order date is the moment the order is placed successfully
         String expectedOrderDate = LocalDate.now(ZoneId.of("UTC")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        
         //Get order detail
         long orderId = new APIAllOrders(credentials).waitAndGetUntilNewOrderCreated(newestOrderbefore, APIAllOrders.Channel.GOSELL);
         OrderDetailInfo orderDetailInfo = new APIOrderDetail(credentials).getOrderDetail(orderId);
@@ -407,6 +485,7 @@ public class POSOrderTest extends BaseTest {
             selectedCustomerId = orderDetailInfo.getCustomerInfo().getCustomerId();
             customerName = orderDetailInfo.getCustomerInfo().getName();
         }
+        
         //After an order is place, an userId is given to the customer if it's previously undefined
         userId = (userId == null) ? String.valueOf(orderDetailInfo.getCustomerInfo().getUserId()) : userId;
 
@@ -477,9 +556,11 @@ public class POSOrderTest extends BaseTest {
         //Verify Order detail
         new APIOrderDetail(credentials, language).verifyOrderDetailAPI(orderDetailsBeforeCheckout, orderId)
                 .verifyPaymentHistoryAfterCreateOrder(orderId, orderDetailsBeforeCheckout.getOrderInfo().getReceivedAmount(), condition.getReceivedAmountType());
+        
         //Verify order in management
         new APIAllOrders(credentials, language).verifyOrderInManagement(orderDetailsBeforeCheckout, orderId);
         new APIAllOrders(credentials, language).verifyOrderListSummary(orderListSummaryBefore, orderDetailsBeforeCheckout);
+       
         //Verify order analytic
         new APIOrdersAnalytics(credentials).waitOrderAnalyticsUpdateData(ordersAnalyticsSummaryBefore.getTotalOrders(), timeFrame);
         new APIOrdersAnalytics(credentials).verifyOrderAnalyticAfterCreateOrder(ordersAnalyticsSummaryBefore, orderDetailInfo, timeFrame, productCost);
@@ -532,8 +613,6 @@ public class POSOrderTest extends BaseTest {
         } else {
             Assert.assertEquals(firstPostTransactionCodeId, firstTransactionCodeId, "Latest transaction code id");
         }
-
-        driver.quit();
     }
 
     @AfterMethod

@@ -28,7 +28,7 @@ public class CustomerInfoFull {
     private String userId;
     private Integer totalOrder;
     private Double totalPurchase;
-    private Integer averangePurchase;
+    private Double averangePurchase;
     private Integer numberOfFbUsers;
     private Integer numberOfZaloUsers;
     private Boolean guest;
