@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import lombok.Data;
 
+import java.time.LocalDateTime;
 import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @Data
@@ -26,6 +27,7 @@ public class OrderDetailInfo {
     private BcOrderGroup bcOrderGroup;
     private Boolean isMPOSRefund;
     private Boolean newOrder;
+    private OrderBankInfo orderBankInfo;
 }
 
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
@@ -42,4 +44,20 @@ class BcOrderGroup {
     private Long totalQuantity;
     private double totalPrice;
     private Boolean withSameProviderShouldReturnTheCheapest;
+}
+@JsonInclude(JsonInclude.Include.NON_DEFAULT)
+@Data
+class OrderBankInfo{
+    private long id;
+    private String nameHolder;
+    private String accountNumber;
+    private String bankName;
+    private String countryCode;
+    private String swiftCode;
+    private String routingNumber;
+    private String createdBy;
+    private String createdDate;
+    private String lastModifiedBy;
+    private String lastModifiedDate;
+    private long bcOrderId;
 }

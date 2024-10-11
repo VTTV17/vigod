@@ -60,7 +60,7 @@ import web.Dashboard.orders.pos.create_order.POSPage;
 import static utilities.account.AccountTest.*;
 
 public class POSOrderTest extends BaseTest{
-	String country = "Vietnam";
+	String country ;
 	String phoneCode ;
 	String username = ADMIN_SHOP_VI_USERNAME;
 	String pass = ADMIN_SHOP_VI_PASSWORD;
@@ -178,9 +178,9 @@ public class POSOrderTest extends BaseTest{
 			username = ADMIN_SHOP_VI_USERNAME;
 			pass = ADMIN_SHOP_VI_PASSWORD;
 		} else {
-			country = AccountTest.ADMIN_PHONE_BIZ_COUNTRY;
-			username = AccountTest.ADMIN_PHONE_BIZ_USERNAME;
-			pass = AccountTest.ADMIN_PHONE_BIZ_PASSWORD;
+			country = ADMIN_PHONE_BIZ_COUNTRY;
+			username = ADMIN_PHONE_BIZ_USERNAME;
+			pass = ADMIN_PHONE_BIZ_PASSWORD;
 		}
 		phoneCode = DataGenerator.getPhoneCode(country);
 		credentials = new Login().setLoginInformation(phoneCode, username, pass).getLoginInformation();
@@ -190,18 +190,18 @@ public class POSOrderTest extends BaseTest{
 	public Object[][] dataTest(){
 		return new Object[][]{
 				// Seller create order
-//				{new CreatePOSOrderCondition(true,false,false,POSPage.UsePointType.NONE,ReceivedAmountType.NONE,true,false, POSPage.POSPaymentMethod.CASH),TimeFrame.TODAY},   //guest checkout, no delivery
+				{new CreatePOSOrderCondition(true,false,false,POSPage.UsePointType.NONE,ReceivedAmountType.NONE,true,false, POSPage.POSPaymentMethod.CASH),TimeFrame.TODAY},   //guest checkout, no delivery
 //				{new CreatePOSOrderCondition(true,true,false,POSPage.UsePointType.NONE,ReceivedAmountType.NONE,true,false, POSPage.POSPaymentMethod.CASH),TimeFrame.TODAY},   //guest checkout, has delivery
 //				{new CreatePOSOrderCondition(false,false,false,POSPage.UsePointType.SERVERAL,ReceivedAmountType.NONE,true,false, POSPage.POSPaymentMethod.CASH),TimeFrame.TODAY}, // checkout with customer, no delivery.
 //				{new CreatePOSOrderCondition(false,true,false,POSPage.UsePointType.SERVERAL,ReceivedAmountType.NONE,true,false, POSPage.POSPaymentMethod.CASH),TimeFrame.TODAY},  //checkout customer, has delivery
 //				{new CreatePOSOrderCondition(false,true,false,POSPage.UsePointType.SERVERAL,ReceivedAmountType.NONE,false,false, POSPage.POSPaymentMethod.CASH),TimeFrame.TODAY}, // no apply earn point
 //				{new CreatePOSOrderCondition(false,false,false,POSPage.UsePointType.NONE,ReceivedAmountType.NONE,false,true, POSPage.POSPaymentMethod.CASH),TimeFrame.TODAY},    // apply promotion, no delivery
 //				{new CreatePOSOrderCondition(false,true,false,POSPage.UsePointType.SERVERAL,ReceivedAmountType.NONE,true,true, POSPage.POSPaymentMethod.CASH),TimeFrame.TODAY},    // apply promotion, has delivery
-                {new CreatePOSOrderCondition(false, false, false, POSPage.UsePointType.NONE, ReceivedAmountType.PARTIAL, false, true, POSPage.POSPaymentMethod.CASH), TimeFrame.TODAY},   //receive amount = partial
-//				{new CreatePOSOrderCondition(false,false,false,POSPage.UsePointType.NONE,ReceivedAmountType.FULL,false,true, POSPage.POSPaymentMethod.CASH),TimeFrame.TODAY}, //receive amount = full
+//				{new CreatePOSOrderCondition(false,false,false,POSPage.UsePointType.NONE,ReceivedAmountType.PARTIAL,false,true, POSPage.POSPaymentMethod.CASH),TimeFrame.TODAY},   //receive amount = partial
+//				{new CreatePOSOrderCondition(false,true,false,POSPage.UsePointType.NONE,ReceivedAmountType.FULL,false,true, POSPage.POSPaymentMethod.CASH),TimeFrame.TODAY}, //receive amount = full
 //				{new CreatePOSOrderCondition(false,false,false,POSPage.UsePointType.NONE,ReceivedAmountType.FULL,false,true, POSPage.POSPaymentMethod.BANK_TRANSFER),TimeFrame.TODAY}, //Payment method = bank transfer
 //				{new CreatePOSOrderCondition(false,false,false,POSPage.UsePointType.MAX_ORDER,ReceivedAmountType.FULL,false,true, POSPage.POSPaymentMethod.BANK_TRANSFER),TimeFrame.TODAY}, //POSPage.UsePointType.MAX_ORDER
-//				{new CreatePOSOrderCondition(true,false,false,POSPage.UsePointType.NONE,ReceivedAmountType.FULL,true,true, POSPage.POSPaymentMethod.CASH),TimeFrame.YESTERDAY},   //guest checkout, no delivery, apply direct discount
+				{new CreatePOSOrderCondition(true,false,false,POSPage.UsePointType.NONE,ReceivedAmountType.FULL,true,true, POSPage.POSPaymentMethod.CASH),TimeFrame.YESTERDAY},   //guest checkout, no delivery, apply direct discount
 //				{new CreatePOSOrderCondition(false,false ,false,POSPage.UsePointType.MAX_AVAILABLE,ReceivedAmountType.FULL,false,true, POSPage.POSPaymentMethod.CASH),TimeFrame.TODAY}, //POSPage.UsePointType.MAX_AVAILABLE
 //				{new CreatePOSOrderCondition(false,false,false,POSPage.UsePointType.SERVERAL,ReceivedAmountType.FULL,false,true, POSPage.POSPaymentMethod.CASH),TimeFrame.THIS_WEEK}, //TimeFrame.THIS_WEEK
 //				{new CreatePOSOrderCondition(false,false,false,POSPage.UsePointType.SERVERAL,ReceivedAmountType.FULL,false,true, POSPage.POSPaymentMethod.CASH),TimeFrame.THIS_MONTH},   //TimeFrame.THIS_MONTH
@@ -227,7 +227,6 @@ public class POSOrderTest extends BaseTest{
 	}
 	@Test(dataProvider = "dataTest")
 	public void TC_CheckCustomerInfoPostOrder(CreatePOSOrderCondition condition, TimeFrame timeFrame) throws JsonMappingException, JsonProcessingException {
-		System.out.println("Combination being executed: %s".formatted(condition));
 		logger.info("Combination being executed: "+condition);
 		logger.info("Run with timeframe: "+timeFrame);
 		/** Test case input **/
@@ -262,7 +261,6 @@ public class POSOrderTest extends BaseTest{
 		/** Retrieve pre-order data **/
 		if(!condition.isWalkInGuest()) {
 			selectedProfileId = getRandomProfileId(allCustomerAPI);
-
 			selectedProfile = customerDetailAPI.getFullInfo(selectedProfileId);
 
 			customerName = selectedProfile.getFullName();
@@ -309,7 +307,7 @@ public class POSOrderTest extends BaseTest{
 		posPage.selectBranch(branchName);
 
 		// Add product to cart
-		posPage.selectProduct(credentials, List.of(1058837));//1284713
+		posPage.selectProduct(credentials, List.of(1284713));// 1058837
 		//Select customer
 		if(!condition.isWalkInGuest()) posPage.selectCustomer(customerName);
 		posPage.selectPaymentMethod(condition.getPaymentMethod());
@@ -368,6 +366,7 @@ public class POSOrderTest extends BaseTest{
 		OrderDetailInfo orderDetailInfo = new APIOrderDetail(credentials).getOrderDetail(orderId);
 		if(condition.isWalkInGuest()){
 			customerId = orderDetailInfo.getCustomerInfo().getCustomerId();
+			customerName = orderDetailInfo.getCustomerInfo().getName();
 		}
 		//After an order is place, an userId is given to the customer if it's previously undefined
 		userId = (userId ==null) ? String.valueOf(orderDetailInfo.getCustomerInfo().getUserId()) : userId;
