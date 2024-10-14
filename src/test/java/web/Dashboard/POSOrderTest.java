@@ -281,6 +281,20 @@ public class POSOrderTest extends BaseTest {
         return CashbookRevenue.DEBT_COLLECTION_FROM_CUSTOMER.name();
     }
 
+    void verifyCustomerOrderSummary(CustomerOrderSummary postOrderSummary, int expectedTotalOrderCount, BigDecimal expectedTotalPurchase, BigDecimal expectedTotalPurchaseLast3Months, BigDecimal expectedAverageOrderValue, BigDecimal expectedDebtAmount) {
+        int postTotalOrderCount = postOrderSummary.getTotalOrder();
+        var postTotalPurchase = postOrderSummary.getTotalPurchase();
+        var postTotalPurchaseLast3Months = postOrderSummary.getTotalPurchaseLast3Month();
+        var postAverageOrderValue = postOrderSummary.getAverangePurchase();
+        var postDebtAmount = postOrderSummary.getDebtAmount();
+        
+        Assert.assertEquals(postTotalOrderCount, expectedTotalOrderCount, "Total order count");
+        Assert.assertTrue(postTotalPurchase.compareTo(expectedTotalPurchase) == 0, "Total purchase expected: " + expectedTotalPurchase + ", but got: " + postTotalPurchase);
+        Assert.assertTrue(postTotalPurchaseLast3Months.compareTo(expectedTotalPurchaseLast3Months) == 0, "Total purchase last 3 months expected: " + expectedTotalPurchaseLast3Months + ", but got: " + postTotalPurchaseLast3Months);
+        Assert.assertTrue(postAverageOrderValue.compareTo(expectedAverageOrderValue) == 0, "Average order value: " + expectedAverageOrderValue + ", but got: " + postAverageOrderValue);
+        Assert.assertTrue(postDebtAmount.compareTo(expectedDebtAmount) == 0, "Debt amount expected: " + expectedDebtAmount + ", but got: " + postDebtAmount);
+    }     
+    
     /**
      * Verifies Cashbook summary after orders are successfully made on POS.
      * When receivedAmount =0, there won't be any changes in the summary data
@@ -508,7 +522,7 @@ public class POSOrderTest extends BaseTest {
         int expectedEarningPoints = calculateExpectedEarningPoints(previousEarningPoints, orderDetailsBeforeCheckout);
 
         //Order summary
-        Integer expectedTotalOrderCount = workoutExpectedTotalOrderCount(previousTotalOrderCount, orderDetailsBeforeCheckout);
+        int expectedTotalOrderCount = workoutExpectedTotalOrderCount(previousTotalOrderCount, orderDetailsBeforeCheckout);
         BigDecimal expectedTotalPurchase = workoutExpectedTotalPurchase(previousTotalPurchase, orderDetailsBeforeCheckout);
         BigDecimal expectedTotalPurchaseLast3Months = workoutExpectedTotalPurchaseLast3Months(previousTotalPurchaseLast3Months, orderDetailsBeforeCheckout);
         BigDecimal expectedAverageOrderValue = workoutExpectedAverageOrderValue(new BigDecimal(expectedTotalOrderCount), expectedTotalPurchase);
@@ -557,11 +571,6 @@ public class POSOrderTest extends BaseTest {
 
         //Order summary
         CustomerOrderSummary postOrderSummary = customerDetailAPI.getOrderSummary(selectedCustomerId);
-        Integer postTotalOrderCount = postOrderSummary.getTotalOrder();
-        BigDecimal postTotalPurchase = postOrderSummary.getTotalPurchase();
-        BigDecimal postTotalPurchaseLast3Months = postOrderSummary.getTotalPurchaseLast3Month();
-        BigDecimal postAverageOrderValue = postOrderSummary.getAverangePurchase();
-        BigDecimal postDebtAmount = postOrderSummary.getDebtAmount();
 
         //Order tab
         List<CustomerOrder> postOrderList = customerDetailAPI.getOrders(selectedCustomerId, userId);
@@ -608,12 +617,8 @@ public class POSOrderTest extends BaseTest {
         Assert.assertEquals(postEarningPoints, expectedEarningPoints, "Earning points");
 
         //Order summary
-        Assert.assertEquals(postTotalOrderCount, expectedTotalOrderCount, "Total order count");
-        Assert.assertTrue(postTotalPurchase.compareTo(expectedTotalPurchase) == 0, "Total purchase expected: " + expectedTotalPurchase + ", but got: " + postTotalPurchase);
-        Assert.assertTrue(postTotalPurchaseLast3Months.compareTo(expectedTotalPurchaseLast3Months) == 0, "Total purchase last 3 months expected: " + expectedTotalPurchaseLast3Months + ", but got: " + postTotalPurchaseLast3Months);
-        Assert.assertTrue(postAverageOrderValue.compareTo(expectedAverageOrderValue) == 0, "Average order value: " + expectedAverageOrderValue + ", but got: " + postAverageOrderValue);
-        Assert.assertTrue(postDebtAmount.compareTo(expectedDebtAmount) == 0, "Debt amount expected: " + expectedDebtAmount + ", but got: " + postDebtAmount);
-
+        verifyCustomerOrderSummary(postOrderSummary, expectedTotalOrderCount, expectedTotalPurchase, expectedTotalPurchaseLast3Months, expectedAverageOrderValue, expectedDebtAmount);
+        
         //Order tab
         Assert.assertEquals(postFirstOrderId, String.valueOf(orderId), "Latest order record id");
         Assert.assertEquals(postOrderChannel, "GOSELL", "Sale channel");
