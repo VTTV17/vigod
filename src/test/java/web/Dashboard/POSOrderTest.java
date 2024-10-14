@@ -81,7 +81,6 @@ public class POSOrderTest extends BaseTest {
 
     
     private List<Integer> createProductForPOSCart(LoginInformation loginInformation, BranchInfo branchInfo, int stockQuantity) {
-        long MAX_PRICE = 999999L;
 
         // Create lot
         int lotId = new APICreateLotDate(loginInformation).createLotDateAndGetLotId();
@@ -274,7 +273,7 @@ public class POSOrderTest extends BaseTest {
 
     public String workoutExpectedCashbookRecordSourceType(boolean isDeliveryOpted, BigDecimal debt) {
         if (isDeliveryOpted)
-            return CashbookRevenue.DEBT_COLLECTION_FROM_SUPPLIER.name();
+            return CashbookRevenue.DEBT_COLLECTION_FROM_CUSTOMER.name();
 
         if (debt.compareTo(BigDecimal.ZERO) == 0)
             return CashbookRevenue.PAYMENT_FOR_ORDER.name();
@@ -282,6 +281,60 @@ public class POSOrderTest extends BaseTest {
         return CashbookRevenue.DEBT_COLLECTION_FROM_CUSTOMER.name();
     }
 
+    /**
+     * Verifies Cashbook summary after orders are successfully made on POS.
+     * When receivedAmount =0, there won't be any changes in the summary data
+     * @param previousSummary
+     * @param postSummary
+     * @param receivedAmount
+     */
+    void verifyCashbookSummary(List<BigDecimal> previousSummary, List<BigDecimal> postSummary, BigDecimal receivedAmount) {
+        var expectedTotalRevenue = previousSummary.get(1).add(receivedAmount);
+        var expectedEndingBalance = previousSummary.get(3).add(receivedAmount);
+    	
+        var postTotalRevenue = postSummary.get(1);
+        var postEndingBalance = postSummary.get(3);
+        
+        Assert.assertTrue(postTotalRevenue.compareTo(expectedTotalRevenue) == 0, "Total revenue: " + expectedTotalRevenue + ", but got: " + postTotalRevenue);
+		Assert.assertTrue(postEndingBalance.compareTo(expectedEndingBalance) == 0, "Ending balance: " + expectedEndingBalance + ", but got: " + postEndingBalance);
+    } 
+    
+    void verifyNoCashbookRecordsGeneratedPostOrder(List<CashbookRecord> previousRecordList, List<CashbookRecord> postRecordList) {
+    	Assert.assertEquals(postRecordList, previousRecordList);
+    }
+    void verifyNewCashbookRecordsGeneratedPostOrder(List<CashbookRecord> previousRecordList, List<CashbookRecord> postRecordList, CashbookRecord expectedRecord) {
+    	var postRecord = postRecordList.get(0);
+    	
+    	if (!previousRecordList.isEmpty()) {
+    		//There exists records pre-order
+    		Assert.assertNotEquals(previousRecordList.get(0), postRecord, "Latest transaction id");
+    	}
+    	
+    	Assert.assertEquals(postRecord.getCreatedDate().replaceAll("T.*", ""), expectedRecord.getCreatedDate(), "Cashbook record created date");
+    	Assert.assertEquals(postRecord.getGroupType(), expectedRecord.getGroupType(), "Cashbook record group type");
+    	Assert.assertEquals(postRecord.getCustomerName(), expectedRecord.getCustomerName(), "Cashbook record customer name");
+    	Assert.assertEquals(postRecord.getSourceType(), expectedRecord.getSourceType(), "Cashbook record source type");
+    	Assert.assertEquals(postRecord.getBranchName(), expectedRecord.getBranchName(), "Cashbook record branch");
+    	Assert.assertTrue(postRecord.getAmount().compareTo(expectedRecord.getAmount()) == 0, 
+    	     "Cashbook record amount: " + expectedRecord.getAmount() + ", but got: " + postRecord.getAmount());
+    	Assert.assertEquals(postRecord.getPaymentMethod(), expectedRecord.getPaymentMethod(), "Cashbook record payment method");    	
+    }
+    /**
+     * Verifies whether Cashbook records are generated after orders are successfully made on POS.
+     * When receivedAmount =0, there won't be any records.
+     * @param receivedAmount
+     * @param previousRecordList
+     * @param postRecordList
+     * @param expectedRecord
+     */
+    void verifyCashbookRecord(BigDecimal receivedAmount, List<CashbookRecord> previousRecordList, List<CashbookRecord> postRecordList, CashbookRecord expectedRecord) {
+    	if (receivedAmount.compareTo(BigDecimal.ZERO) ==0) {
+    		verifyNoCashbookRecordsGeneratedPostOrder(previousRecordList, postRecordList);
+    	} else {
+    		verifyNewCashbookRecordsGeneratedPostOrder(previousRecordList, postRecordList, expectedRecord);
+    	}
+    }
+    
     @BeforeClass
     public void beforeClass() {
         if (Domain.valueOf(domain).equals(Domain.VN)) {
@@ -397,11 +450,9 @@ public class POSOrderTest extends BaseTest {
 
         //Cashbook summary
         List<BigDecimal> previousSummary = cashbookAPI.getCasbookSummary();
-        BigDecimal previousTotalRevenue = previousSummary.get(1);
-        BigDecimal previousEndingBalance = previousSummary.get(3);
 
         //Cashbook record
-        String firstTransactionCodeId = getLatestCashbookRecordId(cashbookAPI);
+        List<CashbookRecord> previousCashbookRecords = cashbookAPI.getAllRecords();
 
 
         /** Place an order in POS **/
@@ -489,18 +540,15 @@ public class POSOrderTest extends BaseTest {
         //After an order is place, an userId is given to the customer if it's previously undefined
         userId = (userId == null) ? String.valueOf(orderDetailInfo.getCustomerInfo().getUserId()) : userId;
 
-        //Cashbook summary
-        BigDecimal expectedTotalRevenue = previousTotalRevenue.add(BigDecimal.valueOf(receivedAmount));
-        BigDecimal expectedEndingBalance = previousEndingBalance.add(BigDecimal.valueOf(receivedAmount));
-
         //Cashbook record
-        String expectedCashbookRecordCreatedDate = expectedOrderDate;
-        String expectedCashbookRecordGroupType = "CUSTOMER";
-        String expectedCashbookRecordCustomerName = customerName;
-        String expectedCashbookSourceType = workoutExpectedCashbookRecordSourceType(condition.isHasDelivery(), BigDecimal.valueOf(orderDetailsBeforeCheckout.getOrderInfo().getDebtAmount()));
-        String expectedCashbookRecordBranch = branchName;
-        BigDecimal expectedCashbookRecordAmount = BigDecimal.valueOf(receivedAmount);
-        String expectedCashbookRecordPaymentMethod = condition.getPaymentMethod().name();
+        CashbookRecord expectedRecord = new CashbookRecord();
+        expectedRecord.setCreatedDate(expectedOrderDate);
+        expectedRecord.setGroupType("CUSTOMER");
+        expectedRecord.setCustomerName(customerName);
+        expectedRecord.setSourceType(workoutExpectedCashbookRecordSourceType(condition.isHasDelivery(), BigDecimal.valueOf(orderDetailsBeforeCheckout.getOrderInfo().getDebtAmount())));
+        expectedRecord.setBranchName(branchName);
+        expectedRecord.setAmount(BigDecimal.valueOf(receivedAmount));
+        expectedRecord.setPaymentMethod(condition.getPaymentMethod().name());
 
 
         /** Retrieve post-order data **/
@@ -536,19 +584,10 @@ public class POSOrderTest extends BaseTest {
 
         //Cashbook summary
         List<BigDecimal> postSummary = cashbookAPI.getCasbookSummary();
-        BigDecimal postTotalRevenue = postSummary.get(1);
-        BigDecimal postEndingBalance = postSummary.get(3);
 
         //Cashbook record
         List<CashbookRecord> postCashbookRecords = cashbookAPI.getAllRecords();
-        String firstPostTransactionCodeId = postCashbookRecords.stream().findFirst().map(CashbookRecord::getTransactionCode).orElse("RN");
-        String postCashbookRecordCreatedDate = postCashbookRecords.get(0).getCreatedDate().replaceAll("T.*", "");
-        String postCashbookRecordGroupType = postCashbookRecords.get(0).getGroupType();
-        String postCashbookRecordCustomerName = postCashbookRecords.get(0).getCustomerName();
-        String postCashbookSourceType = workoutExpectedCashbookRecordSourceType(condition.isHasDelivery(), BigDecimal.valueOf(orderDetailsBeforeCheckout.getOrderInfo().getDebtAmount()));
-        String postCashbookRecordBranch = postCashbookRecords.get(0).getBranchName();
-        BigDecimal postCashbookRecordAmount = postCashbookRecords.get(0).getAmount();
-        String postCashbookRecordPaymentMethod = postCashbookRecords.get(0).getPaymentMethod();
+        
         //Product cost
         Double productCost = new APIAllOrders(credentials).getProuctCostOfOrder(orderId);
 
@@ -597,22 +636,10 @@ public class POSOrderTest extends BaseTest {
         }
 
         //Cashbook summary
-        Assert.assertTrue(postTotalRevenue.compareTo(expectedTotalRevenue) == 0, "Total revenue: " + expectedTotalRevenue + ", but got: " + postTotalRevenue);
-        Assert.assertTrue(postEndingBalance.compareTo(expectedEndingBalance) == 0, "Ending balance: " + expectedEndingBalance + ", but got: " + postEndingBalance);
-
+        verifyCashbookSummary(previousSummary, postSummary, BigDecimal.valueOf(receivedAmount));
+        
         //Cashbook record
-        if (receivedAmount > 0) {
-            Assert.assertNotEquals(firstPostTransactionCodeId, firstTransactionCodeId, "Latest transaction code id");
-            Assert.assertEquals(postCashbookRecordCreatedDate, expectedCashbookRecordCreatedDate, "Cashbook record created date");
-            Assert.assertEquals(postCashbookRecordGroupType, expectedCashbookRecordGroupType, "Cashbook record group type");
-            Assert.assertEquals(postCashbookRecordCustomerName, expectedCashbookRecordCustomerName, "Cashbook record customer name");
-            Assert.assertEquals(postCashbookSourceType, expectedCashbookSourceType, "Cashbook record source type");
-            Assert.assertEquals(postCashbookRecordBranch, expectedCashbookRecordBranch, "Cashbook record branch");
-            Assert.assertTrue(postCashbookRecordAmount.compareTo(expectedCashbookRecordAmount) == 0, "Cashbook record amount: " + expectedCashbookRecordAmount + ", but got: " + postCashbookRecordAmount);
-            Assert.assertEquals(postCashbookRecordPaymentMethod, expectedCashbookRecordPaymentMethod, "Cashbook record payment method");
-        } else {
-            Assert.assertEquals(firstPostTransactionCodeId, firstTransactionCodeId, "Latest transaction code id");
-        }
+        verifyCashbookRecord(BigDecimal.valueOf(receivedAmount), previousCashbookRecords, postCashbookRecords, expectedRecord);
     }
 
     @AfterMethod

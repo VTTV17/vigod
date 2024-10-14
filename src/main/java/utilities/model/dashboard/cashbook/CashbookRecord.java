@@ -32,6 +32,7 @@ public class CashbookRecord {
     public BigDecimal debt;
     public String orderType;
     public String orderCreatedDate;
+    public Integer returnOrderId;
     public Integer otherGroupId;
     public String otherGroupName;
     public Integer staffId;
