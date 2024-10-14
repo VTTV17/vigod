@@ -17,6 +17,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import api.Seller.products.inventory.APIInventoryHistoryV2;
+import api.Seller.products.inventory.APIInventoryV2;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.testng.Assert;
@@ -206,7 +208,7 @@ public class POSOrderTest extends BaseTest {
                 .orElse("");
     }
 
-    int getLatestDebtRecordId(APICustomerDetail customerDetailAPI, CustomerInfoFull customerDetail) throws JsonMappingException, JsonProcessingException {
+    int getLatestDebtRecordId(APICustomerDetail customerDetailAPI, CustomerInfoFull customerDetail) throws JsonProcessingException {
         if (customerDetail == null) {
             return -1;
         }
@@ -289,10 +291,10 @@ public class POSOrderTest extends BaseTest {
         var postDebtAmount = postOrderSummary.getDebtAmount();
         
         Assert.assertEquals(postTotalOrderCount, expectedTotalOrderCount, "Total order count");
-        Assert.assertTrue(postTotalPurchase.compareTo(expectedTotalPurchase) == 0, "Total purchase expected: " + expectedTotalPurchase + ", but got: " + postTotalPurchase);
-        Assert.assertTrue(postTotalPurchaseLast3Months.compareTo(expectedTotalPurchaseLast3Months) == 0, "Total purchase last 3 months expected: " + expectedTotalPurchaseLast3Months + ", but got: " + postTotalPurchaseLast3Months);
-        Assert.assertTrue(postAverageOrderValue.compareTo(expectedAverageOrderValue) == 0, "Average order value: " + expectedAverageOrderValue + ", but got: " + postAverageOrderValue);
-        Assert.assertTrue(postDebtAmount.compareTo(expectedDebtAmount) == 0, "Debt amount expected: " + expectedDebtAmount + ", but got: " + postDebtAmount);
+        Assert.assertEquals(postTotalPurchase.compareTo(expectedTotalPurchase), 0, "Total purchase expected: " + expectedTotalPurchase + ", but got: " + postTotalPurchase);
+        Assert.assertEquals(postTotalPurchaseLast3Months.compareTo(expectedTotalPurchaseLast3Months), 0, "Total purchase last 3 months expected: " + expectedTotalPurchaseLast3Months + ", but got: " + postTotalPurchaseLast3Months);
+        Assert.assertEquals(postAverageOrderValue.compareTo(expectedAverageOrderValue), 0, "Average order value: " + expectedAverageOrderValue + ", but got: " + postAverageOrderValue);
+        Assert.assertEquals(postDebtAmount.compareTo(expectedDebtAmount), 0, "Debt amount expected: " + expectedDebtAmount + ", but got: " + postDebtAmount);
     }     
     
     /**
@@ -308,9 +310,9 @@ public class POSOrderTest extends BaseTest {
     	
         var postTotalRevenue = postSummary.get(1);
         var postEndingBalance = postSummary.get(3);
-        
-        Assert.assertTrue(postTotalRevenue.compareTo(expectedTotalRevenue) == 0, "Total revenue: " + expectedTotalRevenue + ", but got: " + postTotalRevenue);
-		Assert.assertTrue(postEndingBalance.compareTo(expectedEndingBalance) == 0, "Ending balance: " + expectedEndingBalance + ", but got: " + postEndingBalance);
+
+        Assert.assertEquals(postTotalRevenue.compareTo(expectedTotalRevenue), 0, "Total revenue: " + expectedTotalRevenue + ", but got: " + postTotalRevenue);
+        Assert.assertEquals(postEndingBalance.compareTo(expectedEndingBalance), 0, "Ending balance: " + expectedEndingBalance + ", but got: " + postEndingBalance);
     } 
     
     void verifyNoCashbookRecordsGeneratedPostOrder(List<CashbookRecord> previousRecordList, List<CashbookRecord> postRecordList) {
@@ -329,8 +331,7 @@ public class POSOrderTest extends BaseTest {
     	Assert.assertEquals(postRecord.getCustomerName(), expectedRecord.getCustomerName(), "Cashbook record customer name");
     	Assert.assertEquals(postRecord.getSourceType(), expectedRecord.getSourceType(), "Cashbook record source type");
     	Assert.assertEquals(postRecord.getBranchName(), expectedRecord.getBranchName(), "Cashbook record branch");
-    	Assert.assertTrue(postRecord.getAmount().compareTo(expectedRecord.getAmount()) == 0, 
-    	     "Cashbook record amount: " + expectedRecord.getAmount() + ", but got: " + postRecord.getAmount());
+        Assert.assertEquals(postRecord.getAmount().compareTo(expectedRecord.getAmount()), 0, "Cashbook record amount: " + expectedRecord.getAmount() + ", but got: " + postRecord.getAmount());
     	Assert.assertEquals(postRecord.getPaymentMethod(), expectedRecord.getPaymentMethod(), "Cashbook record payment method");    	
     }
     /**
@@ -405,7 +406,7 @@ public class POSOrderTest extends BaseTest {
     }
 
     @Test(dataProvider = "dataTest")
-    public void TC_CheckCustomerInfoPostOrder(CreatePOSOrderCondition condition, TimeFrame timeFrame) throws JsonMappingException, JsonProcessingException {
+    public void TC_CheckCustomerInfoPostOrder(CreatePOSOrderCondition condition, TimeFrame timeFrame) throws JsonProcessingException {
         logger.info("Combination being executed: " + condition);
         logger.info("Run with timeframe: " + timeFrame);
         /** Test case input **/
@@ -550,6 +551,10 @@ public class POSOrderTest extends BaseTest {
             selectedCustomerId = orderDetailInfo.getCustomerInfo().getCustomerId();
             customerName = orderDetailInfo.getCustomerInfo().getName();
         }
+
+        // Check inventory
+        new APIInventoryV2(credentials).checkInventoryAfterOrder(stockQuantity, orderId);
+        new APIInventoryHistoryV2(credentials).checkInventoryAfterOrder(stockQuantity, orderId);
         
         //After an order is place, an userId is given to the customer if it's previously undefined
         userId = (userId == null) ? String.valueOf(orderDetailInfo.getCustomerInfo().getUserId()) : userId;
@@ -626,16 +631,16 @@ public class POSOrderTest extends BaseTest {
         Assert.assertEquals(postOrderPaymentStatus, expectedPaidStatus, "Payment status");
         Assert.assertEquals(postOrderStatus, expectedDeliveryStatus, "Delivery status");
         Assert.assertEquals(postOrderItemCount, expectedProductCount, "Product count");
-        Assert.assertTrue(postOrderTotalAmount.compareTo(expectedOrderTotalAmount) == 0, "Order total amount: " + expectedOrderTotalAmount + ", but got: " + postOrderTotalAmount);
+        Assert.assertEquals(postOrderTotalAmount.compareTo(expectedOrderTotalAmount), 0, "Order total amount: " + expectedOrderTotalAmount + ", but got: " + postOrderTotalAmount);
 
         //Debt tab
         if (orderDetailsBeforeCheckout.getOrderInfo().getDebtAmount() != 0) {
             Assert.assertNotEquals(postFirstDebtRecordId, firstDebtRecordId, "Latest debt record id");
             Assert.assertEquals(postDebtAction, expectedDebtAction, "Debt record action");
-            Assert.assertTrue(postDebtRecordAmount.compareTo(expectedDebtRecordAmount.setScale(2, RoundingMode.HALF_UP)) == 0, "Debt record amount: " + expectedDebtRecordAmount + ", but got: " + postDebtRecordAmount);
+            Assert.assertEquals(postDebtRecordAmount.compareTo(expectedDebtRecordAmount.setScale(2, RoundingMode.HALF_UP)), 0, "Debt record amount: " + expectedDebtRecordAmount + ", but got: " + postDebtRecordAmount);
             Assert.assertEquals(postDebtReferenceId, postFirstOrderId, "Debt reference id");
             Assert.assertEquals(postDebtDate, expectedOrderDate, "Debt record date");
-            Assert.assertTrue(postAccumulatedDebt.compareTo(expectedDebtAmount) == 0, "Debt record accumulated amount: " + expectedDebtAmount + ", but got: " + postAccumulatedDebt);
+            Assert.assertEquals(postAccumulatedDebt.compareTo(expectedDebtAmount), 0, "Debt record accumulated amount: " + expectedDebtAmount + ", but got: " + postAccumulatedDebt);
         } else {
             Assert.assertEquals(postFirstDebtRecordId, firstDebtRecordId, "Latest debt record id");
         }
