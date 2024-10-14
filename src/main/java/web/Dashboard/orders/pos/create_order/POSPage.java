@@ -331,7 +331,7 @@ public class POSPage extends POSElement {
             deliveryDlg.inputCustomerPhone(customerData.getPhone());
         }
 
-        if (deliveryDlg.isProvinceUndefined()) {
+        if (deliveryDlg.getAddress().isEmpty()) {
             logger.info("Customer address is undefined. Randomly filling the address...");
             deliveryDlg.fillAddress(customerData);
         }
