@@ -284,6 +284,47 @@ public class APICreateProduct {
         return payload;
     }
 
+    ProductPayload getWithVariationPayload(boolean isManagedByIMEI, int variationNum, int increaseNum, int... branchStock) {
+        ProductPayload payload = initBasicInformation(isManagedByIMEI);
+
+        // set product name
+        String productName = "[%s] %s%s".formatted(storeInfo.getDefaultLanguage(), isManagedByIMEI ? ("Auto - IMEI - variation - ") : ("Auto - Normal - variation - "), new DataGenerator().generateDateTime("dd/MM HH:mm:ss"));
+        payload.setName(productName);
+
+        // generate variation map
+        Map<String, List<String>> variationMap = new DataGenerator().randomVariationMap(variationNum, storeInfo.getDefaultLanguage());
+
+        // set variation name
+        String variationName = variationMap.keySet().toString().replaceAll("[\\[\\]\\s]", "").replaceAll(",", "|");
+
+        // set variation value list
+        List<String> variationList = new DataGenerator().getVariationList(variationMap);
+
+        // set models value
+        List<Model> models = new ArrayList<>();
+        for (int varIndex = 0; varIndex < variationList.size(); varIndex++) {
+            long listingPrice = nextLong(MAX_PRICE);
+            long sellingPrice = nextLong(listingPrice);
+            int finalVarIndex = varIndex;
+            List<Inventory> lstInventory = IntStream.range(0, branchInfo.getBranchID().size())
+                    .mapToObj(branchIndex -> new Inventory(branchInfo.getBranchID().get(branchIndex),
+                            branchInfo.getBranchType().get(branchIndex),
+                            (!payload.isLotAvailable() && (branchStock.length > branchIndex)) ? (branchStock[branchIndex] + (finalVarIndex * increaseNum)) : 0))
+                    .toList();
+
+            List<ItemModelCodeDTO> itemModelCodeDTOS = new ArrayList<>();
+            if (payload.getInventoryManageType().equals("IMEI_SERIAL_NUMBER")) {
+                lstInventory.forEach(inventory -> IntStream.range(0, inventory.getInventoryStock())
+                        .mapToObj(index -> new ItemModelCodeDTO(inventory.getBranchId(), branchInfo.getBranchName().get(branchInfo.getBranchID().indexOf(inventory.getBranchId())), variationList.get(finalVarIndex), index))
+                        .forEach(itemModelCodeDTOS::add));
+            }
+            models.add(new Model(variationList.get(finalVarIndex), listingPrice, sellingPrice, variationName, lstInventory, itemModelCodeDTOS));
+        }
+        payload.setModels(models);
+
+        return payload;
+    }
+
     public APICreateProduct createWithoutVariationProduct(boolean isManagedByIMEI, int... branchStock) {
         // Log
         LogManager.getLogger().info("===== STEP =====> [CreateWithoutVariationProduct] START...");
@@ -330,6 +371,41 @@ public class APICreateProduct {
         // Log
         LogManager.getLogger().info("===== STEP =====> [CreateVariationProduct] DONE!!!");
         return this;
+    }
+
+    /**
+     * Creates a product with or without variations, posts it to a third-party system,
+     * and retrieves the product ID.
+     *
+     * @param variationNum  The number of variations for the product. If 0, a product without variations is created.
+     * @param branchStock   An array of branch stock values to set for the product.
+     * @return              The ID of the created product.
+     */
+    public int createAndLinkProductTo3rdPartyThenRetrieveId(int variationNum, int... branchStock) {
+        // Log the start of the product creation process
+        LogManager.getLogger().info("===== STEP =====> [CreateAndLinkProductTo3rdPartyThenRetrieveId] START...");
+
+        // Prepare the product payload depending on whether the product has variations
+        ProductPayload productPayload = variationNum != 0
+                ? getWithVariationPayload(false, variationNum, 0, branchStock)
+                : getWithoutVariationPayload(false, branchStock);
+
+        // Renew the product payload for subsequent API use
+        payload = new ProductPayload();
+
+        // Post the product (with or without variations) and extract the product ID from the response
+        productId = api.post(createProductPath, loginInfo.getAccessToken(), productPayload)
+                .then()
+                .statusCode(201)
+                .extract()
+                .response()
+                .jsonPath()
+                .getInt("id");
+
+        // Log the successful completion of the product creation process
+        LogManager.getLogger().info("===== STEP =====> [CreateAndLinkProductTo3rdPartyThenRetrieveId] DONE!!!");
+
+        return productId;
     }
 
     public int getProductID() {

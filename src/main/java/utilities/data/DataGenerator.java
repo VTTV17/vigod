@@ -254,6 +254,25 @@ public class DataGenerator {
                         (a, b) -> b)));
     }
 
+
+    /**
+     * generate variation maps (variation name : get variation value)
+     */
+    public Map<String, List<String>> randomVariationMap(int variationNum, String defaultLanguage) {
+        // generate number of variation groups
+        int numberOfGroups = nextInt(MAX_VARIATION_QUANTITY) + 1;
+
+        // get number of value of each group variation
+        List<Integer> numberOfVariationValue = getNumOfValuesOnEachGroup(variationNum, numberOfGroups);
+
+        // generate random data for variation map
+        return new TreeMap<>(IntStream.range(0, numberOfVariationValue.size())
+                .boxed()
+                .collect(Collectors.toMap(valueIndex -> "%s_var%s".formatted(defaultLanguage, valueIndex + 1),
+                        valueIndex -> generateListString(defaultLanguage, valueIndex + 1, numberOfVariationValue.get(valueIndex)),
+                        (a, b) -> b)));
+    }
+
     /**
      * <p> get get variation value after mixed variation</p>
      * <p> example: var1 = {a, b, c} and var2 = {d}</p>
