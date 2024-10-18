@@ -8,6 +8,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import utilities.api.API;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
+import utilities.model.dashboard.salechanel.shopee.ShopeeProduct;
 import utilities.model.sellerApp.login.LoginInformation;
 
 import java.util.ArrayList;
@@ -99,4 +100,12 @@ public class APIShopeeProducts {
         return info;
     }
 
+    /**
+     * Getting the first 100 products on Shopee
+     * @return a list of ShopeeProduct object
+     */
+    public List<ShopeeProduct> getProducts() {
+    	return getShopeeProductResponse(0).jsonPath().getList(".", ShopeeProduct.class);
+    }
+    
 }
