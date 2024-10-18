@@ -7,6 +7,7 @@ import static utilities.account.AccountTest.ADMIN_SHOP_VI_PASSWORD;
 import static utilities.account.AccountTest.ADMIN_SHOP_VI_USERNAME;
 import static utilities.account.AccountTest.STAFF_SHOP_VI_PASSWORD;
 import static utilities.account.AccountTest.STAFF_SHOP_VI_USERNAME;
+import static utilities.character_limit.CharacterLimit.MAX_PRICE;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -83,6 +84,8 @@ public class POSOrderTest extends BaseTest {
 
     
     private List<Integer> createProductForPOSCart(LoginInformation loginInformation, BranchInfo branchInfo, int stockQuantity) {
+
+        MAX_PRICE = 999999L;
 
         // Create lot
         int lotId = new APICreateLotDate(loginInformation).createLotDateAndGetLotId();
