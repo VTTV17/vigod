@@ -38,6 +38,19 @@ public class ConversionUnit {
         return name;
     }
 
+    public int createConversionUnitAndGetId() {
+        String name = "unitName" + Instant.now().toEpochMilli();
+        String body = """
+                {
+                    "name": "%s"
+                }""".formatted(name);
+        return api.post(createConversionUnitPath, loginInfo.getAccessToken(), body).then().statusCode(200)
+                .extract()
+                .jsonPath()
+                .getInt("id");
+    }
+
+
     @Data
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class ConversionUnits {

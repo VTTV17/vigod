@@ -7,6 +7,7 @@ import static utilities.account.AccountTest.ADMIN_SHOP_VI_PASSWORD;
 import static utilities.account.AccountTest.ADMIN_SHOP_VI_USERNAME;
 import static utilities.account.AccountTest.STAFF_SHOP_VI_PASSWORD;
 import static utilities.account.AccountTest.STAFF_SHOP_VI_USERNAME;
+import static utilities.character_limit.CharacterLimit.MAX_PRICE;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -15,6 +16,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import api.Seller.products.inventory.APIInventoryHistoryV2;
@@ -29,7 +31,6 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 
 import api.Seller.analytics.APIOrdersAnalytics;
 import api.Seller.cashbook.CashbookAPI;
@@ -83,6 +84,8 @@ public class POSOrderTest extends BaseTest {
 
     
     private List<Integer> createProductForPOSCart(LoginInformation loginInformation, BranchInfo branchInfo, int stockQuantity) {
+
+        MAX_PRICE = 999999L;
 
         // Create lot
         int lotId = new APICreateLotDate(loginInformation).createLotDateAndGetLotId();
@@ -196,18 +199,6 @@ public class POSOrderTest extends BaseTest {
         return customerDetailAPI.getOrderSummary(profileId);
     }
 
-    String getLatestOrderId(APICustomerDetail customerDetailAPI, CustomerInfoFull customerDetail) {
-        if (customerDetail.getUserId() == null) {
-            return "";
-        }
-
-        List<CustomerOrder> previousOrderList = customerDetailAPI.getOrders(customerDetail.getId(), customerDetail.getUserId());
-        return previousOrderList.stream()
-                .findFirst()
-                .map(CustomerOrder::getId)
-                .orElse("");
-    }
-
     int getLatestDebtRecordId(APICustomerDetail customerDetailAPI, CustomerInfoFull customerDetail) throws JsonProcessingException {
         if (customerDetail == null) {
             return -1;
@@ -219,12 +210,12 @@ public class POSOrderTest extends BaseTest {
                 .map(CustomerDebtRecord::getId)
                 .orElse(-1);
     }
-
-    String getLatestCashbookRecordId(CashbookAPI cashbookAPI) {
-        return cashbookAPI.getAllRecords().stream()
-                .findFirst()
-                .map(CashbookRecord::getTransactionCode)
-                .orElse("RN");
+    
+    List<CustomerDebtRecord> getDebtRecordList(APICustomerDetail customerDetailAPI, int customerId) throws JsonProcessingException {
+    	if (customerId == 0) {
+    		return Collections.emptyList();
+    	}
+    	return customerDetailAPI.getDebtRecords(customerId);
     }
 
     int calculateExpectedEarningPoints(int previousPoints, OrderDetailInfo orderDetails) {
@@ -239,7 +230,7 @@ public class POSOrderTest extends BaseTest {
         return netPoints;
     }
 
-    public int workoutExpectedTotalOrderCount(Integer previousTotalOrderCount, OrderDetailInfo orderDetailsBeforeCheckout) {
+    int workoutExpectedTotalOrderCount(Integer previousTotalOrderCount, OrderDetailInfo orderDetailsBeforeCheckout) {
         var orderStatus = OrderStatus.valueOf(orderDetailsBeforeCheckout.getOrderInfo().getStatus()); //DELIVERED/TO_SHIP
 
         if (orderStatus.equals(OrderStatus.DELIVERED)) {
@@ -248,7 +239,7 @@ public class POSOrderTest extends BaseTest {
         return previousTotalOrderCount;
     }
 
-    public BigDecimal workoutExpectedTotalPurchase(BigDecimal previousTotalPurchase, OrderDetailInfo orderDetailsBeforeCheckout) {
+    BigDecimal workoutExpectedTotalPurchase(BigDecimal previousTotalPurchase, OrderDetailInfo orderDetailsBeforeCheckout) {
         var orderStatus = OrderStatus.valueOf(orderDetailsBeforeCheckout.getOrderInfo().getStatus()); //DELIVERED/TO_SHIP
 
         if (orderStatus.equals(OrderStatus.DELIVERED)) {
@@ -257,7 +248,7 @@ public class POSOrderTest extends BaseTest {
         return previousTotalPurchase;
     }
 
-    public BigDecimal workoutExpectedTotalPurchaseLast3Months(BigDecimal previousTotalPurchaseLast3Months, OrderDetailInfo orderDetailsBeforeCheckout) {
+    BigDecimal workoutExpectedTotalPurchaseLast3Months(BigDecimal previousTotalPurchaseLast3Months, OrderDetailInfo orderDetailsBeforeCheckout) {
         var orderStatus = OrderStatus.valueOf(orderDetailsBeforeCheckout.getOrderInfo().getStatus()); //DELIVERED/TO_SHIP
 
         if (orderStatus.equals(OrderStatus.DELIVERED)) {
@@ -266,14 +257,14 @@ public class POSOrderTest extends BaseTest {
         return previousTotalPurchaseLast3Months;
     }
 
-    public BigDecimal workoutExpectedAverageOrderValue(BigDecimal totalOrderCount, BigDecimal totalPurchase) {
+    BigDecimal workoutExpectedAverageOrderValue(BigDecimal totalOrderCount, BigDecimal totalPurchase) {
         if (totalOrderCount.compareTo(BigDecimal.ZERO) == 0) {
             return BigDecimal.ZERO;
         }
         return totalPurchase.divide(totalOrderCount, 10, RoundingMode.HALF_UP).setScale(2, RoundingMode.HALF_UP);
     }
 
-    public String workoutExpectedCashbookRecordSourceType(boolean isDeliveryOpted, BigDecimal debt) {
+    String workoutExpectedCashbookRecordSourceType(boolean isDeliveryOpted, BigDecimal debt) {
         if (isDeliveryOpted)
             return CashbookRevenue.DEBT_COLLECTION_FROM_CUSTOMER.name();
 
@@ -283,6 +274,15 @@ public class POSOrderTest extends BaseTest {
         return CashbookRevenue.DEBT_COLLECTION_FROM_CUSTOMER.name();
     }
 
+    /**
+     * Verifies customer's order summary data post-order
+     * @param postOrderSummary
+     * @param expectedTotalOrderCount
+     * @param expectedTotalPurchase
+     * @param expectedTotalPurchaseLast3Months
+     * @param expectedAverageOrderValue
+     * @param expectedDebtAmount
+     */
     void verifyCustomerOrderSummary(CustomerOrderSummary postOrderSummary, int expectedTotalOrderCount, BigDecimal expectedTotalPurchase, BigDecimal expectedTotalPurchaseLast3Months, BigDecimal expectedAverageOrderValue, BigDecimal expectedDebtAmount) {
         int postTotalOrderCount = postOrderSummary.getTotalOrder();
         var postTotalPurchase = postOrderSummary.getTotalPurchase();
@@ -295,7 +295,59 @@ public class POSOrderTest extends BaseTest {
         Assert.assertEquals(postTotalPurchaseLast3Months.compareTo(expectedTotalPurchaseLast3Months), 0, "Total purchase last 3 months expected: " + expectedTotalPurchaseLast3Months + ", but got: " + postTotalPurchaseLast3Months);
         Assert.assertEquals(postAverageOrderValue.compareTo(expectedAverageOrderValue), 0, "Average order value: " + expectedAverageOrderValue + ", but got: " + postAverageOrderValue);
         Assert.assertEquals(postDebtAmount.compareTo(expectedDebtAmount), 0, "Debt amount expected: " + expectedDebtAmount + ", but got: " + postDebtAmount);
+    }   
+    
+    void verifyCustomerOrderTab(CustomerOrder postLastestOrder,  CustomerOrder expectedCustomerOrder) {
+        var postFirstOrderId = postLastestOrder.getId(); // 13339499
+        var postOrderChannel = postLastestOrder.getChannel(); // GOSELL
+        var postOrderDate = postLastestOrder.getCreatedDate().replaceAll("T.*", ""); // 2024-08-26T08:42:29.427377Z
+        var postOrderPaymentStatus = postLastestOrder.getIsPaid(); // true
+        var postOrderStatus = postLastestOrder.getStatus(); // DELIVERED
+        var postOrderItemCount = postLastestOrder.getItemsCount(); // 1
+        var postOrderTotalAmount = postLastestOrder.getTotal(); // 221000
+        
+        Assert.assertEquals(postFirstOrderId, expectedCustomerOrder.getId(), "Latest order record id");
+        Assert.assertEquals(postOrderChannel, expectedCustomerOrder.getChannel(), "Sale channel");
+        Assert.assertEquals(postOrderDate, expectedCustomerOrder.getCreatedDate(), "Order date");
+        Assert.assertEquals(postOrderPaymentStatus, expectedCustomerOrder.getIsPaid(), "Payment status");
+        Assert.assertEquals(postOrderStatus, expectedCustomerOrder.getStatus(), "Delivery status");
+        Assert.assertEquals(postOrderItemCount, expectedCustomerOrder.getItemsCount(), "Product count");
+        Assert.assertEquals(postOrderTotalAmount.compareTo(expectedCustomerOrder.getTotal()), 0, "Order total amount: " + expectedCustomerOrder.getTotal() + ", but got: " + postOrderTotalAmount);
     }     
+ 
+    void verifyNoDebtRecordsGeneratedPostOrder(List<CustomerDebtRecord> previousRecordList, List<CustomerDebtRecord> postRecordList) {
+    	Assert.assertEquals(postRecordList, previousRecordList);
+    }    
+    void verifyNewDebtRecordsGeneratedPostOrder(List<CustomerDebtRecord> previousRecordList, List<CustomerDebtRecord> postRecordList, CustomerDebtRecord expectedRecord) {
+    	var postRecord = postRecordList.get(0);
+    	
+    	if (!previousRecordList.isEmpty()) {
+    		//There exists records pre-order
+    		Assert.assertNotEquals(previousRecordList.get(0), postRecord, "Latest Debt record");
+    	}
+    	
+    	Assert.assertEquals(postRecord.getAction(), expectedRecord.getAction(), "Debt record action");
+    	Assert.assertEquals(postRecord.getAmount().compareTo(expectedRecord.getAmount()), 0, "Debt record amount: " + expectedRecord.getAmount() + ", but got: " + postRecord.getAmount());
+    	Assert.assertEquals(postRecord.getRefId(), expectedRecord.getRefId(), "Debt reference id");
+    	Assert.assertEquals(postRecord.getCreatedDate().replaceAll("T.*", ""), expectedRecord.getCreatedDate(), "Debt record date");
+    	Assert.assertEquals(postRecord.getDebt().compareTo(expectedRecord.getDebt()), 0, "Debt record accumulated amount: " + expectedRecord.getDebt() + ", but got: " + postRecord.getDebt());
+    }
+    
+    /**
+     * Verifies Debt records post-order.
+     * When debtAmount =0, there won't be new records
+     * @param debtAmount
+     * @param previousRecordList
+     * @param postRecordList
+     * @param expectedRecord
+     */
+    void verifyDebtRecord(double debtAmount, List<CustomerDebtRecord> previousRecordList, List<CustomerDebtRecord> postRecordList, CustomerDebtRecord expectedRecord) {
+    	if (debtAmount ==0) {
+    		verifyNoDebtRecordsGeneratedPostOrder(previousRecordList, postRecordList);
+    	} else {
+    		verifyNewDebtRecordsGeneratedPostOrder(previousRecordList, postRecordList, expectedRecord);
+    	}
+    }    
     
     /**
      * Verifies Cashbook summary after orders are successfully made on POS.
@@ -323,7 +375,7 @@ public class POSOrderTest extends BaseTest {
     	
     	if (!previousRecordList.isEmpty()) {
     		//There exists records pre-order
-    		Assert.assertNotEquals(previousRecordList.get(0), postRecord, "Latest transaction id");
+    		Assert.assertNotEquals(previousRecordList.get(0), postRecord, "Latest Cashbook record");
     	}
     	
     	Assert.assertEquals(postRecord.getCreatedDate().replaceAll("T.*", ""), expectedRecord.getCreatedDate(), "Cashbook record created date");
@@ -461,7 +513,7 @@ public class POSOrderTest extends BaseTest {
         BigDecimal previousDebtAmount = (previousOrderSummary != null) ? previousOrderSummary.getDebtAmount() : BigDecimal.ZERO;
 
         //Debt tab
-        int firstDebtRecordId = getLatestDebtRecordId(customerDetailAPI, selectedProfile);
+        List<CustomerDebtRecord> previousDebtList = getDebtRecordList(customerDetailAPI, selectedCustomerId);
 
         //Cashbook summary
         List<BigDecimal> previousSummary = cashbookAPI.getCasbookSummary();
@@ -475,7 +527,6 @@ public class POSOrderTest extends BaseTest {
 
         LoginPage loginPage = new LoginPage(driver);
         loginPage.navigateToPage(Domain.valueOf(domain), DisplayLanguage.valueOf(language)).performValidLogin(country, credentials.getPhoneNumber(), credentials.getPassword());
-
 
         POSPage posPage = new POSPage(driver, Domain.valueOf(domain)).getLoginInfo(credentials).navigateToPOSPage();
 
@@ -529,12 +580,6 @@ public class POSOrderTest extends BaseTest {
         BigDecimal expectedAverageOrderValue = workoutExpectedAverageOrderValue(new BigDecimal(expectedTotalOrderCount), expectedTotalPurchase);
         BigDecimal expectedDebtAmount = previousDebtAmount.add(BigDecimal.valueOf(orderDetailsBeforeCheckout.getOrderInfo().getDebtAmount())).setScale(2, RoundingMode.HALF_UP);
 
-        //Order tab
-        BigDecimal expectedOrderTotalAmount = BigDecimal.valueOf(orderDetailsBeforeCheckout.getOrderInfo().getTotalPrice());
-
-        //Debt tab
-        DebtActionEnum expectedDebtAction = condition.isHasDelivery() ? DebtActionEnum.POS_DELIVERY_ORDER : DebtActionEnum.POS_NOW_ORDER;
-        BigDecimal expectedDebtRecordAmount = BigDecimal.valueOf(orderDetailsBeforeCheckout.getOrderInfo().getDebtAmount());
 
         posPage.clickCompleteCheckout();
         if (!condition.getReceivedAmountType().equals(ReceivedAmountType.FULL))
@@ -552,6 +597,24 @@ public class POSOrderTest extends BaseTest {
             customerName = orderDetailInfo.getCustomerInfo().getName();
         }
 
+        //Order tab
+        CustomerOrder expectedCustomerOrder = new CustomerOrder();
+        expectedCustomerOrder.setId(String.valueOf(orderId));
+        expectedCustomerOrder.setChannel("GOSELL");
+        expectedCustomerOrder.setCreatedDate(expectedOrderDate);
+        expectedCustomerOrder.setIsPaid(expectedPaidStatus);
+        expectedCustomerOrder.setStatus(expectedDeliveryStatus);
+        expectedCustomerOrder.setItemsCount(expectedProductCount);
+        expectedCustomerOrder.setTotal(BigDecimal.valueOf(orderDetailsBeforeCheckout.getOrderInfo().getTotalPrice()));
+        
+        //Debt tab
+        CustomerDebtRecord expectedDebtRecord = new CustomerDebtRecord();
+        expectedDebtRecord.setAction(condition.isHasDelivery() ? DebtActionEnum.POS_DELIVERY_ORDER : DebtActionEnum.POS_NOW_ORDER);
+        expectedDebtRecord.setAmount(BigDecimal.valueOf(orderDetailsBeforeCheckout.getOrderInfo().getDebtAmount()));
+        expectedDebtRecord.setRefId(String.valueOf(orderId));
+        expectedDebtRecord.setCreatedDate(expectedOrderDate);
+        expectedDebtRecord.setDebt(expectedDebtAmount);
+        
         // Check inventory
         new APIInventoryV2(credentials).checkInventoryAfterOrder(stockQuantity, orderId);
         new APIInventoryHistoryV2(credentials).checkInventoryAfterOrder(stockQuantity, orderId);
@@ -578,23 +641,10 @@ public class POSOrderTest extends BaseTest {
         CustomerOrderSummary postOrderSummary = customerDetailAPI.getOrderSummary(selectedCustomerId);
 
         //Order tab
-        List<CustomerOrder> postOrderList = customerDetailAPI.getOrders(selectedCustomerId, userId);
-        String postFirstOrderId = postOrderList.get(0).getId(); // 13339499
-        String postOrderChannel = postOrderList.get(0).getChannel(); // GOSELL
-        String postOrderDate = postOrderList.get(0).getCreatedDate().replaceAll("T.*", ""); // 2024-08-26T08:42:29.427377Z
-        Boolean postOrderPaymentStatus = postOrderList.get(0).getIsPaid(); // true
-        String postOrderStatus = postOrderList.get(0).getStatus(); // DELIVERED
-        Integer postOrderItemCount = postOrderList.get(0).getItemsCount(); // 1
-        BigDecimal postOrderTotalAmount = postOrderList.get(0).getTotal(); // 221000
+        CustomerOrder postCustomerLastestOrder = customerDetailAPI.getOrders(selectedCustomerId, userId).get(0);
 
         //Debt tab
         List<CustomerDebtRecord> postDebtList = customerDetailAPI.getDebtRecords(selectedCustomerId);
-        Integer postFirstDebtRecordId = postDebtList.stream().findFirst().map(CustomerDebtRecord::getId).orElse(-1);
-        DebtActionEnum postDebtAction = postDebtList.stream().findFirst().map(CustomerDebtRecord::getAction).orElse(DebtActionEnum.POS_NOW_ORDER);
-        BigDecimal postDebtRecordAmount = postDebtList.stream().findFirst().map(CustomerDebtRecord::getAmount).orElse(BigDecimal.ZERO);
-        String postDebtReferenceId = postDebtList.stream().findFirst().map(CustomerDebtRecord::getRefId).orElse("");
-        String postDebtDate = postDebtList.stream().findFirst().map(CustomerDebtRecord::getCreatedDate).orElse("").replaceAll("T.*", "");
-        BigDecimal postAccumulatedDebt = postDebtList.stream().findFirst().map(CustomerDebtRecord::getDebt).orElse(BigDecimal.ZERO);
 
         //Cashbook summary
         List<BigDecimal> postSummary = cashbookAPI.getCasbookSummary();
@@ -625,25 +675,10 @@ public class POSOrderTest extends BaseTest {
         verifyCustomerOrderSummary(postOrderSummary, expectedTotalOrderCount, expectedTotalPurchase, expectedTotalPurchaseLast3Months, expectedAverageOrderValue, expectedDebtAmount);
         
         //Order tab
-        Assert.assertEquals(postFirstOrderId, String.valueOf(orderId), "Latest order record id");
-        Assert.assertEquals(postOrderChannel, "GOSELL", "Sale channel");
-        Assert.assertEquals(postOrderDate, expectedOrderDate, "Order date");
-        Assert.assertEquals(postOrderPaymentStatus, expectedPaidStatus, "Payment status");
-        Assert.assertEquals(postOrderStatus, expectedDeliveryStatus, "Delivery status");
-        Assert.assertEquals(postOrderItemCount, expectedProductCount, "Product count");
-        Assert.assertEquals(postOrderTotalAmount.compareTo(expectedOrderTotalAmount), 0, "Order total amount: " + expectedOrderTotalAmount + ", but got: " + postOrderTotalAmount);
-
+        verifyCustomerOrderTab(postCustomerLastestOrder, expectedCustomerOrder);
+        
         //Debt tab
-        if (orderDetailsBeforeCheckout.getOrderInfo().getDebtAmount() != 0) {
-            Assert.assertNotEquals(postFirstDebtRecordId, firstDebtRecordId, "Latest debt record id");
-            Assert.assertEquals(postDebtAction, expectedDebtAction, "Debt record action");
-            Assert.assertEquals(postDebtRecordAmount.compareTo(expectedDebtRecordAmount.setScale(2, RoundingMode.HALF_UP)), 0, "Debt record amount: " + expectedDebtRecordAmount + ", but got: " + postDebtRecordAmount);
-            Assert.assertEquals(postDebtReferenceId, postFirstOrderId, "Debt reference id");
-            Assert.assertEquals(postDebtDate, expectedOrderDate, "Debt record date");
-            Assert.assertEquals(postAccumulatedDebt.compareTo(expectedDebtAmount), 0, "Debt record accumulated amount: " + expectedDebtAmount + ", but got: " + postAccumulatedDebt);
-        } else {
-            Assert.assertEquals(postFirstDebtRecordId, firstDebtRecordId, "Latest debt record id");
-        }
+        verifyDebtRecord(orderDetailsBeforeCheckout.getOrderInfo().getDebtAmount(), previousDebtList, postDebtList, expectedDebtRecord);
 
         //Cashbook summary
         verifyCashbookSummary(previousSummary, postSummary, BigDecimal.valueOf(receivedAmount));
