@@ -68,13 +68,16 @@ public class APIAddConversionUnit {
         // Get list units
         List<Integer> unitIds = new ConversionUnit(loginInformation).getListConversionUnitIds();
 
+        // Get conversion unit ID
+        int conversionUnitId = unitIds.isEmpty() ? new ConversionUnit(loginInformation).createConversionUnitAndGetId() : unitIds.get(0);
+
         // int exchange quantity
         int exchangeQuantity = nextInt(Collections.max(infoV2.getProductStockQuantityMap().values().stream().map(Collections::max).toList())) + 1;
         LogManager.getLogger().info("Exchange quantity: {}", exchangeQuantity);
 
         // Get list conversion unit items
         List<ConversionUnitItemDto> conversionUnitItems = infoV2.getVariationModelList()
-                .stream().map(modelId -> new ConversionUnitItemDto(unitIds.get(nextInt(unitIds.size())),
+                .stream().map(modelId -> new ConversionUnitItemDto(conversionUnitId,
                         exchangeQuantity,
                         String.valueOf(productId),
                         modelId,
