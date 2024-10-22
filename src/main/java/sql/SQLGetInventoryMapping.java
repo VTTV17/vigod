@@ -50,25 +50,23 @@ public class SQLGetInventoryMapping {
     public List<InventoryMapping> getTiktokInventoryMappings(int storeId) {
         // SQL query to fetch inventory mappings based on store ID
         String query = """
-                SELECT *
-                FROM "inventory-services".inventory_mapping im
-                WHERE im.inventory_id LIKE ANY (
-                    SELECT (s.branch_id || '-' || i.bc_item_id) || '%%'
-                    FROM "tiktok-services".shop s
-                    JOIN "tiktok-services".item i
-                        ON i.tiktok_shop_id = s.tiktok_shop_id
-                    WHERE s.bc_store_id = %d
-                      AND i.bc_item_id IS NOT NULL
-                );
-           """.formatted(storeId);
+            SELECT *
+            FROM "inventory-services".inventory_mapping im
+            WHERE im.inventory_id LIKE ANY (
+                SELECT (s.branch_id || '-' || i.bc_item_id) || '%%'
+                FROM "tiktok-services".shop s
+                JOIN "tiktok-services".item i
+                    ON i.tiktok_shop_id = s.tiktok_shop_id
+                WHERE s.bc_store_id = %d
+                    AND i.bc_item_id IS NOT NULL
+            );
+        """.formatted(storeId);
 
         // List to hold the parsed inventory mappings
         List<InventoryMapping> inventoryMappings = new ArrayList<>();
 
-        try {
-            // Execute the query and fetch the result set
-            ResultSet resultSet = InitConnection.executeSQL(connection, query);
-
+        // Use try-with-resources to ensure resources are closed properly
+        try (ResultSet resultSet = InitConnection.executeSQL(connection, query)) {
             // Loop through the result set and map rows to InventoryMapping objects
             while (resultSet.next()) {
                 InventoryMapping mapping = new InventoryMapping();
@@ -78,7 +76,6 @@ public class SQLGetInventoryMapping {
                 mapping.setModel_id(resultSet.getString("model_id"));
                 mapping.setShop_id(resultSet.getString("shop_id"));
                 mapping.setStock(resultSet.getInt("stock"));
-                mapping.setChannel(resultSet.getString("channel"));
                 mapping.setInventory_id(resultSet.getString("inventory_id"));
 
                 // Add the mapping to the list

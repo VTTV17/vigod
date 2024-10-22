@@ -20,8 +20,17 @@ public class InitConnection {
 		String connectionUrl = "jdbc:postgresql://%s:%s/%s?user=%s&password=%s&loginTimeout=30".formatted(host,DB_PORT, DB_DATABASE, user, pass);
 		return DriverManager.getConnection(connectionUrl);
 	}
-	
-    public String getActivationKey(String username) throws SQLException {
+
+	public java.sql.Connection createConnection(String host, String port, String dbName, String username, String password) throws SQLException {
+		String connectionUrl = "jdbc:postgresql://%s:%s/%s?user=%s&password=%s&loginTimeout=30".formatted(host, port, dbName, username, password);
+		return DriverManager.getConnection(connectionUrl);
+	}
+
+	public static ResultSet executeSQL(Connection connection, String query) throws SQLException {
+		return connection.prepareStatement(query).executeQuery();
+	}
+
+	public String getActivationKey(String username) throws SQLException {
     	Connection connection = null;
 	    ResultSet resultSet = null;
 	    String key = null;
@@ -158,16 +167,5 @@ public class InitConnection {
     	}
     	logger.info("Retrieved location code of '%s': %s".formatted(username, code)); 
     	return code;
-    }         
-    
-    @Test
-    public void test() throws SQLException {
-        java.sql.Connection connection = createConnection();
-        String query = "select activation_key from \"gateway-services\".jhi_user ju where login = '+500:8942531099'";
-        ResultSet resultSet = connection.prepareStatement(query).executeQuery();
-        while (resultSet.next()) {
-            System.out.println(resultSet.getInt("activation_key"));
-        }
     }
-
 }

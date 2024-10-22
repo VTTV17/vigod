@@ -70,10 +70,8 @@ public class SQLGetInventoryEvent {
         // List to hold the parsed inventory events
         List<InventoryEvent> inventoryEvents = new ArrayList<>();
 
-        try {
-            // Execute the query and fetch the result set
-            ResultSet resultSet = InitConnection.executeSQL(connection, query);
-
+        // Use try-with-resources to ensure resources are closed properly
+        try (ResultSet resultSet = InitConnection.executeSQL(connection, query)) {
             // Loop through the result set and map rows to InventoryEvent objects
             while (resultSet.next()) {
                 InventoryEvent event = new InventoryEvent();
