@@ -2,7 +2,6 @@ package utilities.database;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.testng.annotations.Test;
 
 import java.sql.*;
 
@@ -30,6 +29,7 @@ public class InitConnection {
 		return connection.prepareStatement(query).executeQuery();
 	}
 
+	//TODO remove this function
 	public String getActivationKey(String username) throws SQLException {
     	Connection connection = null;
 	    ResultSet resultSet = null;
@@ -68,6 +68,7 @@ public class InitConnection {
         return key;
     }     
     
+	//TODO remove this function
     public String getResetKey(String username) throws SQLException {
     	Connection connection = null;
 	    ResultSet resultSet = null;
@@ -167,5 +168,5 @@ public class InitConnection {
     	}
     	logger.info("Retrieved location code of '%s': %s".formatted(username, code)); 
     	return code;
-    }
+	}         
 }

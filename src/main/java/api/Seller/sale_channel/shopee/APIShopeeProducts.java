@@ -14,6 +14,7 @@ import utilities.model.sellerApp.login.LoginInformation;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class APIShopeeProducts {
@@ -45,6 +46,7 @@ public class APIShopeeProducts {
     }
 
     String allShopeeProductPath = "/shopeeservices/api/items/bc-store/%s?page=%s&size=100&getBcItemName=true&sort=update_time,DESC";
+    String unlinkProductPath = "/shopeeservices/api/items/<storeId>/unlink/<shopeeShopId>?ids=<shopeeItemId>";
 
     Response getShopeeProductResponse(int pageIndex) {
         return api.get(allShopeeProductPath.formatted(loginInfo.getStoreID(), pageIndex), loginInfo.getAccessToken());
@@ -107,5 +109,25 @@ public class APIShopeeProducts {
     public List<ShopeeProduct> getProducts() {
     	return getShopeeProductResponse(0).jsonPath().getList(".", ShopeeProduct.class);
     }
+    
+    /**
+     * Unlink Shopee products from GoSELL products
+     * @param shopeeShopId
+     * @param shopeeItemIdList
+     */
+    public void unlinkProduct(String shopeeShopId, List<String> shopeeItemIdList) {
+        if (shopeeItemIdList.size() == 0) {
+            logger.info("Shopee product id list input is empty. Skipping unlinkProduct");
+            return;
+        }
+    	
+        String shopeeItemIdsString = shopeeItemIdList.stream().map(String::valueOf).collect(Collectors.joining(","));
+        
+    	String basePath = unlinkProductPath.replaceAll("<storeId>", String.valueOf(loginInfo.getStoreID()))
+    			.replaceAll("<shopeeShopId>", shopeeShopId)
+    			.replaceAll("<shopeeItemId>", shopeeItemIdsString);
+    	
+    	api.get(basePath.formatted(loginInfo.getStoreID(), shopeeShopId, shopeeItemIdList), loginInfo.getAccessToken()).then().statusCode(200);
+    }    
     
 }

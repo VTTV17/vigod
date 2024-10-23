@@ -1,37 +1,41 @@
 package web.Dashboard.sales_channels.shopee.products;
 
-import java.time.Duration;
+import static utilities.links.Links.DOMAIN;
 
-import api.Seller.login.Login;
-import api.Seller.sale_channel.shopee.APIShopeeManagement;
+import java.util.List;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.support.ui.WebDriverWait;
 
+import api.Seller.login.Login;
+import api.Seller.sale_channel.shopee.APIShopeeManagement;
 import utilities.assert_customize.AssertCustomize;
+import utilities.commons.UICommonAction;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 import utilities.model.staffPermission.AllPermissions;
 import utilities.permission.CheckPermission;
+import web.Dashboard.confirmationdialog.ConfirmationDialog;
 import web.Dashboard.home.HomePage;
-import utilities.commons.UICommonAction;
-import web.Dashboard.sales_channels.shopee.link_products.LinkProductsPage;
 
 public class ProductsPage extends ProductsElement{
 
 	final static Logger logger = LogManager.getLogger(ProductsPage.class);
 	
-	
     WebDriver driver;
-    WebDriverWait wait;
     UICommonAction commonAction;
-
 
     public ProductsPage(WebDriver driver) {
         this.driver = driver;
-        wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         commonAction = new UICommonAction(driver);
+    }
+   
+    public ProductsPage navigateByURL() {
+		driver.get(DOMAIN + "/channel/shopee/product/list");
+		
+		//TODO handle navigation with different domains (VN/BIZ) if time allows
+		return this;
     }
     
 	public ProductsPage inputSearchTerm(String searchTerm) {
@@ -40,12 +44,54 @@ public class ProductsPage extends ProductsElement{
 		new HomePage(driver).waitTillSpinnerDisappear();
 		return this;
 	}
+	
+	public ProductsPage tickProductByShopeeProductId(String shopeeProductId) {
+		commonAction.click(loc_chkShopeeProductId(shopeeProductId));
+        logger.info("Ticked Shopee Product Id '{}'", shopeeProductId);
+		return this;
+	}
+	public ProductsPage clickSelectAction() {
+		commonAction.click(loc_lnkSelectAction);
+		logger.info("Clicked Select Action link text");
+		return this;
+	}	
+	public ProductsPage clickCreateProductToGosellBtn() {
+		commonAction.click(loc_ddvCreateProductToGoSELL);
+		logger.info("Clicked Create Product To Gosell button");
+		return this;
+	}	
+	public ProductsPage createProductToGosellBtn(List<String> shopeeProductIds) {
+		
+		shopeeProductIds.stream().forEach(id -> tickProductByShopeeProductId(id));
+		
+		clickSelectAction().clickCreateProductToGosellBtn();
+		new ConfirmationDialog(driver).clickOKBtn();
+		
+		waitUntilSyncStatusIconDisappear();
+		return this;
+	}	
+	public ProductsPage createProductToGosellBtn(String shopeeProductId) {
+		return createProductToGosellBtn(List.of(shopeeProductId));
+	}
 
+	void waitUntilSyncStatusIconDisappear() {
+		//TODO consider removing this sleep if possible
+		commonAction.sleepInMiliSecond(1000, "Wait a little for sync status icon to appear");
+		
+		for (int attempt=0; attempt <30; attempt++) {
+			if (commonAction.getElements(loc_icnSyncStatus).isEmpty()) {
+				logger.debug("Sync status icon has disappeared"); break;
+			}
+			commonAction.refreshPage();
+			commonAction.sleepInMiliSecond(6000, "Wait until sync status icon disappears");
+		}
+	}
+	
+	
     /*-------------------------------------*/
     /* Check permission */
     // ticket: https://mediastep.atlassian.net/browse/BH-24822
-    LoginInformation staffLoginInformation;
-    LoginInformation sellerLoginInformation;
+    LoginInformation staffLoginInformation, sellerLoginInformation;
     LoginDashboardInfo staffLoginInfo;
     AllPermissions permissions;
     CheckPermission checkPermission;
