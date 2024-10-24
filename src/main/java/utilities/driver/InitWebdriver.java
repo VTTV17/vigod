@@ -46,7 +46,7 @@ public class InitWebdriver {
                     driver = new SafariDriver();
                 }
                 default -> {
-                    WebDriverManager.chromedriver().setup();
+                	WebDriverManager.chromedriver().setup();
                     ChromeOptions chromeOptions = new ChromeOptions();
                     chromeOptions.addArguments("--start-maximized");
                     if (headless) chromeOptions.addArguments("--headless");

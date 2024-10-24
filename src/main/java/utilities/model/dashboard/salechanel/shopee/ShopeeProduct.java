@@ -1,6 +1,7 @@
 package utilities.model.dashboard.salechanel.shopee;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.List;
 
 import lombok.Data;
@@ -12,7 +13,7 @@ import lombok.Data;
 @Data
 public class ShopeeProduct {
     public Integer id;
-    public Object shopeeItemId;
+    public BigInteger shopeeItemId;
     public Integer branchId;
     public Integer shopeeShopId;
     public String shopeeShopName;
