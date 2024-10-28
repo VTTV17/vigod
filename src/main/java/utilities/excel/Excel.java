@@ -29,7 +29,10 @@ public class Excel {
         FileInputStream fileInput = new FileInputStream(new DataGenerator().getPathOfFileInResourcesRoot(fileName));
         return new XSSFWorkbook(fileInput).getSheetAt(sheetID);
     }
-    
+    public Sheet getSheetByFilePath(String filePath, int sheetID) throws IOException {
+        FileInputStream fileInput = new FileInputStream(filePath);
+        return new XSSFWorkbook(fileInput).getSheetAt(sheetID);
+    }
     public Sheet getSheet(File fileName, int sheetID) throws IOException {
     	FileInputStream fileInput = new FileInputStream(String.valueOf(fileName));
     	return new XSSFWorkbook(fileInput).getSheetAt(sheetID);

@@ -521,7 +521,7 @@ public class UICommonAction {
         return driver.findElements(By.xpath(xpath));
     }
 
-    public void sleepInMiliSecond(long miliSecond, String... note) {
+    public static void sleepInMiliSecond(long miliSecond, String... note) {
         try {
             sleep(miliSecond);
         } catch (InterruptedException e) {
