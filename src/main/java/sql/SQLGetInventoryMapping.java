@@ -289,4 +289,30 @@ public class SQLGetInventoryMapping {
         mapping.setInventory_id(resultSet.getString("inventory_id"));
         return mapping;
     }
+    
+    //TODO add function description
+    public List<InventoryMapping> getMappingRecords(String sqlQuery) {
+    	System.out.println(sqlQuery);
+    	
+    	List<InventoryMapping> accumulatedRecords = new ArrayList<>();
+    	try (ResultSet resultSet = InitConnection.executeSQL(connection, sqlQuery)) {
+    		while (resultSet.next()) {
+    	        InventoryMapping mapping = new InventoryMapping();
+    	        mapping.setId(resultSet.getInt("id"));
+    	        mapping.setBranch_id(resultSet.getString("branch_id"));
+    	        mapping.setItem_id(resultSet.getString("item_id"));
+    	        mapping.setModel_id(resultSet.getString("model_id"));
+    	        mapping.setShop_id(resultSet.getString("shop_id"));
+    	        mapping.setStock(resultSet.getInt("stock"));
+    	        mapping.setChannel(resultSet.getString("channel"));
+    	        mapping.setInventory_id(resultSet.getString("inventory_id"));
+    	        
+    	        accumulatedRecords.add(mapping);
+    		}
+    	} catch (SQLException exception) {
+    		throw new RuntimeException("Error retrieving inventory mapping records from the database", exception);
+    	}
+    	
+    	return accumulatedRecords;
+    }
 }

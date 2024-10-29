@@ -2,6 +2,7 @@ package sql;
 
 import lombok.Data;
 import utilities.database.InitConnection;
+import utilities.model.dashboard.salechanel.shopee.ShopeeProduct;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -100,5 +101,30 @@ public class SQLGetInventoryEvent {
 
         // Return the list of inventory events
         return inventoryEvents;
+    }
+    
+    //TODO add function description
+    public List<InventoryEvent> getShopeeInventoryEvents(String sqlQuery) {
+    	
+    	System.out.println(sqlQuery);
+    	
+    	List<InventoryEvent> accumulatedEvents = new ArrayList<>();
+    	try (ResultSet resultSet = InitConnection.executeSQL(connection, sqlQuery)) {
+    		while (resultSet.next()) {
+    			InventoryEvent event = new InventoryEvent();
+    			event.setBranch_id(resultSet.getString("branch_id"));
+    			event.setItem_id(resultSet.getString("item_id"));
+    			event.setModel_id(resultSet.getString("model_id"));
+    			event.setOrder_id(resultSet.getString("order_id"));
+    			event.setAction(resultSet.getString("action"));
+    			
+    			//Accumulate inventory events
+    			accumulatedEvents.add(event);
+    		}				
+    	} catch (SQLException exception) {
+    		throw new RuntimeException("Error retrieving inventory events from the database", exception);
+    	}
+    	
+    	return accumulatedEvents;
     }
 }
