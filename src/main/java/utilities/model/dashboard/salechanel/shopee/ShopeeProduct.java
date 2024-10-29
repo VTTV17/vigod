@@ -13,7 +13,7 @@ import lombok.Data;
 @Data
 public class ShopeeProduct {
     public Integer id;
-    public BigInteger shopeeItemId;
+    public String shopeeItemId;
     public Integer branchId;
     public Integer shopeeShopId;
     public String shopeeShopName;

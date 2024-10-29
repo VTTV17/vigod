@@ -5,7 +5,7 @@ import lombok.Data;
 @Data
 public class Variation {
 	public int id;
-	public Object shopeeVariationId;
+	public String shopeeVariationId;
 	public String variationSku;
 	public String name;
 	public int price;
