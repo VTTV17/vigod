@@ -265,7 +265,7 @@ public class ProductsPage extends ProductsElement {
         List<APIGetTikTokProducts.ItemMapping> changedItemMappings = APIGetTikTokProducts.getItemMapping(newLinkedTiktokProducts);
 
         // Retrieve the store ID from the first changed item mapping.
-        int storeId = originalTiktokProducts.getFirst().getBcStoreId();
+        int storeId = originalTiktokProducts.get(0).getBcStoreId();
 
         // Verify the inventory event based on the sync status and action times.
         VerifyAutoSyncHelper.verifyInventoryEvent(isAutoSynced, changedItemMappings, actionTime, storeId, connection, "GS_TIKTOK_SYNC_ITEM_EVENT");
@@ -355,7 +355,7 @@ public class ProductsPage extends ProductsElement {
         List<APIGetTikTokProducts.ItemMapping> itemMappingsWithNewInventoryMapping = APIGetTikTokProducts.getItemMapping(changedTiktokProducts);
 
         // Retrieve store ID from the first item in the original product list.
-        int storeId = originalTiktokProducts.getFirst().getBcStoreId();
+        int storeId = originalTiktokProducts.get(0).getBcStoreId();
 
         // Verify inventory mappings based on unchanged, removed, and new mappings.
         VerifyAutoSyncHelper.verifyInventoryMapping(
@@ -413,7 +413,7 @@ public class ProductsPage extends ProductsElement {
         originalInventoryMappings.removeAll(removedInventoryMappings);
 
         // Use the store ID from the first original TikTok product to verify the inventory mappings
-        int storeId = originalTiktokProducts.getFirst().getBcStoreId();
+        int storeId = originalTiktokProducts.get(0).getBcStoreId();
 
         // Verify the consistency of inventory mappings post-deletion
         VerifyAutoSyncHelper.verifyInventoryMapping(
@@ -447,7 +447,7 @@ public class ProductsPage extends ProductsElement {
         // Download >> get new info >> so sánh với before >> list product changed >> unchanged và changed >> từ changed >> removed and new mappings?
 
         // Extract store ID from the first original TikTok product to verify against updated mappings
-        int storeId = originalTiktokProducts.getFirst().getBcStoreId();
+        int storeId = originalTiktokProducts.get(0).getBcStoreId();
 
         // Get item mappings which have new inventory events after downloading the product
         List<APIGetTikTokProducts.ItemMapping> itemMappingsWithNewInventoryEvents = APIGetTikTokProducts.getItemMapping(

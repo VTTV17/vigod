@@ -80,7 +80,7 @@ public class APIUnlinkTiktokProduct {
         linkedTiktokProducts.forEach(unlinkedProduct -> verifyProductUnlinkedToGoSELL(unlinkedProduct, updatedTiktokProducts));
 
         // Retrieve the store ID from the first changed item mapping
-        int storeId = originalTiktokProducts.getFirst().getBcStoreId();
+        int storeId = originalTiktokProducts.get(0).getBcStoreId();
 
         // Verify that the original inventory mappings remain consistent with the newly created mappings
         VerifyAutoSyncHelper.verifyInventoryMapping(null, originalInventoryMappings, null, storeId, connection);
