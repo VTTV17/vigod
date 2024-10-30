@@ -8,7 +8,6 @@ import lombok.Data;
 import org.apache.logging.log4j.LogManager;
 import org.testng.Assert;
 import utilities.database.InitConnection;
-import utilities.model.dashboard.products.inventory.InventoryMapping;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -324,10 +323,10 @@ public class SQLGetInventoryMapping {
                 FROM "inventory-services".inventory_mapping im
                 WHERE im.inventory_id LIKE  '%s%%' and im.channel in ('GOSELL', 'LAZADA')
                 """.formatted(branchProduct);
-        return getLazadaInventoryMappingByQuery(query);
+        return getInventoryMappingByQuery(query);
     }
 
-    public List<utilities.model.dashboard.products.inventory.InventoryMapping> getLazadaInventoryMappingByQuery(String query) {
+    public List<utilities.model.dashboard.products.inventory.InventoryMapping> getInventoryMappingByQuery(String query) {
         List<utilities.model.dashboard.products.inventory.InventoryMapping> inventoryMappings = new ArrayList<>();
         // Use try-with-resources to ensure resources are closed properly
         try (ResultSet resultSet = InitConnection.executeSQL(connection, query)) {
@@ -351,13 +350,7 @@ public class SQLGetInventoryMapping {
     }
 
     public List<utilities.model.dashboard.products.inventory.InventoryMapping> getLazadaInventoryMappingExceptProduct(List<String> branchProductExcept, int storeId) {
-        String branchProduct = "";
-        for (int i = 0; i < branchProductExcept.size(); i++) {
-            branchProduct = branchProduct + "'" + branchProductExcept.get(i) + "%" + "'";
-            if (i != branchProductExcept.size() - 1) {
-                branchProduct = branchProduct + ",";
-            }
-        }
+        String branchProduct = branchProductExcept.stream().map(i->"'"+ i+"%"+"'").collect(Collectors.joining(","));
         String query = """
                 SELECT x.* FROM "inventory-services".inventory_mapping x
                 where not EXISTS
@@ -365,6 +358,6 @@ public class SQLGetInventoryMapping {
                             where
                             x.inventory_id  like any (ARRAY[%s])) and x.shop_id ='%s'
                 """.formatted(branchProduct, storeId);
-        return getLazadaInventoryMappingByQuery(query);
+        return getInventoryMappingByQuery(query);
     }
 }
