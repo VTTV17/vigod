@@ -161,6 +161,6 @@ public class AccountInformationPage extends AccountInformationElement {
         List<APIGetTikTokProducts.ItemMapping> itemMappings = APIGetTikTokProducts.getItemMapping(linkedTiktokProducts);
 
         // Verify inventory events based on the item mappings, action time, and connection
-        VerifyAutoSyncHelper.verifyInventoryEvent(isAutoSynced, itemMappings, actionTime, tikTokProducts.getFirst().getBcStoreId(), connection, "GS_TIKTOK_DOWNLOAD_PRODUCT");
+        VerifyAutoSyncHelper.verifyInventoryEvent(isAutoSynced, itemMappings, actionTime, tikTokProducts.get(0).getBcStoreId(), connection, "GS_TIKTOK_DOWNLOAD_PRODUCT");
     }
 }

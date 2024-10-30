@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import static java.sql.Types.NULL;
+
 /**
  * This class handles the retrieval of inventory events from the database.
  */
@@ -47,7 +49,7 @@ public class SQLGetInventoryEvent {
      * @param startTime The start of the time range in 'YYYY-MM-DD HH:MM:SS.mmm' format.
      * @param endTime   The end of the time range in 'YYYY-MM-DD HH:MM:SS.mmm' format.
      * @return A sorted list of {@link InventoryEvent} objects.
-     *         The list is sorted by {@code item_id}, and if {@code item_id}s are equal, by {@code model_id}.
+     * The list is sorted by {@code item_id}, and if {@code item_id}s are equal, by {@code model_id}.
      * @throws RuntimeException if there is an error retrieving inventory events from the database.
      */
     public List<InventoryEvent> getTiktokInventoryEvents(int storeId, String startTime, String endTime) {
@@ -97,34 +99,71 @@ public class SQLGetInventoryEvent {
 
         // Sort the inventory events by item_id, and if item_id is the same, then by model_id
         inventoryEvents.sort(Comparator.comparing(InventoryEvent::getItem_id)
-                        .thenComparing(InventoryEvent::getModel_id));
+                .thenComparing(InventoryEvent::getModel_id));
 
         // Return the list of inventory events
         return inventoryEvents;
     }
-    
+
     //TODO add function description
     public List<InventoryEvent> getShopeeInventoryEvents(String sqlQuery) {
-    	
-    	System.out.println(sqlQuery);
-    	
-    	List<InventoryEvent> accumulatedEvents = new ArrayList<>();
-    	try (ResultSet resultSet = InitConnection.executeSQL(connection, sqlQuery)) {
-    		while (resultSet.next()) {
-    			InventoryEvent event = new InventoryEvent();
-    			event.setBranch_id(resultSet.getString("branch_id"));
-    			event.setItem_id(resultSet.getString("item_id"));
-    			event.setModel_id(resultSet.getString("model_id"));
-    			event.setOrder_id(resultSet.getString("order_id"));
-    			event.setAction(resultSet.getString("action"));
-    			
-    			//Accumulate inventory events
-    			accumulatedEvents.add(event);
-    		}				
-    	} catch (SQLException exception) {
-    		throw new RuntimeException("Error retrieving inventory events from the database", exception);
-    	}
-    	
-    	return accumulatedEvents;
+
+        System.out.println(sqlQuery);
+
+        List<InventoryEvent> accumulatedEvents = new ArrayList<>();
+        try (ResultSet resultSet = InitConnection.executeSQL(connection, sqlQuery)) {
+            while (resultSet.next()) {
+                InventoryEvent event = new InventoryEvent();
+                event.setBranch_id(resultSet.getString("branch_id"));
+                event.setItem_id(resultSet.getString("item_id"));
+                event.setModel_id(resultSet.getString("model_id"));
+                event.setOrder_id(resultSet.getString("order_id"));
+                event.setAction(resultSet.getString("action"));
+
+                //Accumulate inventory events
+                accumulatedEvents.add(event);
+            }
+        } catch (SQLException exception) {
+            throw new RuntimeException("Error retrieving inventory events from the database", exception);
+        }
+
+        return accumulatedEvents;
+    }
+
+    public List<InventoryEvent> inventoryEventListByItem(int branchId, long itemId, String startTime) {
+        String query = """
+                select distinct on (ie.item_id, ie.model_id, ie."action") *
+                from "inventory-services".inventory_event ie
+                where ie .branch_id = '%s' and ie.item_id =  '%s' and created_date > '%s'
+                """.formatted(branchId, itemId, startTime);
+        List<InventoryEvent> inventoryEvents = getInventoryEventByQuery(query);
+        System.out.println("inventoryEvents: " + inventoryEvents);
+        return inventoryEvents;
+    }
+
+    public List<InventoryEvent> getInventoryEventByQuery(String query) {
+        // List to hold the parsed inventory events
+        List<InventoryEvent> inventoryEvents = new ArrayList<>();
+
+        // Use try-with-resources to ensure resources are closed properly
+        try (ResultSet resultSet = InitConnection.executeSQL(connection, query)) {
+            // Loop through the result set and map rows to InventoryEvent objects
+            while (resultSet.next()) {
+                InventoryEvent event = new InventoryEvent();
+                event.setBranch_id(resultSet.getString("branch_id"));
+                event.setItem_id(resultSet.getString("item_id"));
+                String modelId = resultSet.getString("model_id");
+                event.setModel_id(modelId != null ? modelId : "0");
+                event.setAction(resultSet.getString("action"));
+                // Add the event to the list
+                inventoryEvents.add(event);
+            }
+        } catch (SQLException exception) {
+            // Throw the exception
+            throw new RuntimeException("Error retrieving inventory events from the database", exception);
+        }
+
+        // Return the list of inventory events
+        return inventoryEvents;
     }
 }

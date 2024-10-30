@@ -3,10 +3,12 @@ package sql;
 import api.Seller.sale_channel.tiktok.APIGetTikTokProducts;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import api.Seller.orders.order_management.APIAllOrders;
 import lombok.Data;
 import org.apache.logging.log4j.LogManager;
 import org.testng.Assert;
 import utilities.database.InitConnection;
+import utilities.model.dashboard.products.inventory.InventoryMapping;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -292,27 +294,77 @@ public class SQLGetInventoryMapping {
     
     //TODO add function description
     public List<InventoryMapping> getMappingRecords(String sqlQuery) {
-    	System.out.println(sqlQuery);
-    	
-    	List<InventoryMapping> accumulatedRecords = new ArrayList<>();
-    	try (ResultSet resultSet = InitConnection.executeSQL(connection, sqlQuery)) {
-    		while (resultSet.next()) {
-    	        InventoryMapping mapping = new InventoryMapping();
-    	        mapping.setId(resultSet.getInt("id"));
-    	        mapping.setBranch_id(resultSet.getString("branch_id"));
-    	        mapping.setItem_id(resultSet.getString("item_id"));
-    	        mapping.setModel_id(resultSet.getString("model_id"));
-    	        mapping.setShop_id(resultSet.getString("shop_id"));
-    	        mapping.setStock(resultSet.getInt("stock"));
-    	        mapping.setChannel(resultSet.getString("channel"));
-    	        mapping.setInventory_id(resultSet.getString("inventory_id"));
-    	        
-    	        accumulatedRecords.add(mapping);
-    		}
-    	} catch (SQLException exception) {
-    		throw new RuntimeException("Error retrieving inventory mapping records from the database", exception);
-    	}
-    	
-    	return accumulatedRecords;
+        System.out.println(sqlQuery);
+
+        List<InventoryMapping> accumulatedRecords = new ArrayList<>();
+        try (ResultSet resultSet = InitConnection.executeSQL(connection, sqlQuery)) {
+            while (resultSet.next()) {
+                InventoryMapping mapping = new InventoryMapping();
+                mapping.setId(resultSet.getInt("id"));
+                mapping.setBranch_id(resultSet.getString("branch_id"));
+                mapping.setItem_id(resultSet.getString("item_id"));
+                mapping.setModel_id(resultSet.getString("model_id"));
+                mapping.setShop_id(resultSet.getString("shop_id"));
+                mapping.setStock(resultSet.getInt("stock"));
+                mapping.setChannel(resultSet.getString("channel"));
+                mapping.setInventory_id(resultSet.getString("inventory_id"));
+
+                accumulatedRecords.add(mapping);
+            }
+        } catch (SQLException exception) {
+            throw new RuntimeException("Error retrieving inventory mapping records from the database", exception);
+        }
+
+        return accumulatedRecords;
+    }
+    public List<utilities.model.dashboard.products.inventory.InventoryMapping> getLazadaInventoryMapping(int branch, long productId) {
+        String branchProduct = branch + "-" + productId;
+        String query = """
+                SELECT *
+                FROM "inventory-services".inventory_mapping im
+                WHERE im.inventory_id LIKE  '%s%%' and im.channel in ('GOSELL', 'LAZADA')
+                """.formatted(branchProduct);
+        return getLazadaInventoryMappingByQuery(query);
+    }
+
+    public List<utilities.model.dashboard.products.inventory.InventoryMapping> getLazadaInventoryMappingByQuery(String query) {
+        List<utilities.model.dashboard.products.inventory.InventoryMapping> inventoryMappings = new ArrayList<>();
+        // Use try-with-resources to ensure resources are closed properly
+        try (ResultSet resultSet = InitConnection.executeSQL(connection, query)) {
+            // Loop through the result set and map rows to InventoryMapping objects
+            while (resultSet.next()) {
+                utilities.model.dashboard.products.inventory.InventoryMapping mapping = new utilities.model.dashboard.products.inventory.InventoryMapping();
+                mapping.setBranchId(resultSet.getInt("branch_id"));
+                mapping.setItemId(resultSet.getLong("item_id"));
+                mapping.setModelId(resultSet.getString("model_id"));
+                mapping.setChannel(APIAllOrders.Channel.valueOf(resultSet.getString("channel")));
+                mapping.setInventoryId(resultSet.getString("inventory_id"));
+                // Add the mapping to the list
+                inventoryMappings.add(mapping);
+            }
+        } catch (SQLException exception) {
+            // Handle SQLException and rethrow as RuntimeException
+            throw new RuntimeException("Error retrieving inventory mappings from the database", exception);
+        }
+        System.out.println("Mapping From DB: " + inventoryMappings);
+        return inventoryMappings;
+    }
+
+    public List<utilities.model.dashboard.products.inventory.InventoryMapping> getLazadaInventoryMappingExceptProduct(List<String> branchProductExcept, int storeId) {
+        String branchProduct = "";
+        for (int i = 0; i < branchProductExcept.size(); i++) {
+            branchProduct = branchProduct + "'" + branchProductExcept.get(i) + "%" + "'";
+            if (i != branchProductExcept.size() - 1) {
+                branchProduct = branchProduct + ",";
+            }
+        }
+        String query = """
+                SELECT x.* FROM "inventory-services".inventory_mapping x
+                where not EXISTS
+                           (SELECT * FROM "inventory-services".inventory_mapping y
+                            where
+                            x.inventory_id  like any (ARRAY[%s])) and x.shop_id ='%s'
+                """.formatted(branchProduct, storeId);
+        return getLazadaInventoryMappingByQuery(query);
     }
 }
