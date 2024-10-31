@@ -103,6 +103,31 @@ public class LinkProductsPage extends LinkProductsElement {
 		UICommonAction.sleepInMiliSecond(1000, "Wait a little");
 		
 	}
+
+	public LinkProductsPage tickProductByShopeeProductId(String shopeeProductId) {
+		commonAction.click(loc_chkShopeeProductId(shopeeProductId));
+        logger.info("Ticked Shopee Product Id '{}'", shopeeProductId);
+		return this;
+	}
+	public LinkProductsPage clickSelectAction() {
+		commonAction.click(loc_lnkSelectAction);
+		logger.info("Clicked Select Action link text");
+		return this;
+	}	
+	public LinkProductsPage clickUnlinkOption() {
+		commonAction.click(loc_ddvUnlink);
+		logger.info("Clicked 'Unlink'");
+		return this;
+	}	
+	public void unlinkShopeeProductFromGosellProduct(List<String> shopeeProductIds) {
+		
+		shopeeProductIds.stream().forEach(id -> tickProductByShopeeProductId(id));
+		clickSelectAction().clickUnlinkOption();
+		
+		new ConfirmationDialog(driver).clickOKBtn_V2();
+		UICommonAction.sleepInMiliSecond(1000, "Wait a little");
+		
+	}	
 	
     /*-------------------------------------*/
     /* Check permission */

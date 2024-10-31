@@ -46,6 +46,7 @@ public class APIShopeeProducts {
     }
 
     String allShopeeProductPath = "/shopeeservices/api/items/bc-store/%s?page=%s&size=100&getBcItemName=true&sort=update_time,DESC";
+    String linkProductPath = "/shopeeservices/api/items/link";
     String unlinkProductPath = "/shopeeservices/api/items/<storeId>/unlink/<shopeeShopId>?ids=<shopeeItemId>";
 
     Response getShopeeProductResponse(int pageIndex) {
@@ -111,7 +112,7 @@ public class APIShopeeProducts {
     }
     
     /**
-     * Unlink Shopee products from GoSELL products
+     * Unlinks Shopee products from GoSELL products
      * @param shopeeShopId
      * @param shopeeItemIdList
      */
@@ -128,6 +129,22 @@ public class APIShopeeProducts {
     			.replaceAll("<shopeeItemId>", shopeeItemIdsString);
     	
     	api.get(basePath.formatted(loginInfo.getStoreID(), shopeeShopId, shopeeItemIdList), loginInfo.getAccessToken()).then().statusCode(200);
+    	
+    	logger.info("Unlinked Shopee product ids: {}", shopeeItemIdList);
+    }    
+    
+    public void linkProductNoVariations(ShopeeProduct product, String gosellProductId) {
+    	String body = """
+				{
+					"bcItemId": %s,
+					"itemId": %s,
+					"shopeeShopId": %s,
+					"branchId": %s,
+					"bcStoreId": "%s"
+				}    			
+    			""".formatted(gosellProductId, product.getId(), product.getShopeeShopId(), product.getBranchId(), product.getBcStoreId());
+    	
+    	api.put(linkProductPath, loginInfo.getAccessToken(), body).then().statusCode(204);	
     }    
     
 }
