@@ -1,12 +1,14 @@
 package web.Dashboard.sales_channels.shopee.account_information;
 
-import api.Seller.login.Login;
-import api.Seller.sale_channel.shopee.APIReconnectShopeeAccount;
-import api.Seller.sale_channel.shopee.APIShopeeManagement;
+import static utilities.links.Links.DOMAIN;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.support.ui.WebDriverWait;
+
+import api.Seller.login.Login;
+import api.Seller.sale_channel.shopee.APIReconnectShopeeAccount;
+import api.Seller.sale_channel.shopee.APIShopeeManagement;
 import utilities.assert_customize.AssertCustomize;
 import utilities.commons.UICommonAction;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
@@ -14,27 +16,21 @@ import utilities.model.sellerApp.login.LoginInformation;
 import utilities.model.staffPermission.AllPermissions;
 import utilities.permission.CheckPermission;
 
-import java.time.Duration;
-
-import static utilities.links.Links.DOMAIN;
-
 public class AccountInformationPage extends AccountInformationElement {
 
     final static Logger logger = LogManager.getLogger(AccountInformationPage.class);
 
     WebDriver driver;
-    WebDriverWait wait;
     UICommonAction commonAction;
 
     public AccountInformationPage(WebDriver driver) {
         this.driver = driver;
-        wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         commonAction = new UICommonAction(driver);
     }
 
     public void clickDownloadShopeeProduct() {
         commonAction.click(loc_btnDownloadShopeeProduct);
-        logger.info("Clicked on 'Download Shopee Product' button.");
+        logger.info("Clicked 'Download Shopee Product' button");
     }
 
     /*-------------------------------------*/
@@ -63,13 +59,26 @@ public class AccountInformationPage extends AccountInformationElement {
         apiShopeeManagementWithSellerToken = new APIShopeeManagement(sellerLoginInformation);
         return this;
     }
-
-    void navigateToShopeeAccountInformationPage() {
+    
+    
+    public AccountInformationPage navigateToShopeeAccountInformationPage() {
         driver.get("%s/channel/shopee/account/information".formatted(DOMAIN));
         driver.navigate().refresh();
         logger.info("Navigate to Shopee account information page by URL.");
+		
+        //TODO handle navigation with different domains (VN/BIZ)
+		return this;
     }
 
+    public AccountInformationPage clickDownloadButton() {
+    	commonAction.click(loc_btnDownloadShopeeProduct);
+    	logger.info("Clicked Download button");
+    	
+    	waitUntilSyncStatusIconDisappear();
+    	
+    	return this;
+    }
+    
     void checkViewAccountInformation() {
         if (apiShopeeManagementWithSellerToken.isConnectedShopee()) {
             if (permissions.getShopee().isViewAccountInformation()) {
@@ -103,6 +112,19 @@ public class AccountInformationPage extends AccountInformationElement {
         }
     }
 
+	void waitUntilSyncStatusIconDisappear() {
+		//TODO consider removing this sleep if possible
+		UICommonAction.sleepInMiliSecond(1000, "Wait a little for sync status icon to appear");
+		
+		for (int attempt=0; attempt <30; attempt++) {
+			if (commonAction.getElements(loc_icnProductDownloading).isEmpty()) {
+				logger.debug("Sync status icon has disappeared"); break;
+			}
+			commonAction.refreshPage();
+			UICommonAction.sleepInMiliSecond(6000, "Wait until sync status icon disappears");
+		}
+	}    
+    
     void checkSyncOrders() {
         // reconnect Shopee account
         new APIReconnectShopeeAccount(sellerLoginInformation).reconnectShopeeAccount();

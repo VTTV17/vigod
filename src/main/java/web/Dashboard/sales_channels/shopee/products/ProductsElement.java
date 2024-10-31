@@ -11,6 +11,10 @@ public class ProductsElement {
     	return By.xpath("//a[.='%s']//preceding-sibling::label/div[contains(@class,'uik-checkbox__label')]".formatted(shopeeProductId));
     }
     
+    By loc_icnDownloadProduct(String shopeeProductId) {
+    	return By.xpath("//td[.='%s']//following-sibling::td//*[@data-icon=\"download\"]".formatted(shopeeProductId));
+    }
+    
     By loc_lnkSelectAction = By.cssSelector(".gs-dropdown-action .gs-fake-link");
     By loc_ddvCreateProductToGoSELL = By.xpath("//div[@class=' actions expand']/div[starts-with(.,'Create') or starts-with(.,'Tạo')]");
     By loc_ddvUpdateProductToGoSELL = By.xpath("//div[@class=' actions expand']/div[starts-with(.,'Update') or starts-with(.,'Cập')]");

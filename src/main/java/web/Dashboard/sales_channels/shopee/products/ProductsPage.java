@@ -76,17 +76,23 @@ public class ProductsPage extends ProductsElement{
 
 	void waitUntilSyncStatusIconDisappear() {
 		//TODO consider removing this sleep if possible
-		commonAction.sleepInMiliSecond(1000, "Wait a little for sync status icon to appear");
+		UICommonAction.sleepInMiliSecond(1000, "Wait a little for sync status icon to appear");
 		
 		for (int attempt=0; attempt <30; attempt++) {
 			if (commonAction.getElements(loc_icnSyncStatus).isEmpty()) {
 				logger.debug("Sync status icon has disappeared"); break;
 			}
 			commonAction.refreshPage();
-			commonAction.sleepInMiliSecond(6000, "Wait until sync status icon disappears");
+			UICommonAction.sleepInMiliSecond(6000, "Wait until sync status icon disappears");
 		}
 	}
 	
+	public ProductsPage downloadSpecificProduct(String shopeeProductId) {
+		commonAction.click(loc_icnDownloadProduct(shopeeProductId));
+        logger.info("Downloaded Shopee Product Id '{}'", shopeeProductId);
+        new HomePage(driver).waitTillLoadingDotsDisappear();
+		return this;
+	}
 	
     /*-------------------------------------*/
     /* Check permission */

@@ -36,4 +36,12 @@ public class LinkProductsElement {
 	By loc_ddvGosellVariation(int index) {
 		return By.xpath("(//*[starts-with(@class,'modal-dialog')]//table//tbody/tr)[%s]//div[contains(@id,'listbox')]//div[contains(@id,'option')]".formatted(index));
 	}
+	
+    By loc_chkShopeeProductId(String shopeeProductId) {
+    	return By.xpath("//td[.='%s']//preceding-sibling::*//div[contains(@class,'uik-checkbox__label')]".formatted(shopeeProductId));
+    }
+    
+    By loc_lnkSelectAction = By.cssSelector(".gs-dropdown-action .gs-fake-link");	
+    
+    By loc_ddvUnlink = By.xpath("//div[@class=' actions expand']/div[starts-with(.,'Hủy')]");
 }
