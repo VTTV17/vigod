@@ -145,6 +145,8 @@ public class APIShopeeProducts {
     			""".formatted(gosellProductId, product.getId(), product.getShopeeShopId(), product.getBranchId(), product.getBcStoreId());
     	
     	api.put(linkProductPath, loginInfo.getAccessToken(), body).then().statusCode(204);	
+    	
+    	logger.info("Linked Shopee product '{}' with GoSELL product '{}'", product.getShopeeItemId(), gosellProductId);
     }    
     
 }

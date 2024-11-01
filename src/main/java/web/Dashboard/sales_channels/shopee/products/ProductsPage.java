@@ -60,6 +60,11 @@ public class ProductsPage extends ProductsElement{
 		logger.info("Clicked Create Product To Gosell button");
 		return this;
 	}	
+	public ProductsPage clickUpdateProductToGosellBtn() {
+		commonAction.click(loc_ddvUpdateProductToGoSELL);
+		logger.info("Clicked Update Product To Gosell button");
+		return this;
+	}	
 	public ProductsPage createProductToGosellBtn(List<String> shopeeProductIds) {
 		
 		shopeeProductIds.stream().forEach(id -> tickProductByShopeeProductId(id));
@@ -74,6 +79,17 @@ public class ProductsPage extends ProductsElement{
 		return createProductToGosellBtn(List.of(shopeeProductId));
 	}
 
+	public ProductsPage updateProductToGosellBtn(List<String> shopeeProductIds) {
+		
+		shopeeProductIds.stream().forEach(id -> tickProductByShopeeProductId(id));
+		
+		clickSelectAction().clickUpdateProductToGosellBtn();
+		new ConfirmationDialog(driver).clickOKBtn();
+		
+		waitUntilSyncStatusIconDisappear();
+		return this;
+	}	
+	
 	void waitUntilSyncStatusIconDisappear() {
 		//TODO consider removing this sleep if possible
 		UICommonAction.sleepInMiliSecond(1000, "Wait a little for sync status icon to appear");
@@ -91,6 +107,10 @@ public class ProductsPage extends ProductsElement{
 		commonAction.click(loc_icnDownloadProduct(shopeeProductId));
         logger.info("Downloaded Shopee Product Id '{}'", shopeeProductId);
         new HomePage(driver).waitTillLoadingDotsDisappear();
+		return this;
+	}
+	public ProductsPage downloadSpecificProduct(List<String> shopeeProductIds) {
+		shopeeProductIds.stream().forEach(id -> downloadSpecificProduct(id));
 		return this;
 	}
 	

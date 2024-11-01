@@ -44,7 +44,9 @@ import web.Dashboard.sales_channels.shopee.link_products.LinkProductsPage;
 import web.Dashboard.sales_channels.shopee.products.ProductsPage;
 
 public class ShopeeAutoSyncTest extends BaseTest {
-
+	
+	static final int BULK_PRODUCT_COUNT = 2;
+	
 	LoginInformation credentials;
 	BranchInfo branchInfo;
 
@@ -140,6 +142,33 @@ public class ShopeeAutoSyncTest extends BaseTest {
 			verifyEventNoVariations(currentTimestamp, product, expectedEvent);
 		}
 	}
+
+	void verifyEventNoVariationsRemoved(String currentTimestamp, ShopeeProduct product) {
+		
+		var sqlQuery = "SELECT x.* FROM \"inventory-services\".inventory_event x WHERE branch_id = '%s' and item_id = '%s' and created_date > '%s' ORDER BY x.id DESC".formatted(product.getBranchId(), product.getBcItemId(), currentTimestamp);
+		
+		List<InventoryEvent> inventoryEvents = new SQLGetInventoryEvent(dbConnection).getShopeeInventoryEvents(sqlQuery);
+		
+		Assert.assertTrue(inventoryEvents.size() == 0, "No event records");
+	}	
+	void verifyEventVariationsRemoved(String currentTimestamp, ShopeeProduct product) {
+		
+		product.getVariations().stream().forEach(var -> {
+			
+			var sqlQuery = "SELECT x.* FROM \"inventory-services\".inventory_event x WHERE branch_id = '%s' and item_id = '%s' and model_id = '%s' and created_date > '%s' ORDER BY x.id DESC".formatted(product.getBranchId(), product.getBcItemId(), var.getBcModelId(), currentTimestamp);
+			
+			List<InventoryEvent> inventoryEventList = new SQLGetInventoryEvent(dbConnection).getShopeeInventoryEvents(sqlQuery);
+			
+			Assert.assertTrue(inventoryEventList.size() == 0, "No event records");
+		});
+	}
+	void verifyEventRemoved(String currentTimestamp, ShopeeProduct product) {
+		if (product.getHasVariation()) {
+			verifyEventVariationsRemoved(currentTimestamp, product);
+		} else {
+			verifyEventNoVariationsRemoved(currentTimestamp, product);
+		}
+	}
 	
 	void verifyMappingNoVariations(ShopeeProduct product) {
 		
@@ -207,7 +236,7 @@ public class ShopeeAutoSyncTest extends BaseTest {
 		//Get Shopee products that match a specific condition
 		var shopeeProducts = new APIShopeeProducts(credentials).getProducts().stream()
 				.filter(e -> (e.getHasVariation().equals(Boolean.FALSE) && e.getGosellStatus().contentEquals("UNLINK")))
-				.limit(3).collect(Collectors.toList());
+				.limit(BULK_PRODUCT_COUNT).collect(Collectors.toList());
 		
 		//Get Ids of the Shopee products
 		var shopeeProductIds = shopeeProducts.stream().map(e -> e.getShopeeItemId().toString()).collect(Collectors.toList());
@@ -246,7 +275,7 @@ public class ShopeeAutoSyncTest extends BaseTest {
 		//Get Shopee products that match a specific condition
 		var shopeeProducts = new APIShopeeProducts(credentials).getProducts().stream()
 				.filter(e -> (e.getHasVariation().equals(Boolean.TRUE) && e.getGosellStatus().contentEquals("UNLINK")))
-				.limit(5).collect(Collectors.toList());
+				.limit(BULK_PRODUCT_COUNT).collect(Collectors.toList());
 		
 		//Get Ids of the Shopee products
 		var shopeeProductIds = shopeeProducts.stream().map(e -> e.getShopeeItemId().toString()).collect(Collectors.toList());
@@ -467,7 +496,7 @@ public class ShopeeAutoSyncTest extends BaseTest {
 		//Get Shopee products that match a specific condition
 		var shopeeProducts = new APIShopeeProducts(credentials).getProducts().stream()
 				.filter(e -> (e.getHasVariation().equals(Boolean.FALSE) && e.getGosellStatus().contentEquals("UNLINK")))
-				.limit(2).collect(Collectors.toList());
+				.limit(BULK_PRODUCT_COUNT).collect(Collectors.toList());
 		
 		//Get Ids of the Shopee products
 		var shopeeProductIds = shopeeProducts.stream().map(e -> e.getShopeeItemId().toString()).collect(Collectors.toList());
@@ -515,7 +544,7 @@ public class ShopeeAutoSyncTest extends BaseTest {
 		//Get Shopee products that match a specific condition
 		var shopeeProducts = new APIShopeeProducts(credentials).getProducts().stream()
 				.filter(e -> (e.getHasVariation().equals(Boolean.TRUE) && e.getGosellStatus().contentEquals("UNLINK")))
-				.limit(2).collect(Collectors.toList());
+				.limit(BULK_PRODUCT_COUNT).collect(Collectors.toList());
 		
 		//Get Ids of the Shopee products
 		var shopeeProductIds = shopeeProducts.stream().map(e -> e.getShopeeItemId().toString()).collect(Collectors.toList());
@@ -641,13 +670,181 @@ public class ShopeeAutoSyncTest extends BaseTest {
 				.filter(e -> shopeeProductIds.contains(e.getShopeeItemId().toString()))
 				.collect(Collectors.toList());
 		
-		UICommonAction.sleepInMiliSecond(3000, "Wait until all records generated in database");
-		
 		//Check database for inventory events
 		shopeeProductsAfterLink.stream().forEach(product -> verifyEvent(currentTimestamp, product, expectedEvent));
 		
 		//Check database for mapping records
 		shopeeProductsAfterLink.stream().forEach(product -> verifyMapping(product));
+		
+		//TODO decide whether to unlink the products
+	}	
+
+	@Test(description = "Incorporate a linked product's info on Shopee into GoSELL system")
+	public void TC_UpdateLinkedProduct_NoVar() {
+		
+		//Get Shopee products that match a specific condition
+		var shopeeProducts = new APIShopeeProducts(credentials).getProducts().stream()
+				.filter(e -> (e.getHasVariation().equals(Boolean.FALSE) && List.of("LINK").contains(e.getGosellStatus())))
+				.limit(BULK_PRODUCT_COUNT).collect(Collectors.toList());
+		
+		//Get Ids of the Shopee products
+		var shopeeProductIds = shopeeProducts.stream().map(e -> e.getShopeeItemId().toString()).collect(Collectors.toList());
+		
+		var timestampBeforeDownload = LocalDateTime.now(ZoneId.of("UTC")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"));
+		
+		//UI implementation of importing a Shopee product to GoSELL
+        driver = new InitWebdriver().getDriver(browser, headless);
+        new LoginPage(driver).navigateToPage(Domain.valueOf(domain), DisplayLanguage.valueOf(language)).performValidLogin("Vietnam", credentials.getEmail(), credentials.getPassword());
+        new ProductsPage(driver).navigateByURL().downloadSpecificProduct(shopeeProductIds);
+        
+		var shopeeProductsAfterDownload = new APIShopeeProducts(credentials).getProducts().stream()
+				.filter(e -> shopeeProductIds.contains(e.getShopeeItemId().toString()))
+				.collect(Collectors.toList());
+        
+        //Check database for inventory events
+		shopeeProductsAfterDownload.stream().forEach(product -> verifyEvent(timestampBeforeDownload, product, EventAction.GS_SHOPEE_DOWNLOAD_PRODUCT.name()));
+		
+		//Check database for mapping records
+		shopeeProductsAfterDownload.stream().forEach(product -> verifyMapping(product));
+		
+		var timestampBeforeUpdate = LocalDateTime.now(ZoneId.of("UTC")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"));
+		
+		new ProductsPage(driver).navigateByURL().updateProductToGosellBtn(shopeeProductIds);
+		
+        //Check database for inventory events
+		shopeeProductsAfterDownload.stream().forEach(product -> verifyEvent(timestampBeforeUpdate, product, EventAction.GS_SHOPEE_SYNC_ITEM_EVENT.name()));
+		
+		//Check database for mapping records
+		shopeeProductsAfterDownload.stream().forEach(product -> verifyMapping(product));		
+		
+		//TODO decide whether to unlink the products
+	}	
+	
+	@Test(description = "Incorporate a linked product's info on Shopee into GoSELL system")
+	public void TC_UpdateLinkedProduct_VarAvailable() {
+		
+		//Get Shopee products that match a specific condition
+		var shopeeProducts = new APIShopeeProducts(credentials).getProducts().stream()
+				.filter(e -> (e.getHasVariation().equals(Boolean.TRUE) && List.of("LINK").contains(e.getGosellStatus())))
+				.limit(BULK_PRODUCT_COUNT).collect(Collectors.toList());
+		
+		//Get Ids of the Shopee products
+		var shopeeProductIds = shopeeProducts.stream().map(e -> e.getShopeeItemId().toString()).collect(Collectors.toList());
+		
+		var timestampBeforeDownload = LocalDateTime.now(ZoneId.of("UTC")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"));
+		
+		//UI implementation of importing a Shopee product to GoSELL
+		driver = new InitWebdriver().getDriver(browser, headless);
+		new LoginPage(driver).navigateToPage(Domain.valueOf(domain), DisplayLanguage.valueOf(language)).performValidLogin("Vietnam", credentials.getEmail(), credentials.getPassword());
+		new ProductsPage(driver).navigateByURL().downloadSpecificProduct(shopeeProductIds);
+		
+		var shopeeProductsAfterDownload = new APIShopeeProducts(credentials).getProducts().stream()
+				.filter(e -> shopeeProductIds.contains(e.getShopeeItemId().toString()))
+				.collect(Collectors.toList());
+		
+		//Check database for inventory events
+		shopeeProductsAfterDownload.stream().forEach(product -> verifyEvent(timestampBeforeDownload, product, EventAction.GS_SHOPEE_DOWNLOAD_PRODUCT.name()));
+		
+		//Check database for mapping records
+		shopeeProductsAfterDownload.stream().forEach(product -> verifyMapping(product));
+		
+		var timestampBeforeUpdate = LocalDateTime.now(ZoneId.of("UTC")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"));
+		
+		new ProductsPage(driver).navigateByURL().updateProductToGosellBtn(shopeeProductIds);
+		
+		//Check database for inventory events
+		shopeeProductsAfterDownload.stream().forEach(product -> verifyEvent(timestampBeforeUpdate, product, EventAction.GS_SHOPEE_SYNC_ITEM_EVENT.name()));
+		
+		//Check database for mapping records
+		shopeeProductsAfterDownload.stream().forEach(product -> verifyMapping(product));		
+		
+		//TODO check product' status is changed to SYNC
+		
+		//TODO decide whether to unlink the products
+	}
+	
+	@Test(description = "Incorporate a synced product's info on Shopee into GoSELL system")
+	public void TC_UpdateSyncedProduct_NoVar() {
+		
+		//Get Shopee products that match a specific condition
+		var shopeeProducts = new APIShopeeProducts(credentials).getProducts().stream()
+				.filter(e -> (e.getHasVariation().equals(Boolean.FALSE) && List.of("SYNC").contains(e.getGosellStatus())))
+				.limit(BULK_PRODUCT_COUNT).collect(Collectors.toList());
+		
+		//Get Ids of the Shopee products
+		var shopeeProductIds = shopeeProducts.stream().map(e -> e.getShopeeItemId().toString()).collect(Collectors.toList());
+		
+		var timestampBeforeDownload = LocalDateTime.now(ZoneId.of("UTC")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"));
+		
+		//UI implementation of importing a Shopee product to GoSELL
+		driver = new InitWebdriver().getDriver(browser, headless);
+		new LoginPage(driver).navigateToPage(Domain.valueOf(domain), DisplayLanguage.valueOf(language)).performValidLogin("Vietnam", credentials.getEmail(), credentials.getPassword());
+		new ProductsPage(driver).navigateByURL().downloadSpecificProduct(shopeeProductIds);
+		
+		var shopeeProductsAfterDownload = new APIShopeeProducts(credentials).getProducts().stream()
+				.filter(e -> shopeeProductIds.contains(e.getShopeeItemId().toString()))
+				.collect(Collectors.toList());
+		
+		//Check database for inventory events
+		shopeeProductsAfterDownload.stream().forEach(product -> verifyEvent(timestampBeforeDownload, product, EventAction.GS_SHOPEE_DOWNLOAD_PRODUCT.name()));
+		
+		//Check database for mapping records
+		shopeeProductsAfterDownload.stream().forEach(product -> verifyMapping(product));
+		
+		var timestampBeforeUpdate = LocalDateTime.now(ZoneId.of("UTC")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"));
+		
+		new ProductsPage(driver).navigateByURL().updateProductToGosellBtn(shopeeProductIds);
+		
+		//Check database for inventory events
+		shopeeProductsAfterDownload.stream().forEach(product -> verifyEventRemoved(timestampBeforeUpdate, product));
+		
+		//Check database for mapping records
+		shopeeProductsAfterDownload.stream().forEach(product -> verifyMapping(product));		
+		
+		//TODO check product' status is changed to SYNC
+		
+		//TODO decide whether to unlink the products
+	}	
+	
+	@Test(description = "Incorporate a synceds product's info on Shopee into GoSELL system")
+	public void TC_UpdateSyncedProduct_VarAvailable() {
+		
+		//Get Shopee products that match a specific condition
+		var shopeeProducts = new APIShopeeProducts(credentials).getProducts().stream()
+				.filter(e -> (e.getHasVariation().equals(Boolean.TRUE) && List.of("SYNC").contains(e.getGosellStatus())))
+				.limit(BULK_PRODUCT_COUNT).collect(Collectors.toList());
+		
+		//Get Ids of the Shopee products
+		var shopeeProductIds = shopeeProducts.stream().map(e -> e.getShopeeItemId().toString()).collect(Collectors.toList());
+		
+		var timestampBeforeDownload = LocalDateTime.now(ZoneId.of("UTC")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"));
+		
+		//UI implementation of importing a Shopee product to GoSELL
+		driver = new InitWebdriver().getDriver(browser, headless);
+		new LoginPage(driver).navigateToPage(Domain.valueOf(domain), DisplayLanguage.valueOf(language)).performValidLogin("Vietnam", credentials.getEmail(), credentials.getPassword());
+		new ProductsPage(driver).navigateByURL().downloadSpecificProduct(shopeeProductIds);
+		
+		var shopeeProductsAfterDownload = new APIShopeeProducts(credentials).getProducts().stream()
+				.filter(e -> shopeeProductIds.contains(e.getShopeeItemId().toString()))
+				.collect(Collectors.toList());
+		
+		//Check database for inventory events
+		shopeeProductsAfterDownload.stream().forEach(product -> verifyEvent(timestampBeforeDownload, product, EventAction.GS_SHOPEE_DOWNLOAD_PRODUCT.name()));
+		
+		//Check database for mapping records
+		shopeeProductsAfterDownload.stream().forEach(product -> verifyMapping(product));
+		
+		var timestampBeforeUpdate = LocalDateTime.now(ZoneId.of("UTC")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"));
+		
+		new ProductsPage(driver).navigateByURL().updateProductToGosellBtn(shopeeProductIds);
+		
+		//Check database for inventory events
+		shopeeProductsAfterDownload.stream().forEach(product -> verifyEventRemoved(timestampBeforeUpdate, product));
+		
+		//Check database for mapping records
+		shopeeProductsAfterDownload.stream().forEach(product -> verifyMapping(product));		
+		
+		//TODO check product' status is changed to SYNC
 		
 		//TODO decide whether to unlink the products
 	}	
