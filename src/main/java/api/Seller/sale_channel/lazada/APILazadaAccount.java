@@ -9,9 +9,6 @@ import utilities.api.API;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 
-import java.util.Arrays;
-import java.util.List;
-
 public class APILazadaAccount {
     API api = new API();
     LoginDashboardInfo loginInfo;
@@ -27,7 +24,7 @@ public class APILazadaAccount {
     }
 
     @SneakyThrows
-    public String getLazadaShopAndBranchIDConnected() {
+    public String getBranchIDAndLazadaShopConnected() {
         Response response = api.get(GET_LAZADA_ACCOUNT_MANAGEMENT_PATH.formatted(loginInfo.getStoreID()), loginInfo.getAccessToken());
         response.then().statusCode(200);
         String connectStatus = response.jsonPath().getString("[0].connectStatus");
@@ -55,7 +52,7 @@ public class APILazadaAccount {
      */
     @SneakyThrows
     public void downloadLazadaProductByAPI() {
-        String lazadaShopId = getLazadaShopAndBranchIDConnected().split("-")[0];
+        String lazadaShopId = getBranchIDAndLazadaShopConnected().split("-")[1];
         callDownloadProductAPI(lazadaShopId);
         waitFetchProductAPI(20, lazadaShopId);
     }
@@ -75,5 +72,6 @@ public class APILazadaAccount {
             Thread.sleep(2000);
             maxLoop--;
         }
+        throw new Exception("Download/Sync product not successful.");
     }
 }

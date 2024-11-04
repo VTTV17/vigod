@@ -14,7 +14,6 @@ import sql.SQLGetInventoryMapping;
 import utilities.assert_customize.AssertCustomize;
 import utilities.commons.UICommonAction;
 import utilities.database.InitConnection;
-import utilities.enums.Domain;
 import utilities.enums.EventAction;
 import utilities.enums.ProductThirdPartyStatus;
 import utilities.model.dashboard.products.inventory.InventoryMapping;
@@ -86,7 +85,7 @@ public class LazadaProducts extends LazadaProductElements {
     }
 
     public LazadaProducts waitToFetchProduct() {
-        commonAction.refreshPage();
+//        commonAction.refreshPage();
         commonAction.waitElementVisible(loc_lblFetchProductStatus);
         try {
             commonAction.waitInvisibilityOfElementLocated(loc_lblFetchProductStatus);
@@ -175,6 +174,7 @@ public class LazadaProducts extends LazadaProductElements {
             new APILazadaProducts(loginInformation).unlinkAllLazadaProduct();
             logger.info("Unlinked all product.");
         }
+        commonAction.sleepInMiliSecond(2000,"Wait update database");
         allLazadaIdUnlink = new APILazadaProducts(loginInformation).getLazadaProductIdWithStatus(ProductThirdPartyStatus.UNLINK, hasVariation);
         return allLazadaIdUnlink;
     }
@@ -182,29 +182,36 @@ public class LazadaProducts extends LazadaProductElements {
     public List<Long> getSyncedLinkedProduct(boolean hasVariation, int numberOfProduct, ProductThirdPartyStatus status) {
         APILazadaProducts apiLazadaProducts = new APILazadaProducts(loginInformation);
         List<Long> allLazadaId = apiLazadaProducts.getLazadaProductIdWithStatus(status, hasVariation);
-        String branchAndLazadaConnected = new APILazadaAccount(loginInformation).getLazadaShopAndBranchIDConnected();
+        String branchAndLazadaConnected = new APILazadaAccount(loginInformation).getBranchIDAndLazadaShopConnected();
         int branchId = Integer.parseInt(branchAndLazadaConnected.split("-")[0]);
         String lazadShopId = branchAndLazadaConnected.split("-")[1];
         if (allLazadaId.size() < numberOfProduct) {
             List<Long> unlinkProductId = apiLazadaProducts.getLazadaProductIdWithStatus(ProductThirdPartyStatus.UNLINK, hasVariation).stream().limit(numberOfProduct).collect(Collectors.toList());
+            if(unlinkProductId.isEmpty()){
+                List<Long> lazadaIdNotHasStatus = apiLazadaProducts.getLazadaProductIdNotStatus(status, hasVariation).stream().limit(numberOfProduct).collect(Collectors.toList());
+                apiLazadaProducts.unlinkLazadaProduct(lazadaIdNotHasStatus);
+                unlinkProductId = new APILazadaProducts(loginInformation).getLazadaProductIdWithStatus(ProductThirdPartyStatus.UNLINK, hasVariation).stream().limit(numberOfProduct).collect(Collectors.toList());
+            }
             if (status.equals(ProductThirdPartyStatus.SYNC))
                 //if status = SYNC, then create to gosell
                 new APICreateUpdateToGoSell(loginInformation).createLazadaToGoSell(lazadShopId, unlinkProductId);
             else {
                 //else to link product to Gosell
                 unlinkProductId.forEach(i -> {
-                    long productId = new APICreateProduct(loginInformation).createAndLinkProductTo3rdPartyThenRetrieveId(apiLazadaProducts.getVariationNumberOfLazadaProduct(i));
+                    long productId = new APICreateProduct(loginInformation).createAndLinkProductTo3rdPartyThenRetrieveId(apiLazadaProducts.getVariationNumberOfLazadaProduct(i),10);
                     apiLazadaProducts.linkProduct(branchId, productId, i);
                 });
             }
+            commonAction.sleepInMiliSecond(3000, "Wait for data insert into database.");
             return unlinkProductId;
         } else return allLazadaId.stream().limit(numberOfProduct).collect(Collectors.toList());
     }
 
     @SneakyThrows
     public void verifyInventoryMappingExceptProductList(List<String> branchProductExcept, int storeId, List<InventoryMapping> mappingBefore) {
+        logger.info("Check inventory mapping of remain product (that are not impacted)");
         List<InventoryMapping> mappingAfter = new SQLGetInventoryMapping(new InitConnection().createConnection()).getLazadaInventoryMappingExceptProduct(branchProductExcept, storeId);
-        verifyInventoryMapping(mappingBefore, mappingAfter);
+        verifyInventoryMapping(mappingAfter,mappingBefore);
     }
 
     public List<String> getBranchProductRelevantLazadaProduct(List<Long> lazadaProduct) {
@@ -212,7 +219,7 @@ public class LazadaProducts extends LazadaProductElements {
         APILazadaProducts apiLazadaProducts = new APILazadaProducts(loginInformation);
         lazadaProduct.forEach(i -> {
             logger.info("Lazada product id: {}", i);
-            String branchProduct = apiLazadaProducts.getProductAndBranchMappingWithLazadaProduct(i);
+            String branchProduct = apiLazadaProducts.getBranchAndProductMappingWithLazadaProduct(i);
             branchProductList.add(branchProduct);
         });
         return branchProductList;
