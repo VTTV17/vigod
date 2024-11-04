@@ -114,7 +114,7 @@ public class APILazadaProducts {
      * @return Format: branchId-productId
      */
     @SneakyThrows
-    public String getProductAndBranchMappingWithLazadaProduct(long lazadaProductId) {
+    public String getBranchAndProductMappingWithLazadaProduct(long lazadaProductId) {
         LazadaProduct lazadaProduct = lazadaProductList.stream().filter(i -> i.lazadaItemId == lazadaProductId)
                 .findAny().orElseThrow(() -> new Exception("ProductId mapping with lazadaItem %s not found!".formatted(lazadaProductId)));
         System.out.println("lazadaProduct: " + lazadaProduct);
@@ -130,6 +130,11 @@ public class APILazadaProducts {
 
     public List<Long> getLazadaProductIdNotStatus(ProductThirdPartyStatus status) {
         return lazadaProductList.stream().filter(i -> !i.gosellStatus.equals(status.name()))
+                .map(LazadaProduct::getLazadaItemId)
+                .collect(Collectors.toList());
+    }
+    public List<Long> getLazadaProductIdNotStatus(ProductThirdPartyStatus status, boolean hasVaiation) {
+        return lazadaProductList.stream().filter(i ->i.hasVariation==hasVaiation && !i.gosellStatus.equals(status.name()))
                 .map(LazadaProduct::getLazadaItemId)
                 .collect(Collectors.toList());
     }
@@ -231,6 +236,13 @@ public class APILazadaProducts {
         return payload;
     }
 
+    /**
+     * To link product Lazada with Gosell
+     * @param branchId
+     * @param productId
+     * @param lazadaProductId
+     * @return Map<String, List> has keys: inventoryEvent, inventoryMapping
+     */
     public Map<String, List> linkProductThenGetInventoryInfo(int branchId, long productId, long lazadaProductId) {
         LazadaLinkPayload payload = linkProduct(branchId, productId, lazadaProductId);
         //Get InventoryMapping and Inventory Event
@@ -275,12 +287,18 @@ public class APILazadaProducts {
     @SneakyThrows
     public void unlinkLazadaProduct(long lazadaProductId) {
         LazadaProduct lazadaProduct = lazadaProductList.stream().filter(i -> i.lazadaItemId == lazadaProductId && !i.gosellStatus.equals(ProductThirdPartyStatus.UNLINK.name()))
-                .findAny().orElseThrow(() -> new Exception("Lazada product id: %s not found or has status  UNLINK!".formatted(lazadaProductId)));
+                .findAny().orElseThrow(() -> new Exception("Lazada product id: %s not found or has status LINKED/SYNCE!".formatted(lazadaProductId)));
         long lazadaShop = lazadaProduct.getLazadaShopId();
         Response response = api.get(UNLINK_LAZADA_PATH.formatted(loginInfo.getStoreID(), lazadaShop, lazadaProductId), loginInfo.getAccessToken());
         response.then().statusCode(200);
+        logger.info("Unlink product: "+lazadaProductId);
     }
-
+    @SneakyThrows
+    public void unlinkLazadaProduct(List<Long> lazadaProductIdList) {
+        lazadaProductIdList.forEach(lazadaProductId -> {
+            unlinkLazadaProduct(lazadaProductId);
+        });
+    }
     @SneakyThrows
     public void unlinkAllLazadaProduct() {
         List<LazadaProduct> productCanUnlinkList = lazadaProductList.stream().filter(i -> !i.gosellStatus.equals(ProductThirdPartyStatus.UNLINK.name())).collect(Collectors.toList());

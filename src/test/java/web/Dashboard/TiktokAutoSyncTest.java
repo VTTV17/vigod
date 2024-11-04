@@ -83,7 +83,7 @@ public class TiktokAutoSyncTest extends BaseTest{
 
         // Store original TikTok products and inventory mappings before product creation in GoSELL
         var orgTiktokProduct = tikTokProducts;
-        int storeId = tikTokProducts.getFirst().getBcStoreId();
+        int storeId = tikTokProducts.get(0).getBcStoreId();
         var orgInventoryMappings = new SQLGetInventoryMapping(connection).getTiktokInventoryMappings(storeId);
 
         // Create products in GoSELL, capturing action times
@@ -101,7 +101,7 @@ public class TiktokAutoSyncTest extends BaseTest{
         // Load TikTok accounts, navigate to products page, and store original data
         ProductsPage pageAfterLoad = new ProductsPage(driver).loadConnectedTiktokAccounts(connectedShop).openTikTokProductsPage();
         var orgTiktokProduct = tikTokProducts;
-        int storeId = tikTokProducts.getFirst().getBcStoreId();
+        int storeId = tikTokProducts.get(0).getBcStoreId();
         var orgInventoryMappings = new SQLGetInventoryMapping(connection).getTiktokInventoryMappings(storeId);
 
         // Update products in GoSELL
@@ -119,7 +119,7 @@ public class TiktokAutoSyncTest extends BaseTest{
         // Load TikTok accounts, navigate to products page, and store original data
         ProductsPage pageAfterLoad = new ProductsPage(driver).loadConnectedTiktokAccounts(connectedShop).openTikTokProductsPage();
         var orgTiktokProduct = tikTokProducts;
-        int storeId = tikTokProducts.getFirst().getBcStoreId();
+        int storeId = tikTokProducts.get(0).getBcStoreId();
         var orgInventoryMappings = new SQLGetInventoryMapping(connection).getTiktokInventoryMappings(storeId);
 
         // Delete selected TikTok products and retrieve the updated list of products
@@ -135,7 +135,7 @@ public class TiktokAutoSyncTest extends BaseTest{
         // Load TikTok accounts, navigate to products page, and store original data
         ProductsPage pageAfterLoad = new ProductsPage(driver).loadConnectedTiktokAccounts(connectedShop).openTikTokProductsPage();
         var orgTiktokProduct = tikTokProducts;
-        int storeId = tikTokProducts.getFirst().getBcStoreId();
+        int storeId = tikTokProducts.get(0).getBcStoreId();
         var orgInventoryMappings = new SQLGetInventoryMapping(connection).getTiktokInventoryMappings(storeId);
 
         // Download individual TikTok products, capturing action times
@@ -150,7 +150,7 @@ public class TiktokAutoSyncTest extends BaseTest{
     void checkLinkProductToGoSELL() {
         // Store original TikTok products and inventory mappings before linking to GoSELL
         var orgTiktokProduct = tikTokProducts;
-        int storeId = tikTokProducts.getFirst().getBcStoreId();
+        int storeId = tikTokProducts.get(0).getBcStoreId();
         var orgInventoryMappings = new SQLGetInventoryMapping(connection).getTiktokInventoryMappings(storeId);
 
         // Link TikTok products to GoSELL, capturing action times
@@ -165,7 +165,7 @@ public class TiktokAutoSyncTest extends BaseTest{
     void checkUnLinkProductFromGoSELL() {
         // Store original TikTok products and inventory mappings before unlinking from GoSELL
         var orgTiktokProduct = tikTokProducts;
-        int storeId = tikTokProducts.getFirst().getBcStoreId();
+        int storeId = tikTokProducts.get(0).getBcStoreId();
         var orgInventoryMappings = new SQLGetInventoryMapping(connection).getTiktokInventoryMappings(storeId);
 
         // Unlink TikTok products from GoSELL

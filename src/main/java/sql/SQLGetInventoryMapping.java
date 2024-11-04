@@ -358,6 +358,7 @@ public class SQLGetInventoryMapping {
                             where
                             x.inventory_id  like any (ARRAY[%s])) and x.shop_id ='%s'
                 """.formatted(branchProduct, storeId);
+        System.out.println("query: "+query);
         return getInventoryMappingByQuery(query);
     }
 }

@@ -132,12 +132,12 @@ public class SQLGetInventoryEvent {
 
     public List<InventoryEvent> inventoryEventListByItem(int branchId, long itemId, String startTime) {
         String query = """
-                select distinct on (ie.item_id, ie.model_id, ie."action") *
+                select *
                 from "inventory-services".inventory_event ie
                 where ie .branch_id = '%s' and ie.item_id =  '%s' and created_date > '%s'
                 """.formatted(branchId, itemId, startTime);
         List<InventoryEvent> inventoryEvents = getInventoryEventByQuery(query);
-        System.out.println("inventoryEvents: " + inventoryEvents);
+        System.out.println("Get event query: "+query);
         return inventoryEvents;
     }
 
