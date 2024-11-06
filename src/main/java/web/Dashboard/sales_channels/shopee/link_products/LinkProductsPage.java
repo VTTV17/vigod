@@ -71,6 +71,7 @@ public class LinkProductsPage extends LinkProductsElement {
 	public List<List<String>> linkVariationsBetweenShopeeGosell(String shopeeItemId, String gosellProductName) {
 		//Input GoSELL product name to search
 		commonAction.inputText(loc_txtSearchGosellProductNameByShopeeItemId(shopeeItemId), gosellProductName);
+		commonAction.click(loc_txtSearchGosellProductNameByShopeeItemId(shopeeItemId));
 		
 		//Select the first result matching the product name
 		commonAction.click(loc_ddvSearchResult(gosellProductName));
@@ -94,6 +95,7 @@ public class LinkProductsPage extends LinkProductsElement {
 	public void linkShopeeProductToGosellProduct(String shopeeItemId, String gosellProductName) {
 		//Input GoSELL product name to search
 		commonAction.inputText(loc_txtSearchGosellProductNameByShopeeItemId(shopeeItemId), gosellProductName);
+		commonAction.click(loc_txtSearchGosellProductNameByShopeeItemId(shopeeItemId));
 		
 		//Select the first result matching the product name
 		commonAction.click(loc_ddvSearchResult(gosellProductName));
