@@ -233,6 +233,7 @@ public class APILazadaProducts {
         LazadaLinkPayload payload = getLinkProductPayLoad(branchId, productId, lazadaProductId);
         Response response = api.put(LINK_LAZADA_PATH, loginInfo.getAccessToken(), payload);
         response.then().statusCode(200);
+        logger.info("Link product lazada: %s to gosell product: %s".formatted(lazadaProductId,productId));
         return payload;
     }
 
