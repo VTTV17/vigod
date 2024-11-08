@@ -199,10 +199,10 @@ public class LazadaProducts extends LazadaProductElements {
                 //else to link product to Gosell
                 unlinkProductId.forEach(i -> {
                     long productId = new APICreateProduct(loginInformation).createAndLinkProductTo3rdPartyThenRetrieveId(apiLazadaProducts.getVariationNumberOfLazadaProduct(i),10);
-                    apiLazadaProducts.linkProduct(branchId, productId, i);
+                    new APILazadaProducts(loginInformation).linkProduct(branchId, productId, i);
                 });
             }
-            commonAction.sleepInMiliSecond(3000, "Wait for data insert into database.");
+            commonAction.sleepInMiliSecond(5000, "Hard wait for data insert into database.");
             return unlinkProductId;
         } else return allLazadaId.stream().limit(numberOfProduct).collect(Collectors.toList());
     }

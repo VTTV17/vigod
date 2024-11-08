@@ -26,6 +26,7 @@ import utilities.permission.CheckPermission;
 import web.Dashboard.confirmationdialog.ConfirmationDialog;
 import web.Dashboard.home.HomePage;
 import web.Dashboard.products.all_products.crud.conversion_unit.ConversionUnitPage;
+import web.Dashboard.products.all_products.crud.sync_lazada.SyncLazadaPage;
 import web.Dashboard.products.all_products.crud.variation_detail.VariationDetailPage;
 import web.Dashboard.products.all_products.crud.wholesale_price.WholesaleProductPage;
 
@@ -1805,5 +1806,15 @@ public class ProductPage extends ProductPageElement {
             }
         }
         logger.info("Check permission: Product >> Product management >> Update translation.");
+    }
+    public ProductPage navigateProductDetail(long productId){
+        String url = DOMAIN + "/product/edit/"+ productId;
+        commonAction.navigateToURL(url);
+        return this;
+    }
+    public SyncLazadaPage clickLazadaIcon(){
+        commonAction.click(loc_icnLazada);
+        new ConfirmationDialog(driver).clickOKBtn_V2();
+        return new SyncLazadaPage(driver);
     }
 }

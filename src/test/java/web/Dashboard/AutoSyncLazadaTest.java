@@ -2,7 +2,6 @@ package web.Dashboard;
 
 import api.Seller.login.Login;
 import api.Seller.products.all_products.APICreateProduct;
-import api.Seller.products.all_products.APIProductDetailV2;
 import api.Seller.sale_channel.lazada.APILazadaAccount;
 import api.Seller.sale_channel.lazada.APILazadaProducts;
 import api.Seller.sale_channel.lazada.APILazadaSetting;
@@ -23,6 +22,8 @@ import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.dashboard.products.inventory.InventoryMapping;
 import utilities.model.sellerApp.login.LoginInformation;
 import web.Dashboard.login.LoginPage;
+import web.Dashboard.products.all_products.crud.ProductPage;
+import web.Dashboard.products.all_products.crud.sync_lazada.SyncLazadaPage;
 import web.Dashboard.sales_channels.lazada.lazada_products.LazadaProducts;
 
 import java.sql.Connection;
@@ -35,6 +36,7 @@ import java.util.stream.Collectors;
 
 import static utilities.account.AccountTest.ADMIN_SHOP_VI_PASSWORD;
 import static utilities.account.AccountTest.ADMIN_SHOP_VI_USERNAME;
+import static utilities.character_limit.CharacterLimit.MAX_PRICE;
 
 public class AutoSyncLazadaTest extends BaseTest {
     String sellerUsername;
@@ -83,7 +85,7 @@ public class AutoSyncLazadaTest extends BaseTest {
         new UICommonAction(driver).sleepInMiliSecond(2000*time, "Wait for data insert into database.");
     }
     @Test(dataProvider = "dataCreateToGoSell", priority = 1)
-    public void CreateProductToGoSell(int productNumber, boolean hasVariation) {
+    public void TC01_CreateProductToGoSell(int productNumber, boolean hasVariation) {
         LazadaProducts lazadaProducts = new LazadaProducts(driver, loginInformation);
         List<Long> allLazadaIdUnlink = lazadaProducts.getUnLinkProduct(hasVariation);
         List<Long> lazadaProductNeedCreateToGoSell = allLazadaIdUnlink.stream().limit(productNumber).collect(Collectors.toList());
@@ -118,7 +120,7 @@ public class AutoSyncLazadaTest extends BaseTest {
     }
 
     @Test(dataProvider = "dataForLinkProductTest", priority = 2)
-    public void LinkProductTest(boolean hasVariation) {
+    public void TC02_LinkProductTest(boolean hasVariation) {
         LazadaProducts lazadaProductPage = new LazadaProducts(driver, loginInformation);
         List<Long> allLazadaIdNotUnlink = lazadaProductPage.getUnLinkProduct(hasVariation);
         APILazadaProducts apiLazadaProducts = new APILazadaProducts(loginInformation);
@@ -154,7 +156,7 @@ public class AutoSyncLazadaTest extends BaseTest {
 
     @Test(dataProvider = "dataUpdateToGoSell", priority = 3)
     @SneakyThrows
-    public void UpdateProductToGoSell(int productNumber, boolean hasVariation, ProductThirdPartyStatus status) {
+    public void TC03_UpdateProductToGoSell(int productNumber, boolean hasVariation, ProductThirdPartyStatus status) {
         LazadaProducts lazadaProductPage = new LazadaProducts(driver, loginInformation);
         List<Long> allLazadaIdNotUnlink = lazadaProductPage.getSyncedLinkedProduct(hasVariation, productNumber, status);
         //Get inventoryMappings before update to gosell
@@ -208,7 +210,7 @@ public class AutoSyncLazadaTest extends BaseTest {
 
     @SneakyThrows
     @Test(dataProvider = "dataDownloadTest", priority = 4)
-    public void DownloadOneProduct(ProductThirdPartyStatus status, boolean hasVariation) {
+    public void TC04_DownloadOneProduct(ProductThirdPartyStatus status, boolean hasVariation) {
         LazadaProducts lazadaProductPage = new LazadaProducts(driver, loginInformation);
         List<Long> allLazadaIdByStatus = lazadaProductPage.getSyncedLinkedProduct(hasVariation, 1, status);
         long lazadaProductId = allLazadaIdByStatus.get(0);
@@ -290,7 +292,7 @@ public class AutoSyncLazadaTest extends BaseTest {
     }
     @Test(dataProvider = "dataForUnlinkTest", priority = 5)
     @SneakyThrows
-    public void UnlinkProductTest(ProductThirdPartyStatus status, boolean hasVariation) {
+    public void TC05_UnlinkProductTest(ProductThirdPartyStatus status, boolean hasVariation) {
         logger.info("Test for case: ProductThirdPartyStatus is %s - hasVariation is %s".formatted(status,hasVariation));
         //Get lazada product
         LazadaProducts lazadaProductPage = new LazadaProducts(driver, loginInformation);
@@ -320,5 +322,34 @@ public class AutoSyncLazadaTest extends BaseTest {
         lazadaProductPage.verifyInventoryEvent(inventoryEventsActual, inventoryEventExpected);
         //Verify the others mapping not change
         lazadaProductPage.verifyInventoryMappingExceptProductList(List.of(branchProduct), loginDashboard.getStoreID(), mappingNotChangeBefore);
+    }
+    @DataProvider
+    public Object[][] dataCreateProductToLazada(){
+        return new Object[][]{
+                {false},
+                {true}
+        };
+    }
+    @Test(dataProvider = "dataCreateProductToLazada")
+    public void TC06_CreateProductToLazada(boolean hasVariation){
+        long productId;
+        MAX_PRICE = 999999L;
+        if(hasVariation)
+            productId = new APICreateProduct(loginInformation).createAndLinkProductTo3rdPartyThenRetrieveId(4,10);
+        else productId = new APICreateProduct(loginInformation).createAndLinkProductTo3rdPartyThenRetrieveId(0,10);
+        //Get mapping list of store before create to lazada
+        List<InventoryMapping> mappingNotChangeBefore = new SQLGetInventoryMapping(connection).getLazadaInventoryMappingExceptProduct(List.of("0"), loginDashboard.getStoreID());
+        String currentDate = String.valueOf(ZonedDateTime.now(ZoneOffset.UTC));
+
+        //Action on UI
+        new ProductPage(driver).navigateProductDetail(productId).clickLazadaIcon()
+                .createProductToLazada().verifyCreateToLazadaSuccess();
+        waitManyTime(2);
+        LazadaProducts lazadaProductPage = new LazadaProducts(driver, loginInformation);
+        lazadaProductPage.verifyInventoryEvent(branchId, productId, EventAction.GS_LAZADA_SYNC_ITEM_EVENT, currentDate);
+        lazadaProductPage.verifyInventoryMapping(branchId, productId);
+
+        //Verify the others mapping not change
+        lazadaProductPage.verifyInventoryMappingExceptProductList(List.of(branchId+"-"+productId), loginDashboard.getStoreID(), mappingNotChangeBefore);
     }
 }

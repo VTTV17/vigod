@@ -140,6 +140,9 @@ public class ProductPageElement {
     By loc_lblSEOSetting = By.xpath("//div[contains(@class, ' seo-editor')]//div/h3");
     public By loc_cntNoCollection = By.cssSelector(".product-form-collection-selector2 > .no-content");
     public By loc_lnkCreateCollection = By.cssSelector(".product-form-collection-selector2 > .no-content > .gs-fake-link");
+    By loc_icnLazada = By.cssSelector(".lazada");
+    By loc_icnShopee = By.cssSelector(".shopee");
+    By loc_icnTikTok = By.cssSelector(".tiktok");
     /* Import product */
     @FindBy(xpath = "(//button[contains(@class,'gs-button__green')])[3]")
     WebElement IMPORT_BTN;
