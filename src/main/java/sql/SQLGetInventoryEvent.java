@@ -1,5 +1,6 @@
 package sql;
 
+import api.Seller.sale_channel.tiktok.APIGetTikTokProducts;
 import lombok.Data;
 import utilities.database.InitConnection;
 import utilities.model.dashboard.salechanel.shopee.ShopeeProduct;
@@ -10,6 +11,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
 import static java.sql.Types.NULL;
 
@@ -165,5 +167,12 @@ public class SQLGetInventoryEvent {
 
         // Return the list of inventory events
         return inventoryEvents;
+    }
+
+    public static InventoryEvent getInventoryEventByItemMapping(List<InventoryEvent> inventoryEvents, APIGetTikTokProducts.ItemMapping itemMapping) {
+        return inventoryEvents.stream()
+                .filter(inventoryEvent -> Objects.equals(inventoryEvent.getItem_id(), itemMapping.getBc_item_id()) && Objects.equals(inventoryEvent.getModel_id(), itemMapping.getBc_model_id()))
+                .findFirst()
+                .orElse(null);
     }
 }

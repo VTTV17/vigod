@@ -108,8 +108,8 @@ public class SQLGetInventoryMapping {
      * @param inventoryMappings The full list of inventory mappings from which to filter. This list
      *                          may contain mappings for multiple items and channels.
      * @return A filtered list of inventory mappings that match the generated inventory ID. The list
-     *         will contain 2 mappings per product variation (one for each channel) if the TikTok product
-     *         has no link error status; otherwise, it will contain no mappings for products with link errors.
+     * will contain 2 mappings per product variation (one for each channel) if the TikTok product
+     * has no link error status; otherwise, it will contain no mappings for products with link errors.
      * @throws RuntimeException If an error occurs while processing inventory mappings or if the
      *                          count of matched mappings is unexpected.
      */
@@ -135,7 +135,7 @@ public class SQLGetInventoryMapping {
 
         // Verify the count of inventory mappings matches expectations
         Assert.assertEquals(itemInventoryMappings.size(), expectedInventoryMappingRecords,
-                "Expected " + expectedInventoryMappingRecords + " inventory mappings (2 for each variation: one for GoSELL and one for TikTok, if no link error).");
+                "ProductID: " + tikTokProduct.getThirdPartyItemId() + ", expected " + expectedInventoryMappingRecords + " inventory mappings (2 for each variation: one for GoSELL and one for TikTok, if no link error).");
 
         // Return the filtered list of inventory mappings
         return itemInventoryMappings;
@@ -158,8 +158,8 @@ public class SQLGetInventoryMapping {
      * @param inventoryMappings The list of all inventory mappings from which to filter.
      *                          This list may include mappings for various products and channels.
      * @return A list of {@link InventoryMapping} objects containing the inventory mappings
-     *         for the specified TikTok products. The list may be empty if no mappings are
-     *         found for the provided products.
+     * for the specified TikTok products. The list may be empty if no mappings are
+     * found for the provided products.
      */
     public static List<InventoryMapping> getInventoryMappingsByItems(
             List<APIGetTikTokProducts.TikTokProduct> tikTokProducts,
@@ -190,7 +190,7 @@ public class SQLGetInventoryMapping {
                     FROM "inventory-services".inventory_mapping im
                     WHERE im.inventory_id LIKE ANY (ARRAY[%s])
                 """.formatted(inventoryIds.stream()
-                .map(id -> "'%" + id + "%'")
+                .map(id -> "'" + id + "'")
                 .collect(Collectors.joining(", ")));
 
         try (ResultSet resultSet = InitConnection.executeSQL(connection, query)) {
@@ -204,9 +204,9 @@ public class SQLGetInventoryMapping {
             List<InventoryMapping> inventoryMappings = new ArrayList<>();
 
             // Loop through result set and map rows to InventoryMapping objects
-            do {
+            while (resultSet.next()) {
                 inventoryMappings.add(createInventoryMapping(resultSet));
-            } while (resultSet.next());
+            }
 
             // Log details of mappings that were expected to be removed but still exist
             LogManager.getLogger().error("Inventory mappings not removed: {}",

@@ -2,12 +2,14 @@ package utilities.commons;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.poi.ss.formula.functions.T;
 import org.openqa.selenium.*;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Assert;
 
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
@@ -20,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
 import static java.lang.Thread.sleep;
@@ -49,12 +52,12 @@ public class UICommonAction {
             } catch (Exception e) {
                 // Log the exception (optional)
                 LogManager.getLogger().warn("Attempt " + (attempt + 1) + " failed.", e);
-                
+
                 // If it's the last attempt, throw the exception
                 if (attempt == maxRetries - 1) {
                     throw new IllegalStateException("Task failed after " + maxRetries + " attempts.", e);
                 }
-                
+
                 // Otherwise, sleep for the specified time before retrying
                 try {
                     Thread.sleep(sleepTimeInMillis);
@@ -63,8 +66,8 @@ public class UICommonAction {
                 }
             }
         }
-    }    
-    
+    }
+
     public void clickElement(List<WebElement> element, int index) {
         try {
             wait.until(ExpectedConditions.elementToBeClickable(element.get(index))).click();
@@ -510,7 +513,7 @@ public class UICommonAction {
 
     public void navigateToURL(String url) {
         driver.get(url);
-        logger.info("Navigate to url: {}",url);
+        logger.info("Navigate to url: {}", url);
     }
 
     public WebElement getElementByXpath(String xpath) {
@@ -522,12 +525,12 @@ public class UICommonAction {
     }
 
     public static void sleepInMiliSecond(long miliSecond, String... note) {
+        logger.info("Sleep: {}{}", miliSecond, "%s".formatted((note.length != 0) ? (", %s".formatted(note[0])) : ""));
         try {
             sleep(miliSecond);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-        logger.info("Sleep: " + miliSecond + "%s".formatted((note.length != 0) ? (", %s".formatted(note[0])) : ""));
     }
 
     public Boolean isElementDisplay(WebElement element) {
@@ -558,19 +561,20 @@ public class UICommonAction {
             return ((JavascriptExecutor) driver).executeScript("return arguments[0].offsetParent", element) != null;
         });
     }
+
     public void waitElementVisible(By locator) {
-    	try {
-        	new WebDriverWait(driver, Duration.ofSeconds(60)).until((ExpectedCondition<Boolean>) driver -> {
-        		assert driver != null;
-        		return ((JavascriptExecutor) driver).executeScript("return arguments[0].offsetParent", getElement(locator)) != null;
-        	});
-    	} catch(StaleElementReferenceException ex) {
-    		logger.warn("StaleElementReferenceException found in waitElementVisible: {}", ex);
-        	new WebDriverWait(driver, Duration.ofSeconds(60)).until((ExpectedCondition<Boolean>) driver -> {
-        		assert driver != null;
-        		return ((JavascriptExecutor) driver).executeScript("return arguments[0].offsetParent", getElement(locator)) != null;
-        	});
-    	}
+        try {
+            new WebDriverWait(driver, Duration.ofSeconds(60)).until((ExpectedCondition<Boolean>) driver -> {
+                assert driver != null;
+                return ((JavascriptExecutor) driver).executeScript("return arguments[0].offsetParent", getElement(locator)) != null;
+            });
+        } catch (StaleElementReferenceException ex) {
+            logger.warn("StaleElementReferenceException found in waitElementVisible: {}", ex);
+            new WebDriverWait(driver, Duration.ofSeconds(60)).until((ExpectedCondition<Boolean>) driver -> {
+                assert driver != null;
+                return ((JavascriptExecutor) driver).executeScript("return arguments[0].offsetParent", getElement(locator)) != null;
+            });
+        }
     }
 
     public void waitElementList(List<WebElement> elementList, int... listSize) {
@@ -714,7 +718,7 @@ public class UICommonAction {
      */
     public List<WebElement> getListElement(By locator) {
         try {
-            getWait(3000).until(ExpectedConditions.presenceOfElementLocated(locator));
+            getWait(500).until(ExpectedConditions.presenceOfElementLocated(locator));
         } catch (TimeoutException ignore) {
         }
         return driver.findElements(locator).isEmpty()
@@ -733,19 +737,12 @@ public class UICommonAction {
     }
 
     public void click(By locator) {
-        try {
-            ((JavascriptExecutor) driver).executeScript("arguments[0].style.border= '1px solid red'", getElement(locator));
-            ((JavascriptExecutor) driver).executeScript("arguments[0].style.border=''", getElement(locator));
-            elementToBeClickable(locator).click();
-        } catch (StaleElementReferenceException | ElementNotInteractableException ex) {
-            ((JavascriptExecutor) driver).executeScript("arguments[0].style.border= '1px solid red'", getElement(locator));
-            ((JavascriptExecutor) driver).executeScript("arguments[0].style.border=''", getElement(locator));
-            hoverActions(locator);
-            clickActions(locator);
-        }
+        click(locator, 0);
     }
 
     public void click(By locator, int index) {
+        Assert.assertFalse(getListElement(locator).isEmpty(), "No elements found to click for the provided locator: " + locator);
+
         try {
             ((JavascriptExecutor) driver).executeScript("arguments[0].style.border= '1px solid red'", getElement(locator, index));
             ((JavascriptExecutor) driver).executeScript("arguments[0].style.border= ''", getElement(locator, index));
@@ -1026,10 +1023,10 @@ public class UICommonAction {
     public void removeElement(By locator) {
         if (!getListElement(locator).isEmpty()) return;
         try {
-        	((JavascriptExecutor) driver).executeScript("arguments[0].remove()", getElement(locator));
+            ((JavascriptExecutor) driver).executeScript("arguments[0].remove()", getElement(locator));
         } catch (StaleElementReferenceException ex) {
-        	logger.debug("Retrying function removeElement after catching {}", ex);
-        	((JavascriptExecutor) driver).executeScript("arguments[0].remove()", getElement(locator));
+            logger.debug("Retrying function removeElement after catching {}", ex);
+            ((JavascriptExecutor) driver).executeScript("arguments[0].remove()", getElement(locator));
         }
     }
 
@@ -1268,16 +1265,35 @@ public class UICommonAction {
             selectDropdownOptionByValue(ddvSelectedLocator, index, value);
         }
     }
-    public void waitTillTextChange(By locator){
-            wait.until(new Function<WebDriver, Boolean>() {
-                String textBefore = getText(locator);
-                @Override
-                public Boolean apply(WebDriver driver) {
-                    if(getText(locator).equals(textBefore))
-                        return false;
-                    return true;
-                }
-            });
-            logger.info("Wait till content text of element change");
+
+    public void waitTillTextChange(By locator) {
+        wait.until(new Function<WebDriver, Boolean>() {
+            String textBefore = getText(locator);
+
+            @Override
+            public Boolean apply(WebDriver driver) {
+                if (getText(locator).equals(textBefore))
+                    return false;
+                return true;
+            }
+        });
+        logger.info("Wait till content text of element change");
+    }
+
+    public static void performAction(String logMessage, Runnable action, Runnable verifier) {
+        // Step 1: Log the start of the action
+        if (logMessage != null && !logMessage.isEmpty()) logger.info(logMessage);
+
+        // Step 2: Perform the mandatory action
+        if (action == null) {
+            throw new IllegalArgumentException("Action must be provided.");
+
+        }
+        action.run();
+
+        // Step 3: Verify the action, if verifier is provided
+        if (verifier != null) {
+            verifier.run();
+        }
     }
 }

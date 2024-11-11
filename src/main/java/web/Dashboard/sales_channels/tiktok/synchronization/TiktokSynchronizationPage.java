@@ -57,7 +57,6 @@ public class TiktokSynchronizationPage extends TiktokSynchronizationElement {
         		clickConnectShopee();
         		new utilities.thirdparty.Shopee(driver).performLogin(SHOPEE_COUNTRY, SHOPEE_USERNAME, SHOPEE_PASSWORD);
         		new HomePage(driver).navigateToPage("Account Information");
-        		new AccountInformationPage(driver).initiateDownloadAllTikTokProducts();
         		new HomePage(driver).navigateToPage("Account Management");
         		new AccountManagementPage(driver).deleteAccount();
     		}

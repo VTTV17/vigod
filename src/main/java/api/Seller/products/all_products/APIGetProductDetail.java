@@ -2,6 +2,7 @@ package api.Seller.products.all_products;
 
 import api.Seller.login.Login;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.restassured.response.Response;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,6 +14,7 @@ import utilities.model.sellerApp.login.LoginInformation;
 import org.apache.logging.log4j.LogManager;
 
 
+import java.time.ZonedDateTime;
 import java.util.*;
 
 
@@ -46,6 +48,10 @@ public class APIGetProductDetail {
     public static class ProductInformation {
         private String lastModifiedDate;
         private int id;
+        private int cateId;
+        private String itemType;
+        private List<Category> categories;
+        private List<Image> images;
         private String name;
         private String currency;
         private String description;
@@ -81,6 +87,27 @@ public class APIGetProductDetail {
         private String bhStatus;
         private boolean lotAvailable;
         private boolean expiredQuality;
+
+        @Data
+        @JsonIgnoreProperties(ignoreUnknown = true)
+        public static class Category {
+            private int id;
+            private int level;
+            private int cateId;
+        }
+
+        @Data
+        @JsonIgnoreProperties(ignoreUnknown = true)
+        public static class Image {
+            private String createdDate;
+            private String lastModifiedDate;
+            private long id;
+            private String urlPrefix;
+            private int rank;
+            private String imageUUID;
+            private String extension;
+            private long itemId;
+        }
 
         @Data
         @AllArgsConstructor
@@ -122,7 +149,9 @@ public class APIGetProductDetail {
                 private String language;
                 private String name;
                 private String label;
+                @JsonInclude(JsonInclude.Include.NON_NULL)
                 private String description;
+                @JsonInclude(JsonInclude.Include.NON_NULL)
                 private String versionName;
             }
         }
@@ -143,12 +172,17 @@ public class APIGetProductDetail {
         @NoArgsConstructor
         @JsonIgnoreProperties(ignoreUnknown = true)
         public static class MainLanguage {
+            private int id;
             private String language;
             private String name;
             private String description;
+            @JsonInclude(JsonInclude.Include.NON_NULL)
             private String seoTitle;
+            @JsonInclude(JsonInclude.Include.NON_NULL)
             private String seoDescription;
+            @JsonInclude(JsonInclude.Include.NON_NULL)
             private String seoKeywords;
+            @JsonInclude(JsonInclude.Include.NON_NULL)
             private String seoUrl;
         }
 
@@ -243,6 +277,10 @@ public class APIGetProductDetail {
                 .map(ProductInformation.Model.VersionLanguage::getLabel)
                 .findFirst()
                 .orElse("");
+    }
+
+    public static String getDefaultVariationName(ProductInformation productInformation) {
+        return productInformation.getModels().get(0).getLabel();
     }
 
     /**
@@ -642,6 +680,12 @@ public class APIGetProductDetail {
                 .flatMap(model -> model.getLanguages().stream()
                         .filter(versionLanguage -> versionLanguage.getLanguage().equals(language))
                         .map(ProductInformation.Model.VersionLanguage::getName))
+                .toList();
+    }
+
+    public static List<String> getDefaultVariationValues(ProductInformation productInformation) {
+        return productInformation.getModels().stream()
+                .map(ProductInformation.Model::getName)
                 .toList();
     }
 

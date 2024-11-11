@@ -228,6 +228,10 @@ public class DataGenerator {
         return IntStream.range(0, size).mapToObj(i -> "%s_var%s_%s".formatted(defaultLanguage, index, i + 1)).toList();
     }
 
+    private List<String> generateListStringWithoutLangKey(int index, int size) {
+        return IntStream.range(0, size).mapToObj(i -> "var%s_%s".formatted(index, i + 1)).toList();
+    }
+
     public List<Integer> getNumOfValuesOnEachGroup(int numberOfVariations, int numberOfGroups) {
         if (numberOfGroups == 1) return List.of(numberOfVariations);
         int factor = IntStream.range(2, numberOfVariations).filter(i -> numberOfVariations % i == 0).findFirst().orElse(1);
@@ -270,6 +274,21 @@ public class DataGenerator {
                 .boxed()
                 .collect(Collectors.toMap(valueIndex -> "%s_var%s".formatted(defaultLanguage, valueIndex + 1),
                         valueIndex -> generateListString(defaultLanguage, valueIndex + 1, numberOfVariationValue.get(valueIndex)),
+                        (a, b) -> b)));
+    }
+
+    public Map<String, List<String>> randomVariationMapWithoutLangKey(int variationNum) {
+        // generate number of variation groups
+        int numberOfGroups = nextInt(MAX_VARIATION_QUANTITY) + 1;
+
+        // get number of value of each group variation
+        List<Integer> numberOfVariationValue = getNumOfValuesOnEachGroup(variationNum, numberOfGroups);
+
+        // generate random data for variation map
+        return new TreeMap<>(IntStream.range(0, numberOfVariationValue.size())
+                .boxed()
+                .collect(Collectors.toMap(valueIndex -> "var%s".formatted(valueIndex + 1),
+                        valueIndex -> generateListStringWithoutLangKey(valueIndex + 1, numberOfVariationValue.get(valueIndex)),
                         (a, b) -> b)));
     }
 

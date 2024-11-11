@@ -11,6 +11,7 @@ import utilities.model.sellerApp.login.LoginInformation;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.IntStream;
 
 /**
@@ -118,7 +119,7 @@ public class APIGetTikTokProducts {
      */
     public static List<TikTokProduct> getLinkedTiktokProduct(List<TikTokProduct> tikTokProducts) {
         if (tikTokProducts.isEmpty()) return List.of();
-        return tikTokProducts.parallelStream()
+        return tikTokProducts.stream()
                 .filter(tikTokProduct -> !tikTokProduct.getGosellStatus().equals("UNLINK") && !tikTokProduct.getHasLinkErrorStatus())
                 .toList();
     }
@@ -136,8 +137,9 @@ public class APIGetTikTokProducts {
      *         or if the input list is empty, an empty list is returned.
      */
     public static List<TikTokProduct> getErrorTiktokProduct(List<TikTokProduct> tikTokProducts) {
-        if (tikTokProducts.isEmpty()) return List.of();
-        return tikTokProducts.parallelStream()
+        return Optional.ofNullable(tikTokProducts)
+                .orElseThrow(() -> new IllegalArgumentException("The list of TikTok products must not be null."))
+                .stream()
                 .filter(TikTokProduct::getHasLinkErrorStatus)
                 .toList();
     }
@@ -150,7 +152,7 @@ public class APIGetTikTokProducts {
      */
     public static List<TikTokProduct> getUnLinkedTiktokProduct(List<TikTokProduct> tikTokProducts) {
         if (tikTokProducts.isEmpty()) return List.of();
-        return tikTokProducts.parallelStream()
+        return tikTokProducts.stream()
                 .filter(tikTokProduct -> tikTokProduct.getGosellStatus().equals("UNLINK"))
                 .toList();
     }
@@ -171,7 +173,6 @@ public class APIGetTikTokProducts {
      * Generates a list of {@link ItemMapping} objects from the provided TikTok products.
      * Each product can have multiple variations, and this method creates a mapping for
      * each variation by associating relevant fields from both the BigCommerce and TikTok platforms.
-     * The list of item mappings is then sorted by {@code bc_item_id} and {@code bc_model_id}.
      *
      * @param linkedTiktokProducts A list of {@link TikTokProduct} objects, where each product
      *                             contains a list of variations. This method will map each variation
@@ -203,12 +204,6 @@ public class APIGetTikTokProducts {
                     // Add the item mapping to the list
                     itemMappings.add(itemMapping);
                 })
-        );
-
-        // Sort the item mappings by bc_item_id first, then by bc_model_id
-        itemMappings.sort(
-                Comparator.comparing(ItemMapping::getBc_item_id)
-                        .thenComparing(ItemMapping::getBc_model_id)
         );
 
         // Return the sorted list of item mappings

@@ -1,9 +1,6 @@
 package web.Dashboard.login;
 
-import static utilities.links.Links.DOMAIN;
-import static utilities.links.Links.DOMAIN_BIZ;
-import static utilities.links.Links.LOGIN_PATH;
-
+import api.Seller.login.Login;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
@@ -11,16 +8,16 @@ import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.pagefactory.ByChained;
 import org.testng.Assert;
-
-import api.Seller.login.Login;
-import web.Dashboard.home.HomePage;
-import utilities.thirdparty.Facebook;
-import utilities.utils.PropertiesUtil;
 import utilities.commons.UICommonAction;
 import utilities.enums.DisplayLanguage;
 import utilities.enums.Domain;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.sellerApp.login.LoginInformation;
+import utilities.thirdparty.Facebook;
+import utilities.utils.PropertiesUtil;
+import web.Dashboard.home.HomePage;
+
+import static utilities.links.Links.*;
 
 public class LoginPage {
 
@@ -28,16 +25,17 @@ public class LoginPage {
 
     WebDriver driver;
     UICommonAction commonAction;
-    
+
     Domain domain;
 
     public LoginPage(WebDriver driver) {
         this.driver = driver;
         commonAction = new UICommonAction(driver);
     }
+
     public LoginPage(WebDriver driver, Domain domain) {
-    	this(driver);
-    	this.domain = domain;
+        this(driver);
+        this.domain = domain;
     }
 
     //Will move these locators to a separate file later
@@ -49,7 +47,7 @@ public class LoginPage {
     By loc_ddlCountry = By.cssSelector(".select-country-wrapper .select-country__input-container input");
     String loc_ddvCountry = "//*[contains(@class, 'select-country__option')]//div[@class='label' and text()=\"%s\"]";
     By loc_frmLogin = By.xpath("//div[contains(@class,'login-widget__formBody') and not(@hidden)]");
-    By loc_txtUsername = new ByChained(loc_frmLogin, By.cssSelector("input[name='username']")); 
+    By loc_txtUsername = new ByChained(loc_frmLogin, By.cssSelector("input[name='username']"));
     By loc_txtPassword = new ByChained(loc_frmLogin, By.cssSelector("input[name='password']"));
     By loc_btnLogin = new ByChained(loc_frmLogin, By.xpath(".//button[@type='submit']"));
 //    By loc_btnLogin = new ByChained(loc_frmLogin, By.xpath(".//button[contains(@class,'gs-button') and contains(@class,'login-widget__btnSubmit')]"));  //4.5
@@ -57,47 +55,51 @@ public class LoginPage {
     By loc_lblUsernameError = By.cssSelector("#username + .invalid-feedback");
     By loc_lblPasswordError = By.cssSelector("#password + .invalid-feedback");
     By loc_lblLoginFailError = By.cssSelector("div[class~='alert__wrapper']:not(div[hidden])");
-    By loc_btnFacebookLogin = By.cssSelector(".login-widget__btnSubmitFaceBook"); 
+    By loc_btnFacebookLogin = By.cssSelector(".login-widget__btnSubmitFaceBook");
     By loc_tabStaff = By.cssSelector("span.login-widget__tab:nth-child(2)");
     By loc_dlgWarning = By.cssSelector("div.modal-content");
     By loc_lnkForgotPassword = new ByChained(loc_frmLogin, By.cssSelector(".login-widget__forgotPassword"));
-    
+
     By loc_icnDotSpinner = new ByChained(loc_btnLogin, By.xpath(".//i[contains(@class,'fa-spinner')]"));
 
     public LoginPage navigateBiz() {
-    	driver.get(DOMAIN_BIZ + LOGIN_PATH);
-    	return this;
+        driver.get(DOMAIN_BIZ + LOGIN_PATH);
+        return this;
     }
+
     public LoginPage navigate() {
         driver.get(DOMAIN + LOGIN_PATH);
         return this;
     }
+
     public LoginPage navigate(String url) {
-    	driver.get(url);
-    	return this;
+        driver.get(url);
+        return this;
     }
+
     public LoginPage navigate(Domain domain) {
-    	switch (domain) {
-			case VN -> navigate();
-			case BIZ -> navigateBiz();
-			default -> throw new IllegalArgumentException("Unexpected value: " + domain);
-    	}
-    	return this;
+        switch (domain) {
+            case VN -> navigate();
+            case BIZ -> navigateBiz();
+            default -> throw new IllegalArgumentException("Unexpected value: " + domain);
+        }
+        return this;
     }
-	public LoginPage navigateToPage(Domain domain, DisplayLanguage lang) {
-		switch (domain) {
-			case VN -> navigate().selectDisplayLanguage(lang);
-			case BIZ -> navigateBiz();
-			default -> throw new IllegalArgumentException("Unexpected value: " + domain);
-		}
-		return this;
-	}	    
-    
+
+    public LoginPage navigateToPage(Domain domain, DisplayLanguage lang) {
+        switch (domain) {
+            case VN -> navigate().selectDisplayLanguage(lang);
+            case BIZ -> navigateBiz();
+            default -> throw new IllegalArgumentException("Unexpected value: " + domain);
+        }
+        return this;
+    }
+
     public LoginPage selectCountry(String country) {
-    	commonAction.getElement(loc_ddlCountryDefaultValue); //Implicitly means the dropdown has a default value and ready for further actions. Reason #1
-    	commonAction.click(loc_ddlCountry);
-    	commonAction.click(By.xpath(loc_ddvCountry.formatted(country)));
-    	logger.info("Selected country: " + country);
+        commonAction.getElement(loc_ddlCountryDefaultValue); //Implicitly means the dropdown has a default value and ready for further actions. Reason #1
+        commonAction.click(loc_ddlCountry);
+        commonAction.click(By.xpath(loc_ddvCountry.formatted(country)));
+        logger.info("Selected country: " + country);
         return this;
     }
 
@@ -132,11 +134,11 @@ public class LoginPage {
     }
 
     public LoginPage waitTillDotSpinnerDisappear() {
-    	commonAction.waitInvisibilityOfElementLocated(loc_icnDotSpinner);
-    	logger.info("Dot spinner disappeared");
-    	return this;
+        commonAction.waitInvisibilityOfElementLocated(loc_icnDotSpinner);
+        logger.info("Dot spinner disappeared");
+        return this;
     }
-    
+
     public ForgotPasswordPage clickForgotPassword() {
         commonAction.click(loc_lnkForgotPassword);
         logger.info("Clicked on Forgot Password linktext.");
@@ -157,12 +159,12 @@ public class LoginPage {
         new HomePage(driver).waitTillSpinnerDisappear1(); //Not sure if it's still needed as UI behavior has changed
         return this;
     }
-    
+
     public LoginPage performValidLogin(String country, String username, String password) {
-    	selectCountry(country);
-    	performLogin(username, password);
-    	new HomePage(driver).waitTillSpinnerDisappear1().verifyPageLoaded();
-    	return this;
+        selectCountry(country);
+        performLogin(username, password);
+        new HomePage(driver).waitTillSpinnerDisappear1().verifyPageLoaded();
+        return this;
     }
 
     public LoginPage performLoginWithFacebook(String username, String password) {
@@ -191,45 +193,47 @@ public class LoginPage {
 
     /**
      * Selects the display language on the login page.
+     *
      * @param either "ENG" or "VIE"
      */
     public LoginPage selectDisplayLanguage(String language) {
-    	return selectDisplayLanguage(DisplayLanguage.valueOf(language));
+        return selectDisplayLanguage(DisplayLanguage.valueOf(language));
     }
+
     public LoginPage selectDisplayLanguage(DisplayLanguage language) {
-    	if (getSelectedLanguage().equals(language.name())) return this;
-    	
-    	commonAction.click(loc_ddlLanguage);
-    	commonAction.sleepInMiliSecond(500, "Not sure why sometimes the page is white without this sleep");
-    	
-    	if (!language.equals(DisplayLanguage.ENG) && !language.equals(DisplayLanguage.VIE)) {
-    		language = DisplayLanguage.ENG;
-    		logger.info("Input value does not match 'VIE' or 'ENG', so 'ENG' will be selected by default");
-    	}
-    	
-    	commonAction.click(By.xpath(loc_ddvLanguage.formatted(language)));
-    	logger.info("Selected display language '%s'.".formatted(language));
-    	commonAction.sleepInMiliSecond(200, "Wait a little after changing display language");
-    	return this;
+        if (getSelectedLanguage().equals(language.name())) return this;
+
+        commonAction.click(loc_ddlLanguage);
+        commonAction.sleepInMiliSecond(500, "Not sure why sometimes the page is white without this sleep");
+
+        if (!language.equals(DisplayLanguage.ENG) && !language.equals(DisplayLanguage.VIE)) {
+            language = DisplayLanguage.ENG;
+            logger.info("Input value does not match 'VIE' or 'ENG', so 'ENG' will be selected by default");
+        }
+
+        commonAction.click(By.xpath(loc_ddvLanguage.formatted(language)));
+        logger.info("Selected display language '%s'.".formatted(language));
+        commonAction.sleepInMiliSecond(200, "Wait a little after changing display language");
+        return this;
     }
-    
+
     public String getLoginFailError() {
-    	String text = commonAction.getText(loc_lblLoginFailError);
-    	logger.info("Error retrieved: " + text);
-    	return text;
+        String text = commonAction.getText(loc_lblLoginFailError);
+        logger.info("Error retrieved: " + text);
+        return text;
     }
-    
+
     public String getUsernameError() {
-    	String text = commonAction.getText(loc_lblUsernameError);
-    	logger.info("Error retrieved: " + text);
-    	return text;
-    }      
+        String text = commonAction.getText(loc_lblUsernameError);
+        logger.info("Error retrieved: " + text);
+        return text;
+    }
 
     public String getPasswordError() {
-    	String text = commonAction.getText(loc_lblPasswordError);
-    	logger.info("Error retrieved: " + text);
-    	return text;
-    }      
+        String text = commonAction.getText(loc_lblPasswordError);
+        logger.info("Error retrieved: " + text);
+        return text;
+    }
 
     public void verifyLoginWithDeletedStaffAccount(String content) {
         Assert.assertTrue(commonAction.getText(loc_dlgWarning).contains(content),
@@ -256,7 +260,7 @@ public class LoginPage {
 
         logger.info("Set local storage successfully");
 
-        driver.navigate().refresh();
+        commonAction.attemptWithRetry(5, 1000, () -> driver.get(DOMAIN));
     }
 
     public void verifyTextAtLoginScreen() throws Exception {
@@ -270,7 +274,8 @@ public class LoginPage {
         Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("login.forgotPassword.text"));
         logger.info("verifyTextAtForgotPasswordScreen completed");
     }
-    public LoginPage staffLogin(String userName, String pass){
+
+    public LoginPage staffLogin(String userName, String pass) {
         navigate().switchToStaffTab().performLogin(userName, pass);
         logger.info("Staff login to dashboard successfully!");
         return this;

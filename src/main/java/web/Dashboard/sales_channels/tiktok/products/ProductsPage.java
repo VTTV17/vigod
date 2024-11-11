@@ -17,7 +17,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static utilities.links.Links.DOMAIN;
 
@@ -59,58 +58,95 @@ public class ProductsPage extends ProductsElement {
      * @return The current instance of ProductsPage for method chaining.
      */
     public ProductsPage openTikTokProductsPage() {
-        logger.info("Navigating to TikTok products page.");
-        driver.get(DOMAIN + "/channel/tiktok/product");
+        UICommonAction.performAction("Navigating to TikTok products page",
+                () -> driver.get(DOMAIN + "/channel/tiktok/product"),
+                () -> Assert.assertEquals(driver.getCurrentUrl(), DOMAIN + "/channel/tiktok/product", "Can not navigate to Tiktok products page."));
         return this;
     }
 
     /**
      * Initiates the creation of products in GoSell for the given list of unlinked TikTok product IDs.
      *
-     * @param tikTokProducts The list of TikTok products to create.
+     * <p>
+     * This method filters unlinked TikTok products from the provided list, logs the start time of the creation process,
+     * iterates over each unlinked product to select it, performs the creation action, waits for synchronization to complete,
+     * logs the end time, and returns both the start and end times in a formatted String array.
+     * </p>
+     *
+     * @param tikTokProducts The list of TikTok products to create in GoSell.
+     * @return A String array containing two elements: the start time and end time of the creation action,
+     *         formatted as 'YYYY-MM-DD HH:MM:SS.SSS', or null if no unlinked products are found.
      */
     public String[] createProductsToGoSell(List<APIGetTikTokProducts.TikTokProduct> tikTokProducts) {
-        // Get unlinked products
+        // Retrieve unlinked TikTok products
         var unlinkedProducts = APIGetTikTokProducts.getUnLinkedTiktokProduct(tikTokProducts);
+
         if (unlinkedProducts.isEmpty()) {
-            logger.info("No unlinked TikTok products available for creation.");
+            logger.info("No unlinked TikTok products found. Skipping creation process.");
             return null;
         }
-        // Array to store the start and end times of the download action
+
+        // Array to store the start and end times of the action
         String[] actionsTime = new String[2];
 
-        // Record the start time of the action in UTC format
+        // Record and log the start time of the action in UTC format
         actionsTime[0] = LocalDateTime.now(ZoneOffset.UTC)
                 .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"));
+        logger.info("Creation process started at {}", actionsTime[0]);
 
+        // Log the number of unlinked products
         logger.info("Creating products in GoSell for {} unlinked TikTok products.", unlinkedProducts.size());
+
+        // Select each unlinked product and perform the creation action
         unlinkedProducts.forEach(tiktokProduct -> selectProduct(tiktokProduct.getThirdPartyItemId()));
+
+        logger.info("Performing creation action for all selected TikTok products.");
         performAction(0); // 0: Create product
 
-        // Record the end time of the action in UTC format
+        // Wait for synchronization
+        UICommonAction.sleepInMiliSecond(120_000, "Waiting for synchronization to complete.");
+
+        // Record and log the end time of the action in UTC format
         actionsTime[1] = LocalDateTime.now(ZoneOffset.UTC)
                 .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"));
+        logger.info("Creation process completed at {}", actionsTime[1]);
 
-        // Return the start and end times of the download action
+        // Return the start and end times of the creation process
         return actionsTime;
     }
+
 
     /**
      * Initiates the update of products in GoSell for the given list of linked TikTok product IDs.
      *
-     * @param tikTokProducts The list of TikTok products to update.
+     * <p>
+     * This method retrieves the linked TikTok products, checks if there are any available for update,
+     * and if so, selects each linked product and performs the update action.
+     * If there are no linked products available, a message is logged and the method exits.
+     * </p>
+     *
+     * @param tikTokProducts The list of TikTok products to update in GoSell.
+     * @param credentials The seller's login credentials required for authentication.
      */
-    public void updateProductsToGoSell(List<APIGetTikTokProducts.TikTokProduct> tikTokProducts) {
-        // Get linked products
+    public void updateProductsToGoSell(List<APIGetTikTokProducts.TikTokProduct> tikTokProducts, LoginInformation credentials) {
+        // Get linked products and error products
         var linkedProducts = APIGetTikTokProducts.getLinkedTiktokProduct(tikTokProducts);
-        if (linkedProducts.isEmpty()) {
-            logger.info("No linked TikTok products available for update.");
+        var errorProducts = APIGetTikTokProducts.getErrorTiktokProduct(tikTokProducts);
+
+        // Combine the linked and error products into a single list
+        var allRelevantProducts = new ArrayList<>(linkedProducts);
+        allRelevantProducts.addAll(errorProducts);
+
+        if (allRelevantProducts.isEmpty()) {
+            logger.info("No linked or error TikTok products available for update.");
             return;
         }
 
-        logger.info("Updating products in GoSell for {} linked TikTok products.", linkedProducts.size());
-        linkedProducts.forEach(tiktokProduct -> selectProduct(tiktokProduct.getThirdPartyItemId()));
+        logger.info("Updating products in GoSell for {} linked TikTok products.", allRelevantProducts.size());
+        allRelevantProducts.forEach(tiktokProduct -> selectProduct(tiktokProduct.getThirdPartyItemId()));
         performAction(1); // 1: Update product
+
+        UICommonAction.sleepInMiliSecond(60_000, "Waiting for synchronization to complete.");
     }
 
     /**
@@ -149,6 +185,8 @@ public class ProductsPage extends ProductsElement {
         productsToDelete.forEach(product -> selectProduct(product.getThirdPartyItemId()));
         performAction(2); // 2: Delete product action
 
+        UICommonAction.sleepInMiliSecond(10_000, "Waiting for deletion to complete.");
+
         return productsToDelete;
     }
 
@@ -158,7 +196,7 @@ public class ProductsPage extends ProductsElement {
      *
      * @param tikTokProducts The list of TikTok products to download.
      */
-    public static String[] downloadProducts(List<APIGetTikTokProducts.TikTokProduct> tikTokProducts, LoginInformation credentials) {
+    public String[] downloadProducts(List<APIGetTikTokProducts.TikTokProduct> tikTokProducts, LoginInformation credentials) {
         if (connectedTiktokShops.isEmpty()) return null;
 
         if (tikTokProducts.isEmpty()) {
@@ -187,8 +225,8 @@ public class ProductsPage extends ProductsElement {
                     .downloadProduct(shopId, productId);
         });
 
-        // Wait for the update to complete (60 seconds)
-        UICommonAction.sleepInMiliSecond(60_000);
+        // Wait for the download complete (10 seconds)
+        UICommonAction.sleepInMiliSecond(10_000, "Waiting for download to complete.");
 
         // Record the end time of the action in UTC format
         actionsTime[1] = LocalDateTime.now(ZoneOffset.UTC)
@@ -211,15 +249,17 @@ public class ProductsPage extends ProductsElement {
             case 1 -> "Update product to GoSELL";
             default -> "Delete product";
         };
-        logger.info("Performing action: {}", action);
+
+        UICommonAction.performAction("Open list actions",
+                () -> commonAction.click(loc_lnkSelectActions),
+                () -> Assert.assertFalse(commonAction.getListElement(loc_lstActions(actionIndex)).isEmpty(), "Can not open actions list."));
         commonAction.click(loc_lnkSelectActions);
         commonAction.click(loc_lstActions(actionIndex));
 
         // Confirm the update action
         commonAction.click(loc_dlgConfirmation_btnOK);
 
-        // Wait for the update to complete (60 seconds)
-        UICommonAction.sleepInMiliSecond(60_000);
+        logger.info("Performing action: {}", action);
     }
 
     /**
@@ -478,5 +518,3 @@ public class ProductsPage extends ProductsElement {
                 originalInventoryMappings, removedInventoryMappings, null, storeId, connection);
     }
 }
-
-// TODO Chưa check case xoá sản phẩm bên tiktok và download individual về GOSELL, expected: xoá mapping nếu linked/synced

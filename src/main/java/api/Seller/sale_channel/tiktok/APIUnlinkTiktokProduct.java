@@ -6,7 +6,6 @@ import org.apache.logging.log4j.Logger;
 import org.testng.Assert;
 import sql.SQLGetInventoryMapping;
 import utilities.api.API;
-import utilities.commons.UICommonAction;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 import web.Dashboard.sales_channels.tiktok.VerifyAutoSyncHelper;
@@ -39,8 +38,8 @@ public class APIUnlinkTiktokProduct {
      */
     private void unlinkTiktokProduct(APIGetTikTokProducts.TikTokProduct tikTokProduct) {
         // Format the URL for the unlink API request
-        String path = "/tiktokservices/api/items/84411/unlink/%s?ids=%s"
-                .formatted(tikTokProduct.getThirdPartyShopId(), tikTokProduct.getThirdPartyItemId());
+        String path = "/tiktokservices/api/items/%s/unlink/%s?ids=%s"
+                .formatted(loginInfo.getStoreID(), tikTokProduct.getThirdPartyShopId(), tikTokProduct.getThirdPartyItemId());
 
         // Make the API call to unlink the TikTok product
         new API().get(path, loginInfo.getAccessToken()).then().statusCode(200);
@@ -63,9 +62,6 @@ public class APIUnlinkTiktokProduct {
 
         // Link each unlinked TikTok product to GoSELL
         tikTokProducts.forEach(this::unlinkTiktokProduct);
-
-        // Wait for the update to complete (60 seconds)
-        UICommonAction.sleepInMiliSecond(60_000);
     }
 
     public static void verifyLinkProductsToGoSELL(List<APIGetTikTokProducts.TikTokProduct> originalTiktokProducts,

@@ -1,11 +1,14 @@
 package web.Dashboard;
 
 import api.Seller.sale_channel.tiktok.*;
+import org.apache.logging.log4j.LogManager;
 import org.testng.Assert;
+import org.testng.SkipException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import sql.SQLGetInventoryMapping;
+import utilities.commons.UICommonAction;
 import utilities.database.InitConnection;
 import utilities.driver.InitWebdriver;
 import utilities.model.sellerApp.login.LoginInformation;
@@ -20,7 +23,7 @@ import java.util.List;
 import static utilities.account.AccountTest.ADMIN_ACCOUNT_THANG;
 import static utilities.account.AccountTest.ADMIN_PASSWORD_THANG;
 
-public class TiktokAutoSyncTest extends BaseTest{
+public class TiktokAutoSyncTest extends BaseTest {
     Connection connection;
     LoginInformation credentials;
     boolean isAutoSynced;
@@ -54,7 +57,7 @@ public class TiktokAutoSyncTest extends BaseTest{
 
     private void initWebActions() {
         // Initialize WebDriver for browser actions, setting browser as Chrome
-        driver = new InitWebdriver().getDriver("chrome", "false");
+        driver = new InitWebdriver().getDriver(browser, headless);
     }
 
     @BeforeClass
@@ -67,45 +70,65 @@ public class TiktokAutoSyncTest extends BaseTest{
     }
 
     @Test
-    void checkDownloadAllTiktokProducts() {
+    void TiktokSync01_checkDownloadAllTiktokProducts() {
         // Load TikTok accounts and initiate product download, retrieving start and end times
-        AccountInformationPage pageAfterLoad = new AccountInformationPage(driver).loadConnectedTiktokAccounts(connectedShop);
-        String[] actionTime = pageAfterLoad.openTiktokAccountInfoPage().initiateDownloadAllTikTokProducts();
+        AccountInformationPage pageAfterLoad = new AccountInformationPage(driver)
+                .loadConnectedTiktokAccounts(connectedShop)
+                .openTiktokAccountInfoPage();
+        String[] actionTime = pageAfterLoad.initiateDownloadAllTikTokProducts(credentials);
+
+        // Refresh the TikTok products list after attempting to download all products
+        tikTokProducts = new APIGetTikTokProducts(credentials).getTikTokProducts();
 
         // Verify download event details in the database
         pageAfterLoad.verifyDownloadAllTiktokProductsEvent(tikTokProducts, actionTime, connection, isAutoSynced);
     }
 
     @Test
-    void checkCreateProductToGoSELL() {
+    void TiktokSync02_checkCreateProductToGoSELL() {
         // Load TikTok accounts and navigate to products page
-        ProductsPage pageAfterLoad = new ProductsPage(driver).loadConnectedTiktokAccounts(connectedShop).openTikTokProductsPage();
+        ProductsPage pageAfterLoad = loadTiktokAccountThenNavigateToProductsPage();
+
+        // Check if there are any TikTok products to work with
+       checkProductsAvailable();
 
         // Store original TikTok products and inventory mappings before product creation in GoSELL
         var orgTiktokProduct = tikTokProducts;
-        int storeId = tikTokProducts.get(0).getBcStoreId();
+        int storeId = orgTiktokProduct.getFirst().getBcStoreId();
         var orgInventoryMappings = new SQLGetInventoryMapping(connection).getTiktokInventoryMappings(storeId);
 
-        // Create products in GoSELL, capturing action times
+        // Check if there are any unlinked products; if all products are linked, initiate unlinking
+        ensureUnlinkedProducts();
+
+        // Attempt to create products in GoSELL and capture action times
         String[] actionTime = pageAfterLoad.createProductsToGoSell(tikTokProducts);
 
-        // Retrieve updated TikTok products after creation in GoSELL
+        // Refresh the TikTok products list after attempting to create products in GoSELL
         tikTokProducts = new APIGetTikTokProducts(credentials).getTikTokProducts();
 
-        // Verify successful creation of TikTok products in GoSELL
-        pageAfterLoad.verifyTikTokProductCreationInGoSELL(orgTiktokProduct, tikTokProducts, orgInventoryMappings, actionTime, connection, isAutoSynced);
+        // Verify the successful creation and mapping of TikTok products in GoSELL
+        pageAfterLoad.verifyTikTokProductCreationInGoSELL(
+                orgTiktokProduct, tikTokProducts, orgInventoryMappings, actionTime, connection, isAutoSynced);
     }
 
     @Test
-    void checkUpdateProductToGoSELL() {
-        // Load TikTok accounts, navigate to products page, and store original data
-        ProductsPage pageAfterLoad = new ProductsPage(driver).loadConnectedTiktokAccounts(connectedShop).openTikTokProductsPage();
+    void TiktokSync03_checkUpdateProductToGoSELL() {
+        // Load TikTok accounts and navigate to products page
+        ProductsPage pageAfterLoad = loadTiktokAccountThenNavigateToProductsPage();
+
+        // Check if there are any TikTok products to work with
+        checkProductsAvailable();
+
+        // Store original TikTok products and inventory mappings before product creation in GoSELL
         var orgTiktokProduct = tikTokProducts;
-        int storeId = tikTokProducts.get(0).getBcStoreId();
+        int storeId = orgTiktokProduct.getFirst().getBcStoreId();
         var orgInventoryMappings = new SQLGetInventoryMapping(connection).getTiktokInventoryMappings(storeId);
 
+        // Check if there are any linked products; if all products are unlinked, initiate linking
+        ensureLinkedProducts();
+
         // Update products in GoSELL
-        pageAfterLoad.updateProductsToGoSell(tikTokProducts);
+        pageAfterLoad.updateProductsToGoSell(tikTokProducts, credentials);
 
         // Retrieve updated TikTok products post-update in GoSELL
         tikTokProducts = new APIGetTikTokProducts(credentials).getTikTokProducts();
@@ -114,12 +137,85 @@ public class TiktokAutoSyncTest extends BaseTest{
         pageAfterLoad.verifyTikTokProductUpdatedToGoSELL(orgTiktokProduct, tikTokProducts, orgInventoryMappings, connection);
     }
 
+
     @Test
-    void checkDeleteTiktokProducts() {
-        // Load TikTok accounts, navigate to products page, and store original data
-        ProductsPage pageAfterLoad = new ProductsPage(driver).loadConnectedTiktokAccounts(connectedShop).openTikTokProductsPage();
+    void TiktokSync04_checkDownloadIndividualTiktokProducts() {
+        // Load TikTok accounts and navigate to products page
+        ProductsPage pageAfterLoad = loadTiktokAccountThenNavigateToProductsPage();
+
+        // Check if there are any TikTok products to work with
+        checkProductsAvailable();
+
+        // Store original TikTok products and inventory mappings before product creation in GoSELL
         var orgTiktokProduct = tikTokProducts;
-        int storeId = tikTokProducts.get(0).getBcStoreId();
+        int storeId = orgTiktokProduct.getFirst().getBcStoreId();
+        var orgInventoryMappings = new SQLGetInventoryMapping(connection).getTiktokInventoryMappings(storeId);
+
+        // Attempt to download individual products in GoSELL and capture action times
+        String[] actionTime = pageAfterLoad.downloadProducts(tikTokProducts, credentials);
+
+        // Verify successful download of TikTok products in GoSELL
+        pageAfterLoad.verifyDownloadProducts(orgTiktokProduct, tikTokProducts, orgInventoryMappings, actionTime, isAutoSynced, connection);
+    }
+
+    @Test
+    void TiktokSync05_checkLinkProductToGoSELL() {
+        // Check if there are any TikTok products to work with
+        checkProductsAvailable();
+
+        // Store original TikTok products and inventory mappings before product creation in GoSELL
+        var orgTiktokProduct = tikTokProducts;
+        int storeId = orgTiktokProduct.getFirst().getBcStoreId();
+        var orgInventoryMappings = new SQLGetInventoryMapping(connection).getTiktokInventoryMappings(storeId);
+
+        // Check if there are any unlinked products; if all products are linked, initiate unlinking
+        ensureUnlinkedProducts();
+
+        // Link TikTok products to GoSELL, capturing action times
+        String[] actionTime = new APILinkTiktokProductToGoSELL(credentials).linkTiktokProductsToGoSELL(tikTokProducts);
+        UICommonAction.sleepInMiliSecond(10_000);
+
+        tikTokProducts = new APIGetTikTokProducts(credentials).getTikTokProducts();
+
+        // Verify successful linking of TikTok products to GoSELL
+        APILinkTiktokProductToGoSELL.verifyLinkProductsToGoSELL(orgTiktokProduct, tikTokProducts, orgInventoryMappings, actionTime, connection, isAutoSynced);
+    }
+
+    @Test
+    void TiktokSync06_checkUnLinkProductFromGoSELL() {
+        // Check if there are any TikTok products to work with
+        checkProductsAvailable();
+
+        // Store original TikTok products and inventory mappings before product creation in GoSELL
+        var orgTiktokProduct = tikTokProducts;
+        int storeId = orgTiktokProduct.getFirst().getBcStoreId();
+        var orgInventoryMappings = new SQLGetInventoryMapping(connection).getTiktokInventoryMappings(storeId);
+
+        // Check if there are any linked products; if all products are unlinked, initiate linking
+        ensureLinkedProducts();
+
+        // Unlink TikTok products from GoSELL
+        new APIUnlinkTiktokProduct(credentials).unlinkTiktokProducts(tikTokProducts);
+
+        UICommonAction.sleepInMiliSecond(10_000);
+
+        tikTokProducts = new APIGetTikTokProducts(credentials).getTikTokProducts();
+
+        // Verify successful unlinking of TikTok products from GoSELL
+        APIUnlinkTiktokProduct.verifyLinkProductsToGoSELL(orgTiktokProduct, tikTokProducts, orgInventoryMappings, connection);
+    }
+
+    @Test
+    void TiktokSync07_checkDeleteTiktokProducts() {
+        // Load TikTok accounts and navigate to products page
+        ProductsPage pageAfterLoad = loadTiktokAccountThenNavigateToProductsPage();
+
+        // Check if there are any TikTok products to work with
+        checkProductsAvailable();
+
+        // Store original TikTok products and inventory mappings before product creation in GoSELL
+        var orgTiktokProduct = tikTokProducts;
+        int storeId = orgTiktokProduct.getFirst().getBcStoreId();
         var orgInventoryMappings = new SQLGetInventoryMapping(connection).getTiktokInventoryMappings(storeId);
 
         // Delete selected TikTok products and retrieve the updated list of products
@@ -130,50 +226,33 @@ public class TiktokAutoSyncTest extends BaseTest{
         pageAfterLoad.verifyDeleteProducts(orgTiktokProduct, tikTokProducts, orgInventoryMappings, deletedTiktokProducts, connection);
     }
 
-    @Test
-    void checkDownloadIndividualTiktokProducts() {
-        // Load TikTok accounts, navigate to products page, and store original data
-        ProductsPage pageAfterLoad = new ProductsPage(driver).loadConnectedTiktokAccounts(connectedShop).openTikTokProductsPage();
-        var orgTiktokProduct = tikTokProducts;
-        int storeId = tikTokProducts.get(0).getBcStoreId();
-        var orgInventoryMappings = new SQLGetInventoryMapping(connection).getTiktokInventoryMappings(storeId);
-
-        // Download individual TikTok products, capturing action times
-        String[] actionTime = ProductsPage.downloadProducts(tikTokProducts, credentials);
-        tikTokProducts = new APIGetTikTokProducts(credentials).getTikTokProducts();
-
-        // Verify successful download of TikTok products in GoSELL
-        pageAfterLoad.verifyDownloadProducts(orgTiktokProduct, tikTokProducts, orgInventoryMappings, actionTime, isAutoSynced, connection);
+    private ProductsPage loadTiktokAccountThenNavigateToProductsPage() {
+        // Load TikTok accounts and navigate to products page
+        return new ProductsPage(driver)
+                .loadConnectedTiktokAccounts(connectedShop)
+                .openTikTokProductsPage();
     }
 
-    @Test
-    void checkLinkProductToGoSELL() {
-        // Store original TikTok products and inventory mappings before linking to GoSELL
-        var orgTiktokProduct = tikTokProducts;
-        int storeId = tikTokProducts.get(0).getBcStoreId();
-        var orgInventoryMappings = new SQLGetInventoryMapping(connection).getTiktokInventoryMappings(storeId);
-
-        // Link TikTok products to GoSELL, capturing action times
-        String[] actionTime = new APILinkTiktokProductToGoSELL(credentials).linkTiktokProductsToGoSELL(tikTokProducts);
-        tikTokProducts = new APIGetTikTokProducts(credentials).getTikTokProducts();
-
-        // Verify successful linking of TikTok products to GoSELL
-        APILinkTiktokProductToGoSELL.verifyLinkProductsToGoSELL(orgTiktokProduct, tikTokProducts, orgInventoryMappings, actionTime, connection, isAutoSynced);
+    private void ensureUnlinkedProducts() {
+        if (APIGetTikTokProducts.getLinkedTiktokProduct(tikTokProducts).isEmpty()) {
+            LogManager.getLogger().info("All products are linked. Unlinking products, then retrying...");
+            new APIUnlinkTiktokProduct(credentials).unlinkTiktokProducts(tikTokProducts);
+            driver.navigate().refresh();
+        }
     }
 
-    @Test
-    void checkUnLinkProductFromGoSELL() {
-        // Store original TikTok products and inventory mappings before unlinking from GoSELL
-        var orgTiktokProduct = tikTokProducts;
-        int storeId = tikTokProducts.get(0).getBcStoreId();
-        var orgInventoryMappings = new SQLGetInventoryMapping(connection).getTiktokInventoryMappings(storeId);
+    private void ensureLinkedProducts() {
+        if (APIGetTikTokProducts.getLinkedTiktokProduct(tikTokProducts).isEmpty()) {
+            LogManager.getLogger().info("All products are unlinked. Linking products, then retrying...");
+            new APILinkTiktokProductToGoSELL(credentials).linkTiktokProductsToGoSELL(tikTokProducts);
+            driver.navigate().refresh();
+        }
+    }
 
-        // Unlink TikTok products from GoSELL
-        new APIUnlinkTiktokProduct(credentials).unlinkTiktokProducts(tikTokProducts);
-        tikTokProducts = new APIGetTikTokProducts(credentials).getTikTokProducts();
-
-        // Verify successful unlinking of TikTok products from GoSELL
-        APIUnlinkTiktokProduct.verifyLinkProductsToGoSELL(orgTiktokProduct, tikTokProducts, orgInventoryMappings, connection);
+    private void checkProductsAvailable() {
+        if (tikTokProducts.isEmpty()) {
+            throw new SkipException("No TikTok products available for actions. Please download products and retry.");
+        }
     }
 
     @AfterClass

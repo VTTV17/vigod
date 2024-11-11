@@ -2,23 +2,20 @@ package web.Dashboard.sales_channels.tiktok.account_information;
 
 import api.Seller.sale_channel.tiktok.APIGetTikTokProducts;
 import api.Seller.sale_channel.tiktok.APIGetTiktokShops;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import api.Seller.sale_channel.tiktok.APITiktokItemDownloadInformation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
 import org.testng.Assert;
-import sql.SQLGetInventoryEvent;
 import utilities.commons.UICommonAction;
+import utilities.model.sellerApp.login.LoginInformation;
 import web.Dashboard.sales_channels.tiktok.VerifyAutoSyncHelper;
 
 import java.sql.Connection;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.IntStream;
 
 import static java.lang.Thread.sleep;
 import static utilities.links.Links.DOMAIN;
@@ -80,11 +77,13 @@ public class AccountInformationPage extends AccountInformationElement {
      * @return the current instance of AccountInformationPage.
      */
     public AccountInformationPage openTiktokAccountInfoPage() {
-        // Log the action of navigating to the TikTok Account Information Page
-        logger.info("Navigating to TikTok Account Information Page.");
-
         // Navigate to the specific URL where TikTok account information is displayed
-        driver.get(DOMAIN + "/channel/tiktok/account/information");
+        UICommonAction.performAction("Navigating to TikTok Account Information Page.",
+                () -> driver.get(DOMAIN + "/channel/tiktok/account/information"),
+                () -> Assert.assertEquals(driver.getCurrentUrl(),
+                        DOMAIN + "/channel/tiktok/account/information",
+                        "Can not navigate to Tiktok account information page."));
+
 
         // Return the current instance of the page to allow for method chaining
         return this;
@@ -94,22 +93,25 @@ public class AccountInformationPage extends AccountInformationElement {
      * Initiates the download process for all connected TikTok products and records the
      * start and end times of the action.
      * <p>
-     * This method checks if there are any connected TikTok shops. If not, it logs a warning
-     * and returns an empty array. If shops are connected, it clicks the button to download
-     * all TikTok products, waits for the loading indicator to disappear, and logs the action.
+     * This method checks if there are any connected TikTok shops. If none are connected, it logs a warning
+     * and returns null. If shops are connected, it clicks the button to download all TikTok products,
+     * waits for the loading indicator to disappear, and logs the action.
      * It returns an array containing the start time and end time of the download action in
      * UTC format.
      * </p>
      *
+     * @param credentials The login information required to access the TikTok API for downloading products.
      * @return A String array containing two elements: the start time and end time of the
-     *         download action, formatted as 'YYYY-MM-DD HH:MM:SS.SSS'.
+     *         download action, formatted as 'YYYY-MM-DD HH:MM:SS.SSS', or null if no connected
+     *         TikTok shops are available.
+     * @throws RuntimeException if the download process does not complete successfully within the expected time.
      */
-    public String[] initiateDownloadAllTikTokProducts() {
+    public String[] initiateDownloadAllTikTokProducts(LoginInformation credentials) {
         // Check if there are no connected TikTok shops
         if (connectedTiktokShops.isEmpty()) {
             // Log a warning message if no TikTok shops are connected
             logger.warn("No connected TikTok shops to download products from.");
-            return null; // Return the empty actionsTime array
+            return null; // Return null if no shops are connected
         }
 
         // Array to store the start and end times of the download action
@@ -125,15 +127,8 @@ public class AccountInformationPage extends AccountInformationElement {
         // Log that the download button has been clicked
         logger.info("Clicked on 'Download All TikTok Products' button.");
 
-        // Wait for the loading icon (rotate) to disappear after clicking the download button
-        commonAction.waitInvisibilityOfElementLocated(loc_icnRotateLoading);
-
-        // Wait 30 seconds
-        try {
-            sleep(30_000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+        // Wait for download success
+        new APITiktokItemDownloadInformation(credentials).waitForDownloadSuccess();
 
         // Record the end time of the action in UTC format
         actionsTime[1] = LocalDateTime.now(ZoneOffset.UTC)
@@ -142,6 +137,7 @@ public class AccountInformationPage extends AccountInformationElement {
         // Return the start and end times of the download action
         return actionsTime;
     }
+
 
     /**
      * Verifies that the download events for all linked TikTok products are properly recorded in the database.

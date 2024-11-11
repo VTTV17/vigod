@@ -10,7 +10,6 @@ import org.apache.logging.log4j.Logger;
 import org.testng.Assert;
 import sql.SQLGetInventoryMapping;
 import utilities.api.API;
-import utilities.commons.UICommonAction;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 import web.Dashboard.sales_channels.tiktok.VerifyAutoSyncHelper;
@@ -118,7 +117,7 @@ public class APILinkTiktokProductToGoSELL {
      */
     private ProductLinkRequest getPayload(APIGetTikTokProducts.TikTokProduct tikTokProduct) {
         // Create and link the product in GoSELL first, then retrieve its product ID
-        int productId = new APICreateProduct(credentials).createAndLinkProductTo3rdPartyThenRetrieveId(tikTokProduct.getVariations().size());
+        int productId = new APICreateProduct(credentials).createProductTo3rdPartyThenRetrieveId(tikTokProduct.getVariations().size());
         APIGetProductDetail.ProductInformation productInfo = new APIGetProductDetail(credentials).getProductInformation(productId);
 
         // Build and return the payload for the API request
@@ -170,9 +169,6 @@ public class APILinkTiktokProductToGoSELL {
         // Link each unlinked TikTok product to GoSELL
         tikTokProducts.forEach(this::linkTiktokProductToGoSELL);
 
-        // Wait for the update to complete (60 seconds)
-        UICommonAction.sleepInMiliSecond(60_000);
-
         // Record the end time of the action in UTC format
         actionsTime[1] = LocalDateTime.now(ZoneOffset.UTC)
                 .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"));
@@ -220,16 +216,16 @@ public class APILinkTiktokProductToGoSELL {
                 .toList();
 
         // Get item mappings for newly linked TikTok products
-        List<APIGetTikTokProducts.ItemMapping> changedItemMappings = APIGetTikTokProducts.getItemMapping(newLinkedTiktokProducts);
+        List<APIGetTikTokProducts.ItemMapping> itemMappingsWithNewInventoryEvents = APIGetTikTokProducts.getItemMapping(newLinkedTiktokProducts);
 
         // Retrieve the store ID from the first changed item mapping
         int storeId = originalTiktokProducts.get(0).getBcStoreId();
 
         // Verify the inventory event based on sync status and action times
-        VerifyAutoSyncHelper.verifyInventoryEvent(isAutoSynced, changedItemMappings, actionTime, storeId, connection, "GS_TIKTOK_SYNC_ITEM_EVENT");
+        VerifyAutoSyncHelper.verifyInventoryEvent(isAutoSynced, itemMappingsWithNewInventoryEvents, actionTime, storeId, connection, "GS_TIKTOK_SYNC_ITEM_EVENT");
 
         // Verify that the original inventory mappings remain consistent with the newly created mappings
-        VerifyAutoSyncHelper.verifyInventoryMapping(originalInventoryMappings, null, changedItemMappings, storeId, connection);
+        VerifyAutoSyncHelper.verifyInventoryMapping(originalInventoryMappings, null, itemMappingsWithNewInventoryEvents, storeId, connection);
     }
 
     /**

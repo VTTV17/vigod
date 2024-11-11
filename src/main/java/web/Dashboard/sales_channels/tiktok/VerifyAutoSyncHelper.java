@@ -133,35 +133,51 @@ public class VerifyAutoSyncHelper {
         }
 
         // Validate each event against the corresponding item mapping.
-        IntStream.range(0, events.size()).forEach(i -> validateEvent(events.get(i), itemMappings.get(i), eventAction));
+        IntStream.range(0, expectedEventCount).forEach(index -> validateEvent(events, itemMappings.get(index), eventAction));
 
         // Log a success message after all events have been successfully validated.
         logger.info("All events have been successfully verified against the linked TikTok product variations.");
     }
 
     /**
-     * Validates a single inventory event by comparing its details with the corresponding product item mapping.
+     * Validates an inventory event by comparing its details with the corresponding product item mapping.
      *
-     * @param event       The inventory event to validate.
-     * @param itemMapping The product item mapping to compare against the event.
-     * @param eventAction The action associated with the event (e.g., download or update).
+     * @param events      The list of inventory events to search within.
+     * @param itemMapping The product item mapping to validate against.
+     * @param eventAction The expected action for the event (e.g., download or update).
+     * @throws IllegalArgumentException if no matching event is found.
      */
-    private static void validateEvent(InventoryEvent event, ItemMapping itemMapping, String eventAction) {
-        // Log details of the event being verified.
-        logger.info("Verifying event: Branch ID = {}, Item ID = {}, Model ID = {}.", event.getBranch_id(), event.getItem_id(), event.getModel_id());
+    private static void validateEvent(List<InventoryEvent> events, ItemMapping itemMapping, String eventAction) {
+        // Retrieve the matching inventory event based on item mapping.
+        InventoryEvent event = SQLGetInventoryEvent.getInventoryEventByItemMapping(events, itemMapping);
 
-        // Assert that the event's action matches the expected event action.
-        Assert.assertEquals(event.getAction(), eventAction, "Event action does not match.");
+        // Fail fast if the event is not found, providing detailed itemMapping information.
+        if (event == null) {
+            throw new IllegalArgumentException(String.format("No matching inventory event found for item mapping with Branch ID = %s, Item ID = %s, Model ID = %s.",
+                    itemMapping.getBranch_id(), itemMapping.getBc_item_id(), itemMapping.getBc_model_id()));
+        }
 
-        // Assert that the branch ID, item ID, and model ID match between the event and the item mapping.
-        Assert.assertEquals(event.getBranch_id(), itemMapping.getBranch_id(), "Branch ID does not match.");
-        Assert.assertEquals(event.getItem_id(), itemMapping.getBc_item_id(), "Item ID does not match.");
-        Assert.assertEquals(event.getModel_id(), itemMapping.getBc_model_id(), "Model ID does not match.");
+        // Log the details of the event being validated.
+        logger.info("Validating event - Branch ID: {}, Item ID: {}, Model ID: {}", event.getBranch_id(), event.getItem_id(), event.getModel_id());
 
-        // Assert that the order ID matches depending on the event action type.
-        Assert.assertEquals(event.getOrder_id(), eventAction.equals("GS_TIKTOK_DOWNLOAD_PRODUCT")
+        // Validate the event's action, throwing an error if it doesn’t match the expected action.
+        Assert.assertEquals(event.getAction(), eventAction,
+                String.format("Event action mismatch: expected '%s' but found '%s'.", eventAction, event.getAction()));
+
+        // Validate that the branch ID, item ID, and model ID match the item mapping.
+        Assert.assertEquals(event.getBranch_id(), itemMapping.getBranch_id(),
+                String.format("Branch ID mismatch: expected '%s' but found '%s'.", itemMapping.getBranch_id(), event.getBranch_id()));
+        Assert.assertEquals(event.getItem_id(), itemMapping.getBc_item_id(),
+                String.format("Item ID mismatch: expected '%s' but found '%s'.", itemMapping.getBc_item_id(), event.getItem_id()));
+        Assert.assertEquals(event.getModel_id(), itemMapping.getBc_model_id(),
+                String.format("Model ID mismatch: expected '%s' but found '%s'.", itemMapping.getBc_model_id(), event.getModel_id()));
+
+        // Validate that the order ID matches based on the event action type.
+        String expectedOrderId = eventAction.equals("GS_TIKTOK_DOWNLOAD_PRODUCT")
                 ? String.valueOf(itemMapping.getTt_item_id())
-                : String.valueOf(itemMapping.getBc_store_id()), "Order ID does not match.");
+                : String.valueOf(itemMapping.getBc_store_id());
+        Assert.assertEquals(event.getOrder_id(), expectedOrderId,
+                String.format("Order ID mismatch: expected '%s' but found '%s'.", expectedOrderId, event.getOrder_id()));
     }
 
     /**

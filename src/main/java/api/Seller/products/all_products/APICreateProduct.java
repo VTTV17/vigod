@@ -284,11 +284,11 @@ public class APICreateProduct {
         return payload;
     }
 
-    ProductPayload getWithVariationPayload(boolean isManagedByIMEI, int variationNum, int increaseNum, int... branchStock) {
-        ProductPayload payload = initBasicInformation(isManagedByIMEI);
+    ProductPayload getWithVariationPayload(int variationNum, int... branchStock) {
+        ProductPayload payload = initBasicInformation(false);
 
         // set product name
-        String productName = "[%s] %s%s".formatted(storeInfo.getDefaultLanguage(), isManagedByIMEI ? ("Auto - IMEI - variation - ") : ("Auto - Normal - variation - "), new DataGenerator().generateDateTime("dd/MM HH:mm:ss"));
+        String productName = "[%s] %s%s".formatted(storeInfo.getDefaultLanguage(), ("Auto - Normal - variation - "), new DataGenerator().generateDateTime("dd/MM HH:mm:ss"));
         payload.setName(productName);
 
         // generate variation map
@@ -309,7 +309,7 @@ public class APICreateProduct {
             List<Inventory> lstInventory = IntStream.range(0, branchInfo.getBranchID().size())
                     .mapToObj(branchIndex -> new Inventory(branchInfo.getBranchID().get(branchIndex),
                             branchInfo.getBranchType().get(branchIndex),
-                            (!payload.isLotAvailable() && (branchStock.length > branchIndex)) ? (branchStock[branchIndex] + (finalVarIndex * increaseNum)) : 0))
+                            (!payload.isLotAvailable() && (branchStock.length > branchIndex)) ? (branchStock[branchIndex] + (finalVarIndex * 0)) : 0))
                     .toList();
 
             List<ItemModelCodeDTO> itemModelCodeDTOS = new ArrayList<>();
@@ -381,13 +381,13 @@ public class APICreateProduct {
      * @param branchStock   An array of branch stock values to set for the product.
      * @return              The ID of the created product.
      */
-    public int createAndLinkProductTo3rdPartyThenRetrieveId(int variationNum, int... branchStock) {
+    public int createProductTo3rdPartyThenRetrieveId(int variationNum, int... branchStock) {
         // Log the start of the product creation process
         LogManager.getLogger().info("===== STEP =====> [CreateAndLinkProductTo3rdPartyThenRetrieveId] START...");
 
         // Prepare the product payload depending on whether the product has variations
         ProductPayload productPayload = variationNum != 0
-                ? getWithVariationPayload(false, variationNum, 0, branchStock)
+                ? getWithVariationPayload(variationNum, branchStock)
                 : getWithoutVariationPayload(false, branchStock);
 
         // Renew the product payload for subsequent API use
