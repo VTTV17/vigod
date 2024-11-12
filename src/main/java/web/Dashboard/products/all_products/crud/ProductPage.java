@@ -26,6 +26,7 @@ import utilities.permission.CheckPermission;
 import web.Dashboard.confirmationdialog.ConfirmationDialog;
 import web.Dashboard.home.HomePage;
 import web.Dashboard.products.all_products.crud.conversion_unit.ConversionUnitPage;
+import web.Dashboard.products.all_products.crud.shopeesync.ShopeeSyncPage;
 import web.Dashboard.products.all_products.crud.sync_lazada.SyncLazadaPage;
 import web.Dashboard.products.all_products.crud.variation_detail.VariationDetailPage;
 import web.Dashboard.products.all_products.crud.wholesale_price.WholesaleProductPage;
@@ -1822,5 +1823,11 @@ public class ProductPage extends ProductPageElement {
             new ConfirmationDialog(driver).clickOKBtn_V2();
         }
         return new SyncLazadaPage(driver);
+    }
+    
+    public ShopeeSyncPage selectShopeeToSync(){
+    	commonAction.click(loc_icnShopee);
+//    	new ConfirmationDialog(driver).clickOKBtn();
+    	return new ShopeeSyncPage(driver);
     }
 }
