@@ -1007,7 +1007,10 @@ public class ProductPage extends ProductPageElement {
     void completeUpdateProduct() {
         // save changes
         commonAction.clickJS(loc_btnSave);
-
+        //close waning popup if any
+        if(!commonAction.getListElement(new ConfirmationDialog(driver).loc_btnYes,3000).isEmpty()){
+            new ConfirmationDialog(driver).clickYesBtn();
+        }
         // if update product successfully, close notification popup
         assertCustomize.assertFalse(commonAction.getListElement(loc_dlgSuccessNotification, 30000).isEmpty(), "Can not update product.");
         if (!commonAction.getListElement(loc_dlgSuccessNotification, 30000).isEmpty()) {
@@ -1814,7 +1817,10 @@ public class ProductPage extends ProductPageElement {
     }
     public SyncLazadaPage clickLazadaIcon(){
         commonAction.click(loc_icnLazada);
-        new ConfirmationDialog(driver).clickOKBtn_V2();
+        if(!commonAction.getElements(new ConfirmationDialog(driver).loc_btnOK_V2,1).isEmpty())
+        {
+            new ConfirmationDialog(driver).clickOKBtn_V2();
+        }
         return new SyncLazadaPage(driver);
     }
 }

@@ -16,4 +16,5 @@ public class SyncLazadaElement {
     By loc_lst_icnDimension  = By.cssSelector(".dimension-model-icon");
     By loc_txtLengthWidthHeightWeight = By.cssSelector("div .ant-input-number-input");
     By loc_icnCloseDimension = By.xpath("//button[@aria-label='Close']");
+    By loc_btnUpdate = By.xpath("//button[string()='Update' or string()='Cập nhật']");
 }

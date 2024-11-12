@@ -328,7 +328,7 @@ public class ShopeeAutoSyncTest extends BaseTest {
 		var selectedShopeeProduct = DataGenerator.getRandomListElement(filterProductsByCondition(List.of(Boolean.FALSE), List.of("UNLINK"), BULK_PRODUCT_COUNT));
 		
 		//Create a GoSELL product to link with the Shopee product
-		var gosellProductId = new APICreateProduct(credentials).createAndLinkProductTo3rdPartyThenRetrieveId(0, new Random().nextInt(1, 101));
+		var gosellProductId = new APICreateProduct(credentials).createProductTo3rdPartyThenRetrieveId(0, new Random().nextInt(1, 101));
 		var gosellProductDetail = new APIGetProductDetail(credentials).getProductInformation(gosellProductId);
 		
 		var preProcessTime = LocalDateTime.now(ZoneId.of("UTC")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"));
@@ -363,7 +363,7 @@ public class ShopeeAutoSyncTest extends BaseTest {
 		var shopeeVariationList = selectedShopeeProduct.getVariations();
 		
 		//Create a GoSELL product to link with the Shopee product
-		var gosellProductId = new APICreateProduct(credentials).createAndLinkProductTo3rdPartyThenRetrieveId(shopeeVariationList.size(), new Random().nextInt(1, 101));
+		var gosellProductId = new APICreateProduct(credentials).createProductTo3rdPartyThenRetrieveId(shopeeVariationList.size(), new Random().nextInt(1, 101));
 		var gosellProductDetail = new APIGetProductDetail(credentials).getProductInformation(gosellProductId);
 		
 		//UI implementation
@@ -408,7 +408,7 @@ public class ShopeeAutoSyncTest extends BaseTest {
 		var selectedShopeeProduct = DataGenerator.getRandomListElement(filterProductsByCondition(List.of(Boolean.FALSE), List.of("UNLINK"), BULK_PRODUCT_COUNT));
 		
 		//Create a GoSELL product to link with the Shopee product
-		var gosellProductId = new APICreateProduct(credentials).createAndLinkProductTo3rdPartyThenRetrieveId(0, new Random().nextInt(1, 101));
+		var gosellProductId = new APICreateProduct(credentials).createProductTo3rdPartyThenRetrieveId(0, new Random().nextInt(1, 101));
 		
 		//Link the Shopee product with the GoSELL product
 		new APIShopeeProducts(credentials).linkProductNoVariations(selectedShopeeProduct, gosellProductId);
@@ -447,7 +447,7 @@ public class ShopeeAutoSyncTest extends BaseTest {
 		var shopeeVariationList = selectedShopeeProduct.getVariations();
 		
 		//Create a GoSELL product to link with the Shopee product
-		var gosellProductId = new APICreateProduct(credentials).createAndLinkProductTo3rdPartyThenRetrieveId(shopeeVariationList.size(), new Random().nextInt(1, 101));
+		var gosellProductId = new APICreateProduct(credentials).createProductTo3rdPartyThenRetrieveId(shopeeVariationList.size(), new Random().nextInt(1, 101));
 		var gosellProductDetail = new APIGetProductDetail(credentials).getProductInformation(gosellProductId);
 		
 		//Link the Shopee product with the GoSELL product
@@ -580,7 +580,7 @@ public class ShopeeAutoSyncTest extends BaseTest {
 		var selectedShopeeProduct = DataGenerator.getRandomListElement(filterProductsByCondition(List.of(Boolean.FALSE), List.of("UNLINK"), BULK_PRODUCT_COUNT));
 		
 		//Create a GoSELL product to link with the Shopee product
-		var gosellProductId = new APICreateProduct(credentials).createAndLinkProductTo3rdPartyThenRetrieveId(0, new Random().nextInt(1, 101));
+		var gosellProductId = new APICreateProduct(credentials).createProductTo3rdPartyThenRetrieveId(0, new Random().nextInt(1, 101));
 		
 		//Link the Shopee product with the GoSELL product
 		new APIShopeeProducts(credentials).linkProductNoVariations(selectedShopeeProduct, gosellProductId);		
@@ -620,7 +620,7 @@ public class ShopeeAutoSyncTest extends BaseTest {
 		var selectedShopeeProduct = DataGenerator.getRandomListElement(filterProductsByCondition(List.of(Boolean.TRUE), List.of("UNLINK"), BULK_PRODUCT_COUNT));
 		
 		//Create a GoSELL product to link with the Shopee product
-		var gosellProductId = new APICreateProduct(credentials).createAndLinkProductTo3rdPartyThenRetrieveId(selectedShopeeProduct.getVariations().size(), new Random().nextInt(1, 101));
+		var gosellProductId = new APICreateProduct(credentials).createProductTo3rdPartyThenRetrieveId(selectedShopeeProduct.getVariations().size(), new Random().nextInt(1, 101));
 		var gosellProductDetail = new APIGetProductDetail(credentials).getProductInformation(gosellProductId);
 		
 		//Link the Shopee product with the GoSELL product
@@ -663,7 +663,7 @@ public class ShopeeAutoSyncTest extends BaseTest {
 		//TODO handle the case where the products don't have variations
 		
 		//Create a GoSELL product to link with the Shopee product
-		var gosellProductId = new APICreateProduct(credentials).createAndLinkProductTo3rdPartyThenRetrieveId(shopeeProductPreAction.getVariations().size(), new Random().nextInt(1, 101));
+		var gosellProductId = new APICreateProduct(credentials).createProductTo3rdPartyThenRetrieveId(shopeeProductPreAction.getVariations().size(), new Random().nextInt(1, 101));
 		var gosellProductDetail = new APIGetProductDetail(credentials).getProductInformation(gosellProductId);
 		
 		//Link the Shopee product with the GoSELL product
@@ -705,7 +705,7 @@ public class ShopeeAutoSyncTest extends BaseTest {
 		var shopeeProductPreAction = DataGenerator.getRandomListElement(filterProductsByCondition(List.of(Boolean.FALSE), List.of("UNLINK"), BULK_PRODUCT_COUNT));
 		
 		//Create a GoSELL product to link with the Shopee product
-		var gosellProductId = new APICreateProduct(credentials).createAndLinkProductTo3rdPartyThenRetrieveId(0, new Random().nextInt(1, 101));
+		var gosellProductId = new APICreateProduct(credentials).createProductTo3rdPartyThenRetrieveId(0, new Random().nextInt(1, 101));
 		
 		//Link the Shopee product with the GoSELL product
 		new APIShopeeProducts(credentials).linkProductNoVariations(shopeeProductPreAction, gosellProductId);
@@ -762,7 +762,7 @@ public class ShopeeAutoSyncTest extends BaseTest {
 		var selectedShopeeProduct = DataGenerator.getRandomListElement(filterProductsByCondition(List.of(Boolean.TRUE), List.of("UNLINK"), BULK_PRODUCT_COUNT));
 		
 		//Create a GoSELL product to link with the Shopee product
-		var gosellProductId = new APICreateProduct(credentials).createAndLinkProductTo3rdPartyThenRetrieveId(selectedShopeeProduct.getVariations().size(), new Random().nextInt(1, 101));
+		var gosellProductId = new APICreateProduct(credentials).createProductTo3rdPartyThenRetrieveId(selectedShopeeProduct.getVariations().size(), new Random().nextInt(1, 101));
 		var gosellProductDetail = new APIGetProductDetail(credentials).getProductInformation(gosellProductId);
 		
 		//Link the Shopee product with the GoSELL product

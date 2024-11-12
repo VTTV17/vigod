@@ -45,9 +45,11 @@ public class SyncLazadaPage extends SyncLazadaElement {
         }
     }
     public SyncLazadaPage inputSKU(){
-        List<WebElement> skuList = commonAction.getElements(loc_lst_txtSKU,1);
+        List<WebElement> skuList = commonAction.getElements(loc_lst_txtSKU,2);
         for (int i=0; i<skuList.size(); i++){
-            commonAction.inputText(loc_lst_txtSKU, i, new DataGenerator().generateString(5));
+            if(commonAction.getValue(loc_lst_txtSKU,i).equals("")){
+                commonAction.inputText(loc_lst_txtSKU, i, new DataGenerator().generateString(5));
+            }
         }
         logger.info("Input all SKU.");
         return this;
@@ -112,6 +114,27 @@ public class SyncLazadaPage extends SyncLazadaElement {
         inputDimension();
         clickCreateBtn();
         new HomePage(driver).waitTillLoadingDotsDisappear();
+        return this;
+    }
+    public SyncLazadaPage updateProductToLazada(){
+        waitLazadaAccountEnable();
+        selectAllVariation();
+        inputSKU();
+        inputDimension();
+        clickUpdateBtn();
+        new HomePage(driver).waitTillLoadingDotsDisappear();
+        return this;
+    }
+    public SyncLazadaPage clickUpdateBtn(){
+        commonAction.click(loc_btnUpdate);
+        logger.info("Click update button.");
+        return this;
+    }
+    @SneakyThrows
+    public SyncLazadaPage verifyUpdateToLazadaSuccess(){
+        String toast = new HomePage(driver).getToastMessage();
+        Assert.assertEquals(toast, PropertiesUtil.getPropertiesValueByDBLang("products.productDetail.syncLazada.update.success"));
+        logger.info("Verify update success message.");
         return this;
     }
 }
