@@ -198,7 +198,7 @@ public class LazadaProducts extends LazadaProductElements {
             else {
                 //else to link product to Gosell
                 unlinkProductId.forEach(i -> {
-                    long productId = new APICreateProduct(loginInformation).createAndLinkProductTo3rdPartyThenRetrieveId(apiLazadaProducts.getVariationNumberOfLazadaProduct(i),10);
+                    long productId = new APICreateProduct(loginInformation).createProductTo3rdPartyThenRetrieveId(apiLazadaProducts.getVariationNumberOfLazadaProduct(i),10);
                     new APILazadaProducts(loginInformation).linkProduct(branchId, productId, i);
                 });
             }
