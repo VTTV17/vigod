@@ -142,7 +142,7 @@ public class APIShopeeProducts {
     	logger.info("Unlinked Shopee product ids: {}", shopeeItemIdList);
     }    
     
-    public void linkProductNoVariations(ShopeeProduct product, int gosellProductId) {
+    void linkProductNoVariations(ShopeeProduct product, int gosellProductId) {
     	String body = """
 				{
 					"bcItemId": %s,
@@ -157,9 +157,8 @@ public class APIShopeeProducts {
     	
     	logger.info("Linked Shopee product '{}' with GoSELL product '{}'", product.getShopeeItemId(), gosellProductId);
     } 
-    
     //TODO update description for this function
-    public List<List<String>> linkProductHavingVariations(ShopeeProduct product, ProductInformation gosellProductInfo) {
+    List<List<String>> linkProductHavingVariations(ShopeeProduct product, ProductInformation gosellProductInfo) {
 
     	var shopeeVariations = product.getVariations().stream().map(var -> {
     		var variation = new JSONObject();
@@ -203,6 +202,16 @@ public class APIShopeeProducts {
     	return mappedVarIds;
     }    
 
+    //TODO update description for this function
+    public List<List<String>> linkProduct(ShopeeProduct product, ProductInformation gosellProductInfo) {
+    	if (product.hasVariation) {
+    		return linkProductHavingVariations(product, gosellProductInfo);
+    	}
+    	
+    	linkProductNoVariations(product, gosellProductInfo.getId());
+    	return new ArrayList<List<String>>();
+    }     
+    
     /**
      * After importing Shopee products to GoSELL, it's essential to wait for the sync process to complete.
      * This function is responsible for that
