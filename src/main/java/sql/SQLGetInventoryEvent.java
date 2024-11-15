@@ -2,8 +2,9 @@ package sql;
 
 import api.Seller.sale_channel.tiktok.APIGetTikTokProducts;
 import lombok.Data;
+import sql.SQLGetInventoryEvent.InventoryEvent;
+import utilities.commons.UICommonAction;
 import utilities.database.InitConnection;
-import utilities.model.dashboard.salechanel.shopee.ShopeeProduct;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -13,14 +14,25 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
-import static java.sql.Types.NULL;
-
 /**
  * This class handles the retrieval of inventory events from the database.
  */
 public class SQLGetInventoryEvent {
     private final Connection connection;
 
+    private final static int MAX_RETRIES = 5;
+    private final static int DELAY_IN_MS_BEFORE_RETRY = 3000;
+    
+    /**
+     * SQL query for fetching mapping events of a product without variations
+     */
+    public final static String SQL_FETCHING_EVENTS_NOVARS = "SELECT x.* FROM \"inventory-services\".inventory_event x WHERE branch_id = '%s' and item_id = '%s' and created_date > '%s' ORDER BY x.id DESC";
+    /**
+     * SQL query for fetching mapping events of a product with variations
+     */
+    public final static String SQL_FETCHING_EVENTS_VARS = "SELECT x.* FROM \"inventory-services\".inventory_event x WHERE branch_id = '%s' and item_id = '%s' and model_id = '%s' and created_date > '%s' ORDER BY x.id DESC";
+    
+    
     /**
      * Constructor for GetInventoryEvent.
      *
@@ -131,7 +143,24 @@ public class SQLGetInventoryEvent {
 
         return accumulatedEvents;
     }
-
+    /**
+     * Oftentimes database records are not generated the moment an SQL is executed.
+     * This function waits until at least one record is present thanks to a retry mechanism.
+     * @param sqlQuery
+     * @return a list of InventoryEvent objects representing mapping events
+     */
+	public List<InventoryEvent> waitUntilEventRecordsAppear(String sqlQuery){
+		List<InventoryEvent> inventoryEventList = new ArrayList<>();
+		for (int i=0; i<MAX_RETRIES; i++) {
+			inventoryEventList = getShopeeInventoryEvents(sqlQuery);
+			
+			if (!inventoryEventList.isEmpty()) return inventoryEventList;
+			
+			UICommonAction.sleepInMiliSecond(DELAY_IN_MS_BEFORE_RETRY, "Events are not present. Wait a little");
+		}
+		return inventoryEventList;
+	}    
+    
     public List<InventoryEvent> inventoryEventListByItem(int branchId, long itemId, String startTime) {
         String query = """
                 select *
