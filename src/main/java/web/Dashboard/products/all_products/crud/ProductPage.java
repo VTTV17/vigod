@@ -873,10 +873,10 @@ public class ProductPage extends ProductPageElement {
         commonAction.click(loc_dlgCommons_btnUpdate);
     }
 
-    void inputVariationStock(int increaseNum, int... branchStockQuantity) {
+    public void inputVariationStock(int increaseNum, int... branchStockQuantity) {
         // get product stock quantity
         productStockQuantity = new HashMap<>();
-        for (int varIndex = 0; varIndex < variationList.size(); varIndex++) {
+         for (int varIndex = 0; varIndex < variationList.size(); varIndex++) {
             List<Integer> variationStock = new ArrayList<>();
             // set branch stock
             for (int branchIndex = 0; branchIndex < brInfo.getBranchName().size(); branchIndex++) {
@@ -1824,10 +1824,47 @@ public class ProductPage extends ProductPageElement {
         }
         return new SyncLazadaPage(driver);
     }
-    
-    public ShopeeSyncPage selectShopeeToSync(){
-    	commonAction.click(loc_icnShopee);
-    	new ConfirmationDialog(driver).clickOKBtn();
-    	return new ShopeeSyncPage(driver);
+
+    public ShopeeSyncPage selectShopeeToSync() {
+        commonAction.click(loc_icnShopee);
+        new ConfirmationDialog(driver).clickOKBtn();
+        return new ShopeeSyncPage(driver);
+    }
+    public ProductPage clickSelectAllVariation(){
+        // select all variation
+        if (!commonAction.isCheckedJS(loc_tblVariation_chkSelectAll))
+            commonAction.clickJS(loc_tblVariation_chkSelectAll);
+        logger.info("Click select all variation");
+        return this;
+    }
+    public ProductPage clickUpdateStockOnWarehousing(){
+        commonAction.click(loc_lblUpdateStock);
+        logger.info("Click on Update stock label on Warehousing section.");
+        return this;
+    }
+    public ProductPage clickSaveBtn(){
+        commonAction.click(loc_btnSave);
+        logger.info("Click save button.");
+        return this;
+    }
+    public ProductPage updateStock(boolean hasVariation){
+        if(hasVariation)  clickSelectAllVariation();
+        else clickUpdateStockOnWarehousing();
+
+        // open list action dropdown
+        commonAction.clickJS(loc_tblVariation_lnkSelectAction);
+
+        // open Update price popup
+        commonAction.click(loc_tblVariation_ddvActions,1);
+
+        // switch to change stock tab
+        commonAction.click(loc_dlgUpdateStock_tabChange);
+
+        // input stock quantity to visible stock input field
+        commonAction.sendKeys(loc_dlgUpdateStock_txtStockValue, String.valueOf(DataGenerator.generatNumberInBound(10,20)));
+
+        commonAction.click(loc_dlgCommons_btnUpdate);
+
+        return this;
     }
 }

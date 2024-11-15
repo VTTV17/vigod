@@ -5,6 +5,7 @@ import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
 import utilities.assert_customize.AssertCustomize;
 import utilities.commons.UICommonAction;
+import utilities.links.Links;
 import utilities.model.sellerApp.login.LoginInformation;
 import utilities.model.staffPermission.AllPermissions;
 import utilities.permission.CheckPermission;
@@ -23,6 +24,7 @@ public class CreateReturnOrderPage extends CreateReturnOrderElement {
         this.driver = driver;
         assertCustomize = new AssertCustomize(driver);
         commonAction = new UICommonAction(driver);
+        isRestockGoods = true;
     }
 
     /*-------------------------------------*/
@@ -40,7 +42,6 @@ public class CreateReturnOrderPage extends CreateReturnOrderElement {
         checkPermission = new CheckPermission(driver);
         isRestockGoods = permissions.getOrders().getReturnOrder().isRestockGoods();
     }
-
     void inputReturnStock() {
         int bound = commonAction.getListElement(loc_txtQuantity).size();
 
@@ -94,7 +95,7 @@ public class CreateReturnOrderPage extends CreateReturnOrderElement {
         }
     }
 
-    void completedCreateReturnOrder() {
+    public void completedCreateReturnOrder() {
         commonAction.click(loc_btnSave);
         assertCustomize.assertFalse(commonAction.getListElement(loc_dlgToastSuccess).isEmpty(),
                 "Can not create new return order.");
@@ -104,5 +105,10 @@ public class CreateReturnOrderPage extends CreateReturnOrderElement {
         inputReturnStock();
         restockGoods();
         completedCreateReturnOrder();
+    }
+    public CreateReturnOrderPage navigateToCreateOrder(int orderId){
+        String url = Links.DOMAIN + "/order/return-order/create/order/" +orderId;
+        commonAction.navigateToURL(url);
+        return this;
     }
 }

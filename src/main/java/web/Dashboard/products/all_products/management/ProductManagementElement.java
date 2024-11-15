@@ -90,4 +90,9 @@ public class ProductManagementElement {
     By loc_dlgManageProductByLotDate = By.cssSelector(".bulk-update-lot-type-modal");
     By loc_dlgManageProductByLotDate_chkExcludeExpireQuantity = By.cssSelector("#expiredQuantity");
     By loc_dlgManageProductByLotDate_btnYes = By.cssSelector(".bulk-update-lot-type-modal .gs-button__green");
+    By loc_lst_btnSearchType = By.cssSelector(".uik-select__option");
+    By loc_txtSearch = By.cssSelector(".d-desktop-flex .search-box__wrapper input");
+    By loc_btnSearchType = By.cssSelector(".d-mobile-none .search-box__wrapper ~ div button");
+    By getLoc_dlgUpdateStock_lstBranch = By.cssSelector(".product-multiple-stock_updater_modal .uik-select__option .uik-select__label");
+    By loc_lblClearStockProgressing= By.cssSelector(".synchronize-status-text");
 }
