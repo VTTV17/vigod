@@ -7,29 +7,28 @@ import io.restassured.specification.RequestSpecification;
 import lombok.Setter;
 import utilities.data.DataGenerator;
 import utilities.links.Links;
+import utilities.utils.PropertiesUtil;
 
 import java.io.File;
 import java.util.Map;
 
-import static io.restassured.RestAssured.baseURI;
 import static io.restassured.RestAssured.given;
+import static utilities.links.Links.URI;
 
 public class API {
     @Setter
     public static String staffPermissionToken = "";
+    private final String uri;
 
-    public API() {
-        RestAssured.proxy("localhost", 8888);
-        baseURI = Links.URI;
-    }
-
-    public API(String URI) {
-        baseURI = URI;
+    public API(String... uri) {
+        if (PropertiesUtil.enableProxy) RestAssured.proxy("localhost", 8888);
+        this.uri = uri.length == 0 ? URI : uri[0];
     }
 
     @SafeVarargs
     public final Response get(String path, String token, Map<String, ?>... headers) {
         return given().relaxedHTTPSValidation()
+                .baseUri(uri)
                 .auth()
                 .oauth2(token)
                 .header("Staffpermissions-Token", staffPermissionToken)
@@ -42,6 +41,7 @@ public class API {
     @SafeVarargs
     public final Response search(String path, String token, String body, Map<String, ?>... headers) {
         return given().relaxedHTTPSValidation()
+                .baseUri(uri)
                 .auth()
                 .oauth2(token)
                 .header("Staffpermissions-Token", staffPermissionToken)
@@ -54,6 +54,7 @@ public class API {
 
     public Response login(String path, String body) {
         return given().relaxedHTTPSValidation()
+                .baseUri(uri)
                 .contentType(ContentType.JSON)
                 .body(body)
                 .when()
@@ -63,6 +64,7 @@ public class API {
     @SafeVarargs
     public final Response post(String path, String token, Object body, Map<String, ?>... headers) {
         return given().relaxedHTTPSValidation()
+                .baseUri(uri)
                 .auth()
                 .oauth2(token)
                 .header("Staffpermissions-Token", staffPermissionToken)
@@ -76,6 +78,7 @@ public class API {
     @SafeVarargs
     public final Response post(String path, String token, Map<String, ?>... headers) {
         return given().relaxedHTTPSValidation()
+                .baseUri(uri)
                 .auth()
                 .oauth2(token)
                 .header("Staffpermissions-Token", staffPermissionToken)
@@ -84,20 +87,22 @@ public class API {
                 .when()
                 .post(path);
     }
-    
+
     public final Response postDesignatedForMailnesia(String path, String token) {
-    	return given().relaxedHTTPSValidation()
-    			.auth()
-    			.oauth2(token)
-    			.formParam("delete", 1)
-    			.header("Content-Type", "application/x-www-form-urlencoded")
-    			.when()
-    			.post(path);
+        return given().relaxedHTTPSValidation()
+                .baseUri(uri)
+                .auth()
+                .oauth2(token)
+                .formParam("delete", 1)
+                .header("Content-Type", "application/x-www-form-urlencoded")
+                .when()
+                .post(path);
     }
-    
+
     @SafeVarargs
     public final Response put(String path, String token, Object body, Map<String, ?>... headers) {
         return given().relaxedHTTPSValidation()
+                .baseUri(uri)
                 .auth()
                 .oauth2(token)
                 .header("Staffpermissions-Token", staffPermissionToken)
@@ -111,6 +116,7 @@ public class API {
     @SafeVarargs
     public final Response delete(String path, String token, Map<String, ?>... headers) {
         return given().relaxedHTTPSValidation()
+                .baseUri(uri)
                 .auth()
                 .oauth2(token)
                 .header("Staffpermissions-Token", staffPermissionToken)
@@ -123,6 +129,7 @@ public class API {
     @SafeVarargs
     public final Response put(String path, String token, Map<String, ?>... headers) {
         return given().relaxedHTTPSValidation()
+                .baseUri(uri)
                 .auth()
                 .oauth2(token)
                 .header("Staffpermissions-Token", staffPermissionToken)
@@ -135,6 +142,7 @@ public class API {
     @SafeVarargs
     public final Response deleteRequest(String path, String token, String body, Map<String, ?>... headers) {
         return given().relaxedHTTPSValidation()
+                .baseUri(uri)
                 .auth()
                 .oauth2(token)
                 .header("Staffpermissions-Token", staffPermissionToken)
@@ -147,6 +155,7 @@ public class API {
 
     public Response importFile(String path, String token, String fileName, String... additionParams) {
         return getMultiPartAdditionParams(additionParams)
+                .baseUri(uri)
                 .auth()
                 .oauth2(token)
                 .header("Staffpermissions-Token", staffPermissionToken)

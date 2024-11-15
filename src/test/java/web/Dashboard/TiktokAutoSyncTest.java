@@ -1,5 +1,7 @@
 package web.Dashboard;
 
+import api.Seller.products.all_products.APIGetProductDetail;
+import api.Seller.products.all_products.APIUpdateProduct;
 import api.Seller.sale_channel.tiktok.*;
 import org.apache.logging.log4j.LogManager;
 import org.testng.Assert;
@@ -12,6 +14,7 @@ import utilities.commons.UICommonAction;
 import utilities.database.InitConnection;
 import utilities.driver.InitWebdriver;
 import utilities.model.sellerApp.login.LoginInformation;
+import utilities.utils.PropertiesUtil;
 import web.Dashboard.login.LoginPage;
 import web.Dashboard.sales_channels.tiktok.account_information.AccountInformationPage;
 import web.Dashboard.sales_channels.tiktok.products.ProductsPage;
@@ -37,7 +40,7 @@ public class TiktokAutoSyncTest extends BaseTest {
         // Retrieve TikTok shop accounts and filter for connected accounts
         var shops = new APIGetTiktokShops(credentials).getListTiktokAccounts();
         connectedShop = APIGetTiktokShops.getListConnectedShop(shops);
-        Assert.assertFalse(connectedShop.isEmpty(), "Test stopped as there are no connected TikTok accounts.");
+        if (connectedShop.isEmpty()) throw new SkipException("Test stopped as there are no connected TikTok accounts.");
 
         // Retrieve all TikTok products available
         tikTokProducts = new APIGetTikTokProducts(credentials).getTikTokProducts();
@@ -48,7 +51,7 @@ public class TiktokAutoSyncTest extends BaseTest {
 
     private void initSQLConnection() throws SQLException {
         // Set up SQL connection to staging database
-        if (environment.equals("STAG")) {
+        if (PropertiesUtil.environment.equals("STAG")) {
             connection = new InitConnection().createConnection("172.16.113.55", "5432", "beecow", "readonly", "R7LHffcgeEh2tpQ0qU2y");
         } else {
             connection = new InitConnection().createConnection("db-ca.mediastep.com", "5432", "postgres", "qc_thangnguyen", "tc1t9rQYXyRS3XcK");
@@ -90,7 +93,7 @@ public class TiktokAutoSyncTest extends BaseTest {
         ProductsPage pageAfterLoad = loadTiktokAccountThenNavigateToProductsPage();
 
         // Check if there are any TikTok products to work with
-       checkProductsAvailable();
+        checkProductsAvailable();
 
         // Store original TikTok products and inventory mappings before product creation in GoSELL
         var orgTiktokProduct = tikTokProducts;
@@ -205,8 +208,57 @@ public class TiktokAutoSyncTest extends BaseTest {
         APIUnlinkTiktokProduct.verifyLinkProductsToGoSELL(orgTiktokProduct, tikTokProducts, orgInventoryMappings, connection);
     }
 
+
     @Test
-    void TiktokSync07_checkDeleteTiktokProducts() {
+    void TiktokSync07_checkDeviatedVariations() {
+        // Get linked product
+        var linkedProducts = APIGetTikTokProducts.getLinkedTiktokProduct(tikTokProducts);
+
+        // Make it deviated variations
+        linkedProducts.forEach(tikTokProduct -> {
+            int varNum = (tikTokProduct.getVariations().size() == 1) ? 5 : 0;
+
+            // Log variation update decision
+            LogManager.getLogger().info("Processing product with BC Item ID: {} - Current variations count: {}. Setting variations to: {}",
+                    tikTokProduct.getBcItemId(), tikTokProduct.getVariations().size(), varNum);
+
+            var productInfo = new APIGetProductDetail(credentials).getProductInformation(Integer.parseInt(tikTokProduct.getBcItemId()));
+            new APIUpdateProduct(credentials).updateProductVariations(productInfo, varNum);
+
+            // Log after the update
+            LogManager.getLogger().info("Updated product with BC Item ID: {} to have {} variations.",
+                    tikTokProduct.getBcItemId(), varNum);
+        });
+
+        // Load TikTok accounts and navigate to products page
+        ProductsPage pageAfterLoad = loadTiktokAccountThenNavigateToProductsPage();
+
+        // Retrieve all TikTok products available
+        tikTokProducts = new APIGetTikTokProducts(credentials).getTikTokProducts();
+
+        // Check if there are any TikTok products to work with
+        checkProductsAvailable();
+
+        // Store original TikTok products and inventory mappings before product creation in GoSELL
+        var orgTiktokProduct = tikTokProducts;
+        int storeId = orgTiktokProduct.getFirst().getBcStoreId();
+        var orgInventoryMappings = new SQLGetInventoryMapping(connection).getTiktokInventoryMappings(storeId);
+
+        // Check if there are any linked products; if all products are unlinked, initiate linking
+        ensureLinkedProducts();
+
+        // Update products in GoSELL
+        pageAfterLoad.updateProductsToGoSell(tikTokProducts, credentials);
+
+        // Retrieve updated TikTok products post-update in GoSELL
+        tikTokProducts = new APIGetTikTokProducts(credentials).getTikTokProducts();
+
+        // Verify successful update of TikTok products in GoSELL
+        pageAfterLoad.verifyTikTokProductUpdatedToGoSELL(orgTiktokProduct, tikTokProducts, orgInventoryMappings, connection);
+    }
+
+    @Test
+    void TiktokSync08_checkDeleteTiktokProducts() {
         // Load TikTok accounts and navigate to products page
         ProductsPage pageAfterLoad = loadTiktokAccountThenNavigateToProductsPage();
 

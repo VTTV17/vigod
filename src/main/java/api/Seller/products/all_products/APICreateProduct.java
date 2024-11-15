@@ -383,7 +383,7 @@ public class APICreateProduct {
      */
     public int createProductTo3rdPartyThenRetrieveId(int variationNum, int... branchStock) {
         // Log the start of the product creation process
-        LogManager.getLogger().info("===== STEP =====> [CreateAndLinkProductTo3rdPartyThenRetrieveId] START...");
+        LogManager.getLogger().info("===== STEP =====> [createProductTo3rdPartyThenRetrieveId] START...");
 
         // Prepare the product payload depending on whether the product has variations
         ProductPayload productPayload = variationNum != 0
@@ -403,7 +403,7 @@ public class APICreateProduct {
                 .getInt("id");
 
         // Log the successful completion of the product creation process
-        LogManager.getLogger().info("===== STEP =====> [CreateAndLinkProductTo3rdPartyThenRetrieveId] DONE!!!");
+        LogManager.getLogger().info("===== STEP =====> [createProductTo3rdPartyThenRetrieveId] DONE!!!");
 
         return productId;
     }

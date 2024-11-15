@@ -25,25 +25,13 @@ public class BaseTest {
     public String headless;
     public String language;
     public String domain;
-    public String environment;
 
     @BeforeSuite
-    @Parameters({"browser", "headless", "environment", "language", "domain"})
-    public void getConfig(@Optional("chrome") String browser,
-                   @Optional("false") String headless,
-                   @Optional("STAG") String environment,
-                   @Optional("ENG") String language,
-                   @Optional("VN") String domain ) { // either VN or BIZ
-        this.browser = browser;
-        this.headless = headless;
-        this.language = language;
-        this.domain = domain;
-        this.environment = environment;
-
-        // set environment, language for Properties
-        PropertiesUtil.setEnvironment(environment);
-        PropertiesUtil.setDBLanguage(language);
-        PropertiesUtil.setSFLanguage(language);
+    public void getConfig() {
+        this.browser = PropertiesUtil.browser;
+        this.headless = PropertiesUtil.headless;
+        this.language = PropertiesUtil.dbLanguage;
+        this.domain = PropertiesUtil.domain;
     }
 
     @BeforeMethod
@@ -57,17 +45,6 @@ public class BaseTest {
         AssertCustomize.setCountFalse(0);
     }
 
-    public void writeResultToExcel(String fileName, int sheetId, ITestResult result, String testCaseID) throws IOException {
-        Excel excel = new Excel();
-        int testCaseRow = excel.getRowCellByKey(fileName, sheetId, testCaseID).get(0);
-        int resultCellIndex = excel.getCellIndexByCellValue(fileName, sheetId, 0, "Result %s".formatted(language));
-        switch (result.getStatus()) {
-            case ITestResult.SUCCESS -> excel.writeCellValue(fileName, sheetId, testCaseRow, resultCellIndex, "PASS");
-            case ITestResult.SKIP -> excel.writeCellValue(fileName, sheetId, testCaseRow, resultCellIndex, "SKIP");
-            case ITestResult.FAILURE -> excel.writeCellValue(fileName, sheetId, testCaseRow, resultCellIndex, "FAIL");
-            default -> excel.writeCellValue(fileName, sheetId, testCaseRow, resultCellIndex, "OTHER STATUS");
-        }
-    }
 
     @AfterSuite
     void tearDownWeb() {
