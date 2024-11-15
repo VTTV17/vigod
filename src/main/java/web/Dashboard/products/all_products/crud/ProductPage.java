@@ -1827,7 +1827,7 @@ public class ProductPage extends ProductPageElement {
     
     public ShopeeSyncPage selectShopeeToSync(){
     	commonAction.click(loc_icnShopee);
-//    	new ConfirmationDialog(driver).clickOKBtn();
+    	new ConfirmationDialog(driver).clickOKBtn();
     	return new ShopeeSyncPage(driver);
     }
 }

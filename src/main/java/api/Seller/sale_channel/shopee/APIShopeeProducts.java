@@ -12,6 +12,7 @@ import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 
 import api.Seller.login.Login;
+import api.Seller.products.all_products.APIGetProductDetail;
 import api.Seller.products.all_products.APIGetProductDetail.ProductInformation;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
@@ -57,6 +58,7 @@ public class APIShopeeProducts {
     String importProductPath = "/shopeeservices/api/items/syn_to_gosell/<storeId>";
     String syncStatusPath = "/shopeeservices/api/item-synch-informations/get-status/<storeId>";
     String downloadSingleProductPath = "/shopeeservices/api/item-download-informations/product/<storeId>/<shopeeShopId>/<shopeeItemId>";
+    String deleteProductPath = "/shopeeservices/api/items/delete/shopee/<shopeeShopId>?onShopee=true&onGS=true";
 
     Response getShopeeProductResponse(int pageIndex) {
         return api.get(allShopeeProductPath.formatted(loginInfo.getStoreID(), pageIndex), loginInfo.getAccessToken());
@@ -184,7 +186,7 @@ public class APIShopeeProducts {
     	linkProductPayload.put("shopeeShopId", product.getShopeeShopId());
     	linkProductPayload.put("branchId", product.getBranchId());
     	linkProductPayload.put("bcStoreId", String.valueOf(product.getBcStoreId()));
-    	linkProductPayload.put("bcTierVariations", Arrays.asList(gosellProductInfo.getModels().get(0).getLabel().split("\\|")));
+    	linkProductPayload.put("bcTierVariations", Arrays.asList(APIGetProductDetail.getDefaultVariationName(gosellProductInfo).split("\\|")));
     	linkProductPayload.put("shopeeTierVariations", product.getTierVariations().stream().map(TierVariation::getName).collect(Collectors.toList()));
     	linkProductPayload.put("shopeeItemVariations", shopeeVariations);
     	linkProductPayload.put("isManual", true);
@@ -281,5 +283,25 @@ public class APIShopeeProducts {
     		
     		logger.info("Downloaded Shopee product id '{}' from Shopee shop id '{}'", product.getShopeeItemId(), product.getShopeeShopId());
     	});
+    }   
+    
+    /**
+     * Deletes a list of ShopeeProduct objects
+     * @param productList a list of ShopeeProduct objects
+     */
+    public void deleteProduct(List<ShopeeProduct> productList) {
+        if (productList.size() == 0) {
+            logger.info("Shopee product list input is empty. Skipping deleteProduct");
+            return;
+        }
+    	
+        var shopeeShopId = String.valueOf(productList.get(0).getShopeeShopId());
+        var shopeeProductRecordIdList = productList.stream().map(ShopeeProduct::getId).collect(Collectors.toList());
+        
+        String basePath = deleteProductPath.replaceAll("<shopeeShopId>", shopeeShopId);
+        
+        api.put(basePath, loginInfo.getAccessToken(), shopeeProductRecordIdList).then().statusCode(200);
+        
+        logger.info("Deleted Shopee product record ids '{}' from Shopee shop id '{}'", shopeeProductRecordIdList, shopeeShopId);
     }        
 }

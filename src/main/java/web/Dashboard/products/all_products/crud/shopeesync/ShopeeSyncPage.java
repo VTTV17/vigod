@@ -1,5 +1,7 @@
 package web.Dashboard.products.all_products.crud.shopeesync;
 
+import java.util.List;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
@@ -56,6 +58,45 @@ public class ShopeeSyncPage {
     	commonAction.click(elements.loc_ddlBrand);
     	commonAction.click(elements.loc_ddvNoBrand);
     	logger.info("Selected brand: 'No brand'");
+    	return this;
+    }
+ 
+    public ShopeeSyncPage inputPackageWeight(String packageWeight){
+    	commonAction.inputText(elements.loc_txtPackageWeight, packageWeight);
+    	logger.info("Input Package weight: {}", packageWeight);
+    	return this;
+    }    
+    //TODO add function description
+    public ShopeeSyncPage inputPackageDimensions(List<String> length_Width_Height){
+    	commonAction.inputText(elements.loc_txtPackageLength, length_Width_Height.get(0));
+    	commonAction.inputText(elements.loc_txtPackageWidth, length_Width_Height.get(1));
+    	commonAction.inputText(elements.loc_txtPackageHeight, length_Width_Height.get(2));
+    	logger.info("Input Package length - width - height: {}", length_Width_Height);
+    	return this;
+    }    
+
+    /**
+     * This temporary function fills package info fields such as weight and dimensions with fixed values
+     */
+    public ShopeeSyncPage inputPackageWeightAndDimensions() {
+    	inputPackageWeight("100");
+    	inputPackageDimensions(List.of("10", "20", "35"));
+    	return this;
+    }
+    
+    
+    /**
+     * This temporary function fills the price of variations with a fixed value of 2000000.
+     * Please create a new function if this one doesn't meet your needs.
+     */
+    public ShopeeSyncPage inputPriceForVariations() {
+    	final String price = "2000000"; 
+    	var variationPriceElementCount = commonAction.getElements(elements.loc_txtPriceOfVariations).size();
+    	
+    	for (int i=0; i< variationPriceElementCount; i++) {
+    		commonAction.inputText(elements.loc_txtPriceOfVariations, i, price);
+    		logger.info("Input price of variation indexed '{}' : {}", i, price);
+    	}
     	return this;
     }
     

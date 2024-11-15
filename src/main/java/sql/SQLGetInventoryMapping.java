@@ -5,8 +5,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import api.Seller.orders.order_management.APIAllOrders;
 import lombok.Data;
+import sql.SQLGetInventoryMapping.InventoryMapping;
+
 import org.apache.logging.log4j.LogManager;
 import org.testng.Assert;
+
+import utilities.commons.UICommonAction;
 import utilities.database.InitConnection;
 
 import java.sql.Connection;
@@ -23,7 +27,11 @@ import java.util.stream.Collectors;
  */
 public class SQLGetInventoryMapping {
     private final Connection connection;
-
+    private final static int MAX_RETRIES = 5;
+    private final static int DELAY_IN_MS_BEFORE_RETRY = 3000;
+    
+    public final static String SQL_FETCHING_MAPPING_RECORDS = "SELECT x.* FROM \"inventory-services\".inventory_mapping x WHERE branch_id = '%s' and inventory_id = '%s' ORDER BY x.id DESC";
+    
     /**
      * Constructor for GetInventoryMapping.
      *
@@ -291,24 +299,17 @@ public class SQLGetInventoryMapping {
         return mapping;
     }
     
-    //TODO add function description
+    /**
+     * Retrieves a list of InventoryMapping objects which represent mapping records stored in the database
+     * @param sqlQuery
+     */
     public List<InventoryMapping> getMappingRecords(String sqlQuery) {
         System.out.println(sqlQuery);
 
         List<InventoryMapping> accumulatedRecords = new ArrayList<>();
         try (ResultSet resultSet = InitConnection.executeSQL(connection, sqlQuery)) {
             while (resultSet.next()) {
-                InventoryMapping mapping = new InventoryMapping();
-                mapping.setId(resultSet.getInt("id"));
-                mapping.setBranch_id(resultSet.getString("branch_id"));
-                mapping.setItem_id(resultSet.getString("item_id"));
-                mapping.setModel_id(resultSet.getString("model_id"));
-                mapping.setShop_id(resultSet.getString("shop_id"));
-                mapping.setStock(resultSet.getInt("stock"));
-                mapping.setChannel(resultSet.getString("channel"));
-                mapping.setInventory_id(resultSet.getString("inventory_id"));
-
-                accumulatedRecords.add(mapping);
+                accumulatedRecords.add(createInventoryMapping(resultSet));
             }
         } catch (SQLException exception) {
             throw new RuntimeException("Error retrieving inventory mapping records from the database", exception);
@@ -316,6 +317,24 @@ public class SQLGetInventoryMapping {
 
         return accumulatedRecords;
     }
+    /**
+     * Oftentimes database records are not generated the moment an SQL is executed.
+     * This function waits until at least one record is present thanks to a retry mechanism.
+     * @param sqlQuery
+     * @return a list of InventoryMapping objects representing mapping records
+     */
+	public List<InventoryMapping> waitUntilMappingRecordsAppear(String sqlQuery){
+		List<InventoryMapping> recordList = new ArrayList<>();
+		for (int i=0; i<MAX_RETRIES; i++) {
+			recordList = getMappingRecords(sqlQuery);
+			
+			if (!recordList.isEmpty()) return recordList;
+			
+			UICommonAction.sleepInMiliSecond(DELAY_IN_MS_BEFORE_RETRY, "Mapping records are not present. Wait a little");
+		}
+		return recordList;
+	}    
+    
     public List<utilities.model.dashboard.products.inventory.InventoryMapping> getLazadaInventoryMapping(int branch, long productId) {
         String branchProduct = branch + "-" + productId;
         String query = """
