@@ -19,19 +19,10 @@ public class BaseTest {
     public String language;
 
     @BeforeSuite
-    @Parameters({"browser", "headless", "environment", "language"})
-    void getConfig(@Optional("chrome") String browser,
-                   @Optional("true") String headless,
-                   @Optional("PREPROD") String environment,
-                   @Optional("VIE") String language) {
-        this.browser = browser;
-        this.headless = headless;
-        this.language = language;
-
-        // set environment, language for Properties
-        PropertiesUtil.setEnvironment(environment);
-        PropertiesUtil.setDBLanguage(language);
-        PropertiesUtil.setSFLanguage(language);
+    public void getConfig() {
+        this.browser = PropertiesUtil.browser;
+        this.headless = PropertiesUtil.headless;
+        this.language = PropertiesUtil.sfLanguage;
     }
 
     @BeforeMethod

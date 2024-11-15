@@ -13,15 +13,10 @@ public class BaseTest {
     public String language;
 
     @BeforeSuite
-    @Parameters({"environment", "language"})
-    public void getConfig(@Optional("PREPROD") String environment,
-                          @Optional("VIE") String language) {
-        this.language = language;
-        // set environment, language for Properties
-        PropertiesUtil.setEnvironment(environment);
-        PropertiesUtil.setDBLanguage(language);
-        PropertiesUtil.setSFLanguage(language);
+    public void getConfig() {
+        this.language = PropertiesUtil.dbLanguage;
     }
+
     @BeforeMethod
     void startTest() {
         // Start recording

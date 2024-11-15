@@ -718,7 +718,7 @@ public class UICommonAction {
      */
     public List<WebElement> getListElement(By locator) {
         try {
-            getWait(500).until(ExpectedConditions.presenceOfElementLocated(locator));
+            getWait(3000).until(ExpectedConditions.presenceOfElementLocated(locator));
         } catch (TimeoutException ignore) {
         }
         return driver.findElements(locator).isEmpty()
@@ -1280,6 +1280,14 @@ public class UICommonAction {
         logger.info("Wait till content text of element change");
     }
 
+    public static void performAction(Runnable action) {
+        performAction(null, action, null);
+    }
+
+    public static void performAction(String logMessage, Runnable action) {
+        performAction(logMessage, action, null);
+    }
+
     public static void performAction(String logMessage, Runnable action, Runnable verifier) {
         // Step 1: Log the start of the action
         if (logMessage != null && !logMessage.isEmpty()) logger.info(logMessage);
@@ -1295,5 +1303,20 @@ public class UICommonAction {
         if (verifier != null) {
             verifier.run();
         }
+    }
+
+    public static <T> T performAction(Supplier<T> action) {
+        return performAction(null, action);
+    }
+
+    public static <T> T performAction(String logMessage, Supplier<T> action) {
+        // Step 1: Log the start of the action
+        if (logMessage != null && !logMessage.isEmpty()) logger.info(logMessage);
+
+        // Step 2: Perform the mandatory action
+        if (action == null) {
+            throw new IllegalArgumentException("Action must be provided.");
+        }
+        return action.get();
     }
 }

@@ -7,6 +7,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
 import org.testng.Assert;
+import org.testng.SkipException;
 import sql.SQLGetInventoryMapping;
 import utilities.commons.UICommonAction;
 import utilities.model.sellerApp.login.LoginInformation;
@@ -16,7 +17,10 @@ import java.sql.Connection;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
 
 import static utilities.links.Links.DOMAIN;
 
@@ -75,15 +79,14 @@ public class ProductsPage extends ProductsElement {
      *
      * @param tikTokProducts The list of TikTok products to create in GoSell.
      * @return A String array containing two elements: the start time and end time of the creation action,
-     *         formatted as 'YYYY-MM-DD HH:MM:SS.SSS', or null if no unlinked products are found.
+     * formatted as 'YYYY-MM-DD HH:MM:SS.SSS', or null if no unlinked products are found.
      */
     public String[] createProductsToGoSell(List<APIGetTikTokProducts.TikTokProduct> tikTokProducts) {
         // Retrieve unlinked TikTok products
         var unlinkedProducts = APIGetTikTokProducts.getUnLinkedTiktokProduct(tikTokProducts);
 
         if (unlinkedProducts.isEmpty()) {
-            logger.info("No unlinked TikTok products found. Skipping creation process.");
-            return null;
+            throw new SkipException("No unlinked TikTok products found. Skipping creation process.");
         }
 
         // Array to store the start and end times of the action
@@ -126,7 +129,7 @@ public class ProductsPage extends ProductsElement {
      * </p>
      *
      * @param tikTokProducts The list of TikTok products to update in GoSell.
-     * @param credentials The seller's login credentials required for authentication.
+     * @param credentials    The seller's login credentials required for authentication.
      */
     public void updateProductsToGoSell(List<APIGetTikTokProducts.TikTokProduct> tikTokProducts, LoginInformation credentials) {
         // Get linked products and error products
@@ -138,8 +141,7 @@ public class ProductsPage extends ProductsElement {
         allRelevantProducts.addAll(errorProducts);
 
         if (allRelevantProducts.isEmpty()) {
-            logger.info("No linked or error TikTok products available for update.");
-            return;
+            throw  new SkipException("No linked or error TikTok products available for update.");
         }
 
         logger.info("Updating products in GoSell for {} linked TikTok products.", allRelevantProducts.size());
@@ -163,8 +165,7 @@ public class ProductsPage extends ProductsElement {
     public List<APIGetTikTokProducts.TikTokProduct> deleteTiktokProducts(List<APIGetTikTokProducts.TikTokProduct> tikTokProducts) {
         // Check for an empty list of TikTok products
         if (tikTokProducts.isEmpty()) {
-            logger.info("No TikTok products available for deletion.");
-            return null;
+            throw new SkipException("No TikTok products available for deletion.");
         }
 
         // Initialize list to store products marked for deletion
@@ -200,8 +201,7 @@ public class ProductsPage extends ProductsElement {
         if (connectedTiktokShops.isEmpty()) return null;
 
         if (tikTokProducts.isEmpty()) {
-            logger.info("No TikTok products available for download.");
-            return null;
+            throw new SkipException("No TikTok products available for download.");
         }
         // Array to store the start and end times of the download action
         String[] actionsTime = new String[2];
@@ -326,8 +326,11 @@ public class ProductsPage extends ProductsElement {
                 .filter(newProduct -> Objects.equals(newProduct.getThirdPartyItemId(), unlinkedProduct.getThirdPartyItemId()))
                 .findFirst()
                 .ifPresentOrElse(this::assertProductCreated,
-                        () -> logger.error("No matching product found in GoSELL for TikTok product ID: {}", unlinkedProduct.getThirdPartyItemId()));
+                        () -> {
+                            throw new IllegalArgumentException("No matching product found in GoSELL for TikTok product ID: " + unlinkedProduct.getThirdPartyItemId());
+                        });
     }
+
 
     /**
      * Asserts that the product's GoSELL status is not "UNLINK" indicating it has been created.
