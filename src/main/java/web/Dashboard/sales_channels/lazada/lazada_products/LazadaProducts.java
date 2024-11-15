@@ -140,7 +140,15 @@ public class LazadaProducts extends LazadaProductElements {
         logger.info("Vefify inventory event for branch: %s, produc: %s, event action: %s, start time: %s".formatted(branchId, productId, eventAction, startTime));
         return this;
     }
-
+    @SneakyThrows
+    public LazadaProducts verifyInventoryEvent(int branchId, long productId, String modelId, EventAction eventAction, String startTime) {
+        List<SQLGetInventoryEvent.InventoryEvent> inventoryEventsExpected = new APILazadaProducts(loginInformation).getInventoryEventInfo(branchId, productId, eventAction)
+                .stream().filter(i ->i.getModel_id().equals(modelId)).collect(Collectors.toList());
+        List<SQLGetInventoryEvent.InventoryEvent> inventoryEventsActual = new SQLGetInventoryEvent(new InitConnection().createConnection()).inventoryEventListByItem(branchId, productId, startTime);
+        verifyInventoryEvent(inventoryEventsActual, inventoryEventsExpected);
+        logger.info("Vefify inventory event for branch: %s, produc: %s, model: %s, event action: %s, start time: %s".formatted(branchId, productId, modelId, eventAction, startTime));
+        return this;
+    }
     @SneakyThrows
     public LazadaProducts verifyInventoryMapping(List<InventoryMapping> inventoryMappingsActual, List<InventoryMapping> inventoryMappingsExpected) {
         inventoryMappingsExpected.sort(Comparator.comparing(InventoryMapping::getInventoryId)

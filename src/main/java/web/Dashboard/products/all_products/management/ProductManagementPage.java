@@ -6,6 +6,7 @@ import api.Seller.products.all_products.APICreateProduct;
 import api.Seller.products.all_products.APIProductDetail;
 import api.Seller.products.inventory.APIInventoryHistory;
 import api.Seller.setting.BranchManagement;
+import lombok.SneakyThrows;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
@@ -16,8 +17,10 @@ import utilities.commons.UICommonAction;
 import utilities.data.DataGenerator;
 import utilities.model.sellerApp.login.LoginInformation;
 import utilities.model.staffPermission.AllPermissions;
+import utilities.model.staffPermission.Home.Home;
 import utilities.permission.CheckPermission;
 import utilities.utils.FileUtils;
+import web.Dashboard.home.HomePage;
 import web.Dashboard.products.all_products.crud.ProductPage;
 
 import java.util.*;
@@ -64,10 +67,11 @@ public class ProductManagementPage extends ProductManagementElement {
         return this;
     }
 
-    void navigateToProductManagementPage() {
+    public ProductManagementPage navigateToProductManagementPage() {
         driver.get("%s/product/list".formatted(DOMAIN));
         driver.navigate().refresh();
         logger.info("Navigate to product management page.");
+        return this;
     }
 
     enum BulkActions {
@@ -424,7 +428,6 @@ public class ProductManagementPage extends ProductManagementElement {
         // verify test
         AssertCustomize.verifyTest();
     }
-
 
     // bulk update tax
     public void bulkUpdateTax() {
@@ -1128,5 +1131,91 @@ public class ProductManagementPage extends ProductManagementElement {
 
         // back to previous page
         driver.get(currentURL);
+    }
+    public ProductManagementPage clickOnSearchType(){
+        commonAction.click(loc_btnSearchType);
+        logger.info("Click on Search Type");
+        return this;
+    }
+    public enum SearchType{
+        PRODUCT_NAME,
+        SKU,
+        BARCODE
+    }
+    @SneakyThrows
+    public ProductManagementPage selectSearchType(SearchType searchType){
+        switch (searchType){
+            case PRODUCT_NAME -> commonAction.click(loc_lst_btnSearchType,0);
+            case SKU -> commonAction.click(loc_lst_btnSearchType,1);
+            case BARCODE -> commonAction.click(loc_lst_btnSearchType,2);
+            default -> throw new Exception("Search type not found.");
+        }
+        new HomePage(driver).waitTillSpinnerDisappear1();
+        logger.info("Select search type: {}",searchType);
+        return this;
+    }
+    public ProductManagementPage inputSearch(String keyword){
+        commonAction.inputText(loc_txtSearch, keyword);
+        logger.info("Input {} into search field.",keyword);
+//        commonAction.sleepInMiliSecond(2000);
+        new HomePage(driver).waitTillSpinnerDisappear();
+        return this;
+    }
+    public ProductManagementPage excuteSearch(SearchType searchType, String keywork){
+        clickOnSearchType();
+        selectSearchType(searchType);
+        inputSearch(keywork);
+        return this;
+    }
+    public ProductManagementPage updateStockAction(String branchName){
+        // open bulk actions dropdown
+        openBulkActionsDropdown();
+
+        // open confirm active popup
+        commonAction.openPopupJS(loc_ddlListActions, bulkActionsValues().indexOf(updateStock), loc_dlgUpdateStock);
+
+        //Select branch if any
+        selectBranchOnUpdateStockModal(branchName);
+
+        // select change actions
+        commonAction.click(loc_dlgUpdateStock_actionsChange);
+
+        // input stock value
+        int stock = nextInt(MAX_STOCK_QUANTITY);
+        commonAction.sendKeys(loc_dlgUpdateStock_txtStockValue, String.valueOf(stock));
+        logger.info("Input stock value: %,d.".formatted(stock));
+
+        // confirm update stock
+        commonAction.click(loc_dlgUpdateStock_btnUpdate);
+        waitUpdated();
+        return this;
+    }
+    public ProductManagementPage selectBranchOnUpdateStockModal(String branchName){
+        if(commonAction.getText(loc_dlgUpdateStock_ddvSelectedBranch).equalsIgnoreCase(branchName)) return this;
+        commonAction.click(loc_dlgUpdateStock_ddvSelectedBranch);
+        commonAction.selectDropdownOptionByValue(getLoc_dlgUpdateStock_lstBranch,branchName);
+        logger.info("Select branch: {} on Update stock modal.",branchName);
+        return this;
+    }
+    public ProductManagementPage clearStockAction(){
+        // open bulk actions dropdown
+        openBulkActionsDropdown();
+
+        // open confirm active popup
+        commonAction.openPopupJS(loc_ddlListActions, bulkActionsValues().indexOf(clearStock), loc_dlgClearStock);
+
+        // confirm clear stock
+        commonAction.click(loc_dlgClearStock_btnOK);
+
+        //wait
+        waitUpdated(loc_lblClearStockProgressing);
+        return this;
+    }
+    void waitUpdated(By loadingLocator) {
+        if (!commonAction.getListElement(loadingLocator).isEmpty()) {
+            driver.navigate().refresh();
+            logger.info("Wait loading disappear.");
+            waitUpdated(loadingLocator);
+        }
     }
 }
