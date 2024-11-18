@@ -31,7 +31,7 @@ public class ConfirmationDialog {
 
 	//Temporary locator
 	By loc_btnCancel_V2 = By.cssSelector(".modal-footer button:nth-child(1)");
-	public By loc_btnOK_V2 = By.xpath("//div[@class='modal-footer']//button[string()='OK']");
+	public By loc_btnOK_V2 = By.xpath("//button[string()='OK']");
 	By loc_SecondModal_btnGreen = By.xpath("(//div[@class='modal-footer'])[2]//button[contains(@class,'gs-button__green')]");
 	public By loc_btnYes = By.xpath("//div[@class='ant-modal-footer']//button[string()='Yes' or string()='Có']");
 

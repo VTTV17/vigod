@@ -393,7 +393,7 @@ public class APICreateOrderPOS {
                     "platform": "IN_STORE",
                     "inStore": true,
                     "isAllowEarningPoint": true,
-                    "applyTax":true,
+                    "applyTax":false,
                     "taxAmount": 0,
                     "paymentMposId": 0,
                     "paymentMposDeviceCode": ""
