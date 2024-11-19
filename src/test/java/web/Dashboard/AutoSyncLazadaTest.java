@@ -31,6 +31,7 @@ import utilities.model.dashboard.orders.orderdetail.ItemOrderInfo;
 import utilities.model.dashboard.orders.orderdetail.OrderDetailInfo;
 import utilities.model.dashboard.orders.pos.CreatePOSOrderCondition;
 import utilities.model.dashboard.products.inventory.InventoryMapping;
+import utilities.model.dashboard.setting.branchInformation.BranchInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 import web.Dashboard.confirmationdialog.ConfirmationDialog;
 import web.Dashboard.login.LoginPage;
@@ -39,6 +40,7 @@ import web.Dashboard.orders.return_orders.return_order_management.ReturnOrdersMa
 import web.Dashboard.products.all_products.crud.ProductPage;
 import web.Dashboard.products.all_products.crud.sync_lazada.SyncLazadaPage;
 import web.Dashboard.products.all_products.management.ProductManagementPage;
+import web.Dashboard.products.transfer.crud.TransferPage;
 import web.Dashboard.sales_channels.lazada.lazada_products.LazadaProducts;
 
 import java.sql.Connection;
@@ -52,6 +54,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import java.util.stream.Collectors;
 
+import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static utilities.account.AccountTest.ADMIN_SHOP_VI_PASSWORD;
 import static utilities.account.AccountTest.ADMIN_SHOP_VI_USERNAME;
 import static utilities.character_limit.CharacterLimit.MAX_PRICE;
@@ -91,15 +94,7 @@ public class AutoSyncLazadaTest extends BaseTest {
         if (connection != null) connection.close();
         if (driver != null) driver.quit();
     }
-    @DataProvider
-    public Object[][] dataCreateToGoSell() {
-        return new Object[][]{
-                {1, false},
-                {3, false},
-                {1, true},
-                {3, true}
-        };
-    }
+
     public void waitManyTime(int time){
         new UICommonAction(driver).sleepInMiliSecond(2000*time, "Wait for data insert into database.");
     }
@@ -131,6 +126,15 @@ public class AutoSyncLazadaTest extends BaseTest {
         }
         //Verify the all mapping not change
         lazadaProductPage.verifyInventoryMappingExceptProductList(List.of("0"), loginDashboard.getStoreID(), mappingNotChangeBefore);
+    }
+    @DataProvider
+    public Object[][] dataCreateToGoSell() {
+        return new Object[][]{
+                {1, false},
+                {3, false},
+                {1, true},
+                {3, true}
+        };
     }
     @Test(dataProvider = "dataCreateToGoSell", priority = 1)
     public void TC01_CreateProductToGoSell(int productNumber, boolean hasVariation) {
@@ -412,8 +416,67 @@ public class AutoSyncLazadaTest extends BaseTest {
                 {ProductThirdPartyStatus.LINK, false}
         };
     }
+
+    @DataProvider
+    public Object[][] dataUpdateStock(){
+        return new Object[][]{
+                {ProductThirdPartyStatus.SYNC, true, "ClearStockInBulk", true},
+                {ProductThirdPartyStatus.SYNC, true, "UpdateStockInDetail", true},
+                {ProductThirdPartyStatus.SYNC, true, "UpdateStockInBulk", true},
+                {ProductThirdPartyStatus.LINK, true, "ClearStockInBulk", true},
+                {ProductThirdPartyStatus.LINK, true, "UpdateStockInDetail", true},
+                {ProductThirdPartyStatus.LINK, true, "UpdateStockInBulk", true},
+                {ProductThirdPartyStatus.SYNC, false, "ClearStockInBulk", true},
+                {ProductThirdPartyStatus.SYNC, false, "UpdateStockInDetail", true},
+                {ProductThirdPartyStatus.SYNC, false, "UpdateStockInBulk", true},
+                {ProductThirdPartyStatus.LINK, false, "ClearStockInBulk",true},
+                {ProductThirdPartyStatus.LINK, false, "ClearStockInBulk",true},
+                {ProductThirdPartyStatus.LINK, false, "UpdateStockInDetail", true},
+                {ProductThirdPartyStatus.LINK, false, "UpdateStockInBulk", true},
+                {ProductThirdPartyStatus.SYNC, true, "UpdateStockInDetail", false},
+                {ProductThirdPartyStatus.SYNC, false, "UpdateStockInBulk", false},
+
+
+        };
+    }
+    @Test(dataProvider = "dataUpdateStock")
+    @SneakyThrows
+    public void TC07_UpdateStock(ProductThirdPartyStatus status, boolean hasVariation, String action, boolean isChangeStock){
+        actionThenCheckChangeStockEvent(status, hasVariation, (productId, modelIdList, currentDate, event)->{
+            switch (action){
+                case "UpdateStockInDetail"->{
+                    new ProductPage(driver).getLoginInformation(loginInformation)
+                            .navigateToUpdateProductPage(productId)
+                            .updateStock(hasVariation,isChangeStock);
+                }
+                case "UpdateStockInBulk"
+                        ->{
+                    String branchName = new BranchManagement(loginInformation).getBranchNameById(List.of(branchId)).get(0);
+                    new ProductManagementPage(driver).getLoginInformation(loginInformation)
+                            .navigateToProductManagementPage()
+                            .excuteSearch(ProductManagementPage.SearchType.BARCODE, productId.toString())
+                            .updateStockAction(branchName, isChangeStock);
+                }
+                case "ClearStockInBulk" ->{
+                    new ProductManagementPage(driver).getLoginInformation(loginInformation)
+                            .navigateToProductManagementPage()
+                            .excuteSearch(ProductManagementPage.SearchType.BARCODE, productId.toString())
+                            .clearStockAction();
+                }
+                default -> {
+                    try {
+                        throw new Exception("Action not found.");
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+            if(isChangeStock|| action.equalsIgnoreCase("ClearStockInBulk")) event.set(EventAction.GS_SET_PRODUCT_STOCK);
+            if(hasVariation) waitManyTime(1);
+        });
+    }
     @Test(dataProvider = "dataCreateCancelPOSOrder")
-    public void TC07_CreateAndCancelOrderPOS(ProductThirdPartyStatus status, boolean hasVariation){
+    public void TC08_CreateAndCancelOrderPOS(ProductThirdPartyStatus status, boolean hasVariation){
         //Get productId
         long lazadaProductId = new LazadaProducts(driver, loginInformation).getSyncedLinkedProduct(hasVariation,1,status).get(0);
         String branchProduct = new APILazadaProducts(loginInformation).getBranchAndProductMappingWithLazadaProduct(lazadaProductId);
@@ -460,60 +523,13 @@ public class AutoSyncLazadaTest extends BaseTest {
         lazadaProductPage.verifyInventoryMappingExceptProductList(List.of("0"), loginDashboard.getStoreID(), mappingNotChangeBefore);
 
     }
-
-    @DataProvider
-    public Object[][] dataUpdateStock(){
-        return new Object[][]{
-                {ProductThirdPartyStatus.SYNC, true, "UpdateStockInDetail"},
-//                {ProductThirdPartyStatus.SYNC, true, "UpdateStockInBulk"},
-//                {ProductThirdPartyStatus.SYNC, true, "ClearStockInBulk"},
-
-        };
-    }
-    //TODO action not work
-    @Test(dataProvider = "dataUpdateStock")
-    @SneakyThrows
-    public void TC08_UpdateStock(ProductThirdPartyStatus status, boolean hasVariation, String action){
-        actionThenCheckChangeStockEvent(status, hasVariation, (productId, modelIdList, currentDate, event)->{
-            switch (action){
-                case "UpdateStockInDetail"->{
-                    new ProductPage(driver).getLoginInformation(loginInformation)
-                            .navigateToUpdateProductPage(productId)
-                            .updateStock(hasVariation);
-                }
-                case "UpdateStockInBulk"
-                        ->{
-                    String branchName = new BranchManagement(loginInformation).getBranchNameById(List.of(branchId)).get(0);
-                    new ProductManagementPage(driver).getLoginInformation(loginInformation)
-                            .navigateToProductManagementPage()
-                            .excuteSearch(ProductManagementPage.SearchType.BARCODE, productId.toString())
-                            .updateStockAction(branchName);
-                }
-                case "ClearStockInBulk" ->{
-                    new ProductManagementPage(driver).getLoginInformation(loginInformation)
-                            .navigateToProductManagementPage()
-                            .excuteSearch(ProductManagementPage.SearchType.BARCODE, productId.toString())
-                            .clearStockAction();
-                }
-                default -> {
-                    try {
-                        throw new Exception("Action not found.");
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-            }
-            event.set(EventAction.GS_SET_PRODUCT_STOCK);
-            if(hasVariation) waitManyTime(1);
-        });
-    }
     @DataProvider
     public Object[][] dataReturnOrder(){
         return new Object[][]{
                 {ProductThirdPartyStatus.SYNC, true},
-//                {ProductThirdPartyStatus.LINK, true},
-//                {ProductThirdPartyStatus.SYNC, false},
-//                {ProductThirdPartyStatus.LINK, false}
+                {ProductThirdPartyStatus.LINK, true},
+                {ProductThirdPartyStatus.SYNC, false},
+                {ProductThirdPartyStatus.LINK, false}
         };
     }
     @Test(dataProvider = "dataReturnOrder")
@@ -536,6 +552,42 @@ public class AutoSyncLazadaTest extends BaseTest {
             new CreateReturnOrderPage(driver).navigateToCreateOrder(orderId).createReturnOrder();
         });
     }
+    @Test(dataProvider = "dataReturnOrder")
+    public void TC10_TransferProduct(ProductThirdPartyStatus status, boolean hasVariation){
+        actionThenCheckChangeStockEvent(status, hasVariation, (productId,modelIdList, currentDate, event) ->{
+            String barcode = productId.toString();
+            //Get product detail
+            APIProductDetailV2.ProductInfoV2 productInfo = new APIProductDetailV2(loginInformation).getInfo(productId);
+            if(hasVariation){
+                modelIdList.set(List.of(String.valueOf(productInfo.getVariationModelList().get(0))));
+                barcode = barcode + " - "+productInfo.getVariationModelList().get(0);
+            }
+            // init branch management API
+            BranchManagement branchManagement = new BranchManagement(loginInformation);
+            // get destination branches
+            BranchInfo destinationInfo = branchManagement.getDestinationBranchesInfo();
+            List<String> destinationBranchNames = destinationInfo.getBranchName();
+            // index of origin branches
+            int index = destinationInfo.getBranchID().indexOf(branchId);
+            // get origin branch name
+            String originBranchName = destinationBranchNames.get(index);
+            // remove origin branch from destination branches
+            destinationBranchNames.remove(originBranchName);
+            String destinationBranch = destinationBranchNames.get(nextInt(destinationBranchNames.size()));
+            logger.info("Get destination branch: %s.".formatted(destinationBranch));
+            // create transfer
+            new TransferPage(driver).navigateToCreateTransferPage();
+                    new TransferPage(driver).selectSourceBranch(originBranchName)
+                    .selectDestinationBranch(destinationBranch)
+                    .inputProductSearchTerm(productInfo.getName())
+                    .selectProductByBarcode(barcode).clickSaveBtn();
+        });
+    }
+    public void TC11_TransferToPartner(ProductThirdPartyStatus status, boolean hasVariation){
+        actionThenCheckChangeStockEvent(status, hasVariation, (productId,modelIdList, currentDate, event) -> {
+
+        });
+    }
     @DataProvider
     public Object[][] dataDeleteAndAddVariation(){
         return new Object[][]{
@@ -546,7 +598,7 @@ public class AutoSyncLazadaTest extends BaseTest {
         };
     }
     @Test(dataProvider = "dataDeleteAndAddVariation")
-    public void TC0_DeleteOrAddVariationToLazada(ProductThirdPartyStatus status, String action){
+    public void TC_DeleteOrAddVariationToLazada(ProductThirdPartyStatus status, String action){
         //Get productId
         long lazadaProductId = new LazadaProducts(driver, loginInformation).getSyncedLinkedProduct(true,1,status).get(0);
         String branchProduct = new APILazadaProducts(loginInformation).getBranchAndProductMappingWithLazadaProduct(lazadaProductId);

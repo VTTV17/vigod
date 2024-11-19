@@ -10,7 +10,7 @@ public class TransferElement {
     By loc_btnSave = By.cssSelector(".transfer-form-editor .gs-button__green");
     By loc_txtSearchProduct = By.cssSelector(".search-box .uik-input__input");
     By loc_txtTransferredQuantity = By.xpath("//*[contains(@class,'transfer-form-editor')]//tbody/tr[1]//input[@inputmode='numeric']");
-    By loc_ddlBranches = By.cssSelector(".information [type='button'] .uik-select__valueWrapper");
+    By loc_ddlBranches = By.cssSelector(".information-transfer [type='button'] .uik-select__valueWrapper");
     By loc_btnShipGoods = By.cssSelector(".transfer-toolbar .btn-save");
     By loc_btnReceiveGoods = By.cssSelector(".transfer-toolbar .btn-save");
 

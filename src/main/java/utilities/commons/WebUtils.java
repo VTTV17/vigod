@@ -180,7 +180,7 @@ public class WebUtils {
         });
 
         // Remove the border after a short delay for visual confirmation
-        getWait(1000).until(_ -> retryOnStaleElement(() -> {
+        getWait(1000).until(ignored -> retryOnStaleElement(() -> {
             jsExecutor.executeScript("arguments[0].style.border = ''", getElement(locator, index));
             return true;
         }));

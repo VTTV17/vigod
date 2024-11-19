@@ -70,7 +70,7 @@ public class BuyerGeneral extends UICommonMobile {
             }
             logger.info("Select: "+keyword);
         }else try {
-            throw new Exception("The first result not match keywork");
+            throw new Exception("The first result not match keyword");
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
