@@ -75,6 +75,7 @@ public class TransferPage extends TransferElement {
 
     public TransferPage inputProductSearchTerm(String searchTerm) {
         commons.sendKeys(loc_txtSearchProduct, searchTerm);
+        commons.click(loc_txtSearchProduct);
         logger.info("Input '" + searchTerm + "' into Product Search box.");
         commons.sleepInMiliSecond(500); //There's a delay of 500ms before search operation commences
         commons.waitInvisibilityOfElementLocated(searchLoadingIcon);

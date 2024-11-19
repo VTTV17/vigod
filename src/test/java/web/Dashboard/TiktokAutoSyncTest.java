@@ -241,7 +241,7 @@ public class TiktokAutoSyncTest extends BaseTest {
 
         // Store original TikTok products and inventory mappings before product creation in GoSELL
         var orgTiktokProduct = tikTokProducts;
-        int storeId = orgTiktokProduct.getFirst().getBcStoreId();
+        int storeId = orgTiktokProduct.get(0).getBcStoreId();
         var orgInventoryMappings = new SQLGetInventoryMapping(connection).getTiktokInventoryMappings(storeId);
 
         // Check if there are any linked products; if all products are unlinked, initiate linking

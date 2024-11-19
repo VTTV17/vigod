@@ -1834,6 +1834,7 @@ public class ProductPage extends ProductPageElement {
         // select all variation
         if (!commonAction.isCheckedJS(loc_tblVariation_chkSelectAll))
             commonAction.clickJS(loc_tblVariation_chkSelectAll);
+
         logger.info("Click select all variation");
         return this;
     }
@@ -1845,26 +1846,37 @@ public class ProductPage extends ProductPageElement {
     public ProductPage clickSaveBtn(){
         commonAction.click(loc_btnSave);
         logger.info("Click save button.");
+        new HomePage(driver).waitTillSpinnerDisappear1();
         return this;
     }
-    public ProductPage updateStock(boolean hasVariation){
-        if(hasVariation)  clickSelectAllVariation();
-        else clickUpdateStockOnWarehousing();
-
-        // open list action dropdown
-        commonAction.clickJS(loc_tblVariation_lnkSelectAction);
-
-        // open Update price popup
-        commonAction.click(loc_tblVariation_ddvActions,1);
+    public ProductPage verifySuccessPopupShow(){
+        Assert.assertFalse(commonAction.getListElement(loc_dlgSuccessNotification, 30000).isEmpty(), "Success popup not show.");
+        return this;
+    }
+    public ProductPage performUpdateStockOnModal(boolean isChange){
 
         // switch to change stock tab
-        commonAction.click(loc_dlgUpdateStock_tabChange);
+        if(isChange) commonAction.click(loc_dlgUpdateStock_tabChange);
 
         // input stock quantity to visible stock input field
         commonAction.sendKeys(loc_dlgUpdateStock_txtStockValue, String.valueOf(DataGenerator.generatNumberInBound(10,20)));
 
         commonAction.click(loc_dlgCommons_btnUpdate);
+        return this;
+    }
+    public ProductPage updateStock(boolean hasVariation, boolean isChangeStock){
+        if(hasVariation) {
+            clickSelectAllVariation();
+            // open list action dropdown
+            commonAction.clickJS(loc_tblVariation_lnkSelectAction);
 
+            // open Update stock popup
+            commonAction.click(loc_tblVariation_ddvActions,1);
+        }
+        else clickUpdateStockOnWarehousing();
+        performUpdateStockOnModal(isChangeStock);
+        clickSaveBtn();
+        verifySuccessPopupShow();
         return this;
     }
 }

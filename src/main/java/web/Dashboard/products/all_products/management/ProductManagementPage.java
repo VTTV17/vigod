@@ -1161,13 +1161,13 @@ public class ProductManagementPage extends ProductManagementElement {
         new HomePage(driver).waitTillSpinnerDisappear();
         return this;
     }
-    public ProductManagementPage excuteSearch(SearchType searchType, String keywork){
+    public ProductManagementPage excuteSearch(SearchType searchType, String keyword){
         clickOnSearchType();
         selectSearchType(searchType);
-        inputSearch(keywork);
+        inputSearch(keyword);
         return this;
     }
-    public ProductManagementPage updateStockAction(String branchName){
+    public ProductManagementPage updateStockAction(String branchName, boolean isChangeStock){
         // open bulk actions dropdown
         openBulkActionsDropdown();
 
@@ -1178,7 +1178,7 @@ public class ProductManagementPage extends ProductManagementElement {
         selectBranchOnUpdateStockModal(branchName);
 
         // select change actions
-        commonAction.click(loc_dlgUpdateStock_actionsChange);
+        if(isChangeStock) commonAction.click(loc_dlgUpdateStock_actionsChange);
 
         // input stock value
         int stock = nextInt(MAX_STOCK_QUANTITY);
@@ -1214,7 +1214,7 @@ public class ProductManagementPage extends ProductManagementElement {
     void waitUpdated(By loadingLocator) {
         if (!commonAction.getListElement(loadingLocator).isEmpty()) {
             driver.navigate().refresh();
-            logger.info("Wait loading disappear.");
+            logger.info("Wait loading progress disappear.");
             waitUpdated(loadingLocator);
         }
     }
