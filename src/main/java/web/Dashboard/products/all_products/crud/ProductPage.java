@@ -1294,12 +1294,22 @@ public class ProductPage extends ProductPageElement {
         LogManager.getLogger().info("===== STEP =====> [AddVariationAttribution] DONE!!! ");
     }
 
+    /**
+     * Clicks the x icons to delete all variations of a product
+     */
+    public ProductPage clickDeleteVariationBtn() {
+    	new HomePage(driver).waitTillSpinnerDisappear1();
+        for (WebElement el : commonAction.getElements(loc_btnDeleteVariation)) {
+            commonAction.clickElement(el);
+            logger.info("Clicked the icon to delete a variation");
+        }
+    	return this;
+    }
+    
     public void navigateToProductAndDeleteAllVariation(int productId) {
         commonAction.navigateToURL(DOMAIN + updateProductPath(productId));
         new HomePage(driver).waitTillSpinnerDisappear();
-        for (WebElement el : commonAction.getElements(loc_btnDeleteVariation)) {
-            commonAction.clickElement(el);
-        }
+        clickDeleteVariationBtn();
         completeUpdateProduct();
     }
 
@@ -1827,7 +1837,12 @@ public class ProductPage extends ProductPageElement {
 
     public ShopeeSyncPage selectShopeeToSync() {
         commonAction.click(loc_icnShopee);
-        new ConfirmationDialog(driver).clickOKBtn();
+        
+        var confirmationDlg = new ConfirmationDialog(driver);
+        if (confirmationDlg.isConfirmationDialogDisplayed()) {
+        	confirmationDlg.clickOKBtn();
+        }
+        
         return new ShopeeSyncPage(driver);
     }
     public ProductPage clickSelectAllVariation(){
