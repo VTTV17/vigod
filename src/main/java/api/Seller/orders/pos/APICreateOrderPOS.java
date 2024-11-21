@@ -15,12 +15,10 @@ import utilities.api.API;
 import utilities.data.DataGenerator;
 import utilities.model.dashboard.customer.CustomerInfo;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
-import utilities.model.dashboard.orders.pos.CreatePOSOrderCondition;
 import utilities.model.dashboard.products.productInfomation.ProductConversionInfo;
 import utilities.model.dashboard.products.productInfomation.ProductInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 
-import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -40,7 +38,7 @@ public class APICreateOrderPOS {
     int branchId;
     boolean hasDelivery;
     boolean isGuestCheckout;
-    double receiveAmount;
+	double receiveAmount;
     int customerId;
     CustomerInfo customerInfo;
     public APICreateOrderPOS(LoginInformation loginInformation) {
@@ -249,26 +247,52 @@ public class APICreateOrderPOS {
         response.then().statusCode(200);
         return response.jsonPath().getInt("id");
     }
-
+    
+    /**
+     * Gets the first modelId of a product.
+     * @param productInfo
+     * @return the first modelId of the product, or "" if the product doesn't have any variations
+     */
+    private String getFirstModelId(ProductInfo productInfo) {
+        if (productInfo.isHasModel()) {
+            return productInfo.getVariationModelList().get(0).split("-")[1];
+        }
+        return "";
+    }  
+    private List<ProductConversionInfo> getProductConversionList(ProductInfo productInfo) {
+    	if (productInfo.isHasModel()) {
+    		new ConversionUnit(loginInformation).getProductConversionInfoHasModel(productInfo.getProductId(), Integer.parseInt(getFirstModelId(productInfo)));
+    	}
+    	return new ConversionUnit(loginInformation).getProductConversionInfoNoModel(productInfo.getProductId());
+    }    
+    
     //Product no variation, product has variation, product has conversion, imei
     public String getProductInfoForRequestBody() {
+    	
         JsonArray itemArray = new JsonArray();
-        for (int i = 0; i < productInfoList.size(); i++) {
-            int productId = productInfoList.get(i).getProductId();
-            String modelId = "";
-            boolean hasModel = productInfoList.get(i).isHasModel();
-            if (hasModel) modelId = productInfoList.get(i).getVariationModelList().get(0).split("-")[1];
-            List<ProductConversionInfo> conversionProductInfo;
-            if (hasModel)
-                conversionProductInfo = new ConversionUnit(loginInformation).getProductConversionInfoHasModel(productId, Integer.parseInt(modelId));
-            else
-                conversionProductInfo = new ConversionUnit(loginInformation).getProductConversionInfoNoModel(productId);
+        
+        productInfoList.stream().forEach(productInfo -> {
+        	
+        	int productId = productInfo.getProductId();
+        	
+        	String modelId = getFirstModelId(productInfo);
+        	
+        	List<ProductConversionInfo> conversionProductInfo = getProductConversionList(productInfo);
+        	
             if (conversionProductInfo.size() > 0) {
-                productId = conversionProductInfo.get(0).getItemCloneId();
-                receiveAmount = conversionProductInfo.get(0).getNewPrice();
-                if(hasModel) modelId = new APIProductDetail(loginInformation).getInfo(productId,variation).getVariationModelList().get(0).split("-")[1];
-            }else receiveAmount = productInfoList.get(i).getProductSellingPrice().get(0).doubleValue();
-            boolean isManageByIMEI = productInfoList.get(i).getManageInventoryByIMEI();
+            	//Override productId
+            	productId = conversionProductInfo.get(0).getItemCloneId();
+            	//Override modelId
+            	modelId = getFirstModelId(new APIProductDetail(loginInformation).getInfo(productId,variation));
+            }
+            
+            if (conversionProductInfo.size() > 0) {
+            	receiveAmount = conversionProductInfo.get(0).getNewPrice();
+            } else {
+            	receiveAmount = productInfo.getProductSellingPrice().get(0).doubleValue();
+            }
+        	
+            boolean isManageByIMEI = productInfo.getManageInventoryByIMEI();
             JsonObject item = new JsonObject();
             item.addProperty("itemId", productId);
             item.addProperty("modelId", modelId);
@@ -285,7 +309,8 @@ public class APICreateOrderPOS {
                 item.add("imeiSerials", imeiArray);
             }
             itemArray.add(item);
-        }
+        });
+        
         String productInfo = """
                     {
                       "branchId": %s,
