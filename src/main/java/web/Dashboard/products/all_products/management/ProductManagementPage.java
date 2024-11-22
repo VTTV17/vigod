@@ -5,24 +5,37 @@ import api.Seller.products.all_products.APIAllProducts;
 import api.Seller.products.all_products.APICreateProduct;
 import api.Seller.products.all_products.APIProductDetail;
 import api.Seller.products.inventory.APIInventoryHistory;
+import api.Seller.sale_channel.tiktok.APIGetTikTokProducts;
 import api.Seller.setting.BranchManagement;
 import lombok.SneakyThrows;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
+import org.testng.Assert;
+import sql.SQLGetInventoryMapping;
 import utilities.assert_customize.AssertCustomize;
 import utilities.commons.UICommonAction;
+import utilities.commons.WebUtils;
 import utilities.data.DataGenerator;
+import utilities.excel.ExcelUtils;
 import utilities.model.sellerApp.login.LoginInformation;
 import utilities.model.staffPermission.AllPermissions;
-import utilities.model.staffPermission.Home.Home;
 import utilities.permission.CheckPermission;
 import utilities.utils.FileUtils;
 import web.Dashboard.home.HomePage;
 import web.Dashboard.products.all_products.crud.ProductPage;
+import web.Dashboard.sales_channels.tiktok.VerifyAutoSyncHelper;
 
+import java.io.File;
+import java.sql.Connection;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.IntStream;
 
@@ -31,6 +44,7 @@ import static org.apache.commons.lang.math.RandomUtils.nextBoolean;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static utilities.character_limit.CharacterLimit.MAX_PRICE;
 import static utilities.character_limit.CharacterLimit.MAX_STOCK_QUANTITY;
+import static utilities.file.FileNameAndPath.downloadFolder;
 import static utilities.links.Links.DOMAIN;
 import static web.Dashboard.products.all_products.crud.ProductPageElement.*;
 import static web.Dashboard.products.all_products.management.ProductManagementPage.BulkActions.*;
@@ -45,13 +59,13 @@ public class ProductManagementPage extends ProductManagementElement {
     AllPermissions permissions;
     CheckPermission checkPermission;
     AssertCustomize assertCustomize;
-    UICommonAction commonAction;
+    WebUtils webUtils;
     ProductPage productPage;
 
     public ProductManagementPage(WebDriver driver) {
         this.driver = driver;
         checkPermission = new CheckPermission(driver);
-        commonAction = new UICommonAction(driver);
+        webUtils = new WebUtils(driver);
         assertCustomize = new AssertCustomize(driver);
     }
 
@@ -68,9 +82,14 @@ public class ProductManagementPage extends ProductManagementElement {
     }
 
     public ProductManagementPage navigateToProductManagementPage() {
+        logger.info("Navigate to product management page.");
+        if (driver.getCurrentUrl().contains("%s/product/list".formatted(DOMAIN))) {
+            return this;
+        }
+
         driver.get("%s/product/list".formatted(DOMAIN));
         driver.navigate().refresh();
-        logger.info("Navigate to product management page.");
+
         return this;
     }
 
@@ -83,27 +102,28 @@ public class ProductManagementPage extends ProductManagementElement {
     }
 
     void openBulkActionsDropdown() {
-        if (commonAction.getListElement(loc_lblProductId).isEmpty())
+        if (webUtils.getListElement(loc_lblProductId).isEmpty())
             driver.navigate().refresh();
-        if (!commonAction.isCheckedJS(loc_chkSelectAll)) {
-            commonAction.clickJS(loc_chkSelectAll);
+        if (!webUtils.isCheckedJS(loc_chkSelectAll)) {
+            webUtils.clickJS(loc_chkSelectAll);
         }
-        commonAction.clickJS(loc_lnkSelectAction);
+        webUtils.clickJS(loc_lnkSelectAction);
     }
 
-    void exportAllProducts() {
+    private String exportAllProductsThenGetExportTime() {
         navigateToProductManagementPage();
-        commonAction.clickJS(loc_btnExport);
-        commonAction.clickJS(loc_ddlExportActions, 0);
-        commonAction.clickJS(loc_dlgExportProductListingFile_btnExport);
+        webUtils.clickJS(loc_btnExport);
+        webUtils.clickJS(loc_ddlExportActions, 0);
+        webUtils.clickJS(loc_dlgExportProductListingFile_btnExport);
         logger.info("Export all products.");
+        return LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-HH-mm"));
     }
 
     void exportWholesaleProducts() {
         navigateToProductManagementPage();
-        commonAction.clickJS(loc_btnExport);
-        if (!commonAction.getListElement(loc_ddlExportActions).isEmpty()) {
-            commonAction.clickJS(loc_ddlExportActions, 1);
+        webUtils.clickJS(loc_btnExport);
+        if (!webUtils.getListElement(loc_ddlExportActions).isEmpty()) {
+            webUtils.clickJS(loc_ddlExportActions, 1);
             logger.info("Export wholesale products.");
         }
     }
@@ -115,35 +135,36 @@ public class ProductManagementPage extends ProductManagementElement {
 
     }
 
-    void importProduct() {
+    void importProduct(String branchName, String importFilePath) {
         // open list import actions
-        commonAction.clickJS(loc_btnImport);
+        webUtils.clickJS(loc_btnImport);
 
         // open import product popup
-        commonAction.clickJS(loc_ddlImportActions, 0);
+        webUtils.clickJS(loc_ddlImportActions, 0);
 
         // select branch
-        String branchName = new Login().getInfo(staffLoginInformation).getAssignedBranchesNames().get(0);
-        commonAction.clickJS(By.xpath(str_dlgImport_chkBranch.formatted(branchName)));
+        if (!webUtils.isCheckedJS(By.xpath(str_dlgImport_chkBranch.formatted(branchName)))) {
+            webUtils.clickJS(By.xpath(str_dlgImport_chkBranch.formatted(branchName)));
+        }
 
         // check import product is opened or not
-        assertCustomize.assertFalse(commonAction.getListElement(loc_dlgImport).isEmpty(), "Can not open import popup");
+        assertCustomize.assertFalse(webUtils.getListElement(loc_dlgImport).isEmpty(), "Can not open import popup");
 
         // upload file
-        if (!commonAction.getListElement(loc_dlgImport).isEmpty()) {
-            commonAction.uploads(loc_dlgImport_btnDragAndDrop, new DataGenerator().getPathOfFileInResourcesRoot("import_product.xlsx"));
+        if (!webUtils.getListElement(loc_dlgImport).isEmpty()) {
+            webUtils.uploads(loc_dlgImport_btnDragAndDrop, importFilePath);
 
             // complete import product
-            assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully(loc_dlgImport_btnImport, loc_prgStatus),
+            Assert.assertTrue(checkPermission.checkAccessedSuccessfully(loc_dlgImport_btnImport, loc_prgStatus),
                     "Can not import product.");
         }
     }
 
     void applyAll(long price, int typeIndex) {
-        commonAction.sendKeys(loc_dlgUpdatePrice_txtApplyAll, String.valueOf(price));
-        commonAction.openDropdownJS(loc_dlgUpdatePrice_ddvSelectedPriceType, loc_dlgUpdatePrice_ddlPriceType);
-        commonAction.clickJS(loc_dlgUpdatePrice_ddlPriceType, typeIndex);
-        commonAction.click(loc_dlgUpdatePrice_btnApplyAll);
+        webUtils.sendKeys(loc_dlgUpdatePrice_txtApplyAll, String.valueOf(price));
+        webUtils.click(loc_dlgUpdatePrice_ddvSelectedPriceType);
+        webUtils.clickJS(loc_dlgUpdatePrice_ddlPriceType, typeIndex);
+        webUtils.click(loc_dlgUpdatePrice_btnApplyAll);
     }
 
     enum PriceType {
@@ -159,7 +180,7 @@ public class ProductManagementPage extends ProductManagementElement {
         openBulkActionsDropdown();
 
         // open update price popup
-        commonAction.openPopupJS(loc_ddlListActions, bulkActionsValues().indexOf(updatePrice), loc_dlgUpdatePrice);
+        webUtils.click(loc_ddlListActions, bulkActionsValues().indexOf(updatePrice));
 
         // input listing price
 
@@ -173,11 +194,11 @@ public class ProductManagementPage extends ProductManagementElement {
             applyAll(costPrice, getAllPriceTypes().indexOf(cost));
         } else {
             // view cost price
-            assertCustomize.assertTrue(commonAction.getValue(loc_dlgUpdatePrice_txtCostPrice, 0).equals("0"), "Product cost price still shows when staff does not have 'View product cost price' permission.");
+            assertCustomize.assertTrue(webUtils.getValue(loc_dlgUpdatePrice_txtCostPrice, 0).equals("0"), "Product cost price still shows when staff does not have 'View product cost price' permission.");
         }
 
         // complete update price
-        commonAction.click(loc_dlgUpdatePrice_btnUpdate);
+        webUtils.click(loc_dlgUpdatePrice_btnUpdate);
     }
 
     /* Check bulk actions */
@@ -186,19 +207,19 @@ public class ProductManagementPage extends ProductManagementElement {
         navigateToProductManagementPage();
 
         // if page is not loaded, refresh page
-        if (commonAction.getListElement(loc_lblProductId).isEmpty()) {
+        if (webUtils.getListElement(loc_lblProductId).isEmpty()) {
             driver.navigate().refresh();
         }
 
         // get number of products in 1st page
-        int bound = commonAction.getListElement(loc_lblProductId).size();
+        int bound = webUtils.getListElement(loc_lblProductId).size();
 
         // return list productId
-        return IntStream.range(0, bound).mapToObj(index -> commonAction.getText(loc_lblProductId, index)).toList();
+        return IntStream.range(0, bound).mapToObj(index -> webUtils.getText(loc_lblProductId, index)).toList();
     }
 
     void waitUpdated() {
-        if (!commonAction.getListElement(loc_prgStatus).isEmpty()) {
+        if (!webUtils.getListElement(loc_prgStatus).isEmpty()) {
             driver.navigate().refresh();
             logger.info("Wait bulk update.");
             waitUpdated();
@@ -225,13 +246,13 @@ public class ProductManagementPage extends ProductManagementElement {
         openBulkActionsDropdown();
 
         // open confirm active popup
-        commonAction.openPopupJS(loc_ddlListActions, bulkActionsValues().indexOf(clearStock), loc_dlgClearStock);
+        webUtils.click(loc_ddlListActions, bulkActionsValues().indexOf(clearStock));
 
         // confirm clear stock
-        commonAction.click(loc_dlgClearStock_btnOK);
+        webUtils.click(loc_dlgClearStock_btnOK);
 
         /* Do not need to wait product updated because calculate function needs ~ 2 minutes, that time is enough for product to be updated.*/
-        // check product stock are updated on item-service
+        // Check product stock are updated on item-service
         List<Integer> expectedStockOnItemService = new ArrayList<>(productInformation.getExpectedListProductStockQuantityAfterClearStock(productIds, beforeUpdateStocksInItemService));
         Collections.sort(expectedStockOnItemService);
         List<Integer> actualStockOnItemService = new ArrayList<>(productInformation.getCurrentStockOfProducts(productIds));
@@ -271,13 +292,13 @@ public class ProductManagementPage extends ProductManagementElement {
         openBulkActionsDropdown();
 
         // open confirm active popup
-        commonAction.openPopupJS(loc_ddlListActions, bulkActionsValues().indexOf(delete), loc_dlgDeleteProduct);
+        webUtils.click(loc_ddlListActions, bulkActionsValues().indexOf(delete));
 
         // confirm active product
-        commonAction.click(loc_dlgDeleteProduct_btnDelete);
+        webUtils.click(loc_dlgDeleteProduct_btnDelete);
 
         // check actions are completed or not
-        if (!commonAction.getListElement(loc_prgStatus).isEmpty()) {
+        if (!webUtils.getListElement(loc_prgStatus).isEmpty()) {
             // wait updated
             waitUpdated();
 
@@ -286,7 +307,7 @@ public class ProductManagementPage extends ProductManagementElement {
             List<Boolean> checkProductCanBeDeleted = checkProductCanBeDeleted(productIds);
             assertCustomize.assertTrue(IntStream.range(0, productIds.size())
                             .noneMatch(index -> (currentProductIds.contains(Integer.parseInt(productIds.get(index))) && checkProductCanBeDeleted.get(index))
-                                    || (!currentProductIds.contains(Integer.parseInt(productIds.get(index))) && !checkProductCanBeDeleted.get(index))),
+                                                || (!currentProductIds.contains(Integer.parseInt(productIds.get(index))) && !checkProductCanBeDeleted.get(index))),
                     "Product is not deleted in ES.");
 
             // check product must be deleted in item-service
@@ -310,13 +331,13 @@ public class ProductManagementPage extends ProductManagementElement {
         openBulkActionsDropdown();
 
         // open confirm deactivate popup
-        commonAction.openPopupJS(loc_ddlListActions, bulkActionsValues().indexOf(deactivate), loc_dlgDeactivateProduct);
+        webUtils.click(loc_ddlListActions, bulkActionsValues().indexOf(deactivate));
 
         // confirm active product
-        commonAction.click(loc_dlgDeactivateProduct_btnYes);
+        webUtils.click(loc_dlgDeactivateProduct_btnYes);
 
         // check actions are completed or not
-        if (!commonAction.getListElement(loc_prgStatus).isEmpty()) {
+        if (!webUtils.getListElement(loc_prgStatus).isEmpty()) {
             // wait updated
             waitUpdated();
 
@@ -344,13 +365,13 @@ public class ProductManagementPage extends ProductManagementElement {
         openBulkActionsDropdown();
 
         // open confirm active popup
-        commonAction.openPopupJS(loc_ddlListActions, bulkActionsValues().indexOf(active), loc_dlgActiveProduct);
+        webUtils.click(loc_ddlListActions, bulkActionsValues().indexOf(active));
 
         // confirm active product
-        commonAction.click(loc_dlgActiveProduct_btnYes);
+        webUtils.click(loc_dlgActiveProduct_btnYes);
 
         // check actions are completed or not
-        if (!commonAction.getListElement(loc_prgStatus).isEmpty()) {
+        if (!webUtils.getListElement(loc_prgStatus).isEmpty()) {
             // wait updated
             waitUpdated();
 
@@ -390,18 +411,18 @@ public class ProductManagementPage extends ProductManagementElement {
         openBulkActionsDropdown();
 
         // open confirm active popup
-        commonAction.openPopupJS(loc_ddlListActions, bulkActionsValues().indexOf(updateStock), loc_dlgUpdateStock);
+        webUtils.click(loc_ddlListActions, bulkActionsValues().indexOf(updateStock));
 
         // select change actions
-        commonAction.click(loc_dlgUpdateStock_actionsChange);
+        webUtils.click(loc_dlgUpdateStock_actionsChange);
 
         // input stock value
         int stock = nextInt(MAX_STOCK_QUANTITY);
-        commonAction.sendKeys(loc_dlgUpdateStock_txtStockValue, String.valueOf(stock));
+        webUtils.sendKeys(loc_dlgUpdateStock_txtStockValue, String.valueOf(stock));
         logger.info("Input stock value: %,d.".formatted(stock));
 
         // confirm update stock
-        commonAction.click(loc_dlgUpdateStock_btnUpdate);
+        webUtils.click(loc_dlgUpdateStock_btnUpdate);
 
         /* Do not need to wait product updated because calculate function needs ~ 2 minutes, that time is enough for product to be updated.*/
         // check product stock are updated on item-service
@@ -438,20 +459,20 @@ public class ProductManagementPage extends ProductManagementElement {
         openBulkActionsDropdown();
 
         // open confirm deactivate popup
-        commonAction.openPopupJS(loc_ddlListActions, bulkActionsValues().indexOf(updateTax), loc_dlgUpdateTax);
+        webUtils.click(loc_ddlListActions, bulkActionsValues().indexOf(updateTax));
 
         // get taxId
-        int bound = commonAction.getListElement(loc_dlgUpdateTax_ddlTaxOptions).size();
+        int bound = webUtils.getListElement(loc_dlgUpdateTax_ddlTaxOptions).size();
         int taxIndex = nextInt(bound);
-        int newTaxId = Integer.parseInt(commonAction.getValue(loc_dlgUpdateTax_ddlTaxOptions, taxIndex));
-        commonAction.clickJS(loc_dlgUpdateTax_ddlTaxOptions, taxIndex);
+        int newTaxId = Integer.parseInt(webUtils.getValue(loc_dlgUpdateTax_ddlTaxOptions, taxIndex));
+        webUtils.clickJS(loc_dlgUpdateTax_ddlTaxOptions, taxIndex);
         logger.info("Bulk actions update tax: %d.".formatted(newTaxId));
 
         // confirm active product
-        commonAction.click(loc_dlgUpdateTax_btnOK);
+        webUtils.click(loc_dlgUpdateTax_btnOK);
 
         // check actions are completed or not
-        if (!commonAction.getListElement(loc_prgStatus).isEmpty()) {
+        if (!webUtils.getListElement(loc_prgStatus).isEmpty()) {
             // wait updated
             waitUpdated();
 
@@ -483,16 +504,15 @@ public class ProductManagementPage extends ProductManagementElement {
         openBulkActionsDropdown();
 
         // open display out of stock popup
-        commonAction.openPopupJS(loc_ddlListActions,
-                bulkActionsValues().indexOf(displayOutOfStock),
-                loc_dlgDisplayOutOfStockProduct);
+        webUtils.click(loc_ddlListActions,
+                bulkActionsValues().indexOf(displayOutOfStock) );
 
         // select option
-        commonAction.clickJS(loc_dlgDisplayOutOfStockProduct_listOptions,
+        webUtils.clickJS(loc_dlgDisplayOutOfStockProduct_listOptions,
                 displayOutOfStockActions().indexOf(displayOutOfStockActions));
 
         // confirm bulk display when out of stock product
-        commonAction.click(loc_dlgDisplayOutOfStockProduct_btnYes);
+        webUtils.click(loc_dlgDisplayOutOfStockProduct_btnYes);
     }
 
     public void bulkDisplayOutOfStockProduct() {
@@ -541,33 +561,32 @@ public class ProductManagementPage extends ProductManagementElement {
         openBulkActionsDropdown();
 
         // open display out of stock popup
-        commonAction.openPopupJS(loc_ddlListActions,
-                bulkActionsValues().indexOf(updateSellingPlatform),
-                loc_dlgUpdateSellingPlatform);
+        webUtils.click(loc_ddlListActions,
+                bulkActionsValues().indexOf(updateSellingPlatform));
 
         // update selling platform
-        boolean onApp = !commonAction.isDisabledJS(loc_dlgUpdateSellingPlatform_chkApp) && nextBoolean();
-        if (commonAction.isCheckedJS(loc_dlgUpdateSellingPlatform_chkApp) != onApp)
-            commonAction.clickJS(loc_dlgUpdateSellingPlatform_chkApp);
+        boolean onApp = !webUtils.isDisabledJS(loc_dlgUpdateSellingPlatform_chkApp) && nextBoolean();
+        if (webUtils.isCheckedJS(loc_dlgUpdateSellingPlatform_chkApp) != onApp)
+            webUtils.clickJS(loc_dlgUpdateSellingPlatform_chkApp);
         logger.info("onApp: %s.".formatted(onApp));
 
-        boolean onWeb = !commonAction.isDisabledJS(loc_dlgUpdateSellingPlatform_chkWeb) && nextBoolean();
-        if (commonAction.isCheckedJS(loc_dlgUpdateSellingPlatform_chkWeb) != onWeb)
-            commonAction.clickJS(loc_dlgUpdateSellingPlatform_chkWeb);
+        boolean onWeb = !webUtils.isDisabledJS(loc_dlgUpdateSellingPlatform_chkWeb) && nextBoolean();
+        if (webUtils.isCheckedJS(loc_dlgUpdateSellingPlatform_chkWeb) != onWeb)
+            webUtils.clickJS(loc_dlgUpdateSellingPlatform_chkWeb);
         logger.info("onWeb: %s.".formatted(onWeb));
 
-        boolean inStore = !commonAction.isDisabledJS(loc_dlgUpdateSellingPlatform_chkInStore) && nextBoolean();
-        if (commonAction.isCheckedJS(loc_dlgUpdateSellingPlatform_chkInStore) != inStore)
-            commonAction.clickJS(loc_dlgUpdateSellingPlatform_chkInStore);
+        boolean inStore = !webUtils.isDisabledJS(loc_dlgUpdateSellingPlatform_chkInStore) && nextBoolean();
+        if (webUtils.isCheckedJS(loc_dlgUpdateSellingPlatform_chkInStore) != inStore)
+            webUtils.clickJS(loc_dlgUpdateSellingPlatform_chkInStore);
         logger.info("inStore: %s.".formatted(inStore));
 
-        boolean inGoSocial = !commonAction.isDisabledJS(loc_dlgUpdateSellingPlatform_chkGoSocial) && nextBoolean();
-        if (commonAction.isCheckedJS(loc_dlgUpdateSellingPlatform_chkGoSocial) != inGoSocial)
-            commonAction.clickJS(loc_dlgUpdateSellingPlatform_chkGoSocial);
+        boolean inGoSocial = !webUtils.isDisabledJS(loc_dlgUpdateSellingPlatform_chkGoSocial) && nextBoolean();
+        if (webUtils.isCheckedJS(loc_dlgUpdateSellingPlatform_chkGoSocial) != inGoSocial)
+            webUtils.clickJS(loc_dlgUpdateSellingPlatform_chkGoSocial);
         logger.info("inGoSocial: %s.".formatted(inGoSocial));
 
         // confirm bulk update selling platforms
-        commonAction.click(loc_dlgUpdateSellingPlatform_btnConfirm);
+        webUtils.click(loc_dlgUpdateSellingPlatform_btnConfirm);
 
         // wait updated
         waitUpdated();
@@ -605,7 +624,7 @@ public class ProductManagementPage extends ProductManagementElement {
         openBulkActionsDropdown();
 
         // open update price popup
-        commonAction.openPopupJS(loc_ddlListActions, bulkActionsValues().indexOf(updatePrice), loc_dlgUpdatePrice);
+        webUtils.click(loc_ddlListActions, bulkActionsValues().indexOf(updatePrice));
 
         // get map of products price
         APIProductDetail productInformation = new APIProductDetail(sellerLoginInformation);
@@ -630,7 +649,7 @@ public class ProductManagementPage extends ProductManagementElement {
         logger.info("Input cost price: %,d.".formatted(costPrice));
 
         // complete update price
-        commonAction.click(loc_dlgUpdatePrice_btnUpdate);
+        webUtils.click(loc_dlgUpdatePrice_btnUpdate);
 
         // wait updated
         waitUpdated();
@@ -679,19 +698,19 @@ public class ProductManagementPage extends ProductManagementElement {
         openBulkActionsDropdown();
 
         // open set stock alert popup
-        commonAction.openPopupJS(loc_ddlListActions, bulkActionsValues().indexOf(setStockAlert), loc_dlgSetStockAlert);
+        webUtils.click(loc_ddlListActions, bulkActionsValues().indexOf(setStockAlert));
 
         // set new stock alert number
         int stockAlertValue = nextInt(MAX_STOCK_QUANTITY);
-        commonAction.sendKeys(loc_dlgSetStockAlert_txtStockAlertValueForAllProducts, String.valueOf(stockAlertValue));
-        commonAction.click(loc_dlgSetStockAlert_btnApply);
+        webUtils.sendKeys(loc_dlgSetStockAlert_txtStockAlertValueForAllProducts, String.valueOf(stockAlertValue));
+        webUtils.click(loc_dlgSetStockAlert_btnApply);
         logger.info("Bulk actions set stock alert: %d.".formatted(stockAlertValue));
 
         // confirm update new stock alert value
-        commonAction.click(loc_dlgSetStockAlert_btnUpdate);
+        webUtils.click(loc_dlgSetStockAlert_btnUpdate);
 
         // check actions are completed or not
-        if (!commonAction.getListElement(loc_prgStatus).isEmpty()) {
+        if (!webUtils.getListElement(loc_prgStatus).isEmpty()) {
             // wait updated
             waitUpdated();
 
@@ -721,16 +740,16 @@ public class ProductManagementPage extends ProductManagementElement {
         openBulkActionsDropdown();
 
         // open display out of stock popup
-        commonAction.openPopupJS(loc_ddlListActions, bulkActionsValues().indexOf(manageStockByLotDate), loc_dlgManageProductByLotDate);
+        webUtils.click(loc_ddlListActions, bulkActionsValues().indexOf(manageStockByLotDate));
 
         // set expire
         boolean expiredQuality = nextBoolean();
-        if (commonAction.isCheckedJS(loc_dlgManageProductByLotDate_chkExcludeExpireQuantity) != expiredQuality)
-            commonAction.clickJS(loc_dlgManageProductByLotDate_chkExcludeExpireQuantity);
+        if (webUtils.isCheckedJS(loc_dlgManageProductByLotDate_chkExcludeExpireQuantity) != expiredQuality)
+            webUtils.clickJS(loc_dlgManageProductByLotDate_chkExcludeExpireQuantity);
         logger.info("Exclude expired quantity from remaining stock: {}.", expiredQuality);
 
         // confirm bulk update selling platforms
-        commonAction.click(loc_dlgManageProductByLotDate_btnYes);
+        webUtils.click(loc_dlgManageProductByLotDate_btnYes);
 
         // wait updated
         waitUpdated();
@@ -843,8 +862,8 @@ public class ProductManagementPage extends ProductManagementElement {
         // bulk actions
         openBulkActionsDropdown();
         if (permissions.getProduct().getProductManagement().isActivateProduct()) {
-            commonAction.clickJS(loc_ddlListActions, 3);
-            commonAction.click(loc_dlgConfirm_icnClose);
+            webUtils.clickJS(loc_ddlListActions, 3);
+            webUtils.click(loc_dlgConfirm_icnClose);
         } else {
             assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_ddlListActions, 3), "Restricted popup is not shown.");
         }
@@ -858,8 +877,8 @@ public class ProductManagementPage extends ProductManagementElement {
         // bulk actions
         openBulkActionsDropdown();
         if (permissions.getProduct().getProductManagement().isDeactivateProduct()) {
-            commonAction.clickJS(loc_ddlListActions, 2);
-            commonAction.click(loc_dlgConfirm_icnClose);
+            webUtils.clickJS(loc_ddlListActions, 2);
+            webUtils.click(loc_dlgConfirm_icnClose);
         } else {
             assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_ddlListActions, 2), "Restricted popup is not shown.");
         }
@@ -919,11 +938,11 @@ public class ProductManagementPage extends ProductManagementElement {
             assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_btnExport), "Restricted popup is not shown.");
         } else {
             // export product list
-            exportAllProducts();
+            exportAllProductsThenGetExportTime();
 
             // export wholesale product
             exportWholesaleProducts();
-            commonAction.sleepInMiliSecond(3000, "Waiting for download.");
+            UICommonAction.sleepInMiliSecond(3000, "Waiting for download.");
             assertCustomize.assertTrue(new FileUtils().isDownloadSuccessful("wholesale-price-export"),
                     "No exported wholesale product file is downloaded.");
         }
@@ -936,12 +955,13 @@ public class ProductManagementPage extends ProductManagementElement {
 
         if (permissions.getProduct().getProductManagement().isImportProducts()) {
             // import product
-            importProduct();
+            String branchName = new Login().getInfo(staffLoginInformation).getAssignedBranchesNames().get(0);
+            importProduct(branchName, new DataGenerator().getPathOfFileInResourcesRoot("import_product.xlsx"));
 
             // check update wholesale price
             checkUpdateWholesalePrice();
         } else {
-            commonAction.clickJS(loc_btnImport);
+            webUtils.clickJS(loc_btnImport);
             assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_ddlImportActions, 0), "Restricted popup is not shown.");
         }
         logger.info("Check permission: Product >> Product management >> Import product.");
@@ -952,12 +972,45 @@ public class ProductManagementPage extends ProductManagementElement {
         navigateToProductManagementPage();
 
         if (permissions.getProduct().getProductManagement().isPrintBarcode()) {
-            commonAction.openPopupJS(loc_btnPrintBarcode, loc_dlgPrintBarcode);
-            commonAction.click(loc_dlgPrintBarcode_btnCancel);
+            webUtils.click(loc_btnPrintBarcode);
+            webUtils.click(loc_dlgPrintBarcode_btnCancel);
         } else {
             assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_btnPrintBarcode), "Restricted popup is not shown.");
         }
         logger.info("Check permission: Product >> Product management >> Print barcode.");
+    }
+
+    private String downloadExportedProducts(FileUtils fileUtils, String startExportTime) {
+        // Return early if startExportTime is null or empty
+        if (startExportTime == null || startExportTime.isEmpty()) {
+            return null;
+        }
+
+        // Delete the old exported product file
+        fileUtils.deleteFileInDownloadFolder("EXPORT_PRODUCT");
+
+        // Download the new exported product
+        return WebUtils.retryUntil(5, 30_000, "Cannot find exported file.", () -> {
+            // Navigate to the history export page
+            navigateToDownloadHistoryPage();
+
+            // Get the latest export file name and extract export time
+            String latestExportFile = webUtils.getText(loc_lstExportedFileName);
+            String exportTimeInFileName = DataGenerator.getStringByRegex(latestExportFile, "20\\d{2}-(0[0-9]|1[0-9]|2[0-3])-(0[0-9]|[1-5][0-9])");
+
+            // Check if the export time in the file is greater than the provided time
+            return StringUtils.compare(startExportTime, exportTimeInFileName) > 0;
+        }, () -> {
+            // Download the export file
+            webUtils.clickJS(loc_icnDownloadExportFile);
+            WebUtils.sleep(1000);
+
+            // Verify the download was successful
+            assertCustomize.assertTrue(fileUtils.isDownloadSuccessful("EXPORT_PRODUCT"), "No exported product file is downloaded.");
+
+            // Return the latest export file name
+            return webUtils.getText(loc_lstExportedFileName);
+        });
     }
 
     void checkDownloadExportedProducts() {
@@ -965,7 +1018,7 @@ public class ProductManagementPage extends ProductManagementElement {
         navigateToDownloadHistoryPage();
 
         // check permission
-        if (!commonAction.getListElement(loc_icnDownloadExportFile).isEmpty()) {
+        if (!webUtils.getListElement(loc_icnDownloadExportFile).isEmpty()) {
             if (permissions.getProduct().getProductManagement().isDownloadExportProduct()) {
                 // init file utils
                 FileUtils fileUtils = new FileUtils();
@@ -973,13 +1026,8 @@ public class ProductManagementPage extends ProductManagementElement {
                 // delete old wholesale price exported file
                 fileUtils.deleteFileInDownloadFolder("wholesale-price-export");
 
-                // delete old exported product
-                fileUtils.deleteFileInDownloadFolder("EXPORT_PRODUCT");
-
                 // download new exported product
-                commonAction.clickJS(loc_icnDownloadExportFile, 0);
-                commonAction.sleepInMiliSecond(1000, "Waiting for download.");
-                assertCustomize.assertTrue(fileUtils.isDownloadSuccessful("EXPORT_PRODUCT"), "No exported product file is downloaded.");
+                downloadExportedProducts(fileUtils, null);
 
             } else {
                 assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_icnDownloadExportFile, 0), "Restricted popup is not shown.");
@@ -995,14 +1043,14 @@ public class ProductManagementPage extends ProductManagementElement {
         navigateToProductManagementPage();
 
         // open list actions
-        commonAction.clickJS(loc_btnImport);
+        webUtils.clickJS(loc_btnImport);
 
         if (permissions.getProduct().getProductManagement().isUpdateWholesalePrice()) {
             // open import wholesale pricing popup
-            commonAction.openPopupJS(loc_ddlImportActions, 1, loc_dlgImport);
+            webUtils.click(loc_ddlImportActions, 1);
 
             // close popup
-            commonAction.click(loc_dlgImport_btnCancel);
+            webUtils.click(loc_dlgImport_btnCancel);
         } else {
             assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_ddlImportActions, 1), "Restricted popup is not shown.");
         }
@@ -1018,8 +1066,8 @@ public class ProductManagementPage extends ProductManagementElement {
         // bulk actions
         openBulkActionsDropdown();
         if (permissions.getProduct().getInventory().isClearStock()) {
-            commonAction.clickJS(loc_ddlListActions, 0);
-            commonAction.click(loc_dlgConfirm_icnClose);
+            webUtils.clickJS(loc_ddlListActions, 0);
+            webUtils.click(loc_dlgConfirm_icnClose);
         } else {
             assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_ddlListActions, 0), "Restricted popup is not shown.");
         }
@@ -1032,8 +1080,8 @@ public class ProductManagementPage extends ProductManagementElement {
         // bulk actions
         openBulkActionsDropdown();
         if (permissions.getProduct().getProductManagement().isDeleteProduct()) {
-            commonAction.clickJS(loc_ddlListActions, 1);
-            commonAction.click(loc_dlgConfirm_icnClose);
+            webUtils.clickJS(loc_ddlListActions, 1);
+            webUtils.click(loc_dlgConfirm_icnClose);
         } else {
             assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_ddlListActions, 1), "Restricted popup is not shown.");
         }
@@ -1046,12 +1094,12 @@ public class ProductManagementPage extends ProductManagementElement {
             assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_btnAddVariation), "Restricted popup is not shown.");
         } else {
             // add new variation group
-            commonAction.clickJS(loc_btnAddVariation);
+            webUtils.clickJS(loc_btnAddVariation);
 
             // add variation value
-            commonAction.getElement(loc_txtVariationValue).sendKeys("abc");
-            commonAction.sleepInMiliSecond(500, "Wait suggest list variation value.");
-            commonAction.getElement(loc_txtVariationValue).sendKeys(Keys.ENTER);
+            webUtils.getElement(loc_txtVariationValue).sendKeys("abc");
+            UICommonAction.sleepInMiliSecond(500, "Wait suggest list variation value.");
+            webUtils.getElement(loc_txtVariationValue).sendKeys(Keys.ENTER);
 
             // check delete variation
             checkDeleteVariation();
@@ -1078,8 +1126,8 @@ public class ProductManagementPage extends ProductManagementElement {
                     "Can not open confirm manage product by lot-date popup.");
 
             // close confirm popup
-            if (!commonAction.getListElement(loc_dlgManageProductByLotDate).isEmpty()) {
-                commonAction.click(loc_dlgManageProductByLotDate_btnYes);
+            if (!webUtils.getListElement(loc_dlgManageProductByLotDate).isEmpty()) {
+                webUtils.click(loc_dlgManageProductByLotDate_btnYes);
             }
 
         } else {
@@ -1099,7 +1147,7 @@ public class ProductManagementPage extends ProductManagementElement {
 
         // check collection permission
         if (permissions.getProduct().getCollection().isViewCollectionList()) {
-            assertCustomize.assertTrue(!commonAction.getListElement(productPage.loc_cntNoCollection).isEmpty(), "Can not find any product collection.");
+            assertCustomize.assertTrue(!webUtils.getListElement(productPage.loc_cntNoCollection).isEmpty(), "Can not find any product collection.");
         }
         logger.info("Check permission: Product >> Collection >> View collection list.");
 
@@ -1114,7 +1162,7 @@ public class ProductManagementPage extends ProductManagementElement {
         // check create collection permission
         if (!permissions.getProduct().getCollection().isViewCollectionList()) {
             // open confirm popup
-            commonAction.click(productPage.loc_lnkCreateCollection);
+            webUtils.click(productPage.loc_lnkCreateCollection);
 
             // check permission
             if (permissions.getProduct().getCollection().isCreateCollection()) {
@@ -1132,90 +1180,246 @@ public class ProductManagementPage extends ProductManagementElement {
         // back to previous page
         driver.get(currentURL);
     }
-    public ProductManagementPage clickOnSearchType(){
-        commonAction.click(loc_btnSearchType);
+
+    public ProductManagementPage clickOnSearchType() {
+        webUtils.click(loc_btnSearchType);
         logger.info("Click on Search Type");
         return this;
     }
-    public enum SearchType{
+
+    public enum SearchType {
         PRODUCT_NAME,
         SKU,
         BARCODE
     }
+
     @SneakyThrows
-    public ProductManagementPage selectSearchType(SearchType searchType){
-        switch (searchType){
-            case PRODUCT_NAME -> commonAction.click(loc_lst_btnSearchType,0);
-            case SKU -> commonAction.click(loc_lst_btnSearchType,1);
-            case BARCODE -> commonAction.click(loc_lst_btnSearchType,2);
+    public ProductManagementPage selectSearchType(SearchType searchType) {
+        switch (searchType) {
+            case PRODUCT_NAME -> webUtils.click(loc_lst_btnSearchType, 0);
+            case SKU -> webUtils.click(loc_lst_btnSearchType, 1);
+            case BARCODE -> webUtils.click(loc_lst_btnSearchType, 2);
             default -> throw new Exception("Search type not found.");
         }
         new HomePage(driver).waitTillSpinnerDisappear1();
-        logger.info("Select search type: {}",searchType);
+        logger.info("Select search type: {}", searchType);
         return this;
     }
-    public ProductManagementPage inputSearch(String keyword){
-        commonAction.inputText(loc_txtSearch, keyword);
-        logger.info("Input {} into search field.",keyword);
+
+    public ProductManagementPage inputSearch(String keyword) {
+        webUtils.sendKeys(loc_txtSearch, keyword);
+        logger.info("Input {} into search field.", keyword);
 //        commonAction.sleepInMiliSecond(2000);
         new HomePage(driver).waitTillSpinnerDisappear();
         return this;
     }
-    public ProductManagementPage excuteSearch(SearchType searchType, String keyword){
+
+    public ProductManagementPage excuteSearch(SearchType searchType, String keywork) {
         clickOnSearchType();
         selectSearchType(searchType);
-        inputSearch(keyword);
+        inputSearch(keywork);
         return this;
     }
-    public ProductManagementPage updateStockAction(String branchName, boolean isChangeStock){
+
+    public String[] updateStockAction(String branchName, boolean isChangeStock, int newGoSELLStock) {
+        // Array to store the start and end times of the action
+        String[] actionsTime = new String[2];
+
         // open bulk actions dropdown
         openBulkActionsDropdown();
 
         // open confirm active popup
-        commonAction.openPopupJS(loc_ddlListActions, bulkActionsValues().indexOf(updateStock), loc_dlgUpdateStock);
+        webUtils.click(loc_ddlListActions, bulkActionsValues().indexOf(updateStock));
 
         //Select branch if any
         selectBranchOnUpdateStockModal(branchName);
 
         // select change actions
-        if(isChangeStock) commonAction.click(loc_dlgUpdateStock_actionsChange);
+        if (isChangeStock) webUtils.click(loc_dlgUpdateStock_actionsChange);
 
         // input stock value
-        int stock = nextInt(MAX_STOCK_QUANTITY);
-        commonAction.sendKeys(loc_dlgUpdateStock_txtStockValue, String.valueOf(stock));
-        logger.info("Input stock value: %,d.".formatted(stock));
+        webUtils.sendKeys(loc_dlgUpdateStock_txtStockValue, String.valueOf(newGoSELLStock));
+        logger.info("Input stock value: %,d.".formatted(newGoSELLStock));
+
+        // Record the start time of the action in UTC format
+        actionsTime[0] = LocalDateTime.now(ZoneOffset.UTC)
+                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"));
+        logger.info("Bulk update stock process started at {}", actionsTime[0]);
 
         // confirm update stock
-        commonAction.click(loc_dlgUpdateStock_btnUpdate);
+        webUtils.click(loc_dlgUpdateStock_btnUpdate);
         waitUpdated();
+
+        // Record and log the end time of the action in UTC format
+        actionsTime[1] = LocalDateTime.now(ZoneOffset.UTC)
+                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"));
+        logger.info("Bulk update stock process completed at {}", actionsTime[1]);
+
+        // Return the start and end times of the creation process
+        return actionsTime;
+    }
+
+    public String[] updateStockAction(String branchName, boolean isChangeStock) {
+        int stock = nextInt(MAX_STOCK_QUANTITY);
+        return updateStockAction(branchName, isChangeStock, stock);
+    }
+
+
+    public ProductManagementPage selectBranchOnUpdateStockModal(String branchName) {
+        if (webUtils.getText(loc_dlgUpdateStock_ddvSelectedBranch).equalsIgnoreCase(branchName)) return this;
+        webUtils.click(loc_dlgUpdateStock_ddvSelectedBranch);
+        new UICommonAction(driver).selectDropdownOptionByValue(getLoc_dlgUpdateStock_lstBranch, branchName);
+        logger.info("Select branch: {} on Update stock modal.", branchName);
         return this;
     }
-    public ProductManagementPage selectBranchOnUpdateStockModal(String branchName){
-        if(commonAction.getText(loc_dlgUpdateStock_ddvSelectedBranch).equalsIgnoreCase(branchName)) return this;
-        commonAction.click(loc_dlgUpdateStock_ddvSelectedBranch);
-        commonAction.selectDropdownOptionByValue(getLoc_dlgUpdateStock_lstBranch,branchName);
-        logger.info("Select branch: {} on Update stock modal.",branchName);
-        return this;
-    }
-    public ProductManagementPage clearStockAction(){
+
+    public String[] clearStockAction() {
+        // Array to store the start and end times of the action
+        String[] actionsTime = new String[2];
+
         // open bulk actions dropdown
         openBulkActionsDropdown();
 
         // open confirm active popup
-        commonAction.openPopupJS(loc_ddlListActions, bulkActionsValues().indexOf(clearStock), loc_dlgClearStock);
+        webUtils.click(loc_ddlListActions, bulkActionsValues().indexOf(clearStock));
+
+        // Record the start time of the action in UTC format
+        actionsTime[0] = LocalDateTime.now(ZoneOffset.UTC)
+                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"));
+        logger.info("Bulk clear stock process started at {}", actionsTime[0]);
 
         // confirm clear stock
-        commonAction.click(loc_dlgClearStock_btnOK);
+        webUtils.click(loc_dlgClearStock_btnOK);
 
         //wait
         waitUpdated(loc_lblClearStockProgressing);
-        return this;
+
+        // Record and log the end time of the action in UTC format
+        actionsTime[1] = LocalDateTime.now(ZoneOffset.UTC)
+                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"));
+        logger.info("Bulk clear stock process completed at {}", actionsTime[1]);
+
+        // Return the start and end times of the creation process
+        return actionsTime;
     }
+
     void waitUpdated(By loadingLocator) {
-        if (!commonAction.getListElement(loadingLocator).isEmpty()) {
+        if (!webUtils.getListElement(loadingLocator).isEmpty()) {
             driver.navigate().refresh();
             logger.info("Wait loading progress disappear.");
             waitUpdated(loadingLocator);
         }
+    }
+
+    public void importToUpdateStock(int storeId, String branchName, List<String> stocks) {
+        String exportTime = exportAllProductsThenGetExportTime();
+        String exportFileName = downloadExportedProducts(new FileUtils(), exportTime);
+        navigateToProductManagementPage();
+        String newExportFileName = handlesFilename(storeId, exportFileName);
+        String filePath = downloadFolder + File.separator + newExportFileName;
+        // update stock
+        String stockColumnName = webUtils.getLocalStorageValue("langKey").equals("vi") ? "Kho hàng" : "Remaining Stock";
+        new ExcelUtils(filePath).writeColumnByValue(0, stockColumnName, stocks);
+        importProduct(branchName, downloadFolder + File.separator + newExportFileName);
+    }
+
+    private String handlesFilename(int storeId, String fileName) {
+        String localTime = DataGenerator.getStringByRegex(fileName, "(\\d{2}-\\d{2}-\\d{4}-\\d{2}-\\d{2})");
+
+        System.out.println(localTime);
+        // Define the formatter for the input and output
+        DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy-HH-mm");
+        DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy-HH-mm");
+
+        // Parse the local time
+        LocalDateTime localDateTime = LocalDateTime.parse(localTime, inputFormatter);
+
+        // Convert local time to UTC
+        ZonedDateTime localZonedDateTime = localDateTime.atZone(ZoneId.systemDefault());
+        ZonedDateTime utcZonedDateTime = localZonedDateTime.withZoneSameInstant(ZoneId.of("UTC"));
+
+        // Format the UTC time to the desired format
+        String utcTime = utcZonedDateTime.format(outputFormatter);
+
+        return "EXPORT_PRODUCT" +"-"+ storeId + "-"  + utcTime + ".xlsx";
+    }
+
+
+    /**
+     * Verifies the bulk update of stock for a third-party product.
+     * <p>
+     * This method validates the consistency of inventory data after performing a bulk stock update. Specifically, it:
+     * <ul>
+     *     <li>Ensures the product with the specified GoSELL item ID exists in the original TikTok product list.</li>
+     *     <li>Retrieves the updated inventory mappings for the specified product.</li>
+     *     <li>Verifies inventory events based on synchronization status and action times.</li>
+     *     <li>Checks that the updated inventory mappings reflect the expected stock values.</li>
+     * </ul>
+     * </p>
+     *
+     * @param originalTiktokProducts    The list of TikTok products before the bulk update.
+     * @param originalInventoryMappings The list of inventory mappings before the bulk update.
+     * @param goSELLItemId              The GoSELL item ID to locate and verify in the TikTok product list.
+     * @param actionsTime               Array of action times used to validate inventory events.
+     * @param connection                Database connection for querying inventory data.
+     * @param isAutoSynced              Indicates whether the product is synchronized automatically.
+     * @param isChangedStock            Indicates whether the stock value changed during the bulk update.
+     * @param newGoSELLStock            The new stock value for verification.
+     * @throws RuntimeException If the specified product cannot be found in the TikTok product list.
+     */
+    public void verifyBulkUpdateStockWith3rdProduct(List<APIGetTikTokProducts.TikTokProduct> originalTiktokProducts,
+                                                    List<SQLGetInventoryMapping.InventoryMapping> originalInventoryMappings,
+                                                    int goSELLItemId, String[] actionsTime, Connection connection,
+                                                    boolean isAutoSynced, boolean isChangedStock, int newGoSELLStock) {
+        // Verify the product with the specified GoSELL item ID exists in the TikTok product list
+        APIGetTikTokProducts.TikTokProduct existingProduct = originalTiktokProducts.stream()
+                .filter(tikTokProduct -> tikTokProduct.getBcItemId().equals(String.valueOf(goSELLItemId)))
+                .findFirst()
+                .orElse(null);
+
+        if (existingProduct == null) {
+            throw new RuntimeException("Cannot find product with ID: " + goSELLItemId);
+        }
+        logger.info("Product with ID {} successfully bulk updated stock.", goSELLItemId);
+
+        // Retrieve the updated inventory mappings for the product
+        var itemMappingsWithNewInventoryEvents = APIGetTikTokProducts.getItemMapping(List.of(existingProduct));
+
+        // Use the store ID from the first TikTok product to validate inventory mappings
+        int storeId = originalTiktokProducts.get(0).getBcStoreId();
+
+        // Verify inventory events based on synchronization status and action times
+        String eventAction = isChangedStock ? "GS_SET_PRODUCT_STOCK" : "GS_CHANGE_PRODUCT_STOCK";
+        VerifyAutoSyncHelper.verifyInventoryEvent(isAutoSynced,
+                itemMappingsWithNewInventoryEvents, actionsTime,
+                storeId, connection, eventAction);
+
+        // Validate the consistency of inventory mappings post-update
+        VerifyAutoSyncHelper.verifyInventoryMapping(
+                originalInventoryMappings, null,
+                null, storeId, connection, newGoSELLStock);
+    }
+
+    /**
+     * Verifies the bulk clearance of stock for a third-party product.
+     * <p>
+     * This method ensures that stock values for a third-party product are cleared (set to 0) during a bulk update.
+     * It delegates to {@link #verifyBulkUpdateStockWith3rdProduct} with pre-defined parameters to handle stock clearance.
+     * </p>
+     *
+     * @param originalTiktokProducts    The list of TikTok products before the stock clearance.
+     * @param originalInventoryMappings The list of inventory mappings before the stock clearance.
+     * @param goSELLItemId              The GoSELL item ID to locate and verify in the TikTok product list.
+     * @param actionsTime               Array of action times used to validate inventory events.
+     * @param connection                Database connection for querying inventory data.
+     * @param isAutoSynced              Indicates whether the product is synchronized automatically.
+     * @throws RuntimeException If the specified product cannot be found in the TikTok product list.
+     */
+    public void verifyBulkClearStockWith3rdProduct(List<APIGetTikTokProducts.TikTokProduct> originalTiktokProducts,
+                                                   List<SQLGetInventoryMapping.InventoryMapping> originalInventoryMappings,
+                                                   int goSELLItemId, String[] actionsTime, Connection connection,
+                                                   boolean isAutoSynced) {
+        verifyBulkUpdateStockWith3rdProduct(originalTiktokProducts, originalInventoryMappings, goSELLItemId,
+                actionsTime, connection, isAutoSynced, true, 0);
     }
 }

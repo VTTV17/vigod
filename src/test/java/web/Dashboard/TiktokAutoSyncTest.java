@@ -1,10 +1,11 @@
 package web.Dashboard;
 
+import api.Seller.products.all_products.APICreateProduct;
 import api.Seller.products.all_products.APIGetProductDetail;
 import api.Seller.products.all_products.APIUpdateProduct;
 import api.Seller.sale_channel.tiktok.*;
+import api.Seller.setting.BranchManagement;
 import org.apache.logging.log4j.LogManager;
-import org.testng.Assert;
 import org.testng.SkipException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -16,15 +17,21 @@ import utilities.driver.InitWebdriver;
 import utilities.model.sellerApp.login.LoginInformation;
 import utilities.utils.PropertiesUtil;
 import web.Dashboard.login.LoginPage;
+import web.Dashboard.products.all_products.crud.sync_to_tiktok.SyncProductToTikTokPage;
+import web.Dashboard.products.all_products.management.ProductManagementPage;
 import web.Dashboard.sales_channels.tiktok.account_information.AccountInformationPage;
 import web.Dashboard.sales_channels.tiktok.products.ProductsPage;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
+import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static utilities.account.AccountTest.ADMIN_ACCOUNT_THANG;
 import static utilities.account.AccountTest.ADMIN_PASSWORD_THANG;
+import static utilities.character_limit.CharacterLimit.MAX_STOCK_QUANTITY;
 
 public class TiktokAutoSyncTest extends BaseTest {
     Connection connection;
@@ -54,7 +61,7 @@ public class TiktokAutoSyncTest extends BaseTest {
         if (PropertiesUtil.environment.equals("STAG")) {
             connection = new InitConnection().createConnection("172.16.113.55", "5432", "beecow", "readonly", "R7LHffcgeEh2tpQ0qU2y");
         } else {
-            connection = new InitConnection().createConnection("db-ca.mediastep.com", "5432", "postgres", "qc_thangnguyen", "tc1t9rQYXyRS3XcK");
+            connection = new InitConnection().createConnection("db-ca.mediastep.ca", "5433", "postgres", "qc_thangnguyen", "tc1t9rQYXyRS3XcK");
         }
     }
 
@@ -265,7 +272,7 @@ public class TiktokAutoSyncTest extends BaseTest {
         // Check if there are any TikTok products to work with
         checkProductsAvailable();
 
-        // Store original TikTok products and inventory mappings before product creation in GoSELL
+        // Store original TikTok products and inventory mappings before product deleted in GoSELL
         var orgTiktokProduct = tikTokProducts;
         int storeId = orgTiktokProduct.get(0).getBcStoreId();
         var orgInventoryMappings = new SQLGetInventoryMapping(connection).getTiktokInventoryMappings(storeId);
@@ -276,6 +283,132 @@ public class TiktokAutoSyncTest extends BaseTest {
 
         // Verify successful deletion of TikTok products in GoSELL
         pageAfterLoad.verifyDeleteProducts(orgTiktokProduct, tikTokProducts, orgInventoryMappings, deletedTiktokProducts, connection);
+    }
+
+    @Test
+    void TiktokSync09_publishProductToTiktok() {
+        SyncProductToTikTokPage syncProductToTikTokPage = new SyncProductToTikTokPage(driver);
+
+        // Store original TikTok products and inventory mappings before product creation in GoSELL
+        var orgTiktokProduct = tikTokProducts;
+        int storeId = orgTiktokProduct.get(0).getBcStoreId();
+        var orgInventoryMappings = new SQLGetInventoryMapping(connection).getTiktokInventoryMappings(storeId);
+
+        // Publish products to TikTok and retrieve the updated list of products
+        int productId = new APICreateProduct(credentials).createProductTo3rdPartyThenRetrieveId(5, 5);
+        String[] actionsTime = syncProductToTikTokPage.navigateToSyncProductPage(productId)
+                .updateTiktokProductName()
+                .selectCategory()
+                .updateProductDescription()
+                .uploadSizeChart()
+                .selectVariation()
+                .bulkPrice()
+                .bulkStock()
+                .updateProductDimension()
+                .publishProductToTikTok();
+        tikTokProducts = new APIGetTikTokProducts(credentials).getTikTokProducts();
+
+        // Verify successful deletion of TikTok products in GoSELL
+        syncProductToTikTokPage.verifyPublishProductToTikTok(orgTiktokProduct, tikTokProducts, orgInventoryMappings, productId, actionsTime, connection, isAutoSynced);
+
+    }
+
+    @Test
+    void TiktokSync10_checkBulkUpdateStock_addStock() {
+        ProductManagementPage productManagementPage = new ProductManagementPage(driver);
+        ensureLinkedProducts();
+
+        // Store original TikTok products and inventory mappings before product creation in GoSELL
+        var orgTiktokProduct = tikTokProducts;
+        int storeId = orgTiktokProduct.get(0).getBcStoreId();
+        var orgInventoryMappings = new SQLGetInventoryMapping(connection).getTiktokInventoryMappings(storeId);
+
+
+        String productId = APIGetTikTokProducts.getLinkedTiktokProduct(tikTokProducts).get(0).getBcItemId();
+        int newGoSELLStock = nextInt(MAX_STOCK_QUANTITY);
+        String branchId = APIGetTikTokProducts.getLinkedTiktokProduct(tikTokProducts).get(0).getBranchId();
+        String branchName = new BranchManagement(credentials).getBranchNameById(List.of(Integer.parseInt(branchId))).get(0);
+
+        String[] actionsTime = productManagementPage.navigateToProductManagementPage()
+                .excuteSearch(ProductManagementPage.SearchType.BARCODE, productId)
+                .updateStockAction(branchName, false);
+
+        productManagementPage.verifyBulkUpdateStockWith3rdProduct(
+                tikTokProducts, orgInventoryMappings, Integer.parseInt(productId),
+                actionsTime, connection, isAutoSynced, true, newGoSELLStock);
+    }
+
+    @Test
+    void TiktokSync11_checkBulkUpdateStock_changeStock() {
+        ProductManagementPage productManagementPage = new ProductManagementPage(driver);
+        ensureLinkedProducts();
+
+        // Store original TikTok products and inventory mappings before product creation in GoSELL
+        var orgTiktokProduct = tikTokProducts;
+        int storeId = orgTiktokProduct.get(0).getBcStoreId();
+        var orgInventoryMappings = new SQLGetInventoryMapping(connection).getTiktokInventoryMappings(storeId);
+
+
+        String productId = APIGetTikTokProducts.getLinkedTiktokProduct(tikTokProducts).get(0).getBcItemId();
+        int newGoSELLStock = nextInt(MAX_STOCK_QUANTITY);
+        String branchId = APIGetTikTokProducts.getLinkedTiktokProduct(tikTokProducts).get(0).getBranchId();
+        String branchName = new BranchManagement(credentials).getBranchNameById(List.of(Integer.parseInt(branchId))).get(0);
+
+        String[] actionsTime = productManagementPage.navigateToProductManagementPage()
+                .excuteSearch(ProductManagementPage.SearchType.BARCODE, productId)
+                .updateStockAction(branchName, true, newGoSELLStock);
+
+        productManagementPage.verifyBulkUpdateStockWith3rdProduct(
+                tikTokProducts, orgInventoryMappings, Integer.parseInt(productId),
+                actionsTime, connection, isAutoSynced, true, newGoSELLStock);
+    }
+
+
+    @Test
+    void TiktokSync12_checkBulkClearStock() {
+        ProductManagementPage productManagementPage = new ProductManagementPage(driver);
+        ensureLinkedProducts();
+
+        // Store original TikTok products and inventory mappings before product creation in GoSELL
+        var orgTiktokProduct = tikTokProducts;
+        int storeId = orgTiktokProduct.get(0).getBcStoreId();
+        var orgInventoryMappings = new SQLGetInventoryMapping(connection).getTiktokInventoryMappings(storeId);
+
+        String productId = APIGetTikTokProducts.getLinkedTiktokProduct(tikTokProducts).get(0).getBcItemId();
+
+        String[] actionsTime = productManagementPage.navigateToProductManagementPage()
+                .excuteSearch(ProductManagementPage.SearchType.BARCODE, productId)
+                .clearStockAction();
+
+        productManagementPage.verifyBulkClearStockWith3rdProduct(
+                tikTokProducts, orgInventoryMappings, Integer.parseInt(productId),
+                actionsTime, connection, isAutoSynced);
+    }
+
+    @Test
+    void TiktokSync13_checkImportToUpdateStock() {
+        ProductManagementPage productManagementPage = new ProductManagementPage(driver);
+        ensureLinkedProducts();
+
+        // Store original TikTok products and inventory mappings before product creation in GoSELL
+        var orgTiktokProduct = tikTokProducts;
+        int storeId = orgTiktokProduct.get(0).getBcStoreId();
+        var orgInventoryMappings = new SQLGetInventoryMapping(connection).getTiktokInventoryMappings(storeId);
+
+        String productId = APIGetTikTokProducts.getLinkedTiktokProduct(tikTokProducts).get(0).getBcItemId();
+        String branchId = APIGetTikTokProducts.getLinkedTiktokProduct(tikTokProducts).get(0).getBranchId();
+        String branchName = new BranchManagement(credentials).getBranchNameById(List.of(Integer.parseInt(branchId))).get(0);
+
+        productManagementPage.navigateToProductManagementPage()
+                .excuteSearch(ProductManagementPage.SearchType.BARCODE, productId);
+
+        int numVars = new APIGetProductDetail(credentials)
+                .getProductInformation(Integer.parseInt(productId))
+                .getModels()
+                .size();
+
+        List<String> stocks = Collections.nCopies(numVars, "100");
+        productManagementPage.importToUpdateStock(storeId, branchName, stocks);
     }
 
     private ProductsPage loadTiktokAccountThenNavigateToProductsPage() {
@@ -289,6 +422,7 @@ public class TiktokAutoSyncTest extends BaseTest {
         if (APIGetTikTokProducts.getLinkedTiktokProduct(tikTokProducts).isEmpty()) {
             LogManager.getLogger().info("All products are linked. Unlinking products, then retrying...");
             new APIUnlinkTiktokProduct(credentials).unlinkTiktokProducts(tikTokProducts);
+            tikTokProducts = new APIGetTikTokProducts(credentials).getTikTokProducts();
             driver.navigate().refresh();
         }
     }
@@ -297,6 +431,7 @@ public class TiktokAutoSyncTest extends BaseTest {
         if (APIGetTikTokProducts.getLinkedTiktokProduct(tikTokProducts).isEmpty()) {
             LogManager.getLogger().info("All products are unlinked. Linking products, then retrying...");
             new APILinkTiktokProductToGoSELL(credentials).linkTiktokProductsToGoSELL(tikTokProducts);
+            tikTokProducts = new APIGetTikTokProducts(credentials).getTikTokProducts();
             driver.navigate().refresh();
         }
     }
@@ -310,7 +445,7 @@ public class TiktokAutoSyncTest extends BaseTest {
     @AfterClass
     void tearDown() throws SQLException {
         // Close WebDriver and database connection after tests are complete
-        if (driver != null) driver.quit();
+//        if (driver != null) driver.quit();
         if (connection != null) connection.close();
     }
 }

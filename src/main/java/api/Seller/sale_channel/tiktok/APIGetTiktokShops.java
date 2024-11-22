@@ -1,6 +1,7 @@
 package api.Seller.sale_channel.tiktok;
 
 import api.Seller.login.Login;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import utilities.api.API;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
@@ -29,6 +30,7 @@ public class APIGetTiktokShops {
      * It includes shop details such as shop ID, name, country, connection status, and access tokens.
      */
     @Data
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static class TiktokShopAccount {
         private int id;
         private String tiktokShopId;

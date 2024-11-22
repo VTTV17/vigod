@@ -9,7 +9,6 @@ import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.IntStream;
@@ -115,12 +114,13 @@ public class APIGetTikTokProducts {
      *
      * @param tikTokProducts A list of TikTok products to filter. This list may be empty.
      * @return A list of linked TikTok products. If no products are linked or if the input list is empty,
-     *         an empty list is returned.
+     * an empty list is returned.
      */
     public static List<TikTokProduct> getLinkedTiktokProduct(List<TikTokProduct> tikTokProducts) {
         if (tikTokProducts.isEmpty()) return List.of();
         return tikTokProducts.stream()
-                .filter(tikTokProduct -> !tikTokProduct.getGosellStatus().equals("UNLINK") && !tikTokProduct.getHasLinkErrorStatus())
+                .filter(tikTokProduct -> !tikTokProduct.getGosellStatus().equals("UNLINK")
+                                         && ((tikTokProduct.getHasLinkErrorStatus() == null) || !tikTokProduct.getHasLinkErrorStatus()))
                 .toList();
     }
 
@@ -134,13 +134,14 @@ public class APIGetTikTokProducts {
      *
      * @param tikTokProducts A list of TikTok products to filter. This list may be empty.
      * @return A list of TikTok products with a link error status. If no products have a link error
-     *         or if the input list is empty, an empty list is returned.
+     * or if the input list is empty, an empty list is returned.
      */
     public static List<TikTokProduct> getErrorTiktokProduct(List<TikTokProduct> tikTokProducts) {
         return Optional.ofNullable(tikTokProducts)
                 .orElseThrow(() -> new IllegalArgumentException("The list of TikTok products must not be null."))
                 .stream()
-                .filter(TikTokProduct::getHasLinkErrorStatus)
+                .filter(tikTokProduct -> (tikTokProduct.getHasLinkErrorStatus() != null)
+                                         && tikTokProduct.getHasLinkErrorStatus())
                 .toList();
     }
 
@@ -166,7 +167,7 @@ public class APIGetTikTokProducts {
         private String tt_item_id;
         private String tt_model_id;
         private String tt_model_name;
-        private boolean hasLinkErrorStatus;
+        private Boolean hasLinkErrorStatus;
     }
 
     /**
@@ -188,23 +189,24 @@ public class APIGetTikTokProducts {
 
         // For each product, generate item mappings for its variations
         linkedTiktokProducts.stream()
-                .filter(tikTokProduct -> !tikTokProduct.getHasLinkErrorStatus())
+                .filter(tikTokProduct -> (tikTokProduct.getHasLinkErrorStatus() == null)
+                                         || !tikTokProduct.getHasLinkErrorStatus())
                 .forEach(tikTokProduct ->
-                tikTokProduct.getVariations().forEach(variation -> {
-                    ItemMapping itemMapping = new ItemMapping();
-                    itemMapping.setBc_store_id(tikTokProduct.getBcStoreId());
-                    itemMapping.setBranch_id(tikTokProduct.getBranchId());
-                    itemMapping.setBc_item_id(tikTokProduct.getBcItemId());
-                    itemMapping.setBc_model_id(variation.getBcModelId());
-                    itemMapping.setTt_item_id(tikTokProduct.getThirdPartyItemId());
-                    itemMapping.setTt_model_id(variation.getThirdPartyVariationId());
-                    itemMapping.setTt_model_name(variation.getName());
-                    itemMapping.setHasLinkErrorStatus(tikTokProduct.getHasLinkErrorStatus());
+                        tikTokProduct.getVariations().forEach(variation -> {
+                            ItemMapping itemMapping = new ItemMapping();
+                            itemMapping.setBc_store_id(tikTokProduct.getBcStoreId());
+                            itemMapping.setBranch_id(tikTokProduct.getBranchId());
+                            itemMapping.setBc_item_id(tikTokProduct.getBcItemId());
+                            itemMapping.setBc_model_id(variation.getBcModelId());
+                            itemMapping.setTt_item_id(tikTokProduct.getThirdPartyItemId());
+                            itemMapping.setTt_model_id(variation.getThirdPartyVariationId());
+                            itemMapping.setTt_model_name(variation.getName());
+                            itemMapping.setHasLinkErrorStatus(tikTokProduct.getHasLinkErrorStatus());
 
-                    // Add the item mapping to the list
-                    itemMappings.add(itemMapping);
-                })
-        );
+                            // Add the item mapping to the list
+                            itemMappings.add(itemMapping);
+                        })
+                );
 
         // Return the sorted list of item mappings
         return itemMappings;

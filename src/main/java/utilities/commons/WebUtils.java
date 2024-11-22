@@ -98,13 +98,13 @@ public class WebUtils {
      */
     public static <T> T retryUntil(int maxRetries, int delayMillis, String exceptionMsg, Supplier<Boolean> condition, Supplier<T> action) {
         for (int attempt = 0; attempt < maxRetries; attempt++) {
-            // Perform the action
-            T result = action.get();
-
             // If the condition is met, return the result
             if (condition.get()) {
-                return result;
+                return action.get();
             }
+
+            // Perform the action
+            action.get();
 
             // Sleep before retrying
             WebUtils.sleep(delayMillis);
@@ -210,7 +210,7 @@ public class WebUtils {
      * @param locator The By locator.
      * @return The WebElement.
      */
-    private WebElement getElement(By locator) {
+    public WebElement getElement(By locator) {
         return retryOnStaleElement(() -> wait.until(presenceOfElementLocated(locator)));
     }
 

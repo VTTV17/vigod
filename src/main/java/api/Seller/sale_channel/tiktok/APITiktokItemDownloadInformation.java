@@ -40,7 +40,7 @@ public class APITiktokItemDownloadInformation {
      * @throws RuntimeException if the download is still in progress after maximum retries.
      */
     public void waitForDownloadSuccess() {
-        final int maxRetries = 5;
+        final int maxRetries = 10;
         if (!isDownloading()) {
             logger.info("No download in progress, exiting wait.");
             return;

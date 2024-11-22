@@ -1,13 +1,22 @@
 package web.Dashboard.products.all_products.crud.sync_to_tiktok;
 
+import api.Seller.sale_channel.tiktok.APIGetTikTokProducts;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.Select;
 import org.testng.Assert;
+import sql.SQLGetInventoryMapping;
 import utilities.commons.UICommonAction;
+import web.Dashboard.sales_channels.tiktok.VerifyAutoSyncHelper;
 
+import java.sql.Connection;
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.stream.IntStream;
 
 import static org.apache.commons.lang.math.JVMRandom.nextLong;
@@ -21,6 +30,7 @@ import static utilities.links.Links.DOMAIN;
 public class SyncProductToTikTokPage {
     private final WebDriver driver;
     private final UICommonAction commonAction;
+    private final Logger log = LogManager.getLogger();
 
     public SyncProductToTikTokPage(WebDriver driver) {
         this.driver = driver;
@@ -49,6 +59,7 @@ public class SyncProductToTikTokPage {
     By loc_txtHeight = By.xpath("//div[div/div/input[@name='height']]/input");
     By loc_txtLength = By.xpath("//div[div/div/input[@name='length']]/input");
     By loc_dlgToastSuccess = By.cssSelector(".Toastify__toast--success");
+    By loc_lblCategoryError = By.cssSelector(".error__category--support");
 
     /**
      * Navigates to the TikTok product sync page for a specific product ID.
@@ -115,7 +126,15 @@ public class SyncProductToTikTokPage {
 
         } while (numOfNextLevelCategories > 0);
 
-        return this;
+        if (commonAction.getListElement(loc_lblCategoryError).isEmpty()) {
+            return this;
+        }
+
+        String errMess = commonAction.getText(loc_lblCategoryError);
+
+        log.info("Category is not support, error message: {}", errMess);
+
+        return selectCategory();
     }
 
     /**
@@ -147,6 +166,7 @@ public class SyncProductToTikTokPage {
      */
     public SyncProductToTikTokPage uploadSizeChart() {
         if (commonAction.getListElement(loc_imgSizeChart).isEmpty()) return this;
+        log.info("Uploading size chart image.");
         commonAction.uploads(loc_imgSizeChart, System.getProperty("user.dir") + "/src/main/resources/files/images/size_chart.png");
         return this;
     }
@@ -169,6 +189,7 @@ public class SyncProductToTikTokPage {
      * @return SyncProductToTikTokPage
      */
     public SyncProductToTikTokPage bulkPrice(long newPrice) {
+        log.info("Inputting new bulk price: {}", String.format("%,d", newPrice));
         commonAction.sendKeys(loc_txtBulkPrice, String.valueOf(newPrice));
         commonAction.click(loc_btnApply);
         return this;
@@ -193,6 +214,7 @@ public class SyncProductToTikTokPage {
      */
     public SyncProductToTikTokPage bulkStock(long newStock) {
         if (commonAction.isDisabledJS(loc_txtBulkStock)) return this;
+        log.info("Inputting new bulk stock: {}", String.format("%,d", newStock));
         commonAction.sendKeys(loc_txtBulkStock, String.valueOf(newStock));
         commonAction.click(loc_btnApply);
         return this;
@@ -220,6 +242,7 @@ public class SyncProductToTikTokPage {
      * @return SyncProductToTikTokPage
      */
     public SyncProductToTikTokPage updateProductDimension(int weight, int length, int width, int height) {
+        log.info("Inputting product dimensions - Weight: {}, Length: {}, Width: {}, Height: {}", weight, length, width, height);
         commonAction.sendKeys(loc_txtWeight, String.valueOf(weight));
         commonAction.sendKeys(loc_txtLength, String.valueOf(length));
         commonAction.sendKeys(loc_txtWidth, String.valueOf(width));
@@ -240,11 +263,72 @@ public class SyncProductToTikTokPage {
     }
 
     /**
-     * Publishes the product to TikTok and verifies success via a toast message.
+     * Publishes the product to TikTok and verifies the success via a toast message.
+     * Records the start and end times of the publishing process in UTC format.
+     *
+     * @return an array containing the start and end times of the publishing process:
+     * - actionsTime[0] - Start time (UTC)
+     * - actionsTime[1] - End time (UTC)
      */
-    public void publishProductToTikTok() {
+    public String[] publishProductToTikTok() {
+        // Array to store the start and end times of the action
+        String[] actionsTime = new String[2];
+
+        // Record the start time of the action in UTC format
+        actionsTime[0] = LocalDateTime.now(ZoneOffset.UTC)
+                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"));
+        log.info("Publish process started at {}", actionsTime[0]);
+
         performAction("Publish product to TikTok",
                 () -> commonAction.click(loc_btnPublishProduct),
-                () -> Assert.assertFalse(commonAction.getListElement(loc_dlgToastSuccess).isEmpty(), "Can not publish product to TikTok."));
+                () -> Assert.assertFalse(commonAction.getListElement(loc_dlgToastSuccess, 10000).isEmpty(), "Can not publish product to TikTok."));
+
+        // Wait for synchronization
+        UICommonAction.sleepInMiliSecond(30_000, "Waiting for synchronization to complete.");
+
+        // Record and log the end time of the action in UTC format
+        actionsTime[1] = LocalDateTime.now(ZoneOffset.UTC)
+                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"));
+        log.info("Publish process completed at {}", actionsTime[1]);
+
+        // Return the start and end times of the creation process
+        return actionsTime;
+    }
+
+
+    public void verifyPublishProductToTikTok(List<APIGetTikTokProducts.TikTokProduct> originalTiktokProducts,
+                                             List<APIGetTikTokProducts.TikTokProduct> updatedTiktokProducts,
+                                             List<SQLGetInventoryMapping.InventoryMapping> originalInventoryMappings,
+                                             int goSELLItemId,
+                                             String[] actionsTime,
+                                             Connection connection, boolean isAutoSynced) {
+
+        // Verify each TikTok product was deleted by checking against the updated list
+        // Check if the product exists in the list, and handle accordingly.
+        APIGetTikTokProducts.TikTokProduct existingProduct = updatedTiktokProducts.stream()
+                .filter(tikTokProduct -> tikTokProduct.getBcItemId().equals(String.valueOf(goSELLItemId)))
+                .findFirst()
+                .orElse(null);
+
+        if (existingProduct == null) {
+            throw new RuntimeException("Cannot publish product with ID: " + goSELLItemId);
+        }
+        log.info("Product with ID {} successfully published to TikTok.", goSELLItemId);
+
+        // Get new mappings
+        var itemMappingsWithNewInventoryMappings = APIGetTikTokProducts.getItemMapping(List.of(existingProduct));
+
+        // Use the store ID from the first original TikTok product to verify the inventory mappings
+        int storeId = originalTiktokProducts.get(0).getBcStoreId();
+
+        // Verify the inventory event based on the sync status and action times
+        VerifyAutoSyncHelper.verifyInventoryEvent(isAutoSynced,
+                itemMappingsWithNewInventoryMappings, actionsTime,
+                storeId, connection, "GS_TIKTOK_SYNC_ITEM_EVENT");
+
+        // Verify the consistency of inventory mappings post-deletion
+        VerifyAutoSyncHelper.verifyInventoryMapping(
+                originalInventoryMappings, null,
+                itemMappingsWithNewInventoryMappings, storeId, connection);
     }
 }

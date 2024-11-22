@@ -14,7 +14,7 @@ public class ProductManagementElement {
      * 2: Export history
      */
     By loc_ddlExportActions = By.xpath("(//*[contains(@class, 'gs-button__green gs-button--undefined')])[2]/following-sibling::div/button");
-    By loc_dlgExportProductListingFile_btnExport = By.cssSelector(".modal-footer .gs-button__green");
+    By loc_dlgExportProductListingFile_btnExport = By.cssSelector(".modal-footer [type=\"submit\"]");
     By loc_btnImport = By.xpath("(//*[contains(@class, 'gs-button__green gs-button--undefined')])[3]");
     By loc_ddlImportActions = By.xpath("(//*[contains(@class, 'gs-button__green gs-button--undefined')])[3]/following-sibling::div/button");
     By loc_dlgImport = By.cssSelector(".item-list-import-modal");
@@ -29,6 +29,7 @@ public class ProductManagementElement {
     By loc_chkSelectAll = By.cssSelector("thead input");
     By loc_lnkSelectAction = By.cssSelector(".actions");
     By loc_icnDownloadExportFile = By.xpath("//*[contains(@class, 'd-desktop-flex')]//*[contains(text(), 'EXPORT_PRODUCT')]//following-sibling::div/div/img[@alt='download-file-blue']");
+    By loc_lstExportedFileName = By.cssSelector(".shortest-row .gs-table-body-item:nth-child(1)");
     /**
      * 0: Clear stock
      * 1: Delete

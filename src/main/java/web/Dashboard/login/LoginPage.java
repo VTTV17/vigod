@@ -9,6 +9,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.pagefactory.ByChained;
 import org.testng.Assert;
 import utilities.commons.UICommonAction;
+import utilities.commons.WebUtils;
 import utilities.enums.DisplayLanguage;
 import utilities.enums.Domain;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
@@ -193,8 +194,6 @@ public class LoginPage {
 
     /**
      * Selects the display language on the login page.
-     *
-     * @param either "ENG" or "VIE"
      */
     public LoginPage selectDisplayLanguage(String language) {
         return selectDisplayLanguage(DisplayLanguage.valueOf(language));
@@ -204,7 +203,7 @@ public class LoginPage {
         if (getSelectedLanguage().equals(language.name())) return this;
 
         commonAction.click(loc_ddlLanguage);
-        commonAction.sleepInMiliSecond(500, "Not sure why sometimes the page is white without this sleep");
+        UICommonAction.sleepInMiliSecond(500, "Not sure why sometimes the page is white without this sleep");
 
         if (!language.equals(DisplayLanguage.ENG) && !language.equals(DisplayLanguage.VIE)) {
             language = DisplayLanguage.ENG;
@@ -213,7 +212,7 @@ public class LoginPage {
 
         commonAction.click(By.xpath(loc_ddvLanguage.formatted(language)));
         logger.info("Selected display language '%s'.".formatted(language));
-        commonAction.sleepInMiliSecond(200, "Wait a little after changing display language");
+        UICommonAction.sleepInMiliSecond(200, "Wait a little after changing display language");
         return this;
     }
 
@@ -260,7 +259,12 @@ public class LoginPage {
 
         logger.info("Set local storage successfully");
 
-        commonAction.attemptWithRetry(5, 1000, () -> driver.get(DOMAIN));
+        WebUtils.retryUntil(5, 1000, "Can not logging in to dashboard after 5 times",
+                () -> driver.getCurrentUrl().contains("/home"),
+                () -> {
+                    driver.get(DOMAIN);
+                    return null;
+                });
     }
 
     public void verifyTextAtLoginScreen() throws Exception {

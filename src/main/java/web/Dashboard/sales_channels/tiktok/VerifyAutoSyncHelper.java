@@ -173,9 +173,12 @@ public class VerifyAutoSyncHelper {
                 String.format("Model ID mismatch: expected '%s' but found '%s'.", itemMapping.getBc_model_id(), event.getModel_id()));
 
         // Validate that the order ID matches based on the event action type.
-        String expectedOrderId = eventAction.equals("GS_TIKTOK_DOWNLOAD_PRODUCT")
-                ? String.valueOf(itemMapping.getTt_item_id())
-                : String.valueOf(itemMapping.getBc_store_id());
+        String expectedOrderId = switch (eventAction) {
+            case "GS_TIKTOK_DOWNLOAD_PRODUCT" -> String.valueOf(itemMapping.getTt_item_id());
+            case "GS_SET_PRODUCT_STOCK", "GS_CHANGE_PRODUCT_STOCK" -> null;
+            default -> String.valueOf(itemMapping.getBc_store_id());
+        };
+
         Assert.assertEquals(event.getOrder_id(), expectedOrderId,
                 String.format("Order ID mismatch: expected '%s' but found '%s'.", expectedOrderId, event.getOrder_id()));
     }
@@ -197,13 +200,13 @@ public class VerifyAutoSyncHelper {
      */
     public static void verifyInventoryMapping(
             List<InventoryMapping> unChangedInventoryMappings, List<InventoryMapping> removedInventoryMappings,
-            List<ItemMapping> itemMappingsWithNewInventoryMappings, int storeId, Connection connection) {
+            List<ItemMapping> itemMappingsWithNewInventoryMappings, int storeId, Connection connection, int... newGoSELLStock) {
 
         // Step 1: Retrieve the current inventory mappings from the database after syncing
         List<InventoryMapping> updatedMappings = new SQLGetInventoryMapping(connection).getTiktokInventoryMappings(storeId);
 
         // Step 2: Verify that unchanged mappings are still present in the updated inventory mappings
-        verifyUnchangedMappings(unChangedInventoryMappings, updatedMappings);
+        verifyUnchangedMappings(unChangedInventoryMappings, updatedMappings, newGoSELLStock);
 
         // Step 3: Verify that the specified inventory mappings have been successfully removed from the updated mappings
         verifyMappingsAreRemoved(removedInventoryMappings, connection);
@@ -215,16 +218,26 @@ public class VerifyAutoSyncHelper {
     /**
      * Verifies that the original inventory mappings have not changed after syncing.
      * <p>
-     * This method checks that the pre-existing mappings are still present in the current list
-     * of inventory mappings after the syncing process, ensuring that none of the original
-     * mappings have been altered or removed.
+     * This method ensures that all pre-existing inventory mappings are still present
+     * and unaltered in the current list of inventory mappings after the syncing process.
+     * If any discrepancies are found, the method will log the issues or throw an exception.
+     * </p>
      *
-     * @param unChangedMappings The inventory mappings before syncing that should remain unchanged.
-     * @param updatedMappings   The current inventory mappings after syncing.
-     * @throws IllegalArgumentException If the updated mappings do not contain all original mappings.
+     * @param unChangedMappings The list of inventory mappings before syncing that should remain unchanged.
+     *                          If null or empty, the method will exit without performing verification.
+     * @param updatedMappings   The list of current inventory mappings after syncing.
+     *                          Cannot be null, and must contain all original mappings.
+     * @param newGoSELLStock    (Optional) Expected stock values for mappings with the "GOSELL" channel.
+     *                          If provided, the first value in this array will be compared.
+     *
+     * @throws IllegalArgumentException If:
+     * <ul>
+     *     <li>The updated mappings list is null.</li>
+     *     <li>The updated mappings list does not contain all original mappings.</li>
+     * </ul>
      */
     private static void verifyUnchangedMappings(List<InventoryMapping> unChangedMappings,
-                                                List<InventoryMapping> updatedMappings) {
+                                                List<InventoryMapping> updatedMappings, int... newGoSELLStock) {
         // Check if there are unchanged mappings to verify
         if (unChangedMappings == null || unChangedMappings.isEmpty()) {
             logger.info("No unchanged mappings to verify; exiting verification process.");
@@ -245,14 +258,66 @@ public class VerifyAutoSyncHelper {
         }
 
         // Iterate through each original mapping to verify its presence in the updated mappings
-        unChangedMappings.forEach(originalMapping -> {
-            boolean mappingExists = updatedMappings.contains(originalMapping);
-            Assert.assertTrue(mappingExists,
-                    String.format("Original mapping must be kept, inventory_id: %s", originalMapping.getInventory_id()));
-        });
+        unChangedMappings.forEach(originalMapping -> verifyExistingMappings(updatedMappings, originalMapping, newGoSELLStock));
 
         // Log successful completion of unchanged mappings verification
         logger.info("Verification of unchanged mappings completed successfully.");
+    }
+
+    /**
+     * Verifies that a specific original inventory mapping is present and unchanged
+     * in the updated inventory mappings list.
+     * <p>
+     * This method performs the following validations for a matching updated mapping:
+     * <ul>
+     *     <li>The {@code branch_id}, {@code item_id}, {@code model_id}, and {@code shop_id} fields match.</li>
+     *     <li>If the channel is "GOSELL" and {@code newGoSELLStock} is provided,
+     *         the stock is verified against the expected value.</li>
+     * </ul>
+     * If no matching mapping is found, or any validation fails, an exception is thrown or logged.
+     * </p>
+     *
+     * @param updatedMappings   The list of current inventory mappings to search for a match.
+     *                          Cannot be empty.
+     * @param unchangedMappings The original inventory mapping to verify.
+     * @param newGoSELLStock    (Optional) Expected stock value for mappings with the "GOSELL" channel.
+     *                          Only the first value in this array is used.
+     *
+     * @throws IllegalArgumentException If:
+     * <ul>
+     *     <li>The updated mappings list is empty.</li>
+     * </ul>
+     * Logs an error if no matching mapping is found.
+     */
+    private static void verifyExistingMappings(List<InventoryMapping> updatedMappings, InventoryMapping unchangedMappings, int... newGoSELLStock) {
+        if (updatedMappings.isEmpty()) {
+            throw new IllegalArgumentException("The updated mappings list is empty.");
+        }
+
+        updatedMappings.parallelStream()
+                .filter(updatedMapping -> updatedMapping.getInventory_id().equals(unchangedMappings.getInventory_id()) &&
+                                          updatedMapping.getChannel().equals(unchangedMappings.getChannel()))
+                .findAny()
+                .ifPresentOrElse(updatedMapping -> {
+                    Assert.assertEquals(updatedMapping.getBranch_id(), unchangedMappings.getBranch_id(),
+                            String.format("Branch ID mismatch: expected '%s' but found '%s'.",
+                                    unchangedMappings.getBranch_id(), updatedMapping.getBranch_id()));
+                    Assert.assertEquals(updatedMapping.getItem_id(), unchangedMappings.getItem_id(),
+                            String.format("Item ID mismatch: expected '%s' but found '%s'.",
+                                    unchangedMappings.getItem_id(), updatedMapping.getItem_id()));
+                    Assert.assertEquals(updatedMapping.getModel_id(), unchangedMappings.getModel_id(),
+                            String.format("Model ID mismatch: expected '%s' but found '%s'.",
+                                    unchangedMappings.getModel_id(), updatedMapping.getModel_id()));
+                    Assert.assertEquals(updatedMapping.getShop_id(), unchangedMappings.getShop_id(),
+                            String.format("Shop ID mismatch: expected '%s' but found '%s'.",
+                                    unchangedMappings.getShop_id(), updatedMapping.getShop_id()));
+
+                    if (unchangedMappings.getChannel().equals("GOSELL") && newGoSELLStock.length > 0) {
+                        Assert.assertEquals(updatedMapping.getStock(), newGoSELLStock[0],
+                                String.format("Stock mismatch: expected '%d' but found '%d'.",
+                                        newGoSELLStock[0], updatedMapping.getStock()));
+                    }
+                }, () -> logger.error("No matching updated mapping found."));
     }
 
     /**

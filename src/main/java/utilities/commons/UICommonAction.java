@@ -51,7 +51,7 @@ public class UICommonAction {
                 return; // If task succeeds, exit the loop
             } catch (Exception e) {
                 // Log the exception (optional)
-                LogManager.getLogger().warn("Attempt " + (attempt + 1) + " failed.", e);
+                LogManager.getLogger().warn("Attempt {} failed.", attempt + 1, e);
 
                 // If it's the last attempt, throw the exception
                 if (attempt == maxRetries - 1) {

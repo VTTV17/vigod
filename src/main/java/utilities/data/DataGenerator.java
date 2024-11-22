@@ -28,6 +28,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static utilities.character_limit.CharacterLimit.*;
@@ -410,37 +411,44 @@ public class DataGenerator {
 
     @SneakyThrows
     public String getPathOfFile(String rootFolder, String fileName) {
-        File root = new File(System.getProperty("user.dir"));
-        List<Path> paths = Files.walk(Paths.get(root.toString())).toList();
-        Optional<Path> filePath = paths.stream()
-                .filter(path -> !Files.isDirectory(path))
-                .filter(path -> path.toString().contains(rootFolder)
-                                && path.getFileName().toString().equals(fileName))
-                .findFirst();
-        return filePath.map(Path::toString).orElse("");
+        // Start walking from the user's current directory
+        Path root = Paths.get(System.getProperty("user.dir"));
+
+        // Find the file matching the criteria
+        try (Stream<Path> paths = Files.walk(root)) {
+            return paths
+                    .filter(path -> !Files.isDirectory(path)) // Exclude directories
+                    .filter(path -> path.toString().contains(rootFolder)) // Check root folder
+                    .filter(path -> path.getFileName().toString().equals(fileName)) // Check file name
+                    .map(Path::toString) // Convert Path to String
+                    .findFirst() // Get the first matching path
+                    .orElse(""); // Return empty string if not found
+        }
     }
 
     @SneakyThrows
     public String getPathOfFolder(String folderName) {
-        File root = new File(System.getProperty("user.dir"));
-        List<Path> paths = Files.walk(Paths.get(root.toString())).toList();
-        Optional<Path> folderPath = paths.stream()
-                .filter(Files::isDirectory)
-                .filter(path -> path.getFileName().toString().equals(folderName))
-                .findFirst();
-        return folderPath.map(Path::toString).orElse("");
+        return getPathOfFolder(null, folderName);
     }
 
     @SneakyThrows
     public String getPathOfFolder(String rootFolder, String folderName) {
-        File root = new File(System.getProperty("user.dir"));
-        List<Path> paths = Files.walk(Paths.get(root.toString())).toList();
-        Optional<Path> folderPath = paths.stream()
-                .filter(Files::isDirectory)
-                .filter(path -> path.toString().contains(rootFolder)
-                                && path.getFileName().toString().equals(folderName))
-                .findFirst();
-        return folderPath.map(Path::toString).orElse("");
+        // Start walking from the user's current directory
+        Path root = Paths.get(System.getProperty("user.dir"));
+
+        // Find the folder matching the criteria
+        try (Stream<Path> paths = Files.walk(root)) {
+            return paths
+                    .filter(Files::isDirectory) // Only consider directories
+                    .filter(path -> {
+                        boolean matchesName = path.getFileName().toString().equals(folderName);
+                        boolean matchesRoot = rootFolder == null || path.toString().contains(rootFolder);
+                        return matchesName && matchesRoot;
+                    }) // Match folder name and optional root folder
+                    .map(Path::toString) // Convert Path to String
+                    .findFirst() // Get the first match
+                    .orElse(""); // Return an empty string if not found
+        }
     }
 
     public String getPathOfFolderInResourceRoot(String folderName) {
