@@ -1,23 +1,31 @@
 package web.Dashboard.products.transfer.crud;
 
 import api.Seller.login.Login;
+import api.Seller.products.all_products.APIProductDetailV2;
 import api.Seller.products.all_products.APISuggestionProduct;
 import api.Seller.products.all_products.APIProductDetail;
+import api.Seller.products.transfer.APITransferDetail;
 import api.Seller.products.transfer.TransferManagement;
 import api.Seller.setting.BranchManagement;
+import lombok.SneakyThrows;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.*;
 import org.testng.Assert;
+import sql.SQLGetInventoryEvent;
 import utilities.assert_customize.AssertCustomize;
 import utilities.commons.UICommonAction;
+import utilities.data.DataGenerator;
+import utilities.enums.EventAction;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.dashboard.setting.branchInformation.BranchInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 import utilities.model.staffPermission.AllPermissions;
 import utilities.permission.CheckPermission;
+import utilities.utils.PropertiesUtil;
 import web.Dashboard.confirmationdialog.ConfirmationDialog;
 import web.Dashboard.home.HomePage;
+import web.Dashboard.products.all_products.crud.sync_lazada.SyncLazadaPage;
 import web.Dashboard.products.transfer.management.TransferManagementPage;
 
 import java.util.ArrayList;
@@ -34,11 +42,14 @@ public class TransferPage extends TransferElement {
     UICommonAction commons;
 
     final static Logger logger = LogManager.getLogger(TransferPage.class);
-
+    LoginInformation loginInformation;
     public TransferPage(WebDriver driver) {
         this.driver = driver;
         commons = new UICommonAction(driver);
         transferManagementPage = new TransferManagementPage(driver);
+    }
+    public TransferPage(LoginInformation loginInformation) {
+        this.loginInformation = loginInformation;
     }
 
     HomePage homePage;
@@ -268,7 +279,7 @@ public class TransferPage extends TransferElement {
         logger.info("Navigate to edit transfer page by URL, transferId: %s.".formatted(transferId));
     }
 
-    private void navigateToTransferDetailPage(int transferId) {
+    public void navigateToTransferDetailPage(int transferId) {
         // navigate to transfer detail page by URL
         if (!driver.getCurrentUrl().contains("/product/transfer/wizard/%s".formatted(transferId)))
             driver.get("%s/product/transfer/wizard/%s".formatted(DOMAIN, transferId));
@@ -648,5 +659,81 @@ public class TransferPage extends TransferElement {
 
         // log
         logger.info("Check permission: Product >> Transfer >> Cancel transfer.");
+    }
+    public String getPageTitle(){
+        return commons.getText(loc_lblPageTitle);
+    }
+    public TransferPage searchAndSelectProduct(List<APIProductDetailV2.ProductInfoV2> productInfoList){
+        productInfoList.forEach(productInfo -> {
+            String barcode = String.valueOf(productInfo.getId());
+            if(productInfo.isHasModel()){
+                barcode = barcode + " - "+productInfo.getVariationModelList().getFirst();
+            }
+            inputProductSearchTerm(productInfo.getName());
+            selectProductByBarcode(barcode);
+        });
+        return this;
+    }
+    public TransferPage createTransfer(String originBranch, String destinationBranch, List<APIProductDetailV2.ProductInfoV2> productInfoList){
+        new TransferPage(driver).navigateToCreateTransferPage();
+        new TransferPage(driver).selectSourceBranch(originBranch)
+                .selectDestinationBranch(destinationBranch)
+                .searchAndSelectProduct(productInfoList)
+                .clickSaveBtn();
+        new HomePage(driver).waitTillSpinnerDisappear1().verifySuccessToastMessageShow();
+        return this;
+    }
+    public String getOriginDestinationBranchName(int branchId){
+        // init branch management API
+        BranchManagement branchManagement = new BranchManagement(loginInformation);
+        // get destination branches
+        BranchInfo destinationInfo = branchManagement.getDestinationBranchesInfo();
+        List<String> destinationBranchNames = destinationInfo.getBranchName();
+        // index of origin branches
+        int index = destinationInfo.getBranchID().indexOf(branchId);
+        // get origin branch name
+        String originBranchName = destinationBranchNames.get(index);
+        // remove origin branch from destination branches
+        destinationBranchNames.remove(originBranchName);
+        String destinationBranch = destinationBranchNames.get(nextInt(destinationBranchNames.size()));
+        return originBranchName +"-"+destinationBranch;
+    }
+    public TransferPage updateTransferredQuantity(){
+        List<WebElement> inventoryList = commons.getElements(loc_lstSelectedProduct_lblInventory,2);
+        inventoryList.forEach(inventory ->{
+            int inventoryMax = Integer.parseInt(inventory.getText());
+            int index = inventoryList.indexOf(inventory);
+            commons.inputText(loc_lstSelectedProduct_lblInventory, index, String.valueOf(DataGenerator.generatNumberInBound(1, inventoryMax+1)));
+
+        });
+        return this;
+    }
+    public TransferPage navigateAndUpdateTransferredQuantity(int transferId){
+        navigateToEditTransferPage(transferId);
+        updateTransferredQuantity();
+        clickSaveBtn();
+        return this;
+    }
+    public int getSelectedProductNumber(){
+        List<WebElement> quantityList = commons.getElements(loc_lstSelectProduct_txtQuantity,1);
+        return quantityList.size();
+    }
+    public TransferPage navigateAndCancelTransfer(int transferId){
+        navigateToTransferDetailPage(transferId);
+        logger.info("Click on Select Action button.");
+        commons.clickJS(loc_lnkSelectAction);
+        logger.info("Click on Cancel button.");
+        commons.clickJS(loc_ddlListActions, 1);
+        new ConfirmationDialog(driver).clickOKBtn_V2();
+        new HomePage(driver).verifySuccessToastMessageShow();
+        return this;
+    }
+    public TransferPage navigateAndEditDestinationBranch(int transferId, String branchName){
+        navigateToEditTransferPage(transferId);
+        selectDestinationBranch(branchName);
+        clickSaveBtn();
+        new HomePage(driver).waitTillSpinnerDisappear1();
+        new HomePage(driver).verifySuccessToastMessageShow();
+        return this;
     }
 }

@@ -327,4 +327,13 @@ public class APILazadaProducts {
                 .findAny().orElseThrow(() -> new Exception("Lazada product id: %s not found!".formatted(lazadaProductId)));
         return lazadaProduct.getVariations().size();
     }
+    public List<Long> getProductListHasLinkedSyncedLazada(){
+        List<Long> productList = new ArrayList<>();
+        lazadaProductList.forEach(lazadaProductInfo -> {
+            if (lazadaProductInfo.getBcItemId()!=0){
+                productList.add(lazadaProductInfo.getBcItemId());
+            }
+        });
+        return productList;
+    }
 }

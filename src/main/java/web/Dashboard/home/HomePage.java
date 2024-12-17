@@ -704,4 +704,8 @@ public class HomePage extends HomePageElement {
         AssertCustomize.verifyTest();
         return this;
     }
+    public HomePage verifySuccessToastMessageShow(){
+        assertCustomize.assertFalse(commons.getElements(loc_dlgToastSuccess,2).isEmpty(),"Success toast message not shown.");
+        return this;
+    }
 }

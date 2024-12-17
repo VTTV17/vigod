@@ -40,5 +40,8 @@ public class TransferElement {
     By loc_dlgConfirmation = By.cssSelector(".transfer-wizard-cancel-modal");
     By loc_dlgConfirmation_btnOK = By.cssSelector(".gs-button__red");
     By loc_dlgToastSuccess = By.cssSelector(".Toastify__toast--success");
+    By loc_lblPageTitle = By.cssSelector(".gs-page-title");
+    By loc_lstSelectedProduct_lblInventory = By.xpath("//tbody//tr//td[3]");
+    By loc_lstSelectProduct_txtQuantity = By.xpath("//tbody//tr//td[5]//input[contains(@name,'transferredStock')]");
 
 }
