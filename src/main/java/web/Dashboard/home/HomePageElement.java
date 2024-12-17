@@ -62,4 +62,5 @@ public class HomePageElement {
     By loc_stnStatistics = By.cssSelector(".statistic");
     By loc_icnBell = By.cssSelector(".header-right__ele-right #recommendationBtn");
     By loc_tllNotification = By.cssSelector(".header-right__ele-right .modal-header .title");
+    By loc_dlgToastSuccess = By.cssSelector(".Toastify__toast--success");
 }

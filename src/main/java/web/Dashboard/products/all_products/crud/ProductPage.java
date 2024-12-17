@@ -1868,6 +1868,12 @@ public class ProductPage extends ProductPageElement {
         Assert.assertFalse(commonAction.getListElement(loc_dlgSuccessNotification, 30000).isEmpty(), "Success popup not show.");
         return this;
     }
+
+    /**
+     *
+     * @param isChange = true if change stock, else add stock
+     * @return
+     */
     public ProductPage performUpdateStockOnModal(boolean isChange){
 
         // switch to change stock tab
@@ -1892,6 +1898,15 @@ public class ProductPage extends ProductPageElement {
         performUpdateStockOnModal(isChangeStock);
         clickSaveBtn();
         verifySuccessPopupShow();
+        return this;
+    }
+    public ProductPage navigateToAddMoreVariationValue(int productId){
+        commonAction.navigateToURL(DOMAIN + updateProductPath(productId));
+        new HomePage(driver).waitTillSpinnerDisappear();
+
+        commonAction.getElement(loc_txtVariationValue, 0).sendKeys(String.valueOf(Instant.now().toEpochMilli()));
+        commonAction.getElement(loc_txtVariationValue, 0).sendKeys(Keys.ENTER);
+        completeUpdateProduct();
         return this;
     }
 }

@@ -63,15 +63,12 @@ public class Login {
     public Login setLoginInformation(String phoneCode, String username, String password) {
         // re-init login information
         if (loginInfo.getPassword() != null) loginInfo = new LoginInformation();
-        // set email/phone number
-        if (username.matches("\\d+")) loginInfo.setPhoneNumber(username);
-        else loginInfo.setEmail(username);
-
-        // set password
-        loginInfo.setPassword(password);
-
-        // set phoneCode
-        loginInfo.setPhoneCode(phoneCode);
+        // set username, password and phoneCode if any
+        if (username.matches("\\d+")) {
+            loginInfo = new LoginInformation(phoneCode, username, password);
+        } else {
+            loginInfo = new LoginInformation(username, password);
+        }
         return this;
     }
 

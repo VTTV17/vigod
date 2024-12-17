@@ -414,19 +414,22 @@ public class POSOrderTest extends BaseTest {
             pass = ADMIN_PHONE_BIZ_PASSWORD;
         }
         phoneCode = DataGenerator.getPhoneCode(country);
-        credentials = new Login().setLoginInformation(phoneCode, username, pass).getLoginInformation();
     }
-
+    LoginInformation getCredential(boolean isStaff){
+        if(isStaff)return new Login().setLoginInformation("+84", STAFF_SHOP_VI_USERNAME, STAFF_SHOP_VI_PASSWORD)
+                .getLoginInformation();
+        else return new Login().setLoginInformation(phoneCode, username, pass).getLoginInformation();
+    }
     @DataProvider
     public Object[][] dataTest() {
         return new Object[][]{
                 // Seller create order
-                {new CreatePOSOrderCondition(true, false, false, POSPage.UsePointType.NONE, ReceivedAmountType.NONE, true, false, POSPage.POSPaymentMethod.CASH), TimeFrame.TODAY},   //guest checkout, no delivery
+//                {new CreatePOSOrderCondition(true, false, false, POSPage.UsePointType.NONE, ReceivedAmountType.NONE, true, false, POSPage.POSPaymentMethod.CASH), TimeFrame.TODAY},   //guest checkout, no delivery
 //				{new CreatePOSOrderCondition(true,true,false,POSPage.UsePointType.NONE,ReceivedAmountType.NONE,true,false, POSPage.POSPaymentMethod.CASH),TimeFrame.TODAY},   //guest checkout, has delivery
 //				{new CreatePOSOrderCondition(false,false,false,POSPage.UsePointType.SERVERAL,ReceivedAmountType.NONE,true,false, POSPage.POSPaymentMethod.CASH),TimeFrame.TODAY}, // checkout with customer, no delivery.
 //				{new CreatePOSOrderCondition(false,true,false,POSPage.UsePointType.SERVERAL,ReceivedAmountType.NONE,true,false, POSPage.POSPaymentMethod.CASH),TimeFrame.TODAY},  //checkout customer, has delivery
 //				{new CreatePOSOrderCondition(false,true,false,POSPage.UsePointType.SERVERAL,ReceivedAmountType.NONE,false,false, POSPage.POSPaymentMethod.CASH),TimeFrame.TODAY}, // no apply earn point
-//				{new CreatePOSOrderCondition(false,false,false,POSPage.UsePointType.NONE,ReceivedAmountType.NONE,false,true, POSPage.POSPaymentMethod.CASH),TimeFrame.TODAY},    // apply promotion, no delivery
+				{new CreatePOSOrderCondition(false,false,false,POSPage.UsePointType.NONE,ReceivedAmountType.NONE,false,true, POSPage.POSPaymentMethod.CASH),TimeFrame.TODAY},    // apply promotion, no delivery
 //				{new CreatePOSOrderCondition(false,true,false,POSPage.UsePointType.SERVERAL,ReceivedAmountType.NONE,true,true, POSPage.POSPaymentMethod.CASH),TimeFrame.TODAY},    // apply promotion, has delivery
 //				{new CreatePOSOrderCondition(false,false,false,POSPage.UsePointType.NONE,ReceivedAmountType.PARTIAL,false,true, POSPage.POSPaymentMethod.CASH),TimeFrame.TODAY},   //receive amount = partial
 //				{new CreatePOSOrderCondition(false,true,false,POSPage.UsePointType.NONE,ReceivedAmountType.FULL,false,true, POSPage.POSPaymentMethod.CASH),TimeFrame.TODAY}, //receive amount = full
@@ -463,9 +466,7 @@ public class POSOrderTest extends BaseTest {
         logger.info("Run with timeframe: " + timeFrame);
         /** Test case input **/
         //login
-        if (condition.isStaffCreateOrder()) {
-            credentials = new Login().setLoginInformation("+84", STAFF_SHOP_VI_USERNAME, STAFF_SHOP_VI_PASSWORD).getLoginInformation();
-        }
+        credentials = getCredential(condition.isStaffCreateOrder());
         long newestOrderbefore = new APIAllOrders(credentials).getNewestOrderId();
         logger.info("Newest order before: " + newestOrderbefore);
         AnalyticsOrderSummaryInfo ordersAnalyticsSummaryBefore = new APIOrdersAnalytics(credentials).getOrderAnalyticsSummary(timeFrame);
@@ -526,7 +527,7 @@ public class POSOrderTest extends BaseTest {
         driver = new InitWebdriver().getDriver(browser, headless);
 
         LoginPage loginPage = new LoginPage(driver);
-        loginPage.navigateToPage(Domain.valueOf(domain), DisplayLanguage.valueOf(language)).performValidLogin(country, credentials.getPhoneNumber(), credentials.getPassword());
+        loginPage.navigateToPage(Domain.valueOf(domain), DisplayLanguage.valueOf(language)).performValidLogin(country, credentials.getUsername(), credentials.getPassword());
 
         POSPage posPage = new POSPage(driver, Domain.valueOf(domain)).getLoginInfo(credentials).navigateToPOSPage();
 

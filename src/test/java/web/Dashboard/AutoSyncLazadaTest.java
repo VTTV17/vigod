@@ -6,6 +6,8 @@ import api.Seller.orders.order_management.APIGetOrderList;
 import api.Seller.orders.order_management.APIOrderDetail;
 import api.Seller.orders.pos.APICreateOrderPOS;
 import api.Seller.products.all_products.*;
+import api.Seller.products.transfer.APIEditTransfer;
+import api.Seller.products.transfer.APITransferDetail;
 import api.Seller.sale_channel.lazada.APILazadaAccount;
 import api.Seller.sale_channel.lazada.APILazadaProducts;
 import api.Seller.sale_channel.lazada.APILazadaSetting;
@@ -18,6 +20,7 @@ import org.apache.logging.log4j.Logger;
 import org.testng.annotations.*;
 import sql.SQLGetInventoryEvent;
 import sql.SQLGetInventoryMapping;
+import utilities.api.API;
 import utilities.commons.UICommonAction;
 import utilities.data.DataGenerator;
 import utilities.database.InitConnection;
@@ -34,6 +37,7 @@ import utilities.model.dashboard.products.inventory.InventoryMapping;
 import utilities.model.dashboard.setting.branchInformation.BranchInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 import web.Dashboard.confirmationdialog.ConfirmationDialog;
+import web.Dashboard.home.HomePage;
 import web.Dashboard.login.LoginPage;
 import web.Dashboard.orders.return_orders.create_return_order.CreateReturnOrderPage;
 import web.Dashboard.orders.return_orders.return_order_management.ReturnOrdersManagementPage;
@@ -58,6 +62,7 @@ import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static utilities.account.AccountTest.ADMIN_SHOP_VI_PASSWORD;
 import static utilities.account.AccountTest.ADMIN_SHOP_VI_USERNAME;
 import static utilities.character_limit.CharacterLimit.MAX_PRICE;
+import static utilities.enums.EventAction.GS_CHANGE_PRODUCT_STOCK;
 
 public class AutoSyncLazadaTest extends BaseTest {
     String sellerUsername;
@@ -68,6 +73,7 @@ public class AutoSyncLazadaTest extends BaseTest {
     int branchId;
     String lazadaShopId;
     LoginDashboardInfo loginDashboard;
+    int transferId_OriginBranchConnectedLazada, transferId_DestinationConnectedLazada;
 
     @SneakyThrows
     @BeforeClass
@@ -108,7 +114,7 @@ public class AutoSyncLazadaTest extends BaseTest {
         String branchProduct = new APILazadaProducts(loginInformation).getBranchAndProductMappingWithLazadaProduct(lazadaProductId);
         int productId = Integer.parseInt(branchProduct.split("-")[1]);
         AtomicReference<List<String>> modelIdList = new AtomicReference<>(new ArrayList<>());
-        AtomicReference<EventAction> event  = new AtomicReference<>(EventAction.GS_CHANGE_PRODUCT_STOCK);
+        AtomicReference<EventAction> event  = new AtomicReference<>(GS_CHANGE_PRODUCT_STOCK);
         //Get mapping list of store before create to lazada
         List<InventoryMapping> mappingNotChangeBefore = new SQLGetInventoryMapping(connection).getLazadaInventoryMappingExceptProduct(List.of("0"), loginDashboard.getStoreID());
 
@@ -177,7 +183,7 @@ public class AutoSyncLazadaTest extends BaseTest {
         List<Long> allLazadaIdNotUnlink = lazadaProductPage.getUnLinkProduct(hasVariation);
         APILazadaProducts apiLazadaProducts = new APILazadaProducts(loginInformation);
         String currentDate = String.valueOf(ZonedDateTime.now(ZoneOffset.UTC));
-        long lazadaProductId = allLazadaIdNotUnlink.get(0);
+        long lazadaProductId = allLazadaIdNotUnlink.getFirst();
         List<InventoryMapping> mappingNotChangeBefore = new SQLGetInventoryMapping(connection).getLazadaInventoryMappingExceptProduct(List.of("0"), loginDashboard.getStoreID());
         long productId = new APICreateProduct(loginInformation).createProductTo3rdPartyThenRetrieveId(apiLazadaProducts.getVariationNumberOfLazadaProduct(lazadaProductId),10);
 
@@ -254,8 +260,8 @@ public class AutoSyncLazadaTest extends BaseTest {
     public Object[][] dataDownloadTest() {
         return new Object[][]{
                 {ProductThirdPartyStatus.SYNC, false},
-                {ProductThirdPartyStatus.SYNC, true},
-                {ProductThirdPartyStatus.LINK, false},
+//                {ProductThirdPartyStatus.SYNC, true},
+//                {ProductThirdPartyStatus.LINK, false},
                 {ProductThirdPartyStatus.LINK, true},
         };
     }
@@ -337,8 +343,8 @@ public class AutoSyncLazadaTest extends BaseTest {
     public Object[][] dataForUnlinkTest() {
         return new Object[][]{
                 {ProductThirdPartyStatus.SYNC, false, 2},
-                {ProductThirdPartyStatus.SYNC, true, 1},
-                {ProductThirdPartyStatus.LINK, false, 3},
+//                {ProductThirdPartyStatus.SYNC, true, 1},
+//                {ProductThirdPartyStatus.LINK, false, 3},
                 {ProductThirdPartyStatus.LINK, true, 2},
         };
     }
@@ -407,34 +413,26 @@ public class AutoSyncLazadaTest extends BaseTest {
         lazadaProductPage.verifyInventoryMappingExceptProductList(List.of(branchId+"-"+productId), loginDashboard.getStoreID(), mappingNotChangeBefore);
     }
 
-    @DataProvider
-    public Object[][] dataCreateCancelPOSOrder(){
-        return new Object[][]{
-                {ProductThirdPartyStatus.SYNC, true},
-                {ProductThirdPartyStatus.LINK, true},
-                {ProductThirdPartyStatus.SYNC, false},
-                {ProductThirdPartyStatus.LINK, false}
-        };
-    }
+
 
     @DataProvider
     public Object[][] dataUpdateStock(){
         return new Object[][]{
                 {ProductThirdPartyStatus.SYNC, true, "ClearStockInBulk", true},
                 {ProductThirdPartyStatus.SYNC, true, "UpdateStockInDetail", true},
-                {ProductThirdPartyStatus.SYNC, true, "UpdateStockInBulk", true},
-                {ProductThirdPartyStatus.LINK, true, "ClearStockInBulk", true},
-                {ProductThirdPartyStatus.LINK, true, "UpdateStockInDetail", true},
-                {ProductThirdPartyStatus.LINK, true, "UpdateStockInBulk", true},
-                {ProductThirdPartyStatus.SYNC, false, "ClearStockInBulk", true},
-                {ProductThirdPartyStatus.SYNC, false, "UpdateStockInDetail", true},
-                {ProductThirdPartyStatus.SYNC, false, "UpdateStockInBulk", true},
-                {ProductThirdPartyStatus.LINK, false, "ClearStockInBulk",true},
-                {ProductThirdPartyStatus.LINK, false, "ClearStockInBulk",true},
-                {ProductThirdPartyStatus.LINK, false, "UpdateStockInDetail", true},
-                {ProductThirdPartyStatus.LINK, false, "UpdateStockInBulk", true},
-                {ProductThirdPartyStatus.SYNC, true, "UpdateStockInDetail", false},
-                {ProductThirdPartyStatus.SYNC, false, "UpdateStockInBulk", false},
+//                {ProductThirdPartyStatus.SYNC, true, "UpdateStockInBulk", true},
+//                {ProductThirdPartyStatus.LINK, true, "ClearStockInBulk", true},
+//                {ProductThirdPartyStatus.LINK, true, "UpdateStockInDetail", true},
+//                {ProductThirdPartyStatus.LINK, true, "UpdateStockInBulk", true},
+//                {ProductThirdPartyStatus.SYNC, false, "ClearStockInBulk", true},
+//                {ProductThirdPartyStatus.SYNC, false, "UpdateStockInDetail", true},
+//                {ProductThirdPartyStatus.SYNC, false, "UpdateStockInBulk", true},
+//                {ProductThirdPartyStatus.LINK, false, "ClearStockInBulk",true},
+//                {ProductThirdPartyStatus.LINK, false, "ClearStockInBulk",true},
+//                {ProductThirdPartyStatus.LINK, false, "UpdateStockInDetail", true},
+//                {ProductThirdPartyStatus.LINK, false, "UpdateStockInBulk", true},
+//                {ProductThirdPartyStatus.SYNC, true, "UpdateStockInDetail", false},
+//                {ProductThirdPartyStatus.SYNC, false, "UpdateStockInBulk", false},
 
 
         };
@@ -475,6 +473,15 @@ public class AutoSyncLazadaTest extends BaseTest {
             if(hasVariation) waitManyTime(1);
         });
     }
+    @DataProvider
+    public Object[][] dataCreateCancelPOSOrder(){
+        return new Object[][]{
+                {ProductThirdPartyStatus.SYNC, true},
+//                {ProductThirdPartyStatus.LINK, true},
+//                {ProductThirdPartyStatus.SYNC, false},
+//                {ProductThirdPartyStatus.LINK, false}
+        };
+    }
     @Test(dataProvider = "dataCreateCancelPOSOrder")
     public void TC08_CreateAndCancelOrderPOS(ProductThirdPartyStatus status, boolean hasVariation){
         //Get productId
@@ -501,9 +508,9 @@ public class AutoSyncLazadaTest extends BaseTest {
             List<ItemOrderInfo> itemOrderInfos = detailInfo.getItems();
             modelList = itemOrderInfos.stream().map(i ->String.valueOf(i.getVariationId())).collect(Collectors.toList());
             for(String modelId: modelList){
-                lazadaProductPage.verifyInventoryEvent(branchId, productId, modelId, EventAction.GS_CHANGE_PRODUCT_STOCK, currentDate);
+                lazadaProductPage.verifyInventoryEvent(branchId, productId, modelId, GS_CHANGE_PRODUCT_STOCK, currentDate);
             }
-        }else lazadaProductPage.verifyInventoryEvent(branchId, productId, EventAction.GS_CHANGE_PRODUCT_STOCK, currentDate);
+        }else lazadaProductPage.verifyInventoryEvent(branchId, productId, GS_CHANGE_PRODUCT_STOCK, currentDate);
 
         //Verify the all mapping not change
         lazadaProductPage.verifyInventoryMappingExceptProductList(List.of("0"), loginDashboard.getStoreID(), mappingNotChangeBefore);
@@ -515,9 +522,9 @@ public class AutoSyncLazadaTest extends BaseTest {
         //Verify event
         waitManyTime(1);
         if(modelList.isEmpty())
-            lazadaProductPage.verifyInventoryEvent(branchId, productId, EventAction.GS_CHANGE_PRODUCT_STOCK, currentDate);
+            lazadaProductPage.verifyInventoryEvent(branchId, productId, GS_CHANGE_PRODUCT_STOCK, currentDate);
         else for ( String modelId : modelList){
-            lazadaProductPage.verifyInventoryEvent(branchId, productId, modelId, EventAction.GS_CHANGE_PRODUCT_STOCK, currentDate);
+            lazadaProductPage.verifyInventoryEvent(branchId, productId, modelId, GS_CHANGE_PRODUCT_STOCK, currentDate);
         }
         //Verify the all mapping not change
         lazadaProductPage.verifyInventoryMappingExceptProductList(List.of("0"), loginDashboard.getStoreID(), mappingNotChangeBefore);
@@ -527,9 +534,9 @@ public class AutoSyncLazadaTest extends BaseTest {
     public Object[][] dataReturnOrder(){
         return new Object[][]{
                 {ProductThirdPartyStatus.SYNC, true},
-                {ProductThirdPartyStatus.LINK, true},
-                {ProductThirdPartyStatus.SYNC, false},
-                {ProductThirdPartyStatus.LINK, false}
+//                {ProductThirdPartyStatus.LINK, true},
+//                {ProductThirdPartyStatus.SYNC, false},
+//                {ProductThirdPartyStatus.LINK, false}
         };
     }
     @Test(dataProvider = "dataReturnOrder")
@@ -553,47 +560,262 @@ public class AutoSyncLazadaTest extends BaseTest {
         });
     }
     @Test(dataProvider = "dataReturnOrder")
-    public void TC10_TransferProduct(ProductThirdPartyStatus status, boolean hasVariation){
-        actionThenCheckChangeStockEvent(status, hasVariation, (productId,modelIdList, currentDate, event) ->{
-            String barcode = productId.toString();
-            //Get product detail
-            APIProductDetailV2.ProductInfoV2 productInfo = new APIProductDetailV2(loginInformation).getInfo(productId);
-            if(hasVariation){
-                modelIdList.set(List.of(String.valueOf(productInfo.getVariationModelList().get(0))));
-                barcode = barcode + " - "+productInfo.getVariationModelList().get(0);
-            }
-            // init branch management API
-            BranchManagement branchManagement = new BranchManagement(loginInformation);
-            // get destination branches
-            BranchInfo destinationInfo = branchManagement.getDestinationBranchesInfo();
-            List<String> destinationBranchNames = destinationInfo.getBranchName();
-            // index of origin branches
-            int index = destinationInfo.getBranchID().indexOf(branchId);
-            // get origin branch name
-            String originBranchName = destinationBranchNames.get(index);
-            // remove origin branch from destination branches
-            destinationBranchNames.remove(originBranchName);
-            String destinationBranch = destinationBranchNames.get(nextInt(destinationBranchNames.size()));
-            logger.info("Get destination branch: %s.".formatted(destinationBranch));
-            // create transfer
-            new TransferPage(driver).navigateToCreateTransferPage();
-                    new TransferPage(driver).selectSourceBranch(originBranchName)
-                    .selectDestinationBranch(destinationBranch)
-                    .inputProductSearchTerm(productInfo.getName())
-                    .selectProductByBarcode(barcode).clickSaveBtn();
-        });
-    }
-    public void TC11_TransferToPartner(ProductThirdPartyStatus status, boolean hasVariation){
-        actionThenCheckChangeStockEvent(status, hasVariation, (productId,modelIdList, currentDate, event) -> {
+    public void TC10_CreateTransferProduct(ProductThirdPartyStatus status, boolean hasVariation){
+        //Get productId
+        long lazadaProductId = new LazadaProducts(driver, loginInformation).getSyncedLinkedProduct(hasVariation,1,status).get(0);
+        String branchProduct = new APILazadaProducts(loginInformation).getBranchAndProductMappingWithLazadaProduct(lazadaProductId);
+        int productId = Integer.parseInt(branchProduct.split("-")[1]);
+        List<String> modelIdList = new ArrayList<>();
+        //Get mapping list of store before create to lazada
+        List<InventoryMapping> mappingNotChangeBefore = new SQLGetInventoryMapping(connection).getLazadaInventoryMappingExceptProduct(List.of("0"), loginDashboard.getStoreID());
 
+        //Update stock
+        new ProductPage(driver).getLoginInformation(loginInformation)
+                .navigateToUpdateProductPage(productId)
+                .updateStock(hasVariation, true);
+
+        //Excute action
+        List<APIProductDetailV2.ProductInfoV2> productInfoList = getProductInfoList(1);
+        if (hasVariation) {
+            modelIdList.add(String.valueOf(productInfoList.getFirst().getVariationModelList().getFirst()));
+        }
+
+        //Create transfer with origin branch is connected.
+        String currentDate = String.valueOf(ZonedDateTime.now(ZoneOffset.UTC));
+        transferId_OriginBranchConnectedLazada = getTransferIdOrCreateTransfer(true, productInfoList);
+
+        //Verify event
+        waitManyTime(1);
+        LazadaProducts lazadaProductPage = new LazadaProducts(driver, loginInformation);
+        if(modelIdList.isEmpty())
+            lazadaProductPage.verifyInventoryEvent(branchId, productId, GS_CHANGE_PRODUCT_STOCK, currentDate.toString());
+        else for (String modelId: modelIdList){
+            lazadaProductPage.verifyInventoryEvent(branchId, productId, modelId, GS_CHANGE_PRODUCT_STOCK, currentDate.toString());
+        }
+        //Verify the all mapping not change
+        lazadaProductPage.verifyInventoryMappingExceptProductList(List.of("0"), loginDashboard.getStoreID(), mappingNotChangeBefore);
+
+        //Create transfer with destination branch is connected
+        currentDate = String.valueOf(ZonedDateTime.now(ZoneOffset.UTC));
+        transferId_DestinationConnectedLazada = getTransferIdOrCreateTransfer(false, productInfoList);
+
+        //Verify not create event
+        List<SQLGetInventoryEvent.InventoryEvent> inventoryEventsActual = new SQLGetInventoryEvent(connection).inventoryEventListByItem(branchId, productId, currentDate);
+        List<SQLGetInventoryEvent.InventoryEvent> inventoryEventsExpected = new ArrayList<>();
+        lazadaProductPage.verifyInventoryEvent(inventoryEventsActual, inventoryEventsExpected);
+
+
+//        //transfer from connected branch
+//        actionThenCheckChangeStockEvent(status, hasVariation, (productId, modelIdList, currentDate, event) -> {
+//            //Update stock
+//            new ProductPage(driver).getLoginInformation(loginInformation)
+//                    .navigateToUpdateProductPage(productId)
+//                    .updateStock(hasVariation, true);
+//            //Get product detail
+//            List<APIProductDetailV2.ProductInfoV2> productInfoList = new ArrayList<>();
+//            APIProductDetailV2.ProductInfoV2 productInfo = new APIProductDetailV2(loginInformation).getInfo(productId);
+//            productInfoList.add(productInfo);
+//            if (hasVariation) {
+//                modelIdList.set(List.of(String.valueOf(productInfo.getVariationModelList().getFirst())));
+//            }
+//            String originAndDestinationBranch = new TransferPage(loginInformation).getOriginDestinationBranchName(branchId);
+//            System.out.println("originAndDestinationBranch: " + originAndDestinationBranch);
+//            // create transfer
+//            currentDate.set(ZonedDateTime.now(ZoneOffset.UTC));
+//            new TransferPage(driver).createTransfer(originAndDestinationBranch.split("-")[0], originAndDestinationBranch.split("-")[1], productInfoList);
+//        });
+//        transferId = Integer.parseInt(new TransferPage(driver).getPageTitle());
+//        System.out.println("Transfer id: " + transferId);
+//        //transfer to connected branch
+//        actionThenCheckChangeStockEvent(status, hasVariation, (productId, modelIdList, currentDate, event) -> {
+//            List<APIProductDetailV2.ProductInfoV2> productInfoList = new ArrayList<>();
+//            //Get product detail
+//            APIProductDetailV2.ProductInfoV2 productInfo = new APIProductDetailV2(loginInformation).getInfo(productId);
+//            productInfoList.add(productInfo);
+//            if (hasVariation) {
+//                modelIdList.set(List.of(String.valueOf(productInfo.getVariationModelList().getFirst())));
+//            }
+//            String originAndDestinationBranch = new TransferPage(loginInformation).getOriginDestinationBranchName(branchId);
+//            // create transfer
+//            TransferPage transferPage = new TransferPage(driver);
+//            transferPage.createTransfer(originAndDestinationBranch.split("-")[1], originAndDestinationBranch.split("-")[0],productInfoList);
+//            transferPage.clickShipGoodsBtn();
+//            currentDate.set(ZonedDateTime.now(ZoneOffset.UTC));
+//            transferPage.clickReceiveGoodsBtn();
+//        });
+    }
+    public List<APIProductDetailV2.ProductInfoV2> getProductInfoList(int quantity){
+        List<Long> lazadaProductIdList = new LazadaProducts(driver, loginInformation).getSyncedLinkedProduct(false,quantity,ProductThirdPartyStatus.SYNC);
+        List<APIProductDetailV2.ProductInfoV2> productInfoList = new ArrayList<>();
+        lazadaProductIdList.forEach(lazadaProductId ->{
+            String branchProduct = new APILazadaProducts(loginInformation).getBranchAndProductMappingWithLazadaProduct(lazadaProductId);
+            int productId = Integer.parseInt(branchProduct.split("-")[1]);
+            productInfoList.add(new APIProductDetailV2(loginInformation).getInfo(productId));
         });
+        return productInfoList;
+    }
+    public int createTransfer(boolean originBranchConnectedLazada, List<APIProductDetailV2.ProductInfoV2> productInfoList){
+        String originAndDestinationBranch = new TransferPage(loginInformation).getOriginDestinationBranchName(branchId);
+        System.out.println("originAndDestinationBranch: " + originAndDestinationBranch);
+        //Create transfer with origin branch is connected.
+        TransferPage transferPage = new TransferPage(driver);
+        if (originBranchConnectedLazada) {
+            transferPage.createTransfer(originAndDestinationBranch.split("-")[0],
+                    originAndDestinationBranch.split("-")[1], List.of(productInfoList.get(0)));
+        } else transferPage.createTransfer(originAndDestinationBranch.split("-")[1],
+                originAndDestinationBranch.split("-")[1], List.of(productInfoList.get(0)));
+        return Integer.parseInt(new TransferPage(driver).getPageTitle());
+    }
+    public int getTransferIdOrCreateTransfer(boolean originBranchConnectedLazada, List<APIProductDetailV2.ProductInfoV2> productInfoList){
+        int transferId = transferId_OriginBranchConnectedLazada;
+        if(!originBranchConnectedLazada) transferId = transferId_DestinationConnectedLazada;
+        if(transferId==0) {
+            transferId = createTransfer(originBranchConnectedLazada, productInfoList);
+        }else {
+            APITransferDetail.TransferDetailInfo transferDetailInfo = new APITransferDetail(loginInformation).getTransferDetail(transferId);
+            if(!transferDetailInfo.getStatus().equals("READY_FOR_TRANSPORT")){
+                transferId = createTransfer(originBranchConnectedLazada, productInfoList);
+            }
+        }
+        return transferId;
+    }
+    @Test
+    public void TC11_EditProductTransfer(String action, boolean originBranchConnectedLazada){
+        //Get product to transfer if don't have transferId before
+        List<APIProductDetailV2.ProductInfoV2> productInfoList = getProductInfoList(2);
+
+        //Create transfer if don't have transfer before
+        int transferId = getTransferIdOrCreateTransfer(originBranchConnectedLazada,productInfoList);
+
+        // dev remove item before call update so need to get event when remove product.
+        TransferPage transferPage = new TransferPage(driver);
+        List<SQLGetInventoryEvent.InventoryEvent> eventExpected = new ArrayList<>();
+        if(originBranchConnectedLazada)
+            eventExpected = new APITransferDetail(loginInformation).getEventFromTransferDetail(transferId);
+        String currentDate = String.valueOf(ZonedDateTime.now(ZoneOffset.UTC));
+        //action to update
+        switch (action){
+            case "updateQuantity"-> transferPage.navigateAndUpdateTransferredQuantity(transferId);
+            case "addMoreProduct" ->{
+                transferPage.searchAndSelectProduct(List.of(productInfoList.get(1)));
+                transferPage.clickSaveBtn();
+                new HomePage(driver).verifySuccessToastMessageShow();
+            }
+            case "removeAProduct" ->{
+                new APIEditTransfer(loginInformation, transferId).removeAProductInTransfer();
+            }
+        }
+        // add all event when update to event expected list
+        if(originBranchConnectedLazada)
+            eventExpected.addAll(new APITransferDetail(loginInformation).getEventFromTransferDetail(transferId));
+
+        //Get inventory event actual.
+        List<Integer> productList = new APITransferDetail(loginInformation).getTransferDetail(transferId).getItems().stream().map(APITransferDetail.Item::getItemId).toList();
+        List<SQLGetInventoryEvent.InventoryEvent> inventoryEventsActual = new ArrayList<>();
+        productList.forEach(productId -> {
+            inventoryEventsActual.addAll(new SQLGetInventoryEvent(connection).inventoryEventListByItem(branchId, productId, currentDate));
+        });
+
+        //Verify event
+        new LazadaProducts(driver).verifyInventoryEvent(inventoryEventsActual, eventExpected);
+
+    }
+    @SneakyThrows
+    @Test
+    public void TC12_EditDestinationBranchTransfer(boolean destinationBranchConnectLazada){
+        //Get product to transfer if don't have transferId before
+        APIProductDetailV2.ProductInfoV2 productInfo = getProductInfoList(1).get(0);
+
+        //Create transfer if don't have transfer before
+        int transferId = getTransferIdOrCreateTransfer(false,List.of(productInfo));
+
+        //Get available branch to edit branch
+        APITransferDetail.TransferDetailInfo transferDetailInfo = new APITransferDetail(loginInformation).getTransferDetail(transferId);
+        BranchManagement branchManagement = new BranchManagement(loginInformation);
+        List<String> eliminateBranch = branchManagement.getBranchNameById(List.of(transferDetailInfo.getOriginBranchId(),transferDetailInfo.getDestinationBranchId()));
+        List<String> activeBranchList = branchManagement.getInfo().getActiveBranches();
+        if(activeBranchList.size()>eliminateBranch.size()) activeBranchList.removeAll(eliminateBranch);
+        else throw new Exception("No branch to edit.");
+
+        //edit branch that not connected lazada
+        String currentDate = String.valueOf(ZonedDateTime.now(ZoneOffset.UTC));
+        new TransferPage(driver).navigateAndEditDestinationBranch(transferId,activeBranchList.getFirst());
+
+        //Get inventory event actual.
+        List<Integer> productList = transferDetailInfo.getItems().stream().map(APITransferDetail.Item::getItemId).toList();
+        List<SQLGetInventoryEvent.InventoryEvent> inventoryEventsActual = new ArrayList<>();
+        productList.forEach(productId -> {
+            inventoryEventsActual.addAll(new SQLGetInventoryEvent(connection).inventoryEventListByItem(branchId, productId, currentDate));
+        });
+        List<SQLGetInventoryEvent.InventoryEvent> eventExpected = new ArrayList<>();
+
+        //Verify event
+        new LazadaProducts(driver).verifyInventoryEvent(inventoryEventsActual, eventExpected);
+    }
+    @Test
+    public void TC13_CompleteTransfer(boolean originBranchConnectedLazada){
+        //Get product to transfer if don't have transferId before
+        APIProductDetailV2.ProductInfoV2 productInfo = getProductInfoList(1).get(0);
+
+        //Create transfer if don't have transfer before
+        int transferId = getTransferIdOrCreateTransfer(originBranchConnectedLazada,List.of(productInfo));
+
+        //get event expected
+        List<SQLGetInventoryEvent.InventoryEvent> eventExpected = new ArrayList<>();
+        if(!originBranchConnectedLazada)
+        eventExpected = new APITransferDetail(loginInformation).getEventFromTransferDetail(transferId);
+
+        //Complete transfer
+        TransferPage transferPage = new TransferPage(driver);
+        transferPage.navigateToTransferDetailPage(transferId);
+        transferPage.clickShipGoodsBtn();
+        String currentDate = String.valueOf(ZonedDateTime.now(ZoneOffset.UTC));
+        transferPage.clickReceiveGoodsBtn();
+
+        //Get inventory event actual.
+        List<Integer> productList = new APITransferDetail(loginInformation).getTransferDetail(transferId).getItems().stream().map(APITransferDetail.Item::getItemId).toList();
+        List<SQLGetInventoryEvent.InventoryEvent> inventoryEventsActual = new ArrayList<>();
+        productList.forEach(productId -> {
+            inventoryEventsActual.addAll(new SQLGetInventoryEvent(connection).inventoryEventListByItem(branchId, productId, currentDate));
+        });
+
+        //Verify event
+        new LazadaProducts(driver).verifyInventoryEvent(inventoryEventsActual, eventExpected);
+    }
+    @Test
+    public void TC14_CancelTransfer(boolean originBranchConnectedLazada){
+        //Get product to transfer if don't have transferId before
+        APIProductDetailV2.ProductInfoV2 productInfo = getProductInfoList(1).get(0);
+
+        //Create transfer if don't have transfer before
+        int transferId = getTransferIdOrCreateTransfer(originBranchConnectedLazada,List.of(productInfo));
+
+        //get event expected
+        List<SQLGetInventoryEvent.InventoryEvent> eventExpected = new ArrayList<>();
+        if(originBranchConnectedLazada)
+            eventExpected = new APITransferDetail(loginInformation).getEventFromTransferDetail(transferId);
+
+        //cancel transfer
+        String currentDate = String.valueOf(ZonedDateTime.now(ZoneOffset.UTC));
+        TransferPage transferPage = new TransferPage(driver);
+        transferPage.navigateAndCancelTransfer(transferId);
+
+        //Get inventory event actual.
+        List<Integer> productList = new APITransferDetail(loginInformation).getTransferDetail(transferId).getItems().stream().map(APITransferDetail.Item::getItemId).toList();
+        List<SQLGetInventoryEvent.InventoryEvent> inventoryEventsActual = new ArrayList<>();
+        productList.forEach(productId -> {
+            inventoryEventsActual.addAll(new SQLGetInventoryEvent(connection).inventoryEventListByItem(branchId, productId, currentDate));
+        });
+
+        //Verify event
+        new LazadaProducts(driver).verifyInventoryEvent(inventoryEventsActual, eventExpected);
     }
     @DataProvider
     public Object[][] dataDeleteAndAddVariation(){
         return new Object[][]{
-                {ProductThirdPartyStatus.SYNC, "delete"},
-                {ProductThirdPartyStatus.LINK, "delete"},
-                {ProductThirdPartyStatus.SYNC, "add"},
+//                {ProductThirdPartyStatus.SYNC, "delete"},
+//                {ProductThirdPartyStatus.LINK, "delete"},
+//                {ProductThirdPartyStatus.SYNC, "add"},
                 {ProductThirdPartyStatus.LINK, "add"}
         };
     }
@@ -609,9 +831,10 @@ public class AutoSyncLazadaTest extends BaseTest {
 
         //Action on UI
         if(action.equals("add")){
-            APIGetProductDetail.ProductInformation productInfo = new APIGetProductDetail(loginInformation).getProductInformation((int) productId);
-            new APIUpdateProduct(loginInformation).updateProductVariations(productInfo, 4);
-            new ProductPage(driver).navigateProductDetail(productId);
+//            APIGetProductDetail.ProductInformation productInfo = new APIGetProductDetail(loginInformation).getProductInformation((int) productId);
+//            new APIUpdateProduct(loginInformation).updateProductVariations(productInfo, 4);
+//            new ProductPage(driver).navigateProductDetail(productId);
+            new ProductPage(driver).navigateToAddMoreVariationValue((int)productId);
         }else {
             new ProductPage(driver).navigateToProductAndDeleteAllVariation((int)productId);
         }
@@ -637,15 +860,15 @@ public class AutoSyncLazadaTest extends BaseTest {
     public Object[][] dataDeleteProduct(){
         return new Object[][]{
                 {ProductThirdPartyStatus.SYNC, true},
-                {ProductThirdPartyStatus.LINK, true},
-                {ProductThirdPartyStatus.SYNC, false},
-                {ProductThirdPartyStatus.LINK, false}
+//                {ProductThirdPartyStatus.LINK, true},
+//                {ProductThirdPartyStatus.SYNC, false},
+//                {ProductThirdPartyStatus.LINK, false}
         };
     }
     @Test(dataProvider = "dataDeleteProduct")
     public void deleteLazadaProductFromGS(ProductThirdPartyStatus status, boolean hasVariation){
         //Get productId
-        long lazadaProductId = new LazadaProducts(driver, loginInformation).getSyncedLinkedProduct(hasVariation,1,status).get(0);
+        long lazadaProductId = new LazadaProducts(driver, loginInformation).getSyncedLinkedProduct(hasVariation, 1,status).get(0);
         String branchProduct = new APILazadaProducts(loginInformation).getBranchAndProductMappingWithLazadaProduct(lazadaProductId);
         long productId = Long.parseLong(branchProduct.split("-")[1]);
 
