@@ -51,6 +51,7 @@ class OrderBankInfo{
     private long id;
     private String nameHolder;
     private String accountNumber;
+    private String bankId;
     private String bankName;
     private String countryCode;
     private String swiftCode;

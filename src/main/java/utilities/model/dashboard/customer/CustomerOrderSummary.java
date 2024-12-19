@@ -5,8 +5,9 @@ import java.math.BigDecimal;
 import lombok.Data;
 
 /**
- * Used for deserialization of JSON into POJOs 
- * Example base path: /orderservices2/api/customer-orders/store/203833/customerId/4966790/summary
+ * <p>Used for deserialization of JSON into POJOs.
+ * <p>Example base path: /orderservices2/api/customer-orders/store/203833/customerId/4966790/summary.
+ * <p>Only DELIVERED orders calculated. Shipping fee is excluded
  */
 
 @Data

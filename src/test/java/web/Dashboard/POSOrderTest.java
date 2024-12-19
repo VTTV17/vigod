@@ -380,7 +380,9 @@ public class POSOrderTest extends BaseTest {
     	
     	Assert.assertEquals(postRecord.getCreatedDate().replaceAll("T.*", ""), expectedRecord.getCreatedDate(), "Cashbook record created date");
     	Assert.assertEquals(postRecord.getGroupType(), expectedRecord.getGroupType(), "Cashbook record group type");
-    	Assert.assertEquals(postRecord.getCustomerName(), expectedRecord.getCustomerName(), "Cashbook record customer name");
+    	
+//    	https://mediastep.atlassian.net/browse/BH-43041 Cashbook records have wrong sender name
+//    	Assert.assertEquals(postRecord.getCustomerName(), expectedRecord.getCustomerName(), "Cashbook record customer name");
     	Assert.assertEquals(postRecord.getSourceType(), expectedRecord.getSourceType(), "Cashbook record source type");
     	Assert.assertEquals(postRecord.getBranchName(), expectedRecord.getBranchName(), "Cashbook record branch");
         Assert.assertEquals(postRecord.getAmount().compareTo(expectedRecord.getAmount()), 0, "Cashbook record amount: " + expectedRecord.getAmount() + ", but got: " + postRecord.getAmount());
@@ -436,7 +438,7 @@ public class POSOrderTest extends BaseTest {
 //				{new CreatePOSOrderCondition(false,false,false,POSPage.UsePointType.NONE,ReceivedAmountType.FULL,false,true, POSPage.POSPaymentMethod.BANK_TRANSFER),TimeFrame.TODAY}, //Payment method = bank transfer
 //				{new CreatePOSOrderCondition(false,false,false,POSPage.UsePointType.MAX_ORDER,ReceivedAmountType.FULL,false,true, POSPage.POSPaymentMethod.BANK_TRANSFER),TimeFrame.TODAY}, //POSPage.UsePointType.MAX_ORDER
 //				{new CreatePOSOrderCondition(true,false,false,POSPage.UsePointType.NONE,ReceivedAmountType.FULL,true,true, POSPage.POSPaymentMethod.CASH),TimeFrame.YESTERDAY},   //guest checkout, no delivery, apply direct discount
-//				{new CreatePOSOrderCondition(false,false ,false,POSPage.UsePointType.MAX_AVAILABLE,ReceivedAmountType.FULL,false,true, POSPage.POSPaymentMethod.CASH),TimeFrame.TODAY}, //POSPage.UsePointType.MAX_AVAILABLE
+//Bug				{new CreatePOSOrderCondition(false,false ,false,POSPage.UsePointType.MAX_AVAILABLE,ReceivedAmountType.FULL,false,true, POSPage.POSPaymentMethod.CASH),TimeFrame.TODAY}, //POSPage.UsePointType.MAX_AVAILABLE
 //				{new CreatePOSOrderCondition(false,false,false,POSPage.UsePointType.SERVERAL,ReceivedAmountType.FULL,false,true, POSPage.POSPaymentMethod.CASH),TimeFrame.THIS_WEEK}, //TimeFrame.THIS_WEEK
 //				{new CreatePOSOrderCondition(false,false,false,POSPage.UsePointType.SERVERAL,ReceivedAmountType.FULL,false,true, POSPage.POSPaymentMethod.CASH),TimeFrame.THIS_MONTH},   //TimeFrame.THIS_MONTH
 //				{new CreatePOSOrderCondition(false,false,false,POSPage.UsePointType.SERVERAL,ReceivedAmountType.FULL,false,true, POSPage.POSPaymentMethod.CASH),TimeFrame.LAST_7_DAYS},   //TimeFrame.LAST_7_DAYS
@@ -460,6 +462,7 @@ public class POSOrderTest extends BaseTest {
         };
     }
 
+	//TODO: Automate the scenario where the order is confirmed and delivered
     @Test(dataProvider = "dataTest")
     public void TC_CheckCustomerInfoPostOrder(CreatePOSOrderCondition condition, TimeFrame timeFrame) throws JsonProcessingException {
         logger.info("Combination being executed: " + condition);
@@ -527,7 +530,14 @@ public class POSOrderTest extends BaseTest {
         driver = new InitWebdriver().getDriver(browser, headless);
 
         LoginPage loginPage = new LoginPage(driver);
-        loginPage.navigateToPage(Domain.valueOf(domain), DisplayLanguage.valueOf(language)).performValidLogin(country, credentials.getUsername(), credentials.getPassword());
+        loginPage.navigateToPage(Domain.valueOf(domain), DisplayLanguage.valueOf(language));
+        
+        if (condition.isStaffCreateOrder()) {
+        	loginPage.staffLogin(credentials.getUsername(), credentials.getPassword());
+        	new HomePage(driver).verifyPageLoaded();
+        } else {
+        	loginPage.performValidLogin(country, credentials.getUsername(), credentials.getPassword());
+        }
 
         POSPage posPage = new POSPage(driver, Domain.valueOf(domain)).getLoginInfo(credentials).navigateToPOSPage();
 

@@ -57,6 +57,8 @@ public class StoreInformation {
 
         // set timezone
         storeInfo.setTimeZone(storeRes.jsonPath().getString("storeBranches[0].zoneOffset"));
+        
+        storeInfo.setSymbol(storeRes.jsonPath().getString("symbol"));
 
         // return store information
         return storeInfo;
