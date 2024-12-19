@@ -13,4 +13,5 @@ public class StoreInfo {
     private List<String> storeLanguageName;
     private List<String> sFLangList;
     private String timeZone;
+    private String symbol; //Store's currency symbol
 }

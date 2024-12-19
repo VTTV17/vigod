@@ -99,7 +99,8 @@ public class POSPage extends POSElement {
 
         // Confirm switch branch
         if (!commonAction.getListElement(loc_dlgConfirmSwitchBranch).isEmpty()) {
-            commonAction.click(loc_dlgConfirmSwitchBranch_btnOK);
+//            commonAction.click(loc_dlgConfirmSwitchBranch_btnOK);
+            new ConfirmationDialog(driver).clickOKBtn_V2();
         }
 
         // Log
@@ -168,7 +169,7 @@ public class POSPage extends POSElement {
         commonAction.clickJS(loc_lstProductResult(barcode));
 
         // Wait API response
-        commonAction.sleepInMiliSecond(500, "Wait product/variation/conversion unit is added to cart");
+        UICommonAction.sleepInMiliSecond(500, "Wait product/variation/conversion unit is added to cart");
 
         // Log
         logger.info("Add product/variation/conversion unit to cart, barcode: {}", barcode);
@@ -272,7 +273,7 @@ public class POSPage extends POSElement {
         commonAction.attemptWithRetry(5, 1000, () -> {
             commonAction.inputText(loc_txtCustomerSearchBox, name);
             logger.info("Input customer to search: {}", name);
-            commonAction.sleepInMiliSecond(500, "Wait for search API to start");
+            UICommonAction.sleepInMiliSecond(500, "Wait for search API to start");
 
             if (commonAction.getValue(loc_txtCustomerSearchBox).isEmpty()) {
                 throw new IllegalStateException("Search customer text box is empty after being filled with data");
@@ -388,7 +389,7 @@ public class POSPage extends POSElement {
 
     public void inputReceiveAmount(String amount) {
         new HomePage(driver).waitTillLoadingDotsDisappear();
-        commonAction.sleepInMiliSecond(1000, "Wait a little for better UI stability");
+        UICommonAction.sleepInMiliSecond(1000, "Wait a little for better UI stability");
         commonAction.click(loc_txtReceiveAmount);
         Actions actions = new Actions(driver);
         // Select all text (Ctrl + A for Windows/Linux, Command + A for Mac)
@@ -405,7 +406,7 @@ public class POSPage extends POSElement {
 
     public Double inputReceiveAmount(ReceivedAmountType receivedAmountType) {
         new HomePage(driver).waitTillLoadingDotsDisappear();
-        commonAction.sleepInMiliSecond(1000, "Wait a little for better UI stability");
+        UICommonAction.sleepInMiliSecond(1000, "Wait a little for better UI stability");
         String currency = getCurrencySymbol();
         double randomFrom = currency.equals("đ") ? 1 : 0.01;
         String formatReceiveAmount = currency.equals("đ") ? "%.0f" : "%.2f";
@@ -414,7 +415,7 @@ public class POSPage extends POSElement {
                 : ((receivedAmountType == ReceivedAmountType.PARTIAL)
                 ? DataGenerator.generatNumberInBound(randomFrom, getTotalAmount())
                 : 0);
-        commonAction.sleepInMiliSecond(3000, "Wait a little for better UI stability");
+        UICommonAction.sleepInMiliSecond(3000, "Wait a little for better UI stability");
         if(receivedAmountType != ReceivedAmountType.FULL)
             inputReceiveAmount(String.format(formatReceiveAmount,receiveAmount));
         return Double.parseDouble(String.format(formatReceiveAmount,receiveAmount));
@@ -435,7 +436,7 @@ public class POSPage extends POSElement {
         commonAction.getElements(loc_icnPaymentPOS);
 
         //TODO: Think of a better way to handle this. Without this delay, Bank-Transfer is assumed selected sometimes on the DOM
-        commonAction.sleepInMiliSecond(500, "Wait a little for better UI stability");
+        UICommonAction.sleepInMiliSecond(500, "Wait a little for better UI stability");
 
         switch (paymentMethod) {
             case CASH -> {
@@ -567,7 +568,7 @@ public class POSPage extends POSElement {
         }
         inputUsePoint(point);
         new HomePage(driver).waitTillSpinnerDisappear1();
-        commonAction.sleepInMiliSecond(2000, "Wait total amount updated.");
+        UICommonAction.sleepInMiliSecond(2000, "Wait total amount updated.");
         return point;
     }
 
@@ -615,7 +616,7 @@ public class POSPage extends POSElement {
         while (attempts < maxAttempts) {
             var text = element.getText();
             if (!text.isEmpty()) return text;
-            commonAction.sleepInMiliSecond(500, "Element's text is empty. Wait a little");
+            UICommonAction.sleepInMiliSecond(500, "Element's text is empty. Wait a little");
             attempts++;
         }
         return "";
@@ -961,8 +962,7 @@ public class POSPage extends POSElement {
     }
 
     public String getCurrencySymbol() {
-        LoginDashboardInfo loginInfo = new Login().getInfo(loginInformation);
-        return loginInfo.getSymbol();
+        return new StoreInformation(loginInformation).getInfo().getSymbol();
     }
 
     public double getSubTotalAfterDiscount() {
