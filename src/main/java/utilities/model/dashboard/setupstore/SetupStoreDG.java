@@ -7,7 +7,6 @@ import lombok.Data;
 import utilities.data.DataGenerator;
 import utilities.data.testdatagenerator.CountryTDG;
 import utilities.enums.Domain;
-import utilities.links.Links;
 
 @Data
 public class SetupStoreDG {

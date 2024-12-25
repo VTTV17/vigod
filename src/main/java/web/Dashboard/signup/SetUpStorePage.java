@@ -20,10 +20,6 @@ public class SetUpStorePage {
 		commonAction = new UICommonAction(driver);
 	}
 
-	By loc_txtStoreName = By.id("nameStore");
-	By loc_txtStorePhone = By.id("contactNumber");
-	By loc_txtStoreMail = By.id("email");
-	By loc_txtStoreURL = By.id("url");
 	By loc_ddlCountry = By.cssSelector(".select-country .select-country-setup");
 	By loc_ddlTimeZone = By.id("time-zone--selection");
 	String loc_ddvTimeZone = "//div[@class='time-zone--selection-option' and .=\"%s\"]";
@@ -33,45 +29,6 @@ public class SetUpStorePage {
 	String loc_ddvCurrency = "//div[@class='currency--selection-option' and .=\"%s\"]";
 	By loc_btnContinue = By.cssSelector("form.setup-container button[type='submit']");
 
-	public SetUpStorePage inputStoreName(String storeName) {
-		commonAction.sendKeys(loc_txtStoreName, storeName);
-		logger.info("Input Store Name: {}", storeName);
-		return this;
-	}
-	public SetUpStorePage inputStoreURL(String storeURL) {
-		commonAction.sendKeys(loc_txtStoreURL, storeURL);
-		logger.info("Input Store URL: {}", storeURL);
-		return this;
-	}
-	public boolean isStorePhoneFieldDisplayed() {
-		boolean isDisplayed = !commonAction.getElements(loc_txtStorePhone).isEmpty();
-		logger.info("Is Store Phone field displayed: {}", isDisplayed);
-		return isDisplayed;
-	}
-	public SetUpStorePage inputStorePhone(String phone) {
-		commonAction.sendKeys(loc_txtStorePhone, phone);
-		logger.info("Input Store Phone: {}", phone);
-		return this;
-	}
-	public boolean isStoreMailFieldDisplayed() {
-		boolean isDisplayed = !commonAction.getElements(loc_txtStoreMail).isEmpty();
-		logger.info("Is Store Email field displayed: {}", isDisplayed);
-		return isDisplayed;
-	}
-	public SetUpStorePage inputStoreMail(String mail) {
-		commonAction.sendKeys(loc_txtStoreMail, mail);
-		logger.info("Input Store Mail: {}", mail);
-		return this;
-	}    
-	public SetUpStorePage selectCountry(String country) {
-
-		if(getSelectedCountry().contentEquals(country)) return this;
-
-		commonAction.click(loc_ddlCountry);
-		commonAction.click(By.xpath(new SignupPageElement().loc_ddvCountry.formatted(country)));
-		logger.info("Selected country: {}", country);    	
-		return this;
-	}
 	public String getSelectedCountry() {
 		String country = commonAction.getText(loc_ddlCountry);
 		logger.info("Retrieved selected country: {}", country);    	
@@ -126,30 +83,15 @@ public class SetUpStorePage {
 		logger.info("Clicked Continue button.");     
 	}
 
-	public void setupShopExp(String accountType, String name, String url, boolean provideContact, String contact, String country, String region, String timezone, String language, String currencyName, String currencyCode, String currencySymbol) {
-		inputStoreName(name);
-		if (url!=null) inputStoreURL(url);
-		
-		isStoreMailFieldDisplayed();
-		isStorePhoneFieldDisplayed();
-		
-		if (provideContact) {
-			if (accountType.matches("EMAIL")) {
-				inputStorePhone(contact);
-			} else {
-				inputStoreMail(contact);
-			}			
-		}
-		selectCountry(country);
-		selectTimeZone(country, region, timezone);
+	public void setupShopExp(String country, String region, String timezone, String language, String currencyName, String currencyCode, String currencySymbol) {
+//		selectTimeZone(country, region, timezone);
 		selectLanguage(language);
 		selectCurrency(currencyName, currencyCode, currencySymbol);
 		clickContinueBtn();
 	}    
 	
 	public void setupShopExp(SetupStoreDG store) {
-		setupShopExp(store.getAccountType(), store.getName(), store.getStoreURL(), 
-				store.isContactProvided(), store.getContact(), 
+		setupShopExp( 
 				store.getCountry(), store.getRegion(), store.getTimezone(), 
 				store.getLanguage(), 
 				store.getCurrencyName(), store.getCurrencyCode(), store.getCurrencySymbol());

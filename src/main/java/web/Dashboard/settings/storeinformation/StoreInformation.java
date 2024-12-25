@@ -14,7 +14,6 @@ import utilities.model.staffPermission.AllPermissions;
 import utilities.permission.CheckPermission;
 import utilities.utils.PropertiesUtil;
 import web.Dashboard.home.HomePage;
-import web.Dashboard.settings.account.AccountPage;
 
 public class StoreInformation {
 
@@ -59,7 +58,7 @@ public class StoreInformation {
 		//Sometimes the element is not present even after the loading icon has disappeared. The code below fixes this intermittent issue
 		for (int i=0; i<30; i++) {
 			if (!commonAction.getElements(elements.loc_btnRegisteredLogo).isEmpty()) break;
-			commonAction.sleepInMiliSecond(500);
+			UICommonAction.sleepInMiliSecond(500);
 		}
 		return this;
 	}
@@ -85,7 +84,7 @@ public class StoreInformation {
 			navigateByURL(DOMAIN_BIZ + "/setting/store-information");
 		}
 		
-    	commonAction.sleepInMiliSecond(500, "Wait a little after navigation");
+    	UICommonAction.sleepInMiliSecond(500, "Wait a little after navigation");
 		return this;
 	}		
 	

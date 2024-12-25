@@ -51,7 +51,6 @@ public class SignupDashboard extends BaseTest {
 
 	String mail;
 	String password;
-	String referralCode;
 	String country;
 	String phoneCode;
 	String currency;
@@ -122,7 +121,6 @@ public class SignupDashboard extends BaseTest {
 		storePhone = generate.randomPhoneByCountry(country)+"0";
 		mail = "auto0-shop" + storePhone + "@mailnesia.com";
 		password = "fortesting!1";
-		referralCode = "";
 		currency = "";
 		storeName = "Automation Shop " + storePhone;
 		storeURL = "";
@@ -382,7 +380,7 @@ public class SignupDashboard extends BaseTest {
 
 		/* Sign up */
 		signupPage.navigate().selectDisplayLanguage(language).verifyTextAtSignupScreen(language);
-		signupPage.fillOutSignupForm(country, username, password, referralCode).verifyTextAtVerificationCodeScreen(username, language);
+		signupPage.fillOutSignupForm(country, username, password).verifyTextAtVerificationCodeScreen(username, language);
 		signupPage.inputVerificationCode(getVerificationCode(phoneCode, username)).clickConfirmOTPBtn();
 
 		/* Setup store */
@@ -405,7 +403,7 @@ public class SignupDashboard extends BaseTest {
 		/* Sign up */
 		signupPage.navigate()
 				.selectDisplayLanguage(language)
-				.fillOutSignupForm(country, username, password, referralCode)
+				.fillOutSignupForm(country, username, password)
 				.inputVerificationCode(getVerificationCode(phoneCode, username))
 				.clickConfirmOTPBtn();
 
@@ -437,7 +435,7 @@ public class SignupDashboard extends BaseTest {
 		/* Sign up */
 		signupPage.navigate()
 				.selectDisplayLanguage(language)
-				.fillOutSignupForm(country, username, password, referralCode)
+				.fillOutSignupForm(country, username, password)
 				.inputVerificationCode(getVerificationCode(phoneCode, username))
 				.clickConfirmOTPBtn();
 
@@ -463,7 +461,7 @@ public class SignupDashboard extends BaseTest {
 		/* Sign up */
 		signupPage.navigate()
 				.selectDisplayLanguage(language)
-				.fillOutSignupForm(country, username, password, referralCode);
+				.fillOutSignupForm(country, username, password);
 
 		String firstCode = getVerificationCode(phoneCode, username);
 		signupPage.inputVerificationCode(firstCode);
@@ -510,7 +508,7 @@ public class SignupDashboard extends BaseTest {
 		/* Sign up */
 		signupPage.navigate()
 				.selectDisplayLanguage(language)
-				.fillOutSignupForm(country, username, password, referralCode);
+				.fillOutSignupForm(country, username, password);
 
 		String firstCode = getVerificationCode(phoneCode, username);
 		signupPage.inputVerificationCode(firstCode);
@@ -536,7 +534,6 @@ public class SignupDashboard extends BaseTest {
 
 		/* Set value for some variables */
 		String domain = "abcdefgh";
-		String referralCode = "fromthompson";
 
 		String username = mail;
 		String contact = storePhone;
@@ -544,7 +541,7 @@ public class SignupDashboard extends BaseTest {
 		/* Sign up */
 		signupPage.navigate("/redirect/signup?domain=%s".formatted(domain))
 				.selectDisplayLanguage(language)
-				.fillOutSignupForm(country, username, password, referralCode)
+				.fillOutSignupForm(country, username, password)
 				.inputVerificationCode(getVerificationCode(phoneCode, username))
 				.clickConfirmOTPBtn();
 
@@ -572,16 +569,13 @@ public class SignupDashboard extends BaseTest {
 		verifyEmail(username, "SIGNUP");
 
 		/* Check store's data in database */
-		String expectedReferralCode = (referralCode.length()>1) ? referralCode.toUpperCase():null;
 		Assert.assertEquals(new InitConnection().getStoreDomain(storeName), domain);
-		Assert.assertEquals(new InitConnection().getStoreGiftCode(storeName), expectedReferralCode);
 	}
 
 	public void SignupDB_09_CreateShopUsingPhoneAccountWithPromotionLinkAndDomain() throws Exception {
 
 		/* Set value for some variables */
 		String domain = "abcdefgh";
-		String referralCode = "fromthompson";
 
 		String username = mail;
 		String contact = storePhone;
@@ -589,7 +583,7 @@ public class SignupDashboard extends BaseTest {
 		/* Sign up */
 		signupPage.navigate("/redirect/signup?domain=%s".formatted(domain))
 				.selectDisplayLanguage(language)
-				.fillOutSignupForm(country, username, password, referralCode)
+				.fillOutSignupForm(country, username, password)
 				.inputVerificationCode(getVerificationCode(phoneCode, username))
 				.clickConfirmOTPBtn();
 
@@ -617,9 +611,7 @@ public class SignupDashboard extends BaseTest {
 		verifyEmail(username, "SIGNUP");
 
 		/* Check store's data in database */
-		String expectedReferralCode = (referralCode.length()>1) ? referralCode.toUpperCase():null;
 		Assert.assertEquals(new InitConnection().getStoreDomain(storeName), domain);
-		Assert.assertEquals(new InitConnection().getStoreGiftCode(storeName), expectedReferralCode);
 	}
 
 	@Test
@@ -632,7 +624,7 @@ public class SignupDashboard extends BaseTest {
 		/* Sign up */
 		signupPage.navigate()
 				.selectDisplayLanguage(language)
-				.fillOutSignupForm(country, username, password, referralCode)
+				.fillOutSignupForm(country, username, password)
 				.inputVerificationCode(getVerificationCode(phoneCode, username))
 				.clickConfirmOTPBtn();
 
@@ -656,9 +648,7 @@ public class SignupDashboard extends BaseTest {
 		verifyEmail(username, "SIGNUP");
 
 		/* Check store's data in database */
-		String expectedReferralCode = (referralCode.length()>1) ? referralCode.toUpperCase():null;
 		Assert.assertEquals(new InitConnection().getStoreDomain(storeName), null);
-		Assert.assertEquals(new InitConnection().getStoreGiftCode(storeName), expectedReferralCode);
 	}
 
 	@Test
@@ -1190,7 +1180,7 @@ public class SignupDashboard extends BaseTest {
 		/* Sign up */
 		signupPage.navigate()
 				.selectDisplayLanguage(language)
-				.fillOutSignupForm(country, username, password, "HAPPY")
+				.fillOutSignupForm(country, username, password)
 				.inputVerificationCode(getVerificationCode(phoneCode, username))
 				.clickConfirmOTPBtn();
 
@@ -1225,7 +1215,7 @@ public class SignupDashboard extends BaseTest {
 		/* Sign up */
 		signupPage.navigate()
 				.selectDisplayLanguage(language)
-				.fillOutSignupForm(country, username, password, referralCode)
+				.fillOutSignupForm(country, username, password)
 				.inputVerificationCode(getVerificationCode(phoneCode, username))
 				.clickConfirmOTPBtn();
 
@@ -1258,11 +1248,10 @@ public class SignupDashboard extends BaseTest {
 		String contact = mail;
 		paymentMethod = PaymentMethod.BANKTRANSFER.name();
 		plan = "GoWEB";
-		referralCode = "chihang";
 		
 		/* Sign up */
 		signupPage.navigate().selectDisplayLanguage(language)
-		.fillOutSignupForm(country, username, password, referralCode)
+		.fillOutSignupForm(country, username, password)
 		.inputVerificationCode(getVerificationCode(phoneCode, username))
 		.clickConfirmOTPBtn();
 		

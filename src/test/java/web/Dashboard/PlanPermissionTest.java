@@ -86,7 +86,7 @@ public class PlanPermissionTest extends BaseTest {
         commonAction = new UICommonAction(driver);
         //Sign up
         signupPage.navigate()
-                .fillOutSignupForm(country, username, password, "");
+                .fillOutSignupForm(country, username, password);
         Thread.sleep(8000);
         commonAction.openNewTab();
         commonAction.switchToWindow(1);
