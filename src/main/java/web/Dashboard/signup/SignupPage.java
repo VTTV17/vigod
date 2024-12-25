@@ -59,7 +59,7 @@ public class SignupPage {
     By loc_btnConfirm = By.cssSelector("form.verify-signup-container button[type='submit']");
     By loc_lnkLogout = By.xpath("//div[contains(@class,'package-steps')]/following-sibling::*/a");
     
-    By loc_lblSignupFailError = By.cssSelector(".alert__wrapper");
+    By loc_lblSignupFailError = By.xpath("//div[starts-with(@class,'alert__wrapper') and not(@hidden)]");
     By loc_lblSignupScreen = By.cssSelector(".step1-page__wrapper");
     By loc_lblVerificationCodeScreen = By.cssSelector(".modal-content");
     By loc_lblWizardScreen = By.cssSelector(".wizard-layout__title");
@@ -115,26 +115,20 @@ public class SignupPage {
     	logger.info("Input Password: {}", password);
         return this;
     }
-    public SignupPage inputReferralCode(String code) {
-    	commonAction.sendKeys(loc_txtReferralCode, code);
-    	logger.info("Input Referral Code: {}", code);
-    	return this;
-    }
     public SignupPage clickSignupBtn() {
     	commonAction.click(loc_btnSignup);
     	logger.info("Clicked Signup button.");        
         return this;
     }
-    public SignupPage fillOutSignupForm(String country, String user, String password, String referralCode) {
+    public SignupPage fillOutSignupForm(String country, String user, String password) {
     	selectCountry(country);
     	inputUsername(user);
     	inputPassword(password);
-    	inputReferralCode(referralCode);
     	clickSignupBtn();
     	return this;
     }
     public SignupPage fillOutSignupForm(SetupStoreDG store) {
-        return fillOutSignupForm(store.getCountry(), store.getUsername(), store.getPassword(), store.getReferralCode());
+        return fillOutSignupForm(store.getCountry(), store.getUsername(), store.getPassword());
     }
     
     public SignupPage inputVerificationCode(String verificationCode) {
