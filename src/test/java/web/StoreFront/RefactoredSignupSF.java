@@ -193,7 +193,7 @@ public class RefactoredSignupSF extends BaseTest {
 		headerSection.clickUserInfoIcon()
 			.changeLanguage(language);
 		
-		if (buyerData.getType().equals(AccountType.MOBILE)) commonAction.sleepInMiliSecond(50000, "The time interval between 2 Register API calls is 60s");
+		if (buyerData.getType().equals(AccountType.MOBILE)) UICommonAction.sleepInMiliSecond(50000, "The time interval between 2 Register API calls is 60s");
 		
 		String actualError = signupPage.fillOutSignupForm(buyerData)
 			.getUsernameExistError();
@@ -266,7 +266,9 @@ public class RefactoredSignupSF extends BaseTest {
 		var actual_SF_Country = new UserProfileInfo(driver).clickMyAddressSection().getCountry();
 		
 		//Retrieve info on Dashboard
-		new web.Dashboard.login.LoginPage(driver).navigateToPage(primaryDomain, primaryLanguage)
+		new web.Dashboard.login.LoginPage(driver, primaryDomain)
+			.navigate()
+			.changeDisplayLanguage(primaryLanguage)
 			.performValidLogin(sellerCountry, sellerUsername, sellerPassword);
 
 		CustomerDetails customerDetailPage = new AllCustomers(driver, primaryDomain).navigateUsingURL()
@@ -326,7 +328,7 @@ public class RefactoredSignupSF extends BaseTest {
 		//Get 1st verification code
 		var initialCode = getActivationKey(buyerData);
 		
-		if (buyerData.getType().equals(AccountType.MOBILE)) commonAction.sleepInMiliSecond(60000, "Wait 60s before hitting Resend button");
+		if (buyerData.getType().equals(AccountType.MOBILE)) UICommonAction.sleepInMiliSecond(60000, "Wait 60s before hitting Resend button");
 		
 		//Resend verification code
 		signupPage.clickResendOTP();
@@ -370,7 +372,8 @@ public class RefactoredSignupSF extends BaseTest {
 		var actual_SF_Country = new UserProfileInfo(driver).clickMyAddressSection().getCountry();
 		
 		//Retrieve info on Dashboard
-		new web.Dashboard.login.LoginPage(driver).navigateToPage(primaryDomain, primaryLanguage)
+		new web.Dashboard.login.LoginPage(driver, primaryDomain).navigate()
+			.changeDisplayLanguage(primaryLanguage)
 			.performValidLogin(sellerCountry, sellerUsername, sellerPassword);
 
 		CustomerDetails customerDetailPage = new AllCustomers(driver, primaryDomain).navigateUsingURL()
@@ -436,7 +439,7 @@ public class RefactoredSignupSF extends BaseTest {
 		headerSection.clickUserInfoIcon()
 		.changeLanguageByLangCode(expected_API_LangKey);
 		
-		if (buyerData.getType().equals(AccountType.MOBILE)) commonAction.sleepInMiliSecond(60000, "The time interval between 2 Register API calls is 60s");
+		if (buyerData.getType().equals(AccountType.MOBILE)) UICommonAction.sleepInMiliSecond(60000, "The time interval between 2 Register API calls is 60s");
 		
 		signupPage.fillOutSignupForm(buyerData)
 		.inputVerificationCode(getActivationKey(buyerData))
@@ -464,8 +467,9 @@ public class RefactoredSignupSF extends BaseTest {
 		var actual_SF_Country = new UserProfileInfo(driver).clickMyAddressSection().getCountry();
 		
 		//Retrieve info on Dashboard
-		new web.Dashboard.login.LoginPage(driver).navigateToPage(primaryDomain, primaryLanguage)
-		.performValidLogin(sellerCountry, sellerUsername, sellerPassword);
+		new web.Dashboard.login.LoginPage(driver, primaryDomain).navigate()
+			.changeDisplayLanguage(primaryLanguage)
+			.performValidLogin(sellerCountry, sellerUsername, sellerPassword);
 		
 		CustomerDetails customerDetailPage = new AllCustomers(driver, primaryDomain).navigateUsingURL()
 				.selectBranch("NONE")
@@ -546,7 +550,8 @@ public class RefactoredSignupSF extends BaseTest {
 		var actual_SF_Country = new UserProfileInfo(driver).clickMyAddressSection().getCountry();
 		
 		//Retrieve info on Dashboard
-		new web.Dashboard.login.LoginPage(driver).navigateToPage(primaryDomain, primaryLanguage)
+		new web.Dashboard.login.LoginPage(driver, primaryDomain).navigate()
+			.changeDisplayLanguage(primaryLanguage)
 			.performValidLogin(sellerCountry, sellerUsername, sellerPassword);
 
 		CustomerDetails customerDetailPage = new AllCustomers(driver, primaryDomain).navigateUsingURL()

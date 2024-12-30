@@ -94,7 +94,7 @@ public class RefactoredCashbookTest extends BaseTest {
 		homePage = new HomePage(driver);
 		commonAction = new UICommonAction(driver);
 
-		loginPage.navigateToPage(Domain.valueOf(domain), DisplayLanguage.valueOf(language)).performValidLogin(country, username, password);
+		loginPage.navigate().changeDisplayLanguage(DisplayLanguage.valueOf(language)).performValidLogin(country, username, password);
 	}	
 
 	@BeforeMethod

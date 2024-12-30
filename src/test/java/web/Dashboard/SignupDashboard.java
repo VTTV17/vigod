@@ -467,7 +467,7 @@ public class SignupDashboard extends BaseTest {
 		signupPage.inputVerificationCode(firstCode);
 		signupPage.clickResendOTP();
 		signupPage.clickConfirmOTPBtn();
-		signupPage.verifyVerificationCodeError(language).completeVerify();
+		signupPage.verifyVerificationCodeError(language);
 
 		// If that's a mail account then we'll wait until new code is generated
 		String resentCode = firstCode;
@@ -514,8 +514,8 @@ public class SignupDashboard extends BaseTest {
 		signupPage.inputVerificationCode(firstCode);
 		signupPage.clickResendOTP();
 		signupPage.clickConfirmOTPBtn();
-		signupPage.verifyVerificationCodeError(language).completeVerify();
-		if (!username.matches("\\d+")) commonAction.sleepInMiliSecond(5000);
+		signupPage.verifyVerificationCodeError(language);
+		if (!username.matches("\\d+")) UICommonAction.sleepInMiliSecond(5000);
 		String resentCode = getVerificationCode(phoneCode, username);
 		signupPage.inputVerificationCode(resentCode);
 		Assert.assertNotEquals(firstCode, resentCode, "New verification code");

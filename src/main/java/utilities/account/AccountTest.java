@@ -61,6 +61,8 @@ public class AccountTest {
     
     public static String ADMIN_FACEBOOK_USERNAME = PropertiesUtil.getEnvironmentData("adminFacebookUsername");
     public static String ADMIN_FACEBOOK_PASSWORD = PropertiesUtil.getEnvironmentData("adminFacebookPassword");
+    public static String ADMIN_FACEBOOK_BIZ_USERNAME = PropertiesUtil.getEnvironmentData("admin.fb.biz.username");
+    public static String ADMIN_FACEBOOK_BIZ_PASSWORD = PropertiesUtil.getEnvironmentData("admin.fb.biz.password");
     public static String ADMIN_USERNAME_GOWEB = PropertiesUtil.getEnvironmentData("adminGoWebUserName");
     public static String ADMIN_USERNAME_GOAPP = PropertiesUtil.getEnvironmentData("adminGoAppUserName");
     public static String ADMIN_USERNAME_GOPOS = PropertiesUtil.getEnvironmentData("adminGoPOSUserName");

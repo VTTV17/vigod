@@ -529,8 +529,8 @@ public class POSOrderTest extends BaseTest {
         /** Place an order in POS **/
         driver = new InitWebdriver().getDriver(browser, headless);
 
-        LoginPage loginPage = new LoginPage(driver);
-        loginPage.navigateToPage(Domain.valueOf(domain), DisplayLanguage.valueOf(language));
+        LoginPage loginPage = new LoginPage(driver, Domain.valueOf(domain));
+        loginPage.navigate().changeDisplayLanguage(DisplayLanguage.valueOf(language));
         
         if (condition.isStaffCreateOrder()) {
         	loginPage.staffLogin(credentials.getUsername(), credentials.getPassword());

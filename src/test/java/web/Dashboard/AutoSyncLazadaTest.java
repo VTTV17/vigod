@@ -13,7 +13,7 @@ import api.Seller.sale_channel.lazada.APILazadaProducts;
 import api.Seller.sale_channel.lazada.APILazadaSetting;
 import api.Seller.setting.BranchManagement;
 import lombok.SneakyThrows;
-import org.apache.commons.io.function.IOQuadFunction;
+//import org.apache.commons.io.function.IOQuadFunction;
 import org.apache.commons.lang3.function.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -90,8 +90,8 @@ public class AutoSyncLazadaTest extends BaseTest {
         branchId = Integer.parseInt(branchAndLazadaShop.split("-")[0]);
         lazadaShopId = branchAndLazadaShop.split("-")[1];
         driver = new InitWebdriver().getDriver(browser, "false");
-        LoginPage loginPage = new LoginPage(driver);
-        loginPage.navigateToPage(Domain.valueOf(domain), DisplayLanguage.valueOf(language))
+        LoginPage loginPage = new LoginPage(driver, Domain.valueOf(domain));
+        loginPage.navigate().changeDisplayLanguage(DisplayLanguage.valueOf(language))
                 .performValidLogin("Vietnam", sellerUsername, sellerPass);
     }
     @SneakyThrows
