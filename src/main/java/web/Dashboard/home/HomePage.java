@@ -196,7 +196,7 @@ public class HomePage extends HomePageElement {
     }
 
     public void clickLogout() {
-        commons.sleepInMiliSecond(1000);
+        UICommonAction.sleepInMiliSecond(1000);
         commons.click(loc_btnLogOut);
         logger.info("Clicked on Logout linktext");
     }

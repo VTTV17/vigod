@@ -1,12 +1,6 @@
 package web.Dashboard.home;
 
 import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.PageFactory;
-
-import java.util.List;
 
 public class HomePageElement {
     By loc_lblShopName = By.cssSelector(".header-right .store-detail__name");
@@ -38,7 +32,7 @@ public class HomePageElement {
     By loc_btnChangeDesign = By.xpath("(//div[contains(@class,'card-btn-group')])[2]//button");
     By loc_btnAddDomain = By.xpath("(//div[contains(@class,'card-btn-group')])[3]//button");
     By loc_btnBankInformation = By.xpath("(//div[contains(@class,'card-btn-group')])[4]//button");
-    By loc_btnLogOut = By.cssSelector(".header-right__ele-right a[href='/logout']");
+    By loc_btnLogOut = By.id("logout");
     By loc_imgSpinner = By.cssSelector(".loading .lds-dual-ring-grey");
     By loc_imgLoadingDots = By.cssSelector(".loading-screen");
     By loc_mnuSettings = By.cssSelector("a[name $=settings]");

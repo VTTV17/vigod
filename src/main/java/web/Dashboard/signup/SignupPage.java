@@ -8,7 +8,6 @@ import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.testng.Assert;
-import org.testng.asserts.SoftAssert;
 
 import utilities.api.thirdparty.KibanaAPI;
 import utilities.commons.UICommonAction;
@@ -38,8 +37,6 @@ public class SignupPage {
     WebDriver driver;
     UICommonAction commonAction;
 
-    SoftAssert soft = new SoftAssert();    
-    
     public SignupPage(WebDriver driver) {
         this.driver = driver;
         commonAction = new UICommonAction(driver);
@@ -235,11 +232,6 @@ public class SignupPage {
     	Assert.assertEquals(getVerificationCodeError(), retrievedMsg, "Verification Code error");
         logger.info("verifyVerificationCodeError completed");
         return this;
-    }
-
-    //Remove be eradicated
-    public void completeVerify() {
-        soft.assertAll();
     }
 
     public void verifyTextAtSignupScreen(String signupLanguage) throws Exception {

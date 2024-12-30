@@ -290,7 +290,9 @@ public class RefactorSignupDB extends BaseTest {
 		/* Sign up */
 		registerAccount(storeDG);
 
-		new LoginPage(driver).navigateToPage(storeDG.getDomain(), primaryLanguage).performLogin(storeDG.getCountry(), storeDG.getUsername(), storeDG.getPassword());		
+		new LoginPage(driver, primaryDomain).navigate()
+			.changeDisplayLanguage(primaryLanguage)
+			.performLogin(storeDG.getCountry(), storeDG.getUsername(), storeDG.getPassword());		
 
 		/* Setup store */
 		setupStorePage.setupShopExp(storeDG);
@@ -490,7 +492,9 @@ public class RefactorSignupDB extends BaseTest {
 		accountPage = new AccountPage(driver, primaryDomain);
 		storeInfoPage = new StoreInformation(driver, primaryDomain);
 
-		new LoginPage(driver).navigateToPage(primaryDomain, primaryLanguage).performValidLogin(storeDG.getCountry(), storeDG.getUsername(), storeDG.getPassword());
+		new LoginPage(driver, primaryDomain).navigate()
+			.changeDisplayLanguage(primaryLanguage)
+			.performValidLogin(storeDG.getCountry(), storeDG.getUsername(), storeDG.getPassword());
 		homePage.clickUpgradeNow();
 		plansPage.clickFreeTrialBtn();
 		homePage.getToastMessage();
@@ -627,7 +631,9 @@ public class RefactorSignupDB extends BaseTest {
 		Instant registeredDate = Instant.parse(currentPlan.getRegisterPackageDate());
 		Instant expiryDate = Instant.parse(currentPlan.getExpiredPackageDate());
 		
-		new LoginPage(driver).navigateToPage(storeDG.getDomain(), primaryLanguage).performValidLogin(storeDG.getCountry(), storeDG.getUsername(), storeDG.getPassword());
+		new LoginPage(driver, primaryDomain).navigate()
+			.changeDisplayLanguage(primaryLanguage)
+			.performValidLogin(storeDG.getCountry(), storeDG.getUsername(), storeDG.getPassword());
 		
 		accountPage.navigateByURL().clickRenew();
 		
@@ -758,7 +764,9 @@ public class RefactorSignupDB extends BaseTest {
 			if (!planPaymentDG.getNewPackage().equals(currentPlanName)) break;
 		}
 
-		new LoginPage(driver).navigateToPage(storeDG.getDomain(), primaryLanguage).performValidLogin(storeDG.getCountry(), storeDG.getUsername(), storeDG.getPassword());
+		new LoginPage(driver, primaryDomain).navigate()
+			.changeDisplayLanguage(primaryLanguage)
+			.performValidLogin(storeDG.getCountry(), storeDG.getUsername(), storeDG.getPassword());
 
 		accountPage.navigateByURL().clickRenew();
 
@@ -824,7 +832,9 @@ public class RefactorSignupDB extends BaseTest {
 		Instant expiryDate = Instant.parse(currentPlan.getExpiredPackageDate());
 		int period = PlanMoney.deducePeriod(registeredDate, expiryDate);
 		
-		new LoginPage(driver).navigateToPage(storeDG.getDomain(), primaryLanguage).performValidLogin(storeDG.getCountry(), storeDG.getUsername(), storeDG.getPassword());
+		new LoginPage(driver, primaryDomain).navigate()
+			.changeDisplayLanguage(primaryLanguage)
+			.performValidLogin(storeDG.getCountry(), storeDG.getUsername(), storeDG.getPassword());
 		
 		commonAction.refreshPage();
 		
@@ -875,7 +885,9 @@ public class RefactorSignupDB extends BaseTest {
 
 		System.out.println(storeDG);
 
-		new LoginPage(driver).navigateToPage(storeDG.getDomain(), primaryLanguage).performValidLogin(storeDG.getCountry(), storeDG.getUsername(), storeDG.getPassword());
+		new LoginPage(driver, primaryDomain).navigate()
+			.changeDisplayLanguage(primaryLanguage)
+			.performValidLogin(storeDG.getCountry(), storeDG.getUsername(), storeDG.getPassword());
 		
 		accountPage.navigateByURL().clickRenew();
 		
@@ -920,7 +932,9 @@ public class RefactorSignupDB extends BaseTest {
 		Instant expiryDate = Instant.parse(currentPlan.getExpiredPackageDate());
 		int period = PlanMoney.deducePeriod(registeredDate, expiryDate);
 		
-		new LoginPage(driver).navigateToPage(storeDG.getDomain(), primaryLanguage).performValidLogin(storeDG.getCountry(), storeDG.getUsername(), storeDG.getPassword());
+		new LoginPage(driver, primaryDomain).navigate()
+			.changeDisplayLanguage(primaryLanguage)
+			.performValidLogin(storeDG.getCountry(), storeDG.getUsername(), storeDG.getPassword());
 		
 		accountPage.navigateByURL().clickRenew();
 		

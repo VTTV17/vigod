@@ -15,10 +15,13 @@ import utilities.enums.Domain;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 import utilities.thirdparty.Facebook;
+import utilities.thirdparty.Google;
 import utilities.utils.PropertiesUtil;
 import web.Dashboard.home.HomePage;
 
 import static utilities.links.Links.*;
+
+import java.util.List;
 
 public class LoginPage {
 
@@ -27,13 +30,15 @@ public class LoginPage {
     WebDriver driver;
     UICommonAction commonAction;
 
-    Domain domain;
+    /**
+     * Domain defaults to VN. Use the object's constructor to override it when necessary
+     */
+    Domain domain = Domain.VN;
 
     public LoginPage(WebDriver driver) {
         this.driver = driver;
         commonAction = new UICommonAction(driver);
     }
-
     public LoginPage(WebDriver driver, Domain domain) {
         this(driver);
         this.domain = domain;
@@ -57,45 +62,43 @@ public class LoginPage {
     By loc_lblPasswordError = By.cssSelector("#password + .invalid-feedback");
     By loc_lblLoginFailError = By.cssSelector("div[class~='alert__wrapper']:not(div[hidden])");
     By loc_btnFacebookLogin = By.cssSelector(".login-widget__btnSubmitFaceBook");
+    By loc_btnGoogleLogin = By.cssSelector(".react-google-signin-auth-btn");
     By loc_tabStaff = By.cssSelector("span.login-widget__tab:nth-child(2)");
     By loc_dlgWarning = By.cssSelector("div.modal-content");
     By loc_lnkForgotPassword = new ByChained(loc_frmLogin, By.cssSelector(".login-widget__forgotPassword"));
 
     By loc_icnDotSpinner = new ByChained(loc_btnLogin, By.xpath(".//i[contains(@class,'fa-spinner')]"));
 
-    public LoginPage navigateBiz() {
-        driver.get(DOMAIN_BIZ + LOGIN_PATH);
-        return this;
-    }
-
+    /**
+     * Navigates to Sign-in screen
+     */
     public LoginPage navigate() {
-        driver.get(DOMAIN + LOGIN_PATH);
+    	
+    	var url = switch (domain) {
+	        case VN -> DOMAIN + LOGIN_PATH;
+	        case BIZ -> DOMAIN_BIZ + LOGIN_PATH;
+	        default -> throw new IllegalArgumentException("Unexpected value: " + domain);
+    	};
+    	
+    	driver.get(url);
+    	logger.info("Navigated to: {}", url);
         return this;
     }
 
-    public LoginPage navigate(String url) {
-        driver.get(url);
-        return this;
-    }
-
-    public LoginPage navigate(Domain domain) {
-        switch (domain) {
-            case VN -> navigate();
-            case BIZ -> navigateBiz();
-            default -> throw new IllegalArgumentException("Unexpected value: " + domain);
-        }
-        return this;
-    }
-
-    public LoginPage navigateToPage(Domain domain, DisplayLanguage lang) {
-        switch (domain) {
-            case VN -> navigate().selectDisplayLanguage(lang);
-            case BIZ -> navigateBiz();
-            default -> throw new IllegalArgumentException("Unexpected value: " + domain);
-        }
-        return this;
-    }
-
+    /**
+     * Changes display language. Works on domain .vn only
+     * @param lang
+     * @return
+     */
+    public LoginPage changeDisplayLanguage(DisplayLanguage lang) {
+    	
+    	if (!List.of(DisplayLanguage.values()).contains(lang)) throw new IllegalArgumentException("Unexpected value: " + lang);
+    	
+    	if (domain.equals(Domain.VN)) selectDisplayLanguage(lang);
+    	
+    	return this;
+    }    
+    
     public LoginPage selectCountry(String country) {
         commonAction.getElement(loc_ddlCountryDefaultValue); //Implicitly means the dropdown has a default value and ready for further actions. Reason #1
         commonAction.click(loc_ddlCountry);
@@ -112,8 +115,13 @@ public class LoginPage {
 
     public LoginPage clickFacebookBtn() {
         commonAction.click(loc_btnFacebookLogin);
-        logger.info("Clicked on Facebook linktext.");
+        logger.info("Clicked on Facebook button.");
         return this;
+    }
+    public LoginPage clickGoogleBtn() {
+    	commonAction.click(loc_btnGoogleLogin);
+    	logger.info("Clicked on Google button.");
+    	return this;
     }
 
     public LoginPage inputEmailOrPhoneNumber(String username) {
@@ -184,6 +192,24 @@ public class LoginPage {
 
         commonAction.switchToWindow(originalWindow);
         return this;
+    }
+    
+    public LoginPage performLoginWithGoogle(String username, String password) {
+    	String originalWindow = commonAction.getCurrentWindowHandle();
+    	
+    	clickGoogleBtn();
+    	
+    	for (String windowHandle : commonAction.getAllWindowHandles()) {
+    		if (!originalWindow.contentEquals(windowHandle)) {
+    			commonAction.switchToWindow(windowHandle);
+    			break;
+    		}
+    	}
+    	
+    	new Google(driver).performLogin(username, password);
+    	
+    	commonAction.switchToWindow(originalWindow);
+    	return this;
     }
 
     public String getSelectedLanguage() {

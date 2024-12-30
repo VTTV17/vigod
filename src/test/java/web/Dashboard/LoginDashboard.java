@@ -3,12 +3,6 @@ package web.Dashboard;
 import static utilities.account.AccountTest.ADMIN_COUNTRY_TIEN;
 import static utilities.account.AccountTest.ADMIN_FACEBOOK_PASSWORD;
 import static utilities.account.AccountTest.ADMIN_FACEBOOK_USERNAME;
-import static utilities.account.AccountTest.ADMIN_FORGOTPASSWORD_COUNTRY_MAIL;
-import static utilities.account.AccountTest.ADMIN_FORGOTPASSWORD_COUNTRY_PHONE;
-import static utilities.account.AccountTest.ADMIN_FORGOTPASSWORD_PASSWORD_MAIL;
-import static utilities.account.AccountTest.ADMIN_FORGOTPASSWORD_PASSWORD_PHONE;
-import static utilities.account.AccountTest.ADMIN_FORGOTPASSWORD_USERNAME_MAIL;
-import static utilities.account.AccountTest.ADMIN_FORGOTPASSWORD_USERNAME_PHONE;
 import static utilities.account.AccountTest.ADMIN_PASSWORD_TIEN;
 import static utilities.account.AccountTest.ADMIN_SHOP_VI_PASSWORD;
 import static utilities.account.AccountTest.ADMIN_SHOP_VI_USERNAME;
@@ -20,10 +14,6 @@ import org.testng.Assert;
 import org.testng.ITestResult;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.BeforeTest;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Optional;
-import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 import com.mifmif.common.regex.Generex;
@@ -54,18 +44,6 @@ public class LoginDashboard extends BaseTest {
 	 * A temporary function that helps get rid of the annoying try catch block when reading text from property file
 	 * @param propertyKey
 	 */
-	public String translateText(String propertyKey) {
-		try {
-			return PropertiesUtil.getPropertiesValueByDBLang(propertyKey);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return "";
-	}	
-	/**
-	 * A temporary function that helps get rid of the annoying try catch block when reading text from property file
-	 * @param propertyKey
-	 */
 	public String translateText(String propertyKey, DisplayLanguage lang) {
 		try {
 			return PropertiesUtil.getPropertiesValueByDBLang(propertyKey, lang.name());
@@ -78,24 +56,16 @@ public class LoginDashboard extends BaseTest {
 	@BeforeMethod
 	public void setup() {
 		driver = new InitWebdriver().getDriver(browser, headless);
-		loginPage = new LoginPage(driver);
+		loginPage = new LoginPage(driver, Domain.valueOf(domain));
 		homePage = new HomePage(driver);
 		commonAction = new UICommonAction(driver);
 		generate = new DataGenerator();
 	}
 
-	//Will remove soon
-	void navigateToPage(Domain domain) {
-		switch (domain) {
-			case VN -> loginPage.navigate().selectDisplayLanguage(language);
-			case BIZ -> loginPage.navigateBiz();
-			default -> throw new IllegalArgumentException("Unexpected value: " + domain);
-		}
-	}	
-	
-//    @Test
+	@Deprecated
 	public void LoginDB_01_CheckTranslation() throws Exception {
-		loginPage.navigate().selectDisplayLanguage(language).verifyTextAtLoginScreen();
+		loginPage.navigate().changeDisplayLanguage(DisplayLanguage.valueOf(language))
+			.verifyTextAtLoginScreen();
 
 //		loginPage.clickForgotPassword().verifyTextAtForgotPasswordScreen();
 	}
@@ -105,7 +75,7 @@ public class LoginDashboard extends BaseTest {
 
 		String emptyFieldError = translateText("services.create.inputFieldEmptyError", DisplayLanguage.valueOf(language));
 		
-		navigateToPage(Domain.valueOf(domain));
+		loginPage.navigate().changeDisplayLanguage(DisplayLanguage.valueOf(language));
 		
 		// Empty username
 		String error = loginPage.performLogin("", new Generex("[a-z]{5,8}\\d{5,8}[!#@]").random()).getUsernameError();
@@ -129,7 +99,7 @@ public class LoginDashboard extends BaseTest {
 
 		String invalidPhoneError = translateText("login.screen.error.invalidPhone", DisplayLanguage.valueOf(language));
 		
-		navigateToPage(Domain.valueOf(domain));
+		loginPage.navigate().changeDisplayLanguage(DisplayLanguage.valueOf(language));
 		
 		// 7-digit phone number
 		//https://mediastep.atlassian.net/browse/BH-29615
@@ -147,7 +117,7 @@ public class LoginDashboard extends BaseTest {
 
 		String invalidEmailError = translateText("login.screen.error.invalidMail", DisplayLanguage.valueOf(language));
 		
-		navigateToPage(Domain.valueOf(domain));
+		loginPage.navigate().changeDisplayLanguage(DisplayLanguage.valueOf(language));
 		
 		// Mail does not have symbol @
 		String error = loginPage.performLogin(new Generex("[a-z]{5,8}\\d{5,8}\\.[a-z]{2}").random(), new Generex("[a-z]{5,8}\\d{5,8}[!#@]").random()).getUsernameError();
@@ -170,7 +140,7 @@ public class LoginDashboard extends BaseTest {
 
 		String wrongCredentialsError = translateText("login.screen.error.wrongCredentials", DisplayLanguage.valueOf(language));
 		
-		navigateToPage(Domain.valueOf(domain));
+		loginPage.navigate().changeDisplayLanguage(DisplayLanguage.valueOf(language));
 		
 		// Email account
 		String error = loginPage.performLogin(new Generex("[a-z]{5}\\d{5}\\@[a-z]mail\\.[a-z]{2,3}").random(), new Generex("[a-z]{5,8}\\d{5,8}[!#@]").random())
@@ -185,7 +155,7 @@ public class LoginDashboard extends BaseTest {
 	@Test
 	public void LoginDB_06_LoginWithCorrectAccount() {
 
-		navigateToPage(Domain.valueOf(domain));
+		loginPage.navigate().changeDisplayLanguage(DisplayLanguage.valueOf(language));
 
 		String mailCountry, mailUsername, mailPassword;
 		String phoneCountry, phoneUsername, phonePassword;
@@ -214,17 +184,26 @@ public class LoginDashboard extends BaseTest {
 		homePage.verifyPageLoaded().clickLogout();
 	}
 
-//	@Test
-//	Not updated yet
+	@Test
 	public void LoginDB_07_LoginWithFacebook() {
-		loginPage.navigate().performLoginWithFacebook(ADMIN_FACEBOOK_USERNAME, ADMIN_FACEBOOK_PASSWORD);
-		homePage.waitTillSpinnerDisappear1().clickLogout();
+		
+		String mailUsername, mailPassword;
+		if(Domain.valueOf(domain).equals(Domain.VN)) {
+			mailUsername = ADMIN_FACEBOOK_USERNAME;
+			mailPassword = ADMIN_FACEBOOK_PASSWORD;
+		} else {
+			mailUsername = AccountTest.ADMIN_FACEBOOK_BIZ_USERNAME;
+			mailPassword = AccountTest.ADMIN_FACEBOOK_BIZ_PASSWORD;
+		}
+		
+		loginPage.navigate().performLoginWithFacebook(mailUsername, mailPassword);
+		homePage.verifyPageLoaded().clickLogout();
 	}
 
 	@Test
 	public void LoginDB_08_StaffLogin() {
 
-		navigateToPage(Domain.valueOf(domain));
+		loginPage.navigate().changeDisplayLanguage(DisplayLanguage.valueOf(language));
 
 		String mailUsername, mailPassword;
 		if(Domain.valueOf(domain).equals(Domain.VN)) {
@@ -244,7 +223,8 @@ public class LoginDashboard extends BaseTest {
 		homePage.clickLogout();
 	}
 
-	@Test
+	//It takes a while for the OTP code to be present on Kibana => Temporarily skipped
+//	@Test
 	public void LoginDB_09_StaffForgotPassword() {
 		
 		String invalidPasswordError = translateText("login.forgotPassword.error.invalidPassword", DisplayLanguage.valueOf(language));
@@ -258,7 +238,7 @@ public class LoginDashboard extends BaseTest {
 			mailPassword = AccountTest.STAFF_BIZ_PASSWORD;
 		}
 		
-		navigateToPage(Domain.valueOf(domain));
+		loginPage.navigate().changeDisplayLanguage(DisplayLanguage.valueOf(language));
 
 		ForgotPasswordPage forgotPasswordPage = loginPage.switchToStaffTab().clickForgotPassword();
 		
@@ -290,7 +270,7 @@ public class LoginDashboard extends BaseTest {
 		homePage.waitTillSpinnerDisappear1().clickLogout();
 
 		// Re-login with new password
-		navigateToPage(Domain.valueOf(domain));
+		loginPage.navigate().changeDisplayLanguage(DisplayLanguage.valueOf(language));
 		loginPage.switchToStaffTab().performLogin(mailUsername, mailPassword);
 		homePage.waitTillSpinnerDisappear1().clickLogout();
 	}
@@ -312,8 +292,8 @@ public class LoginDashboard extends BaseTest {
 		String newPassword = new Generex("[a-z]{5,8}\\d{5,8}[!#@]").random();
 
 		// Login
-		navigateToPage(Domain.valueOf(domain));
-		loginPage.performLogin(country, username, password);
+		loginPage.navigate().changeDisplayLanguage(DisplayLanguage.valueOf(language))
+			.performLogin(country, username, password);
 		homePage.verifyPageLoaded();
 
 		// Change password
@@ -322,8 +302,8 @@ public class LoginDashboard extends BaseTest {
 		new ConfirmationDialog(driver).clickOKBtn();
 
 		// Re-login
-		navigateToPage(Domain.valueOf(domain));
-		loginPage.performLogin(country, username, newPassword);
+		loginPage.navigate().changeDisplayLanguage(DisplayLanguage.valueOf(language))
+			.performLogin(country, username, newPassword);
 		homePage.verifyPageLoaded();
 
 		// Change password back to the first password
@@ -338,7 +318,9 @@ public class LoginDashboard extends BaseTest {
 			new APIAccount(ownerCredentials).changePassword(currentPassword, newPassword);
 		}
 	}
-	@Test
+	
+	//It takes a while for the OTP code to be present on Kibana => Temporarily skipped
+//	@Test
 	public void LoginDB_11_SellerForgotPassword()  {
 
 		String country, username, password;
@@ -354,7 +336,7 @@ public class LoginDashboard extends BaseTest {
 		
 		String newPassword = new Generex("[a-z]{5,8}\\d{5,8}[!#@]").random();
 
-		navigateToPage(Domain.valueOf(domain));
+		loginPage.navigate().changeDisplayLanguage(DisplayLanguage.valueOf(language));
 		ForgotPasswordPage forgotPasswordPage = loginPage.clickForgotPassword();
 		
 		forgotPasswordPage.selectCountry(country).inputUsername(username).inputPassword(newPassword).clickContinueBtn();
@@ -367,8 +349,8 @@ public class LoginDashboard extends BaseTest {
 		homePage.waitTillSpinnerDisappear1().waitTillLoadingDotsDisappear().clickLogout();
 
 		// Re-login with new password
-		navigateToPage(Domain.valueOf(domain));
-		loginPage.performLogin(country, username, newPassword);
+		loginPage.navigate().changeDisplayLanguage(DisplayLanguage.valueOf(language))
+			.performLogin(country, username, newPassword);
 
 		// Change password back to the first password
 		String currentPassword = "";

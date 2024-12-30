@@ -19,6 +19,7 @@ import utilities.account.AccountTest;
 import utilities.commons.UICommonAction;
 import utilities.data.DataGenerator;
 import utilities.driver.InitWebdriver;
+import utilities.enums.DisplayLanguage;
 import utilities.enums.Domain;
 import utilities.model.dashboard.setting.Tax.TaxEntity;
 import utilities.model.sellerApp.login.LoginInformation;
@@ -79,17 +80,10 @@ public class VATPermissionTest extends BaseTest {
 		commonAction = new UICommonAction(driver);
 		vatPage = new VATInformation(driver, Domain.valueOf(domain));
 		
-		navigateToPage(Domain.valueOf(domain));
-		loginPage.switchToStaffTab().performLogin(staffCredentials.getEmail(), staffCredentials.getPassword());
+		loginPage.navigate().changeDisplayLanguage(DisplayLanguage.valueOf(language))
+			.switchToStaffTab()
+			.performLogin(staffCredentials.getEmail(), staffCredentials.getPassword());
 		homePage.waitTillSpinnerDisappear1().hideFacebookBubble();
-	}	
-
-	void navigateToPage(Domain domain) {
-		loginPage.navigate(domain);
-		
-		if (domain.equals(Domain.BIZ)) return;
-		
-		loginPage.selectDisplayLanguage(language);
 	}	
 	
 	@AfterClass

@@ -4,7 +4,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.support.ui.WebDriverWait;
 
 import utilities.commons.UICommonAction;
 
@@ -13,7 +12,6 @@ public class Facebook {
 	final static Logger logger = LogManager.getLogger(Facebook.class);
 
 	WebDriver driver;
-	WebDriverWait wait;
 
 	UICommonAction commonAction;
 
@@ -26,7 +24,7 @@ public class Facebook {
 	By loc_txtUsername = By.id("email");
 	By loc_txtPassword = By.id("pass");
 	By loc_btnLogin = By.cssSelector("input[name='login']");
-	By loc_btnReconnect = By.cssSelector("#platformDialogForm > div > div > div > div > div > div._6-wr > div > div._afns > div > div._afox > div._afoy > div:nth-child(2) > div > div");
+	By loc_btnReconnect = By.xpath("(//form[@id='platformDialogForm']//div[@role='button'])[last()]");
 
 	public Facebook inputUsername(String username) {
 		commonAction.inputText(loc_txtUsername, username);
