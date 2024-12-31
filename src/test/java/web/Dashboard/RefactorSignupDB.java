@@ -8,7 +8,6 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import java.util.stream.Collectors;
 
 import org.testng.Assert;
@@ -51,9 +50,6 @@ import web.Dashboard.signup.VerifyMailContent;
 
 public class RefactorSignupDB extends BaseTest {
 
-	Domain primaryDomain;
-	DisplayLanguage primaryLanguage;
-	
 	SignupPage signupPage;
 	HomePage homePage;
 	PlansPage plansPage;
@@ -69,10 +65,7 @@ public class RefactorSignupDB extends BaseTest {
 	
 	@BeforeClass
 	void loadData() {
-		primaryDomain = Domain.valueOf(domain);
-		primaryLanguage = DisplayLanguage.valueOf(language);
-		
-		if(primaryDomain.equals(Domain.VN)) {
+		if(Domain.valueOf(domain).equals(Domain.VN)) {
 			country = AccountTest.ADMIN_PLAN_MAIL_VN_COUNTRY;
 			username = AccountTest.ADMIN_PLAN_MAIL_VN_USERNAME;
 			password = AccountTest.ADMIN_PLAN_MAIL_VN_PASSWORD;
@@ -86,15 +79,15 @@ public class RefactorSignupDB extends BaseTest {
 	@BeforeMethod
 	public void setup() {
 		driver = new InitWebdriver().getDriver(browser, headless);
-		signupPage = new SignupPage(driver);
+		signupPage = new SignupPage(driver, Domain.valueOf(domain));
 		homePage = new HomePage(driver);
 		setupStorePage = new SetUpStorePage(driver);
 		packagePaymentPage = new PackagePayment(driver);
-		accountPage = new AccountPage(driver, primaryDomain);
-		storeInfoPage = new StoreInformation(driver, primaryDomain);
+		accountPage = new AccountPage(driver, Domain.valueOf(domain));
+		storeInfoPage = new StoreInformation(driver, Domain.valueOf(domain));
 		commonAction = new UICommonAction(driver);
 		plansPage = new PlansPage(driver);
-		storeDG = new SetupStoreDG(primaryDomain);
+		storeDG = new SetupStoreDG(Domain.valueOf(domain));
 		planPaymentDG = new PurchasePlanDG();
 	}
 
@@ -137,7 +130,10 @@ public class RefactorSignupDB extends BaseTest {
 	}	
 
 	void registerAccount(SetupStoreDG store) {
-		signupPage.navigateToPage(store.getDomain(), primaryLanguage).fillOutSignupForm(store).provideVerificationCode(store);
+		signupPage.navigate()
+			.selectDisplayLanguage(DisplayLanguage.valueOf(language))
+			.fillOutSignupForm(store)
+			.provideVerificationCode(store);
 	}
 
 	void selectPackage(SetupStoreDG store, PurchasePlanDG packagePayment) {
@@ -272,9 +268,12 @@ public class RefactorSignupDB extends BaseTest {
 		storeDG.setCountry(country);
 		storeDG.setUsername(username);
 		storeDG.setPassword(password);
-		storeDG.setDomain(primaryDomain);
+		storeDG.setDomain(Domain.valueOf(domain));
 
-		signupPage.navigateToPage(storeDG.getDomain(), primaryLanguage).fillOutSignupForm(storeDG).verifyUsernameExistError(primaryLanguage.name());
+		signupPage.navigate()
+			.selectDisplayLanguage(DisplayLanguage.valueOf(language))
+			.fillOutSignupForm(storeDG)
+			.verifyUsernameExistError(DisplayLanguage.valueOf(language).name());
 	}
 
 	@Test
@@ -282,7 +281,7 @@ public class RefactorSignupDB extends BaseTest {
 
 		//Randomize data
 		storeDG.randomStoreData();
-		storeDG.setDomain(primaryDomain);
+		storeDG.setDomain(Domain.valueOf(domain));
 		planPaymentDG.randomPackageAndPaymentMethod(storeDG);
 		System.out.println(storeDG);
 		System.out.println(planPaymentDG);
@@ -290,8 +289,8 @@ public class RefactorSignupDB extends BaseTest {
 		/* Sign up */
 		registerAccount(storeDG);
 
-		new LoginPage(driver, primaryDomain).navigate()
-			.changeDisplayLanguage(primaryLanguage)
+		new LoginPage(driver, Domain.valueOf(domain)).navigate()
+			.changeDisplayLanguage(DisplayLanguage.valueOf(language))
 			.performLogin(storeDG.getCountry(), storeDG.getUsername(), storeDG.getPassword());		
 
 		/* Setup store */
@@ -319,16 +318,18 @@ public class RefactorSignupDB extends BaseTest {
 		System.out.println(planPaymentDG);
 
 		/*Register account*/
-		signupPage.navigateToPage(storeDG.getDomain(), primaryLanguage).fillOutSignupForm(storeDG);
+		signupPage.navigate()
+			.selectDisplayLanguage(DisplayLanguage.valueOf(language))
+			.fillOutSignupForm(storeDG);
 
 		String firstKey = getActivationKey(storeDG);
 		
-		commonAction.sleepInMiliSecond(5000, "Wait a little before triggering another API"); 
+		UICommonAction.sleepInMiliSecond(5000, "Wait a little before triggering another API"); 
 
 		signupPage.inputVerificationCode(firstKey).clickResendOTP().clickConfirmOTPBtn();
-		signupPage.verifyVerificationCodeError(primaryLanguage.name());
+		signupPage.verifyVerificationCodeError(DisplayLanguage.valueOf(language).name());
 
-		commonAction.sleepInMiliSecond(5000);
+		UICommonAction.sleepInMiliSecond(5000);
 		
 		String resentCode = getActivationKey(storeDG);
 		
@@ -358,16 +359,18 @@ public class RefactorSignupDB extends BaseTest {
 		System.out.println(planPaymentDG);
 
 		/*Register account*/
-		signupPage.navigateToPage(storeDG.getDomain(), primaryLanguage).fillOutSignupForm(storeDG);
+		signupPage.navigate()
+			.selectDisplayLanguage(DisplayLanguage.valueOf(language))
+			.fillOutSignupForm(storeDG);
 
 		String firstKey = getActivationKey(storeDG);
 
-		commonAction.sleepInMiliSecond(5000, "Wait a little before triggering another API"); 
+		UICommonAction.sleepInMiliSecond(5000, "Wait a little before triggering another API"); 
 		
 		signupPage.inputVerificationCode(firstKey).clickResendOTP().clickConfirmOTPBtn();
-		signupPage.verifyVerificationCodeError(primaryLanguage.name());
+		signupPage.verifyVerificationCodeError(DisplayLanguage.valueOf(language).name());
 
-		commonAction.sleepInMiliSecond(5000);
+		UICommonAction.sleepInMiliSecond(5000);
 		
 		String resentCode = getActivationKey(storeDG);
 
@@ -446,7 +449,7 @@ public class RefactorSignupDB extends BaseTest {
 	public void ActivateFreeTrialWhenCreatingShop() {
 
 		//Randomize data
-		storeDG.setDomain(primaryDomain);
+		storeDG.setDomain(Domain.valueOf(domain));
 		storeDG.randomStoreData();
 		planPaymentDG.randomPackageAndPaymentMethod(storeDG);
 		System.out.println(storeDG);
@@ -471,7 +474,7 @@ public class RefactorSignupDB extends BaseTest {
 	public void ActivateFreeTrialAfterShopCreated() {
 
 		//Randomize data
-		storeDG.setDomain(primaryDomain);
+		storeDG.setDomain(Domain.valueOf(domain));
 		storeDG.randomStoreData();
 		System.out.println(storeDG);
 
@@ -489,11 +492,11 @@ public class RefactorSignupDB extends BaseTest {
 		driver = new InitWebdriver().getDriver("chrome", "false");
 		homePage = new HomePage(driver);
 		plansPage = new PlansPage(driver);
-		accountPage = new AccountPage(driver, primaryDomain);
-		storeInfoPage = new StoreInformation(driver, primaryDomain);
+		accountPage = new AccountPage(driver, Domain.valueOf(domain));
+		storeInfoPage = new StoreInformation(driver, Domain.valueOf(domain));
 
-		new LoginPage(driver, primaryDomain).navigate()
-			.changeDisplayLanguage(primaryLanguage)
+		new LoginPage(driver, Domain.valueOf(domain)).navigate()
+			.changeDisplayLanguage(DisplayLanguage.valueOf(language))
 			.performValidLogin(storeDG.getCountry(), storeDG.getUsername(), storeDG.getPassword());
 		homePage.clickUpgradeNow();
 		plansPage.clickFreeTrialBtn();
@@ -619,7 +622,7 @@ public class RefactorSignupDB extends BaseTest {
 	public void AbortPaymentProcess() {
 		
 		//Randomize data
-		storeDG.setDomain(primaryDomain);
+		storeDG.setDomain(Domain.valueOf(domain));
 		storeDG.randomStoreData(country);
 		storeDG.setUsername(username);
 		storeDG.setPassword(password);
@@ -631,8 +634,8 @@ public class RefactorSignupDB extends BaseTest {
 		Instant registeredDate = Instant.parse(currentPlan.getRegisterPackageDate());
 		Instant expiryDate = Instant.parse(currentPlan.getExpiredPackageDate());
 		
-		new LoginPage(driver, primaryDomain).navigate()
-			.changeDisplayLanguage(primaryLanguage)
+		new LoginPage(driver, Domain.valueOf(domain)).navigate()
+			.changeDisplayLanguage(DisplayLanguage.valueOf(language))
 			.performValidLogin(storeDG.getCountry(), storeDG.getUsername(), storeDG.getPassword());
 		
 		accountPage.navigateByURL().clickRenew();
@@ -747,7 +750,7 @@ public class RefactorSignupDB extends BaseTest {
 		storeDG.randomStoreData(country);
 		storeDG.setUsername(username);
 		storeDG.setPassword(password);
-		storeDG.setDomain(primaryDomain);
+		storeDG.setDomain(Domain.valueOf(domain));
 		System.out.println(storeDG);
 
 		PlanStatus currentPlan = new APIAccount(new Login().setLoginInformation(storeDG.getPhoneCode(), storeDG.getUsername(), storeDG.getPassword()).getLoginInformation()).getAvailablePlanInfo().get(0);
@@ -764,8 +767,8 @@ public class RefactorSignupDB extends BaseTest {
 			if (!planPaymentDG.getNewPackage().equals(currentPlanName)) break;
 		}
 
-		new LoginPage(driver, primaryDomain).navigate()
-			.changeDisplayLanguage(primaryLanguage)
+		new LoginPage(driver, Domain.valueOf(domain)).navigate()
+			.changeDisplayLanguage(DisplayLanguage.valueOf(language))
 			.performValidLogin(storeDG.getCountry(), storeDG.getUsername(), storeDG.getPassword());
 
 		accountPage.navigateByURL().clickRenew();
@@ -820,7 +823,7 @@ public class RefactorSignupDB extends BaseTest {
 		storeDG.randomStoreData(country);
 		storeDG.setUsername(username);
 		storeDG.setPassword(password);
-		storeDG.setDomain(primaryDomain);
+		storeDG.setDomain(Domain.valueOf(domain));
 		storeDG.setEmail(username);
 		System.out.println(storeDG);
 		
@@ -832,8 +835,8 @@ public class RefactorSignupDB extends BaseTest {
 		Instant expiryDate = Instant.parse(currentPlan.getExpiredPackageDate());
 		int period = PlanMoney.deducePeriod(registeredDate, expiryDate);
 		
-		new LoginPage(driver, primaryDomain).navigate()
-			.changeDisplayLanguage(primaryLanguage)
+		new LoginPage(driver, Domain.valueOf(domain)).navigate()
+			.changeDisplayLanguage(DisplayLanguage.valueOf(language))
 			.performValidLogin(storeDG.getCountry(), storeDG.getUsername(), storeDG.getPassword());
 		
 		commonAction.refreshPage();
@@ -881,12 +884,12 @@ public class RefactorSignupDB extends BaseTest {
 		storeDG.randomStoreData(country);
 		storeDG.setUsername(username);
 		storeDG.setPassword(password);
-		storeDG.setDomain(primaryDomain);
+		storeDG.setDomain(Domain.valueOf(domain));
 
 		System.out.println(storeDG);
 
-		new LoginPage(driver, primaryDomain).navigate()
-			.changeDisplayLanguage(primaryLanguage)
+		new LoginPage(driver, Domain.valueOf(domain)).navigate()
+			.changeDisplayLanguage(DisplayLanguage.valueOf(language))
 			.performValidLogin(storeDG.getCountry(), storeDG.getUsername(), storeDG.getPassword());
 		
 		accountPage.navigateByURL().clickRenew();
@@ -922,7 +925,7 @@ public class RefactorSignupDB extends BaseTest {
 		storeDG.randomStoreData(country);
 		storeDG.setUsername(username);
 		storeDG.setPassword(password);
-		storeDG.setDomain(primaryDomain);
+		storeDG.setDomain(Domain.valueOf(domain));
 
 		System.out.println(storeDG);
 		
@@ -932,8 +935,8 @@ public class RefactorSignupDB extends BaseTest {
 		Instant expiryDate = Instant.parse(currentPlan.getExpiredPackageDate());
 		int period = PlanMoney.deducePeriod(registeredDate, expiryDate);
 		
-		new LoginPage(driver, primaryDomain).navigate()
-			.changeDisplayLanguage(primaryLanguage)
+		new LoginPage(driver, Domain.valueOf(domain)).navigate()
+			.changeDisplayLanguage(DisplayLanguage.valueOf(language))
 			.performValidLogin(storeDG.getCountry(), storeDG.getUsername(), storeDG.getPassword());
 		
 		accountPage.navigateByURL().clickRenew();

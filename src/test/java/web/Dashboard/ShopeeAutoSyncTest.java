@@ -1501,8 +1501,8 @@ public class ShopeeAutoSyncTest extends BaseTest {
 		
 		
 		var purchaseOrderPage = new PurchaseOrderPage(driver);
-		purchaseOrderPage.navigateToCreatePurchaseOrderPageByURL();
-		purchaseOrderPage.inputPurchaseOrderInfo(credentials);
+//		purchaseOrderPage.navigateToCreatePurchaseOrderPageByURL();
+//		purchaseOrderPage.inputPurchaseOrderInfo(credentials);
 
 		System.out.println();
 	}	

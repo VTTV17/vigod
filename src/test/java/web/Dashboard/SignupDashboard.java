@@ -32,10 +32,10 @@ import web.StoreFront.header.HeaderSF;
 import utilities.thirdparty.Mailnesia;
 import utilities.utils.PropertiesUtil;
 import utilities.commons.UICommonAction;
-import utilities.account.AccountTest;
 import utilities.data.DataGenerator;
 import utilities.database.InitConnection;
 import utilities.driver.InitWebdriver;
+import utilities.enums.DisplayLanguage;
 import utilities.enums.PaymentMethod;
 import utilities.excel.Excel;
 import utilities.file.FileNameAndPath;
@@ -84,7 +84,7 @@ public class SignupDashboard extends BaseTest {
 	 * @return Vietnam or a random country
 	 */
 	public String randomCountryBasedOnLanguage(String masterLanguage) {
-		return masterLanguage.contentEquals("VIE") ? "Vietnam":generate.randomCountry();
+		return masterLanguage.contentEquals("VIE") ? "Vietnam":DataGenerator.randomCountry();
 	}	
 	
 	public String pickStoreLanguage(String country) {
@@ -116,7 +116,7 @@ public class SignupDashboard extends BaseTest {
 	
 	public void generateTestData() {
 		country = randomCountryBasedOnLanguage(language);
-		phoneCode = generate.getPhoneCode(country);
+		phoneCode = DataGenerator.getPhoneCode(country);
 		storeLanguage = pickStoreLanguage(country);
 		storePhone = generate.randomPhoneByCountry(country)+"0";
 		mail = "auto0-shop" + storePhone + "@mailnesia.com";
@@ -373,282 +373,19 @@ public class SignupDashboard extends BaseTest {
 	}
 
 	//	@Test
+	@Deprecated
 	public void SignupDB_01_CheckTranslation() throws Exception {
 
 		/* Set value for some variables */
 		String username = storePhone;
 
 		/* Sign up */
-		signupPage.navigate().selectDisplayLanguage(language).verifyTextAtSignupScreen(language);
+		signupPage.navigate().selectDisplayLanguage(DisplayLanguage.valueOf(language)).verifyTextAtSignupScreen(language);
 		signupPage.fillOutSignupForm(country, username, password).verifyTextAtVerificationCodeScreen(username, language);
 		signupPage.inputVerificationCode(getVerificationCode(phoneCode, username)).clickConfirmOTPBtn();
 
 		/* Setup store */
 		signupPage.verifyTextAtSetupShopScreen(username, country, language);
-	}
-
-	public void SignupDB_02_CreateShopUsingEmailAccountWithURLContainingCapitalLetters() throws Exception {
-
-		/* Set value for some variables */
-		String username = mail;
-		String contact = storePhone;
-
-		// Generate a store url containing capital letters
-		Pattern p = Pattern.compile("[A-Za-z0-9]+");
-		Matcher m = p.matcher(storeName + generate.generateString(10));
-		while (m.find()) {
-			storeURL += m.group();
-		}
-
-		/* Sign up */
-		signupPage.navigate()
-				.selectDisplayLanguage(language)
-				.fillOutSignupForm(country, username, password)
-				.inputVerificationCode(getVerificationCode(phoneCode, username))
-				.clickConfirmOTPBtn();
-
-		/* Setup store */
-		signupPage.setupShop(username, storeName, storeURL, country, currency, storeLanguage, contact, pickupAddress,
-				secondPickupAddress, province, district, ward, city, zipCode);
-
-		/* Check if users are redirected to plan purchase screen */
-		plansPage = new PlansPage(driver);
-//		plansPage.selectPlan(plan);
-
-		/* Check if store URL in database contains only lowercase letters */
-		Assert.assertEquals(new InitConnection().getStoreURL(storeName), storeURL.toLowerCase());
-	}
-
-	public void SignupDB_03_CreateShopUsingPhoneAccountWithURLContainingCapitalLetters() throws Exception {
-
-		/* Set value for some variables */
-		String username = storePhone;
-		String contact = mail;
-
-		// Generate a store url containing capital letters
-		Pattern p = Pattern.compile("[A-Za-z0-9]+");
-		Matcher m = p.matcher(storeName + generate.generateString(10));
-		while (m.find()) {
-			storeURL += m.group();
-		}
-
-		/* Sign up */
-		signupPage.navigate()
-				.selectDisplayLanguage(language)
-				.fillOutSignupForm(country, username, password)
-				.inputVerificationCode(getVerificationCode(phoneCode, username))
-				.clickConfirmOTPBtn();
-
-		/* Setup store */
-		signupPage.setupShop(username, storeName, storeURL, country, currency, storeLanguage, contact, pickupAddress,
-				secondPickupAddress, province, district, ward, city, zipCode);
-
-		/* Check if users are redirected to plan purchase screen */
-		plansPage = new PlansPage(driver);
-//		plansPage.selectPlan(plan);
-
-		/* Check if store URL in database contains only lowercase letters */
-		Assert.assertEquals(new InitConnection().getStoreURL(storeName), storeURL.toLowerCase());
-	}
-
-	@Test
-	public void SignupDB_05_ResendVerificationCodeToEmail() throws Exception {
-
-		/* Set value for some variables */
-		String username = mail;
-		String contact = storePhone;
-
-		/* Sign up */
-		signupPage.navigate()
-				.selectDisplayLanguage(language)
-				.fillOutSignupForm(country, username, password);
-
-		String firstCode = getVerificationCode(phoneCode, username);
-		signupPage.inputVerificationCode(firstCode);
-		signupPage.clickResendOTP();
-		signupPage.clickConfirmOTPBtn();
-		signupPage.verifyVerificationCodeError(language);
-
-		// If that's a mail account then we'll wait until new code is generated
-		String resentCode = firstCode;
-		if (!username.matches("\\d+")) {
-			commonAction.openNewTab();
-			commonAction.switchToWindow(1);
-			Mailnesia mailnesiaPage = new Mailnesia(driver).navigate(username);
-			for (int i=0; i<10; i++) {
-				resentCode = mailnesiaPage.getVerificationCode();
-				if (!firstCode.contentEquals(resentCode)) break;
-				commonAction.sleepInMiliSecond(3000);
-				commonAction.refreshPage();
-			}
-			commonAction.closeTab();
-			commonAction.switchToWindow(0);
-		}
-
-		signupPage.inputVerificationCode(resentCode);
-		Assert.assertNotEquals(firstCode, resentCode, "New verification code");
-		signupPage.clickConfirmOTPBtn();
-
-		/* Setup store */
-		signupPage.setupShop(username, storeName, storeURL, country, currency, storeLanguage, contact, pickupAddress,
-				secondPickupAddress, province, district, ward, city, zipCode);
-		signupPage.clickLogout();
-
-		/* Log into shop again */
-		verifyUpgradeNowDialogAppearAfterLogin(country, username, password);
-	}
-
-	@Test
-	public void SignupDB_06_ResendVerificationCodeToPhone() throws Exception {
-
-		/* Set value for some variables */
-		String username = storePhone;
-		String contact = mail;
-
-		/* Sign up */
-		signupPage.navigate()
-				.selectDisplayLanguage(language)
-				.fillOutSignupForm(country, username, password);
-
-		String firstCode = getVerificationCode(phoneCode, username);
-		signupPage.inputVerificationCode(firstCode);
-		signupPage.clickResendOTP();
-		signupPage.clickConfirmOTPBtn();
-		signupPage.verifyVerificationCodeError(language);
-		if (!username.matches("\\d+")) UICommonAction.sleepInMiliSecond(5000);
-		String resentCode = getVerificationCode(phoneCode, username);
-		signupPage.inputVerificationCode(resentCode);
-		Assert.assertNotEquals(firstCode, resentCode, "New verification code");
-		signupPage.clickConfirmOTPBtn();
-
-		/* Setup store */
-		signupPage.setupShop(username, storeName, storeURL, country, currency, storeLanguage, contact, pickupAddress,
-				secondPickupAddress, province, district, ward, city, zipCode);
-		signupPage.clickLogout();
-
-		/* Log into shop again */
-		verifyUpgradeNowDialogAppearAfterLogin(country, username, password);
-	}
-
-	public void SignupDB_08_CreateShopUsingEmailAccountWithPromotionLinkAndDomain() throws Exception {
-
-		/* Set value for some variables */
-		String domain = "abcdefgh";
-
-		String username = mail;
-		String contact = storePhone;
-
-		/* Sign up */
-		signupPage.navigate("/redirect/signup?domain=%s".formatted(domain))
-				.selectDisplayLanguage(language)
-				.fillOutSignupForm(country, username, password)
-				.inputVerificationCode(getVerificationCode(phoneCode, username))
-				.clickConfirmOTPBtn();
-
-		/* Setup store */
-		signupPage.setupShop(username, storeName, storeURL, country, currency, storeLanguage, contact, pickupAddress,
-				secondPickupAddress, province, district, ward, city, zipCode);
-		homePage.waitTillSpinnerDisappear();
-
-		/* Check if users redirected to Home screen outright and Upgrade Now dialog pops up immediately */
-		homePage.verifyUpgradeNowMessage(language).completeVerify();
-
-		/* Check if users are redirected to plan purchase screen upon clicking on Upgrade Now button */
-		homePage.clickUpgradeNow();
-//		new PlansPage(driver).selectPlan(plan);
-
-		/* Verify Upgrade Now dialog appears at every screen to which the user navigates */
-		verifyUpgradeNowDialogAppearEverywhere();
-		homePage.clickLogout();
-
-		/* Verify Upgrade Now popup appears on the screen when re-logging into dashboard */
-		verifyUpgradeNowDialogAppearAfterLogin(country, username, password);
-		verifyUpgradeNowDialogAppearEverywhere();
-
-		/* Check mail */
-		verifyEmail(username, "SIGNUP");
-
-		/* Check store's data in database */
-		Assert.assertEquals(new InitConnection().getStoreDomain(storeName), domain);
-	}
-
-	public void SignupDB_09_CreateShopUsingPhoneAccountWithPromotionLinkAndDomain() throws Exception {
-
-		/* Set value for some variables */
-		String domain = "abcdefgh";
-
-		String username = mail;
-		String contact = storePhone;
-
-		/* Sign up */
-		signupPage.navigate("/redirect/signup?domain=%s".formatted(domain))
-				.selectDisplayLanguage(language)
-				.fillOutSignupForm(country, username, password)
-				.inputVerificationCode(getVerificationCode(phoneCode, username))
-				.clickConfirmOTPBtn();
-
-		/* Setup store */
-		signupPage.setupShop(username, storeName, storeURL, country, currency, storeLanguage, contact, pickupAddress,
-				secondPickupAddress, province, district, ward, city, zipCode);
-		homePage.waitTillSpinnerDisappear();
-
-		/* Check if users redirected to Home screen outright and Upgrade Now dialog pops up immediately */
-		homePage.verifyUpgradeNowMessage(language).completeVerify();
-
-		/* Check if users are redirected to plan purchase screen upon clicking on Upgrade Now button */
-		homePage.clickUpgradeNow();
-//		new PlansPage(driver).selectPlan(plan);
-
-		/* Verify Upgrade Now dialog appears at every screen to which the user navigates */
-		verifyUpgradeNowDialogAppearEverywhere();
-		homePage.clickLogout();
-
-		/* Verify Upgrade Now popup appears on the screen when re-logging into dashboard */
-		verifyUpgradeNowDialogAppearAfterLogin(country, username, password);
-		verifyUpgradeNowDialogAppearEverywhere();
-
-		/* Check mail */
-		verifyEmail(username, "SIGNUP");
-
-		/* Check store's data in database */
-		Assert.assertEquals(new InitConnection().getStoreDomain(storeName), domain);
-	}
-
-	@Test
-	public void SignupDB_10_CreateShopUsingPhoneAccountWithoutPromotionLinkAndDomain() throws Exception {
-
-		/* Set value for some variables */
-		String username = storePhone;
-		String contact = mail;
-
-		/* Sign up */
-		signupPage.navigate()
-				.selectDisplayLanguage(language)
-				.fillOutSignupForm(country, username, password)
-				.inputVerificationCode(getVerificationCode(phoneCode, username))
-				.clickConfirmOTPBtn();
-
-		/* Setup store */
-		signupPage.setupShop(username, storeName, storeURL, country, currency, storeLanguage, contact, pickupAddress,
-				secondPickupAddress, province, district, ward, city, zipCode);
-
-		/* Check if user is redirected to package registration screen */
-		signupPage.clickLogout();
-
-		/* Re-log into shop and verify Upgrade now dialog appears immediately */
-		verifyUpgradeNowDialogAppearAfterLogin(country, username, password);
-
-		/* Check if users are redirected to plan purchase screen upon clicking on Upgrade Now button */
-//		new PlansPage(driver).selectPlan(plan);
-
-		/* Verify Upgrade Now dialog appears at every screen to which the user navigates */
-		verifyUpgradeNowDialogAppearEverywhere();
-
-		/* Check mail */
-		verifyEmail(username, "SIGNUP");
-
-		/* Check store's data in database */
-		Assert.assertEquals(new InitConnection().getStoreDomain(storeName), null);
 	}
 
 	@Test
@@ -1179,7 +916,7 @@ public class SignupDashboard extends BaseTest {
 
 		/* Sign up */
 		signupPage.navigate()
-				.selectDisplayLanguage(language)
+				.selectDisplayLanguage(DisplayLanguage.valueOf(language))
 				.fillOutSignupForm(country, username, password)
 				.inputVerificationCode(getVerificationCode(phoneCode, username))
 				.clickConfirmOTPBtn();
@@ -1214,7 +951,7 @@ public class SignupDashboard extends BaseTest {
 
 		/* Sign up */
 		signupPage.navigate()
-				.selectDisplayLanguage(language)
+				.selectDisplayLanguage(DisplayLanguage.valueOf(language))
 				.fillOutSignupForm(country, username, password)
 				.inputVerificationCode(getVerificationCode(phoneCode, username))
 				.clickConfirmOTPBtn();
@@ -1240,42 +977,6 @@ public class SignupDashboard extends BaseTest {
 		verifyEmail(username, "COMPLETE");
 	}
 	
-	@Test
-	public void SignupDB_16_E2E() throws Exception {
-		
-		/* Set value for some variables */
-		String username = storePhone;
-		String contact = mail;
-		paymentMethod = PaymentMethod.BANKTRANSFER.name();
-		plan = "GoWEB";
-		
-		/* Sign up */
-		signupPage.navigate().selectDisplayLanguage(language)
-		.fillOutSignupForm(country, username, password)
-		.inputVerificationCode(getVerificationCode(phoneCode, username))
-		.clickConfirmOTPBtn();
-		
-		/* Setup store */
-		signupPage.setupShop(username, storeName, storeURL, country, currency, storeLanguage, contact, pickupAddress,
-				secondPickupAddress, province, district, ward, city, zipCode);
-		
-		/* Buy Plan */
-		plansPage = new PlansPage(driver);
-//		plansPage.selectPlan(plan);
-		packagePayment.selectPaymentMethod(paymentMethod);
-		packagePayment.completePayment(paymentMethod);
-		String orderID = packagePayment.getOrderId();
-		packagePayment.logoutAfterSuccessfulPurchase(paymentMethod, orderID);
-		
-		/* Re-login to the shop and test permissions */
-		loginPage.performLogin(country, username, password);
-		loginInformation = new Login().setLoginInformation(phoneCode, username, password).getLoginInformation();
-		new Permission(driver).testPermission(plan);
-		
-		/* Check mail */
-		verifyEmail(username, "COMPLETE");
-	}
-
 	@AfterMethod
 	public void writeResult(ITestResult result) throws Exception {
 		super.writeResult(result);

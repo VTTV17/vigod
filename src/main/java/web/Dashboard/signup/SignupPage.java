@@ -1,7 +1,10 @@
 package web.Dashboard.signup;
 
 import static utilities.links.Links.DOMAIN;
+import static utilities.links.Links.DOMAIN_BIZ;
 import static utilities.links.Links.SIGNUP_PATH;
+
+import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -13,7 +16,6 @@ import utilities.api.thirdparty.KibanaAPI;
 import utilities.commons.UICommonAction;
 import utilities.enums.DisplayLanguage;
 import utilities.enums.Domain;
-import utilities.links.Links;
 import utilities.model.dashboard.setupstore.SetupStoreDG;
 import utilities.utils.PropertiesUtil;
 import web.Dashboard.home.HomePage;
@@ -37,9 +39,18 @@ public class SignupPage {
     WebDriver driver;
     UICommonAction commonAction;
 
+    /**
+     * Domain defaults to VN. Use the object's constructor to override it when necessary
+     */
+    Domain domain = Domain.VN;    
+    
     public SignupPage(WebDriver driver) {
         this.driver = driver;
         commonAction = new UICommonAction(driver);
+    }
+    public SignupPage(WebDriver driver, Domain domain) {
+        this(driver);
+        this.domain = domain;
     }
 
     By loc_ddlCountry = By.cssSelector(".input-field.phone-code .select-country__input-container input");
@@ -61,38 +72,53 @@ public class SignupPage {
     By loc_lblVerificationCodeScreen = By.cssSelector(".modal-content");
     By loc_lblWizardScreen = By.cssSelector(".wizard-layout__title");
  
+ 
+    /**
+     * Navigates to Sign-up screen by URL
+     */
+    public SignupPage navigate() {
+    	
+    	var url = switch (domain) {
+	        case VN -> DOMAIN + SIGNUP_PATH;
+	        case BIZ -> DOMAIN_BIZ + SIGNUP_PATH;
+	        default -> throw new IllegalArgumentException("Unexpected value: " + domain);
+    	};
+    	
+    	driver.get(url);
+    	logger.info("Navigated to: {}", url);
+        return this;
+    }    
     
+    //TODO remove this
     public SignupPage navigate(String link) {
         driver.get(link);
         logger.info("Navigated to: {}", link);
     	return this;
     }    
-    public SignupPage navigate() {
-        return navigate(DOMAIN + SIGNUP_PATH);
-    }
 
-	public SignupPage navigateToPage(Domain domain, DisplayLanguage lang) {
-		switch (domain) {
-			case VN -> navigate().selectDisplayLanguage(lang);
-			case BIZ -> navigate(Links.DOMAIN_BIZ + SIGNUP_PATH);
-			default -> throw new IllegalArgumentException("Unexpected value: " + domain);
-		}
-		return this;
-	}
-    
+    /**
+     * Changes display language. Works on domain .vn only
+     * @param lang
+     * @return
+     */
+    public SignupPage changeDisplayLanguage(DisplayLanguage lang) {
+    	
+    	if (!List.of(DisplayLanguage.values()).contains(lang)) throw new IllegalArgumentException("Unexpected value: " + lang);
+    	
+    	if (domain.equals(Domain.VN)) selectDisplayLanguage(lang);
+    	
+    	return this;
+    }   	
+	
     public boolean isLanguageDropdownDisplayed() {
 		boolean isDisplayed = !commonAction.getElements(LoginPage.loc_ddlLanguage).isEmpty();
 		logger.info("Is Display Language Dropdown displayed: {}", isDisplayed);
 		return isDisplayed;
     }    
-	public SignupPage selectDisplayLanguage(String language) {
-		//Temporarily use the same function from LoginPage. Will think of a better way to handle this
-		new LoginPage(driver).selectDisplayLanguage(language);
-		return this;
-	}    
+
 	public SignupPage selectDisplayLanguage(DisplayLanguage lang) {
 		//Temporarily use the same function from LoginPage. Will think of a better way to handle this
-		new LoginPage(driver).selectDisplayLanguage(lang);
+		new LoginPage(driver, domain).selectDisplayLanguage(lang);
 		return this;
 	}    
     public SignupPage selectCountry(String country) {

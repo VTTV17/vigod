@@ -68,7 +68,8 @@ public class Smoke_SignupDB extends BaseTest {
 		storeDG.setPassword(existingPassword);
 		
 		//Verify errors appear when users attempt to create an account that already exists
-		signupPage.navigateToPage(storeDG.getDomain(), DisplayLanguage.valueOf(language))
+		signupPage.navigate()
+			.selectDisplayLanguage(DisplayLanguage.valueOf(language))
 			.fillOutSignupForm(storeDG)
 			.verifyUsernameExistError(DisplayLanguage.valueOf(language).name());
 	}
@@ -82,7 +83,8 @@ public class Smoke_SignupDB extends BaseTest {
 		System.out.println(storeDG);
 
 		//Register for an account on Dashboard
-		signupPage.navigateToPage(storeDG.getDomain(), DisplayLanguage.valueOf(language))
+		signupPage.navigate()
+			.selectDisplayLanguage(DisplayLanguage.valueOf(language))
 			.fillOutSignupForm(storeDG)
 			.provideVerificationCode(storeDG);
 		
@@ -106,7 +108,8 @@ public class Smoke_SignupDB extends BaseTest {
 		System.out.println(storeDG);
 
 		//Register for an account on Dashboard
-		signupPage.navigateToPage(storeDG.getDomain(), DisplayLanguage.valueOf(language))
+		signupPage.navigate()
+			.selectDisplayLanguage(DisplayLanguage.valueOf(language))
 			.fillOutSignupForm(storeDG)
 			.provideVerificationCode(storeDG);
 
