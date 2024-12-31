@@ -70,7 +70,7 @@ public class LoginPage {
     By loc_icnDotSpinner = new ByChained(loc_btnLogin, By.xpath(".//i[contains(@class,'fa-spinner')]"));
 
     /**
-     * Navigates to Sign-in screen
+     * Navigates to Sign-in screen by URL
      */
     public LoginPage navigate() {
     	
