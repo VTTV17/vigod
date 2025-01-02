@@ -45,9 +45,7 @@ import web.StoreFront.userprofile.userprofileinfo.UserProfileInfo;
 
 public class RefactoredSignupSF extends BaseTest {
 	
-	Domain primaryDomain;
-	DisplayLanguage primaryLanguage;
-	
+	GeneralSF generalSFAction;
 	SignupPage signupPage;
 	HeaderSF headerSection;
 
@@ -61,10 +59,7 @@ public class RefactoredSignupSF extends BaseTest {
 	@BeforeClass
 	void loadData() {
 		
-		primaryDomain = Domain.valueOf(domain);
-		primaryLanguage = DisplayLanguage.valueOf(language);
-		
-		if(primaryDomain.equals(Domain.VN)) {
+		if(Domain.valueOf(domain).equals(Domain.VN)) {
 			sellerCountry = ADMIN_COUNTRY_TIEN;
 			sellerUsername = ADMIN_USERNAME_TIEN;
 			sellerPassword = ADMIN_PASSWORD_TIEN;
@@ -101,6 +96,7 @@ public class RefactoredSignupSF extends BaseTest {
 	@BeforeMethod
 	void instantiatePageObjects() {
 		driver = new InitWebdriver().getDriver(browser, headless);
+		generalSFAction = new GeneralSF(driver);
 		signupPage = new SignupPage(driver);
 		commonAction = new UICommonAction(driver);
 		headerSection = new HeaderSF(driver);
@@ -112,7 +108,7 @@ public class RefactoredSignupSF extends BaseTest {
 	 * @param langCode language code of the store's published language. Eg. vi, en-au, lo
 	 */
 	void createAccountOnSF(BuyerSignupData buyerData, String langCode) {
-		signupPage.navigate(sellerSFURL);
+		generalSFAction.navigateToURL(sellerSFURL);
 		
 		headerSection.clickUserInfoIcon()
 			.changeLanguageByLangCode(langCode);
@@ -139,42 +135,33 @@ public class RefactoredSignupSF extends BaseTest {
 	@Test(dataProvider = "accountDataProvider")
 	void TC_CreateAccountWithInvalidData(BuyerSignupData buyerData) {
 		
-		//Arrange expected results
-		var expectedEmptyUsernameError = SignupPage.localizedEmptyUsernameError(primaryLanguage);
-		var expectedEmptyPasswordError = SignupPage.localizedEmptyPasswordError(primaryLanguage);
-		var expectedEmptyNameError = SignupPage.localizedEmptyNameError(primaryLanguage);
-		var expectedInvalidUsernameFormatError = SignupPage.localizedInvalidUsernameError(primaryLanguage);
-		
-		
 		//Try creating an account with invalid data
-		signupPage.navigate(sellerSFURL);
-		
+		generalSFAction.navigateToURL(sellerSFURL);
 		headerSection.clickUserInfoIcon()
 			.changeLanguage(language);
 		
-		var actualEmptyUsernameError = signupPage.navigate(sellerSFURL)
-				.fillOutSignupForm(buyerData.getCountry(), "", buyerData.getPassword(), buyerData.getDisplayName(), buyerData.getBirthday())
+		commonAction.refreshPage();
+		var actualEmptyUsernameError = signupPage.fillOutSignupForm(buyerData.getCountry(), "", buyerData.getPassword(), buyerData.getDisplayName(), buyerData.getBirthday())
 				.getUsernameError();
 
-		var actualEmptyPasswordError = signupPage.navigate(sellerSFURL)
-				.fillOutSignupForm(buyerData.getCountry(), buyerData.getUsername(), "", buyerData.getDisplayName(), buyerData.getBirthday())
+		commonAction.refreshPage();
+		var actualEmptyPasswordError = signupPage.fillOutSignupForm(buyerData.getCountry(), buyerData.getUsername(), "", buyerData.getDisplayName(), buyerData.getBirthday())
 				.getPasswordError();
 
-		var actualEmptyNameError = signupPage.navigate(sellerSFURL)
-				.fillOutSignupForm(buyerData.getCountry(), buyerData.getUsername(), buyerData.getPassword(), "", buyerData.getBirthday())
+		commonAction.refreshPage();
+		var actualEmptyNameError = signupPage.fillOutSignupForm(buyerData.getCountry(), buyerData.getUsername(), buyerData.getPassword(), "", buyerData.getBirthday())
 				.getDisplayNameError();
 		
+		commonAction.refreshPage();
 		var invalidUsername = buyerData.getType().equals(AccountType.MOBILE) ? "098745" : "automation_mail.com";
-		var actualInvalidUsernameFormatError = signupPage.navigate(sellerSFURL)
-				.fillOutSignupForm(buyerData.getCountry(), invalidUsername, buyerData.getPassword(), buyerData.getDisplayName(), buyerData.getBirthday())
+		var actualInvalidUsernameFormatError = signupPage.fillOutSignupForm(buyerData.getCountry(), invalidUsername, buyerData.getPassword(), buyerData.getDisplayName(), buyerData.getBirthday())
 				.getUsernameError();
 
-		
 		//Assertions for errors
-		Assert.assertEquals(actualEmptyUsernameError, expectedEmptyUsernameError);
-		Assert.assertEquals(actualEmptyPasswordError, expectedEmptyPasswordError);
-		Assert.assertEquals(actualEmptyNameError, expectedEmptyNameError);
-		Assert.assertEquals(actualInvalidUsernameFormatError, expectedInvalidUsernameFormatError);
+		Assert.assertEquals(actualEmptyUsernameError, SignupPage.localizedEmptyUsernameError(DisplayLanguage.valueOf(language)));
+		Assert.assertEquals(actualEmptyPasswordError, SignupPage.localizedEmptyPasswordError(DisplayLanguage.valueOf(language)));
+		Assert.assertEquals(actualEmptyNameError, SignupPage.localizedEmptyNameError(DisplayLanguage.valueOf(language)));
+		Assert.assertEquals(actualInvalidUsernameFormatError, SignupPage.localizedInvalidUsernameError(DisplayLanguage.valueOf(language)));
 	}	
 
 	@Test(dataProvider = "accountDataProvider")
@@ -182,8 +169,8 @@ public class RefactoredSignupSF extends BaseTest {
 		
 		//Arrange expected results
 		var expectedError = buyerData.getType().equals(AccountType.MOBILE) 
-				? SignupPage.localizedPhoneAlreadyExistError(primaryLanguage) 
-						: SignupPage.localizedEmailAlreadyExistError(primaryLanguage);
+				? SignupPage.localizedPhoneAlreadyExistError(DisplayLanguage.valueOf(language)) 
+						: SignupPage.localizedEmailAlreadyExistError(DisplayLanguage.valueOf(language));
 		
 		
 		//Create an account
@@ -210,7 +197,7 @@ public class RefactoredSignupSF extends BaseTest {
 	void TC_CreateAccountWithWrongVerificationCode(BuyerSignupData buyerData) {
 		
 		//Arrange expected results
-		var expectedError = SignupPage.localizedWrongVerificationCodeError(primaryLanguage);
+		var expectedError = SignupPage.localizedWrongVerificationCodeError(DisplayLanguage.valueOf(language));
 		var expected_UserProfile_Name = buyerData.getDisplayName();
 		var expected_UserProfile_Email = buyerData.getEmail();
 		var expected_UserProfile_Birthday = buyerData.getBirthday();
@@ -219,7 +206,7 @@ public class RefactoredSignupSF extends BaseTest {
 		var expected_API_LocationCode = buyerData.getCountryCode();
 		
 		//Create an account on SF
-		signupPage.navigate(sellerSFURL);
+		generalSFAction.navigateToURL(sellerSFURL);
 		
 		headerSection.clickUserInfoIcon()
 			.changeLanguage(language);
@@ -266,12 +253,12 @@ public class RefactoredSignupSF extends BaseTest {
 		var actual_SF_Country = new UserProfileInfo(driver).clickMyAddressSection().getCountry();
 		
 		//Retrieve info on Dashboard
-		new web.Dashboard.login.LoginPage(driver, primaryDomain)
+		new web.Dashboard.login.LoginPage(driver, Domain.valueOf(domain))
 			.navigate()
-			.changeDisplayLanguage(primaryLanguage)
+			.changeDisplayLanguage(DisplayLanguage.valueOf(language))
 			.performValidLogin(sellerCountry, sellerUsername, sellerPassword);
 
-		CustomerDetails customerDetailPage = new AllCustomers(driver, primaryDomain).navigateUsingURL()
+		CustomerDetails customerDetailPage = new AllCustomers(driver, Domain.valueOf(domain)).navigateUsingURL()
 			.selectBranch("NONE")
 			.clickUser(buyerData.getDisplayName());
 		var actualDashboardEmail = customerDetailPage.getEmail();
@@ -318,7 +305,7 @@ public class RefactoredSignupSF extends BaseTest {
 		
 		
 		//Create an account on SF
-		signupPage.navigate(sellerSFURL);
+		generalSFAction.navigateToURL(sellerSFURL);
 		
 		headerSection.clickUserInfoIcon()
 			.changeLanguage(language);
@@ -372,11 +359,11 @@ public class RefactoredSignupSF extends BaseTest {
 		var actual_SF_Country = new UserProfileInfo(driver).clickMyAddressSection().getCountry();
 		
 		//Retrieve info on Dashboard
-		new web.Dashboard.login.LoginPage(driver, primaryDomain).navigate()
-			.changeDisplayLanguage(primaryLanguage)
+		new web.Dashboard.login.LoginPage(driver, Domain.valueOf(domain)).navigate()
+			.changeDisplayLanguage(DisplayLanguage.valueOf(language))
 			.performValidLogin(sellerCountry, sellerUsername, sellerPassword);
 
-		CustomerDetails customerDetailPage = new AllCustomers(driver, primaryDomain).navigateUsingURL()
+		CustomerDetails customerDetailPage = new AllCustomers(driver, Domain.valueOf(domain)).navigateUsingURL()
 			.selectBranch("NONE")
 			.clickUser(buyerData.getDisplayName());
 		var actualDashboardEmail = customerDetailPage.getEmail();
@@ -424,7 +411,7 @@ public class RefactoredSignupSF extends BaseTest {
 		
 		
 		//Create an account on SF
-		signupPage.navigate(sellerSFURL);
+		generalSFAction.navigateToURL(sellerSFURL);
 		
 		headerSection.clickUserInfoIcon()
 		.changeLanguageByLangCode(expected_API_LangKey);
@@ -467,11 +454,11 @@ public class RefactoredSignupSF extends BaseTest {
 		var actual_SF_Country = new UserProfileInfo(driver).clickMyAddressSection().getCountry();
 		
 		//Retrieve info on Dashboard
-		new web.Dashboard.login.LoginPage(driver, primaryDomain).navigate()
-			.changeDisplayLanguage(primaryLanguage)
+		new web.Dashboard.login.LoginPage(driver, Domain.valueOf(domain)).navigate()
+			.changeDisplayLanguage(DisplayLanguage.valueOf(language))
 			.performValidLogin(sellerCountry, sellerUsername, sellerPassword);
 		
-		CustomerDetails customerDetailPage = new AllCustomers(driver, primaryDomain).navigateUsingURL()
+		CustomerDetails customerDetailPage = new AllCustomers(driver, Domain.valueOf(domain)).navigateUsingURL()
 				.selectBranch("NONE")
 				.clickUser(buyerData.getDisplayName());
 		var actualDashboardEmail = customerDetailPage.getEmail();
@@ -519,7 +506,7 @@ public class RefactoredSignupSF extends BaseTest {
 		
 		
 		//Create an account on SF
-		signupPage.navigate(sellerSFURL);
+		generalSFAction.navigateToURL(sellerSFURL);
 		
 		headerSection.clickUserInfoIcon()
 			.changeLanguageByLangCode(expected_API_LangKey);
@@ -550,11 +537,11 @@ public class RefactoredSignupSF extends BaseTest {
 		var actual_SF_Country = new UserProfileInfo(driver).clickMyAddressSection().getCountry();
 		
 		//Retrieve info on Dashboard
-		new web.Dashboard.login.LoginPage(driver, primaryDomain).navigate()
-			.changeDisplayLanguage(primaryLanguage)
+		new web.Dashboard.login.LoginPage(driver, Domain.valueOf(domain)).navigate()
+			.changeDisplayLanguage(DisplayLanguage.valueOf(language))
 			.performValidLogin(sellerCountry, sellerUsername, sellerPassword);
 
-		CustomerDetails customerDetailPage = new AllCustomers(driver, primaryDomain).navigateUsingURL()
+		CustomerDetails customerDetailPage = new AllCustomers(driver, Domain.valueOf(domain)).navigateUsingURL()
 			.selectBranch("NONE")
 			.clickUser(buyerData.getDisplayName());
 		var actualDashboardEmail = customerDetailPage.getEmail();

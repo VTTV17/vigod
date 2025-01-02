@@ -35,6 +35,7 @@ import utilities.driver.InitWebdriver;
 import utilities.model.sellerApp.login.LoginInformation;
 import utilities.screenshot.Screenshot;
 import web.Dashboard.login.LoginPage;
+import web.StoreFront.GeneralSF;
 
 
 public class SignupBuyerApp {
@@ -119,8 +120,9 @@ public class SignupBuyerApp {
 		loginInformation = new Login().setLoginInformation(ANOTHER_STORE_COUNTRY, ANOTHER_STORE_USERNAME, ANOTHER_STORE_PASSWORD).getLoginInformation();
 		String URL = "https://%s%s/".formatted(new StoreInformation(loginInformation).getInfo().getStoreURL(), SF_DOMAIN);
 		driverWeb = new InitWebdriver().getDriver("chrome", "noHeadless");
+		new GeneralSF(driver).navigateToURL(URL);
 		web.StoreFront.signup.SignupPage signupPage = new web.StoreFront.signup.SignupPage(driverWeb);
-		signupPage.navigate(URL).fillOutSignupForm(country, username, password, displayName, birthday)
+		signupPage.fillOutSignupForm(country, username, password, displayName, birthday)
 		.inputVerificationCode(new InitConnection().getActivationKey(username)).clickConfirmBtn();
 		if (username.matches("\\d+")) {
 			signupPage.inputEmail(mail).clickCompleteBtn();

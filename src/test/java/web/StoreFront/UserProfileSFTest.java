@@ -412,7 +412,8 @@ public class UserProfileSFTest extends BaseTest {
         buyerAccount_Signup = generateName + "@mailnesia.com";
         buyerDisplayName_Signup = generateName;
         signupSF = new SignupPage(driver);
-        signupSF.navigateToSignUp(shopDomain).waitTillLoaderDisappear();
+        signupSF.navigateToSignUp(shopDomain);
+        new GeneralSF(driver).waitTillLoaderDisappear();
         signupSF = new SignupPage(driver);
         signupSF.signUpWithEmail("Vietnam", buyerAccount_Signup, passWordSF, buyerDisplayName_Signup, "");
         headerSF = new HeaderSF(driver);
