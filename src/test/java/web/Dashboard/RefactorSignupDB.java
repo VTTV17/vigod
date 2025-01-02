@@ -263,16 +263,9 @@ public class RefactorSignupDB extends BaseTest {
 	@Test
 	public void SignupWithExistingAccount() throws Exception {
 
-		//Randomize data
-		storeDG.randomStoreData();
-		storeDG.setCountry(country);
-		storeDG.setUsername(username);
-		storeDG.setPassword(password);
-		storeDG.setDomain(Domain.valueOf(domain));
-
 		signupPage.navigate()
 			.selectDisplayLanguage(DisplayLanguage.valueOf(language))
-			.fillOutSignupForm(storeDG)
+			.fillOutSignupForm(country, username, password)
 			.verifyUsernameExistError(DisplayLanguage.valueOf(language).name());
 	}
 

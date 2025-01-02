@@ -1,7 +1,5 @@
 package web.StoreFront.signup;
 
-import static utilities.links.Links.SF_URL_TIEN;
-
 import java.sql.SQLException;
 import java.util.Random;
 
@@ -16,61 +14,26 @@ import utilities.api.thirdparty.KibanaAPI;
 import utilities.commons.UICommonAction;
 import utilities.data.DataGenerator;
 import utilities.enums.DisplayLanguage;
-import utilities.enums.Domain;
 import utilities.model.dashboard.storefront.BuyerSignupData;
 import utilities.utils.PropertiesUtil;
 import web.StoreFront.GeneralSF;
 import web.StoreFront.header.HeaderSF;
 import web.StoreFront.login.LoginPage;
 
-public class SignupPage extends GeneralSF {
+public class SignupPage {
 
     final static Logger logger = LogManager.getLogger(SignupPage.class);
 
-	/* Message headers of mails sent to user's mailbox, '%s' should be replaced with shop's name */
-	public String SUCCESSFUL_SIGNUP_MESSAGE_VI = "Đăng kí thành công tài khoản trên %s";
-	public String SUCCESSFUL_SIGNUP_MESSAGE_EN = "Successfully register acount on %s";
-	
-	public String VERIFICATION_CODE_MESSAGE_VI = "là mã xác minh tài khoản trên %s của bạn";
-	public String VERIFICATION_CODE_MESSAGE_EN = "is code to verify your e-mail address on %s";
-	/* ================================================== */
-    
-	Domain domain;
     WebDriver driver;
     UICommonAction commonAction;
+    SignupPageElement locator;
 
     public SignupPage(WebDriver driver) {
-        super(driver);
         this.driver = driver;
         commonAction = new UICommonAction(driver);
-    }
-    public SignupPage(WebDriver driver, Domain domain) {
-    	this(driver);
-    	this.domain = domain;
+        locator = new SignupPageElement();
     }
     
-    By loc_lblSignupScreen = By.cssSelector("#signup-modal .modal-content");
-    By loc_lblVerificationCodeScreen = By.cssSelector("#activate-modal .modal-content");
-    By loc_txtUsername = By.cssSelector("#signup-username");
-    By loc_txtDisplayUsername = By.cssSelector("#signup-displayName");
-    By loc_txtBirthday = By.cssSelector("#signup-dob");
-    By loc_txtOptionalEmail = By.cssSelector("#get-email");
-    By loc_txtPassword = By.cssSelector("#signup-password");
-    By loc_lnkLoginNow = By.cssSelector("#signup-modal [data-target='#login-modal']");
-    By loc_lnkSkipEmail = By.id("get-email-skip");
-    By loc_btnCompleteEmail = By.cssSelector("#frm-get-email .btn-submit");
-    By loc_btnSignup = By.cssSelector("#frm-signup .btn-submit");
-    By loc_ddlCountry = By.cssSelector("#signup-country-code");
-    By loc_lstCountry = By.cssSelector("#signup-country-code-menu .dropdown-item");
-    By loc_txtVerificationCode = By.cssSelector("#activate-code");
-    By loc_btnConfirmOTP = By.cssSelector("#frm-activate .btn-submit");
-    By loc_lnkResendOTP = By.id("open-activate-resend-code");
-    By loc_lblSignupFailError = By.id("signup-fail");
-    By loc_lblUsernameError = By.id("signup-username-error");
-    By loc_lblPasswordError = By.id("signup-password-error");
-    By loc_lblDisplayNameError = By.id("signup-displayName-error");
-    By loc_lblWrongCodeError = By.id("activate-fail");	
-
     @SneakyThrows
     public static String localizedEmailAlreadyExistError(DisplayLanguage language) {
     	return PropertiesUtil.getPropertiesValueBySFLang("signup.screen.error.mailExists", language.name());
@@ -99,19 +62,13 @@ public class SignupPage extends GeneralSF {
     public static String localizedWrongVerificationCodeError(DisplayLanguage language) {
     	return PropertiesUtil.getPropertiesValueBySFLang("signup.screen.error.wrongVerificationCode", language.name());
     }
-    
-    //Will be removed
-    public SignupPage navigate() {
-        driver.get(SF_URL_TIEN); //Temporary
-        return this;
-    }
 
     public SignupPage selectCountry(String country) {
-        commonAction.click(loc_ddlCountry);
+        commonAction.click(locator.loc_ddlCountry);
         if (country.contentEquals("rd")) {
-        	commonAction.sleepInMiliSecond(500);
-            int randomNumber = new Random().nextInt(0, commonAction.getElements(loc_lstCountry).size());
-            commonAction.getElements(loc_lstCountry).get(randomNumber).click();
+        	UICommonAction.sleepInMiliSecond(500);
+            int randomNumber = new Random().nextInt(0, commonAction.getElements(locator.loc_lstCountry).size());
+            commonAction.getElements(locator.loc_lstCountry).get(randomNumber).click();
         } else {
             driver.findElement(By.xpath("//ul[@id='signup-country-code-menu']//span[text()='%s']".formatted(country))).click();
         }
@@ -119,61 +76,60 @@ public class SignupPage extends GeneralSF {
         return this;
     }
 
-    public SignupPage inputMailOrPhoneNumber(String user) {
-        commonAction.sendKeys(loc_txtUsername, user);
+    public SignupPage inputUsername(String user) {
+        commonAction.sendKeys(locator.loc_txtUsername, user);
         logger.info("Input '" + user + "' into Username field.");
         return this;
     }
 
     public SignupPage inputPassword(String password) {
-        commonAction.sendKeys(loc_txtPassword, password);
+        commonAction.sendKeys(locator.loc_txtPassword, password);
         logger.info("Input '" + password + "' into Password field.");
         return this;
     }
 
     public SignupPage inputDisplayName(String name) {
-        commonAction.sendKeys(loc_txtDisplayUsername, name);
+        commonAction.sendKeys(locator.loc_txtDisplayUsername, name);
         logger.info("Input '" + name + "' into Display Name field.");
         return this;
     }
 
     public SignupPage inputBirthday(String date) {
-        commonAction.sendKeys(loc_txtBirthday, date);
+        commonAction.sendKeys(locator.loc_txtBirthday, date);
         logger.info("Input '" + date + "' into Birthday field.");
         return this;
     }
 
     public SignupPage inputEmail(String mail) {
-        commonAction.sendKeys(loc_txtOptionalEmail, mail);
+        commonAction.sendKeys(locator.loc_txtOptionalEmail, mail);
         logger.info("Input '" + mail + "' into Email field.");
         return this;
     }
 
     public SignupPage clickLater() {
-        commonAction.click(loc_lnkSkipEmail);
+        commonAction.click(locator.loc_lnkSkipEmail);
         logger.info("Clicked on 'Later' link text to skip inputing email.");
         new GeneralSF(driver).waitTillLoaderDisappear();
         return this;
     }    
     
     public SignupPage clickCompleteBtn() {
-        commonAction.click(loc_btnCompleteEmail);
+        commonAction.click(locator.loc_btnCompleteEmail);
         logger.info("Clicked on Complete button.");
-//        commonAction.sleepInMiliSecond(2000); //Without this delay, the email can not be sent to back end.
         new GeneralSF(driver).waitTillLoaderDisappear();
         return this;
     }
 
     public SignupPage clickSignupBtn() {
-        commonAction.click(loc_btnSignup);
+        commonAction.click(locator.loc_btnSignup);
         logger.info("Clicked on Signup button.");
         new GeneralSF(driver).waitTillLoaderDisappear();
         return this;
     }
     
     public LoginPage clickLoginNow() {
-    	commonAction.click(loc_lnkLoginNow);
-    	logger.info("Clicked on 'Login Now' link text.");
+    	commonAction.click(locator.loc_lnkLoginNow);
+    	logger.info("Clicked 'Login Now' link text.");
     	return new LoginPage(driver);
     }
 
@@ -181,7 +137,7 @@ public class SignupPage extends GeneralSF {
         new HeaderSF(driver).clickUserInfoIcon().clickSignupIcon();
         inputBirthday(birthday);
         selectCountry(country);
-        inputMailOrPhoneNumber(user);
+        inputUsername(user);
         inputPassword(password);
         inputDisplayName(displayName);
         clickSignupBtn();
@@ -192,59 +148,55 @@ public class SignupPage extends GeneralSF {
     }
 
     public SignupPage inputVerificationCode(String verificationCode) {
-        commonAction.sendKeys(loc_txtVerificationCode, verificationCode);
+        commonAction.sendKeys(locator.loc_txtVerificationCode, verificationCode);
         logger.info("Input Verification Code: {}", verificationCode);
         return this;
     }
 
     public SignupPage clickResendOTP() {
-        commonAction.click(loc_lnkResendOTP);
+        commonAction.click(locator.loc_lnkResendOTP);
         logger.info("Clicked Resend linktext.");
         return this;
     }
 
     public void clickConfirmBtn() {
-        commonAction.click(loc_btnConfirmOTP);
+        commonAction.click(locator.loc_btnConfirmOTP);
         logger.info("Clicked on Confirm button.");
         new GeneralSF(driver).waitTillLoaderDisappear();
     }
 
 	public String getUsernameExistError() {
-		String text = commonAction.getText(loc_lblSignupFailError);
+		String text = commonAction.getText(locator.loc_lblSignupFailError);
 		logger.info("Retrieve Username Exists error: {}", text);
 		return text;
 	}
     public String getUsernameError() {
-    	String text = commonAction.getText(loc_lblUsernameError);
+    	String text = commonAction.getText(locator.loc_lblUsernameError);
     	logger.info("Retrieve Username error: {}", text);
     	return text;
     }
 
     public String getPasswordError() {
-    	String text = commonAction.getText(loc_lblPasswordError);
+    	String text = commonAction.getText(locator.loc_lblPasswordError);
     	logger.info("Retrieve Password error: {}", text);
     	return text;
     }
  
     public String getDisplayNameError() {
-    	String text = commonAction.getText(loc_lblDisplayNameError);
+    	String text = commonAction.getText(locator.loc_lblDisplayNameError);
     	logger.info("Retrieve Display Name error: {}", text);
     	return text;
     }
 
     public String getVerificationCodeError() {
-    	String text = commonAction.getText(loc_lblWrongCodeError);
+    	String text = commonAction.getText(locator.loc_lblWrongCodeError);
     	logger.info("Retrieve Verification Code error: {}", text);
     	return text;
     }
-
-    public SignupPage navigate(String domain) {
-        commonAction.navigateToURL(domain);
-        return this;
-    }
+    
     public SignupPage navigateToSignUp(String domain) {
         commonAction.navigateToURL(domain);
-        commonAction.sleepInMiliSecond(1000);
+        UICommonAction.sleepInMiliSecond(1000);
         new HeaderSF(driver).clickUserInfoIcon()
                 .clickSignupIcon();
         return this;
@@ -254,7 +206,7 @@ public class SignupPage extends GeneralSF {
         String verifyCode =  new KibanaAPI().getKeyFromKibana(userName,"activationKey");
         inputVerificationCode(verifyCode);
         clickConfirmBtn();
-        commonAction.sleepInMiliSecond(1000);
+        UICommonAction.sleepInMiliSecond(1000);
     }
 
     public void signUpWithPhoneNumber(String country, String userName, String passWord, String displayName, String birthday) throws SQLException {
@@ -269,7 +221,7 @@ public class SignupPage extends GeneralSF {
     public SignupPage onlyFillOutSignupForm(String country, String user, String password, String displayName, String birthday) {
         if(!birthday.isEmpty()) inputBirthday(birthday);
         selectCountry(country);
-        inputMailOrPhoneNumber(user);
+        inputUsername(user);
         inputPassword(password);
         inputDisplayName(displayName);
         clickSignupBtn();
@@ -277,13 +229,13 @@ public class SignupPage extends GeneralSF {
     }
     
     public void verifyTextAtSignupScreen() throws Exception {
-        String text = commonAction.getText(loc_lblSignupScreen);
+        String text = commonAction.getText(locator.loc_lblSignupScreen);
         Assert.assertEquals(text, PropertiesUtil.getPropertiesValueBySFLang("signup.screen.text"));
         logger.info("verifyTextAtSignupScreen completed");
     }    
 
     public void verifyTextAtVerificationCodeScreen(String username) throws Exception {
-    	String text = commonAction.getText(loc_lblVerificationCodeScreen);
+    	String text = commonAction.getText(locator.loc_lblVerificationCodeScreen);
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueBySFLang("signup.verificationCode.text").formatted(username));
     	logger.info("verifyTextAtVerificationCodeScreen completed");
     }       

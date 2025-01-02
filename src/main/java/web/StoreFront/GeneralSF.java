@@ -4,27 +4,22 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.support.PageFactory;
-import org.openqa.selenium.support.ui.WebDriverWait;
-
 import org.testng.Assert;
-import web.StoreFront.login.LoginPage;
+
 import utilities.commons.UICommonAction;
 import utilities.links.Links;
-
-import java.time.Duration;
+import web.StoreFront.login.LoginPage;
 
 public class GeneralSF {
-	WebDriver driver;
-	WebDriverWait wait;
-	UICommonAction commons;
+	
 	final static Logger logger = LogManager.getLogger(GeneralSF.class);
-
+	
+	WebDriver driver;
+	UICommonAction commons;
+	
 	public GeneralSF(WebDriver driver) {
 		this.driver = driver;
-		wait = new WebDriverWait(driver, Duration.ofSeconds(30));
 		commons = new UICommonAction(driver);
-		PageFactory.initElements(driver, this);
 	}
 
 	By loc_icnSpinner = By.cssSelector(".loader");
@@ -58,14 +53,14 @@ public class GeneralSF {
         return this;
     }
 	public LoginPage clickOnLoginButtonOnRequiredLoginModal(){
-		commons.sleepInMiliSecond(1000);
+		UICommonAction.sleepInMiliSecond(1000);
 		commons.waitVisibilityOfElementLocated(loc_dlgLogin_btnLogin);
 		commons.click(loc_dlgLogin_btnLogin);
 		logger.info("Click on Login button on required login modal.");
 		return  new LoginPage(driver);
 	}
 	public LoginPage clickOnRegisterButtonOnRequiredLoginModal(){
-		commons.sleepInMiliSecond(1000);
+		UICommonAction.sleepInMiliSecond(1000);
 		commons.waitVisibilityOfElementLocated(loc_dlgLogin_btnRegister);
 		commons.click(loc_dlgLogin_btnRegister);
 		logger.info("Click on Register button on required login modal.");
@@ -74,7 +69,7 @@ public class GeneralSF {
 	public GeneralSF navigateToURL(String URL){
 		commons.navigateToURL(URL);
 		logger.info("Navigate to: "+URL);
-		new GeneralSF(driver).waitTillLoaderDisappear();
+		waitTillLoaderDisappear();
 		return this;
 	}
 	public GeneralSF checkPageNotFound(String domain){

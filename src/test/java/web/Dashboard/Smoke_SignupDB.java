@@ -15,26 +15,16 @@ import utilities.enums.Domain;
 import utilities.model.dashboard.setupstore.SetupStoreDG;
 import web.Dashboard.home.HomePage;
 import web.Dashboard.login.LoginPage;
-import web.Dashboard.settings.storeinformation.StoreInformation;
 import web.Dashboard.signup.SetUpStorePage;
 import web.Dashboard.signup.SignupPage;
 
 public class Smoke_SignupDB extends BaseTest {
 	
-	SignupPage signupPage;
-	HomePage homePage;
-	SetUpStorePage setupStorePage;
-	StoreInformation storeInfoPage;
-
 	SetupStoreDG storeDG;
 
 	@BeforeMethod
 	public void setup() {
 		driver = new InitWebdriver().getDriver(browser, headless);
-		signupPage = new SignupPage(driver);
-		homePage = new HomePage(driver);
-		setupStorePage = new SetUpStorePage(driver);
-		storeInfoPage = new StoreInformation(driver, Domain.valueOf(domain));
 		commonAction = new UICommonAction(driver);
 		storeDG = new SetupStoreDG(Domain.valueOf(domain));
 	}
@@ -61,16 +51,10 @@ public class Smoke_SignupDB extends BaseTest {
 			existingPassword = AccountTest.ADMIN_PLAN_PHONE_BIZ_PASSWORD;
 		}
 		
-		//Randomize data
-		storeDG.randomStoreData();
-		storeDG.setCountry(existingCountry);
-		storeDG.setUsername(existingUsername);
-		storeDG.setPassword(existingPassword);
-		
 		//Verify errors appear when users attempt to create an account that already exists
-		signupPage.navigate()
-			.selectDisplayLanguage(DisplayLanguage.valueOf(language))
-			.fillOutSignupForm(storeDG)
+		new SignupPage(driver, Domain.valueOf(domain)).navigate()
+			.changeDisplayLanguage(DisplayLanguage.valueOf(language))
+			.fillOutSignupForm(existingCountry, existingUsername, existingPassword)
 			.verifyUsernameExistError(DisplayLanguage.valueOf(language).name());
 	}
 
@@ -83,20 +67,21 @@ public class Smoke_SignupDB extends BaseTest {
 		System.out.println(storeDG);
 
 		//Register for an account on Dashboard
-		signupPage.navigate()
-			.selectDisplayLanguage(DisplayLanguage.valueOf(language))
+		new SignupPage(driver, Domain.valueOf(domain)).navigate()
+			.changeDisplayLanguage(DisplayLanguage.valueOf(language))
 			.fillOutSignupForm(storeDG)
 			.provideVerificationCode(storeDG);
 		
 		//Login with the account
-		new LoginPage(driver, Domain.valueOf(domain)).navigate().changeDisplayLanguage(DisplayLanguage.valueOf(language)).performLogin(storeDG.getCountry(), storeDG.getUsername(), storeDG.getPassword());		
+		new LoginPage(driver, Domain.valueOf(domain)).navigate()
+			.changeDisplayLanguage(DisplayLanguage.valueOf(language))
+			.performLogin(storeDG.getCountry(), storeDG.getUsername(), storeDG.getPassword());		
 
 		//Verify users can resume store setup process
-		setupStorePage.setupShopExp(storeDG);
+		new SetUpStorePage(driver).setupShopExp(storeDG);
 		
 		//Verify users are taken to Dashboard
-		homePage.verifyPageLoaded();
-
+		new HomePage(driver).verifyPageLoaded();
 	}	
 
 	@Test(dataProvider = "accountType")
@@ -108,16 +93,16 @@ public class Smoke_SignupDB extends BaseTest {
 		System.out.println(storeDG);
 
 		//Register for an account on Dashboard
-		signupPage.navigate()
-			.selectDisplayLanguage(DisplayLanguage.valueOf(language))
+		new SignupPage(driver, Domain.valueOf(domain)).navigate()
+			.changeDisplayLanguage(DisplayLanguage.valueOf(language))
 			.fillOutSignupForm(storeDG)
 			.provideVerificationCode(storeDG);
 
 		//Setup store
-		setupStorePage.setupShopExp(storeDG);
+		new SetUpStorePage(driver).setupShopExp(storeDG);
 		
 		//Verify users are taken to Dashboard
-		homePage.verifyPageLoaded();
+		new HomePage(driver).verifyPageLoaded();
 	}
 
 	@AfterMethod

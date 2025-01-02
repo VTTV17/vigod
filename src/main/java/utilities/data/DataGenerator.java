@@ -34,7 +34,6 @@ import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static utilities.character_limit.CharacterLimit.*;
 
 public class DataGenerator {
-    private List<Path> paths;
 
     public String generateString(int length) {
         return RandomStringUtils.random(length, true, false);
@@ -204,7 +203,7 @@ public class DataGenerator {
      * @param numberOfDigits the number of digits in the random number to be generated
      * @return the randomly generated number as a String
      */
-    public String randomNumberGeneratedFromEpochTime(int numberOfDigits) {
+    static public String randomNumberGeneratedFromEpochTime(int numberOfDigits) {
         long time = System.currentTimeMillis();
         System.out.println("Current Epoch time is: " + time);
         Matcher m = Pattern.compile("\\d{%d}$".formatted(numberOfDigits)).matcher(String.valueOf(time));
@@ -341,7 +340,7 @@ public class DataGenerator {
      * Generates a Vietnamese phone number based on Epoch time
      * @return a {@code String} representing the randomly generated phone number
      */
-    public String randomVNPhone() {
+    static public String randomVNPhone() {
         String phone = randomNumberGeneratedFromEpochTime(10);
         String nonZeroDigit = String.valueOf(generatNumberInBound(1, 10));
         if (phone.matches("^0[1-9]\\d+")) {
@@ -360,7 +359,7 @@ public class DataGenerator {
      * Generates a foreign phone number based on Epoch time
      * @return a {@code String} representing the randomly generated phone number
      */
-    public String randomForeignPhone() {
+    static public String randomForeignPhone() {
         String phone = randomNumberGeneratedFromEpochTime(10);
         String nonZeroDigit = String.valueOf(generatNumberInBound(1, 10));
         if (phone.matches("^[1-9]\\d+")) {
@@ -377,7 +376,7 @@ public class DataGenerator {
      * @param country a {@code String} representing the name of the country
      * @return a {@code String} representing the randomly generated phone number
      */
-    public String randomPhoneByCountry(String country) {
+    static public String randomPhoneByCountry(String country) {
         return country.contentEquals("Vietnam") ? randomVNPhone() : randomForeignPhone();
     }
     

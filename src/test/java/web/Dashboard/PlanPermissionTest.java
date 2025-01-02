@@ -22,6 +22,7 @@ import java.sql.SQLException;
 import static utilities.account.AccountTest.*;
 import static utilities.file.FileNameAndPath.FILE_PERMISSION_PLAN_TCS;
 
+@Deprecated
 public class PlanPermissionTest extends BaseTest {
     LoginPage loginPage;
     HomePage homePage;
