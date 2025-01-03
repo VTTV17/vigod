@@ -86,11 +86,10 @@ public class RefactoredSignupSF extends BaseTest {
 	}	
 	
 	String randomSFDisplayLanguage() {
-        Random random = new Random();
         return publishedLanguages.stream()
         		.filter(AdditionalLanguages::getPublished)
         		.map(AdditionalLanguages::getLangCode)
-        		.collect(Collectors.collectingAndThen(Collectors.toList(), collected -> collected.get(random.nextInt(collected.size()))));
+        		.collect(Collectors.collectingAndThen(Collectors.toList(), collected -> collected.get(new Random().nextInt(collected.size()))));
 	}	
 
 	@BeforeMethod
@@ -180,7 +179,8 @@ public class RefactoredSignupSF extends BaseTest {
 		headerSection.clickUserInfoIcon()
 			.changeLanguage(language);
 		
-		if (buyerData.getType().equals(AccountType.MOBILE)) UICommonAction.sleepInMiliSecond(50000, "The time interval between 2 Register API calls is 60s");
+		if (buyerData.getType().equals(AccountType.MOBILE)) 
+			UICommonAction.sleepInMiliSecond(50000, "The time interval between 2 Register API calls is 60s"); //https://mediastep.atlassian.net/browse/BH-37703
 		
 		String actualError = signupPage.fillOutSignupForm(buyerData)
 			.getUsernameExistError();
@@ -195,15 +195,6 @@ public class RefactoredSignupSF extends BaseTest {
 
 	@Test(dataProvider = "accountDataProvider")
 	void TC_CreateAccountWithWrongVerificationCode(BuyerSignupData buyerData) {
-		
-		//Arrange expected results
-		var expectedError = SignupPage.localizedWrongVerificationCodeError(DisplayLanguage.valueOf(language));
-		var expected_UserProfile_Name = buyerData.getDisplayName();
-		var expected_UserProfile_Email = buyerData.getEmail();
-		var expected_UserProfile_Birthday = buyerData.getBirthday();
-		var expected_UserProfile_Phone = "%s:%s".formatted(buyerData.getPhoneCode(), buyerData.getUsername());
-		var expected_UserProfile_Country = buyerData.getCountry();
-		var expected_API_LocationCode = buyerData.getCountryCode();
 		
 		//Create an account on SF
 		generalSFAction.navigateToURL(sellerSFURL);
@@ -222,9 +213,8 @@ public class RefactoredSignupSF extends BaseTest {
 		
 		var actualError = signupPage.getVerificationCodeError();
 		
-		
 		//Assertions for error
-		Assert.assertEquals(actualError, expectedError);
+		Assert.assertEquals(actualError, SignupPage.localizedWrongVerificationCodeError(DisplayLanguage.valueOf(language)));
 		
 		
 		//Input the correct code
@@ -239,8 +229,8 @@ public class RefactoredSignupSF extends BaseTest {
 			.clickLogout();
 		
 		// Re-login
-		new LoginPage(driver).navigate(sellerSFURL)
-			.performLogin(buyerData.getCountry(), buyerData.getUsername(), buyerData.getPassword());
+		generalSFAction.navigateToURL(sellerSFURL);
+		new LoginPage(driver).performLogin(buyerData.getCountry(), buyerData.getUsername(), buyerData.getPassword());
 		
 		//Retrieve info on SF
 		MyAccount accountPage = headerSection.clickUserInfoIcon()
@@ -253,8 +243,7 @@ public class RefactoredSignupSF extends BaseTest {
 		var actual_SF_Country = new UserProfileInfo(driver).clickMyAddressSection().getCountry();
 		
 		//Retrieve info on Dashboard
-		new web.Dashboard.login.LoginPage(driver, Domain.valueOf(domain))
-			.navigate()
+		new web.Dashboard.login.LoginPage(driver, Domain.valueOf(domain)).navigate()
 			.changeDisplayLanguage(DisplayLanguage.valueOf(language))
 			.performValidLogin(sellerCountry, sellerUsername, sellerPassword);
 
@@ -273,19 +262,21 @@ public class RefactoredSignupSF extends BaseTest {
 		
 		
 		//Assertions for SF
-		Assert.assertEquals(actual_SF_Name, expected_UserProfile_Name);
-		Assert.assertEquals(actual_SF_Email, expected_UserProfile_Email);
-		Assert.assertEquals(actual_SF_Birthday, expected_UserProfile_Birthday);
-		if (buyerData.getType().equals(AccountType.MOBILE)) Assert.assertEquals(actual_SF_Phone, expected_UserProfile_Phone);
-		Assert.assertEquals(actual_SF_Country, expected_UserProfile_Country);
+		Assert.assertEquals(actual_SF_Name, buyerData.getDisplayName());
+		Assert.assertEquals(actual_SF_Email, buyerData.getEmail());
+		Assert.assertEquals(actual_SF_Birthday, buyerData.getBirthday());
+		if (buyerData.getType().equals(AccountType.MOBILE)) 
+			Assert.assertEquals(actual_SF_Phone, "%s:%s".formatted(buyerData.getPhoneCode(), buyerData.getUsername()));
+		Assert.assertEquals(actual_SF_Country, buyerData.getCountry());
 		
 		//Assertions for Dashboard
-		Assert.assertEquals(actualDashboardEmail, expected_UserProfile_Email);
-		if (buyerData.getType().equals(AccountType.MOBILE)) Assert.assertEquals(actualDashboardPhone, expected_UserProfile_Phone);
-		Assert.assertEquals(actualDashboardCountry, expected_UserProfile_Country);
+		Assert.assertEquals(actualDashboardEmail, buyerData.getEmail());
+		if (buyerData.getType().equals(AccountType.MOBILE)) 
+			Assert.assertEquals(actualDashboardPhone, "%s:%s".formatted(buyerData.getPhoneCode(), buyerData.getUsername()));
+		Assert.assertEquals(actualDashboardCountry, buyerData.getCountry());
 		
 		//Assertions for API
-		Assert.assertEquals(actual_API_LocationCode, expected_API_LocationCode);
+		Assert.assertEquals(actual_API_LocationCode, buyerData.getCountryCode());
 		
 		
 		//Delete account afterwards
@@ -294,15 +285,6 @@ public class RefactoredSignupSF extends BaseTest {
 
 	@Test(dataProvider = "accountDataProvider")
 	void TC_CreateAccountWithResentVerificationCode(BuyerSignupData buyerData) {
-		
-		//Arrange expected results
-		var expected_UserProfile_Name = buyerData.getDisplayName();
-		var expected_UserProfile_Email = buyerData.getEmail();
-		var expected_UserProfile_Birthday = buyerData.getBirthday();
-		var expected_UserProfile_Phone = "%s:%s".formatted(buyerData.getPhoneCode(), buyerData.getUsername());
-		var expected_UserProfile_Country = buyerData.getCountry();
-		var expected_API_LocationCode = buyerData.getCountryCode();
-		
 		
 		//Create an account on SF
 		generalSFAction.navigateToURL(sellerSFURL);
@@ -315,7 +297,10 @@ public class RefactoredSignupSF extends BaseTest {
 		//Get 1st verification code
 		var initialCode = getActivationKey(buyerData);
 		
-		if (buyerData.getType().equals(AccountType.MOBILE)) UICommonAction.sleepInMiliSecond(60000, "Wait 60s before hitting Resend button");
+		UICommonAction.sleepInMiliSecond(5000, "Wait 5s before hitting Resend button");
+		
+		if (buyerData.getType().equals(AccountType.MOBILE)) 
+			UICommonAction.sleepInMiliSecond(50000, "Wait 60s before hitting Resend button for phone account"); //https://mediastep.atlassian.net/browse/BH-37703
 		
 		//Resend verification code
 		signupPage.clickResendOTP();
@@ -345,8 +330,8 @@ public class RefactoredSignupSF extends BaseTest {
 			.clickLogout();
 		
 		// Re-login
-		new LoginPage(driver).navigate(sellerSFURL)
-			.performLogin(buyerData.getCountry(), buyerData.getUsername(), buyerData.getPassword());
+		generalSFAction.navigateToURL(sellerSFURL);
+		new LoginPage(driver).performLogin(buyerData.getCountry(), buyerData.getUsername(), buyerData.getPassword());
 		
 		//Retrieve info on SF
 		MyAccount accountPage = headerSection.clickUserInfoIcon()
@@ -378,19 +363,19 @@ public class RefactoredSignupSF extends BaseTest {
 
 		
 		//Assertions for SF
-		Assert.assertEquals(actual_SF_Name, expected_UserProfile_Name);
-		Assert.assertEquals(actual_SF_Email, expected_UserProfile_Email);
-		Assert.assertEquals(actual_SF_Birthday, expected_UserProfile_Birthday);
-		if (buyerData.getType().equals(AccountType.MOBILE)) Assert.assertEquals(actual_SF_Phone, expected_UserProfile_Phone);
-		Assert.assertEquals(actual_SF_Country, expected_UserProfile_Country);
+		Assert.assertEquals(actual_SF_Name, buyerData.getDisplayName());
+		Assert.assertEquals(actual_SF_Email, buyerData.getEmail());
+		Assert.assertEquals(actual_SF_Birthday, buyerData.getBirthday());
+		if (buyerData.getType().equals(AccountType.MOBILE)) Assert.assertEquals(actual_SF_Phone, "%s:%s".formatted(buyerData.getPhoneCode(), buyerData.getUsername()));
+		Assert.assertEquals(actual_SF_Country, buyerData.getCountry());
 		
 		//Assertions for Dashboard
-		Assert.assertEquals(actualDashboardEmail, expected_UserProfile_Email);
-		if (buyerData.getType().equals(AccountType.MOBILE)) Assert.assertEquals(actualDashboardPhone, expected_UserProfile_Phone);
-		Assert.assertEquals(actualDashboardCountry, expected_UserProfile_Country);
+		Assert.assertEquals(actualDashboardEmail, buyerData.getEmail());
+		if (buyerData.getType().equals(AccountType.MOBILE)) Assert.assertEquals(actualDashboardPhone, "%s:%s".formatted(buyerData.getPhoneCode(), buyerData.getUsername()));
+		Assert.assertEquals(actualDashboardCountry, buyerData.getCountry());
 		
 		//Assertions for API
-		Assert.assertEquals(actual_API_LocationCode, expected_API_LocationCode);
+		Assert.assertEquals(actual_API_LocationCode, buyerData.getCountryCode());
 		
 		
 		//Delete account afterwards
@@ -400,21 +385,13 @@ public class RefactoredSignupSF extends BaseTest {
 	@Test(dataProvider = "accountDataProvider")
 	void TC_CreateAccountAfterLeaving(BuyerSignupData buyerData) {
 		
-		//Arrange expected results
-		var expected_UserProfile_Name = buyerData.getDisplayName();
-		var expected_UserProfile_Email = buyerData.getEmail();
-		var expected_UserProfile_Birthday = buyerData.getBirthday();
-		var expected_UserProfile_Phone = "%s:%s".formatted(buyerData.getPhoneCode(), buyerData.getUsername());
-		var expected_UserProfile_Country = buyerData.getCountry();
-		var expected_API_LocationCode = buyerData.getCountryCode();
 		var expected_API_LangKey = randomSFDisplayLanguage();
-		
 		
 		//Create an account on SF
 		generalSFAction.navigateToURL(sellerSFURL);
 		
 		headerSection.clickUserInfoIcon()
-		.changeLanguageByLangCode(expected_API_LangKey);
+			.changeLanguageByLangCode(expected_API_LangKey);
 		
 		signupPage.fillOutSignupForm(buyerData);
 		
@@ -424,24 +401,25 @@ public class RefactoredSignupSF extends BaseTest {
 		
 		//Create the account again
 		headerSection.clickUserInfoIcon()
-		.changeLanguageByLangCode(expected_API_LangKey);
+			.changeLanguageByLangCode(expected_API_LangKey);
 		
-		if (buyerData.getType().equals(AccountType.MOBILE)) UICommonAction.sleepInMiliSecond(60000, "The time interval between 2 Register API calls is 60s");
+		if (buyerData.getType().equals(AccountType.MOBILE)) 
+			UICommonAction.sleepInMiliSecond(60000, "The time interval between 2 Register API calls is 60s"); //https://mediastep.atlassian.net/browse/BH-37703
 		
 		signupPage.fillOutSignupForm(buyerData)
-		.inputVerificationCode(getActivationKey(buyerData))
-		.clickConfirmBtn();
+			.inputVerificationCode(getActivationKey(buyerData))
+			.clickConfirmBtn();
 		
 		if (buyerData.getType().equals(AccountType.MOBILE)) 
 			signupPage.inputEmail(buyerData.getEmail()).clickCompleteBtn();
 		
 		// Logout
 		headerSection.clickUserInfoIcon()
-		.clickLogout();
+			.clickLogout();
 		
 		// Re-login
-		new LoginPage(driver).navigate(sellerSFURL)
-		.performLogin(buyerData.getCountry(), buyerData.getUsername(), buyerData.getPassword());
+		generalSFAction.navigateToURL(sellerSFURL);
+		new LoginPage(driver).performLogin(buyerData.getCountry(), buyerData.getUsername(), buyerData.getPassword());
 		
 		//Retrieve info on SF
 		MyAccount accountPage = headerSection.clickUserInfoIcon()
@@ -472,19 +450,19 @@ public class RefactoredSignupSF extends BaseTest {
 		
 		
 		//Assertions for SF
-		Assert.assertEquals(actual_SF_Name, expected_UserProfile_Name);
-		Assert.assertEquals(actual_SF_Email, expected_UserProfile_Email);
-		Assert.assertEquals(actual_SF_Birthday, expected_UserProfile_Birthday);
-		if (buyerData.getType().equals(AccountType.MOBILE)) Assert.assertEquals(actual_SF_Phone, expected_UserProfile_Phone);
-		Assert.assertEquals(actual_SF_Country, expected_UserProfile_Country);
+		Assert.assertEquals(actual_SF_Name, buyerData.getDisplayName());
+		Assert.assertEquals(actual_SF_Email, buyerData.getEmail());
+		Assert.assertEquals(actual_SF_Birthday, buyerData.getBirthday());
+		if (buyerData.getType().equals(AccountType.MOBILE)) Assert.assertEquals(actual_SF_Phone, "%s:%s".formatted(buyerData.getPhoneCode(), buyerData.getUsername()));
+		Assert.assertEquals(actual_SF_Country, buyerData.getCountry());
 		
 		//Assertions for Dashboard
-		Assert.assertEquals(actualDashboardEmail, expected_UserProfile_Email);
-		if (buyerData.getType().equals(AccountType.MOBILE)) Assert.assertEquals(actualDashboardPhone, expected_UserProfile_Phone);
-		Assert.assertEquals(actualDashboardCountry, expected_UserProfile_Country);
+		Assert.assertEquals(actualDashboardEmail, buyerData.getEmail());
+		if (buyerData.getType().equals(AccountType.MOBILE)) Assert.assertEquals(actualDashboardPhone, "%s:%s".formatted(buyerData.getPhoneCode(), buyerData.getUsername()));
+		Assert.assertEquals(actualDashboardCountry, buyerData.getCountry());
 		
 		//Assertions for API
-		Assert.assertEquals(actual_API_LocationCode, expected_API_LocationCode);
+		Assert.assertEquals(actual_API_LocationCode, buyerData.getCountryCode());
 		Assert.assertEquals(actual_API_langKey, expected_API_LangKey);
 		
 		
@@ -495,15 +473,7 @@ public class RefactoredSignupSF extends BaseTest {
 	@Test(dataProvider = "accountDataProvider")
 	void TC_CreateAccount(BuyerSignupData buyerData) {
 		
-		//Arrange expected results
-		var expected_UserProfile_Name = buyerData.getDisplayName();
-		var expected_UserProfile_Email = buyerData.getEmail();
-		var expected_UserProfile_Birthday = buyerData.getBirthday();
-		var expected_UserProfile_Phone = "%s:%s".formatted(buyerData.getPhoneCode(), buyerData.getUsername());
-		var expected_UserProfile_Country = buyerData.getCountry();
-		var expected_API_LocationCode = buyerData.getCountryCode();
 		var expected_API_LangKey = randomSFDisplayLanguage();
-		
 		
 		//Create an account on SF
 		generalSFAction.navigateToURL(sellerSFURL);
@@ -555,19 +525,19 @@ public class RefactoredSignupSF extends BaseTest {
 
 		
 		//Assertions for SF
-		Assert.assertEquals(actual_SF_Name, expected_UserProfile_Name);
-		Assert.assertEquals(actual_SF_Email, expected_UserProfile_Email);
-		Assert.assertEquals(actual_SF_Birthday, expected_UserProfile_Birthday);
-		if (buyerData.getType().equals(AccountType.MOBILE)) Assert.assertEquals(actual_SF_Phone, expected_UserProfile_Phone);
-		Assert.assertEquals(actual_SF_Country, expected_UserProfile_Country);
+		Assert.assertEquals(actual_SF_Name, buyerData.getDisplayName());
+		Assert.assertEquals(actual_SF_Email, buyerData.getEmail());
+		Assert.assertEquals(actual_SF_Birthday, buyerData.getBirthday());
+		if (buyerData.getType().equals(AccountType.MOBILE)) Assert.assertEquals(actual_SF_Phone, "%s:%s".formatted(buyerData.getPhoneCode(), buyerData.getUsername()));
+		Assert.assertEquals(actual_SF_Country, buyerData.getCountry());
 		
 		//Assertions for Dashboard
-		Assert.assertEquals(actualDashboardEmail, expected_UserProfile_Email);
-		if (buyerData.getType().equals(AccountType.MOBILE)) Assert.assertEquals(actualDashboardPhone, expected_UserProfile_Phone);
-		Assert.assertEquals(actualDashboardCountry, expected_UserProfile_Country);
+		Assert.assertEquals(actualDashboardEmail, buyerData.getEmail());
+		if (buyerData.getType().equals(AccountType.MOBILE)) Assert.assertEquals(actualDashboardPhone, "%s:%s".formatted(buyerData.getPhoneCode(), buyerData.getUsername()));
+		Assert.assertEquals(actualDashboardCountry, buyerData.getCountry());
 		
 		//Assertions for API
-		Assert.assertEquals(actual_API_LocationCode, expected_API_LocationCode);
+		Assert.assertEquals(actual_API_LocationCode, buyerData.getCountryCode());
 		Assert.assertEquals(actual_API_langKey, expected_API_LangKey);
 		
 		
@@ -578,13 +548,12 @@ public class RefactoredSignupSF extends BaseTest {
 	@DataProvider
 	Object[][] accountsToDelete() {
 		return new Object[][] { 
-			{"Hong Kong S.A.R.", "auto-buyer63776338@mailnesia.com"},
+			{"Chad", "auto-buyer99670972@mailnesia.com"},
 		};
 	}	
 	@Test(dataProvider = "accountsToDelete")
 	void deleteAccount(String country, String username) {
-//		new LoginSF(sellerCredentials).deleteAccount(username, "fortesting!1", DataGenerator.getPhoneCode(country));
-		new LoginSF(sellerCredentials).deleteAccountByTokenId("eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJmYWNlYm9vazogbG1pbmhoYW85NzUzQGdtYWlsLmNvbSIsImF1dGgiOiJST0xFX1VTRVIiLCJkaXNwbGF5TmFtZSI6IkjDoG8gTMOibSBNaW5oIiwidXNlcklkIjoyNjg3NTAwNzQsImxvY2F0aW9uQ29kZSI6IlZOLVNHIiwiZXhwIjoxNzU4Nzg2NDMyfQ.8wFxPVb16ouBvpOr0te0pFVUN8XlucH4nGJm9pAMJZTi9BTgFi_W0tILQddISYCfGH6D-u8fPX_G-PVb1F4MJQ");
+		new LoginSF(sellerCredentials).deleteAccount(username, "fortesting!1", DataGenerator.getPhoneCode(country));
 	}		
 	
     @AfterMethod

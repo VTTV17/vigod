@@ -11,7 +11,7 @@ public class CountryTDG {
 	 * <p>These countries are excluded from country pool for automation as their phone doesn't comply to GoSELL's phone criteria
 	 * (Eg. phone number length is not in the range of (8, 15))
 	 */
-	public static List<String> excludedCountries; 
+	public static final List<String> excludedCountries; 
 	static {
 		excludedCountries = new ArrayList<>();
 		//these countries have phone numbers of less than 8 digits

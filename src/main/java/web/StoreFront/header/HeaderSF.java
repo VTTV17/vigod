@@ -2,7 +2,6 @@ package web.StoreFront.header;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -20,12 +19,12 @@ import java.time.Duration;
 import java.util.List;
 
 public class HeaderSF extends GeneralSF {
+	
+	final static Logger logger = LogManager.getLogger(HeaderSF.class);
+	
     WebDriver driver;
     WebDriverWait wait;
     UICommonAction commons;
-    final static Logger logger = LogManager.getLogger(HeaderSF.class);
-    ProductCollectionSFElement productCollectionSFUI;
-
 
     public HeaderSF(WebDriver driver) {
         super(driver);
@@ -102,7 +101,7 @@ public class HeaderSF extends GeneralSF {
     }
 
     public HeaderSF searchWithFullName(String fullName) {
-        commons.sleepInMiliSecond(1000);
+    	UICommonAction.sleepInMiliSecond(1000);
         commons.clickElement(SEARCH_FIELD_TO_CLICK);
         logger.info("Click on Search bar");
         commons.inputText(SEARCH_FIELD_TO_INPUT, fullName);
@@ -111,7 +110,7 @@ public class HeaderSF extends GeneralSF {
     }
 
     public HeaderSF verifySearchSuggestion(String fullName, String price) {
-        commons.sleepInMiliSecond(500);
+    	UICommonAction.sleepInMiliSecond(500);
         new GeneralSF(driver).waitDotLoadingDisappear();
 
         String searchSuggestionItem1_Title = commons.getText(SEARCH_SUGGESTION_RESULT_TITLE,0);
@@ -146,7 +145,7 @@ public class HeaderSF extends GeneralSF {
     public HeaderSF clickSearchResult() {
         for (int i = 0; i < 6; i++) {
             if (SEARCH_SUGGESTION_RESULT_TITLE.size() > 0) break;
-            commons.sleepInMiliSecond(500);
+            UICommonAction.sleepInMiliSecond(500);
         }
         commons.clickElement(SEARCH_SUGGESTION_RESULT_TITLE.get(0));
         logger.info("Click on the first suggestion to go to detail page");
@@ -235,12 +234,12 @@ public class HeaderSF extends GeneralSF {
         String menuItemNewXpath = MENU_ITEM_BY_TEXT.formatted(menuItemByText);
         commons.clickElement(wait.until(ExpectedConditions.visibilityOf(commons.getElementByXpath(menuItemNewXpath))));
         logger.info("Click on menu: " + menuItemByText);
-        productCollectionSFUI = new ProductCollectionSFElement(driver);
+        ProductCollectionSFElement productCollectionSFUI = new ProductCollectionSFElement(driver);
         int i=0;
-        commons.sleepInMiliSecond(1000);
+        UICommonAction.sleepInMiliSecond(1000);
         while (i<5){
             if(productCollectionSFUI.PRODUCT_NAMES.size() == 0){
-                commons.sleepInMiliSecond(1000);
+            	UICommonAction.sleepInMiliSecond(1000);
                 commons.clickElement(wait.until(ExpectedConditions.visibilityOf(commons.getElementByXpath(menuItemNewXpath))));
                 logger.info("Click on menu again: " + menuItemByText);
             }else break;
