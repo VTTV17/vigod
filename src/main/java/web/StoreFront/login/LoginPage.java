@@ -45,6 +45,7 @@ public class LoginPage {
     By loc_lblLoginFailError = By.id("login-fail");
     By loc_lblPasswordError = By.id("login-password-error");
     
+    //TODO delete this function
     public LoginPage navigate(String domain) {
         driver.get(domain);
         logger.debug("Page title is: "+driver.getTitle());

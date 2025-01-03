@@ -7,6 +7,9 @@ import utilities.enums.AccountType;
 import utilities.model.dashboard.setupstore.CountryData;
 import utilities.model.dashboard.storefront.BuyerSignupData;
 
+/**
+ * This class helps generate dummy data to create buyers
+ */
 public class SignupBuyerTDG {
 	
 	static String password = "fortesting!1";
