@@ -10,6 +10,7 @@ public class Links {
     public static String DOMAIN = PropertiesUtil.getEnvironmentData("dashboarUrl");
     public static String DOMAIN_BIZ = PropertiesUtil.getEnvironmentData("dashboardUrlBiz");
     public static String SETTING_PATH = "/setting";
+    //TODO retrieve SF_URL from API
     public static String SF_URL_TIEN = PropertiesUtil.getEnvironmentData("sfShopTien");
     public static String SF_ShopVi = PropertiesUtil.getEnvironmentData("sfShopVi");
 

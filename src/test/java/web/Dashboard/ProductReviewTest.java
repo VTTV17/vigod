@@ -83,6 +83,7 @@ public class ProductReviewTest extends BaseTest {
 	}	
 
 	public String randomProduct() {
+		//TODO make the list random
 		String[] pro1ducts = { "Fish Food", "Tetra Fish Food", "Dog Food", "Cat Food", "Bird Food" };
 		return pro1ducts[new Random().nextInt(0, pro1ducts.length)];
 	}	
@@ -223,8 +224,8 @@ public class ProductReviewTest extends BaseTest {
 	
 	public void leaveReview(String product) throws Exception {
 		
-		String randomNumber = new DataGenerator().randomNumberGeneratedFromEpochTime(10);
-		int randomStar = new DataGenerator().generatNumberInBound(1, 6);
+		String randomNumber = DataGenerator.randomNumberGeneratedFromEpochTime(10);
+		int randomStar = DataGenerator.generatNumberInBound(1, 6);
 		
 		/* Log into SF */
 		loginSF();

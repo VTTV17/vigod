@@ -1,6 +1,7 @@
 package web.Dashboard;
 
 
+import org.testng.Assert;
 import org.testng.ITestResult;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
@@ -38,7 +39,7 @@ public class Smoke_SignupDB extends BaseTest {
 	}		
 	
 	@Test
-	public void SignupWithExistingAccount() throws Exception {
+	public void SignupWithExistingAccount() {
 		
 		String existingCountry, existingUsername, existingPassword;
 		if(Domain.valueOf(domain).equals(Domain.VN)) {
@@ -52,10 +53,12 @@ public class Smoke_SignupDB extends BaseTest {
 		}
 		
 		//Verify errors appear when users attempt to create an account that already exists
-		new SignupPage(driver, Domain.valueOf(domain)).navigate()
+		String error = new SignupPage(driver, Domain.valueOf(domain)).navigate()
 			.changeDisplayLanguage(DisplayLanguage.valueOf(language))
 			.fillOutSignupForm(existingCountry, existingUsername, existingPassword)
-			.verifyUsernameExistError(DisplayLanguage.valueOf(language).name());
+			.getUsernameExistError();
+		
+		Assert.assertEquals(error, SignupPage.localizedUsernameAlreadyExistError(DisplayLanguage.valueOf(language)));
 	}
 
 	@Test(dataProvider = "accountType")
