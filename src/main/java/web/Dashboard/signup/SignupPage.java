@@ -12,6 +12,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.testng.Assert;
 
+import lombok.SneakyThrows;
 import utilities.api.thirdparty.KibanaAPI;
 import utilities.commons.UICommonAction;
 import utilities.enums.DisplayLanguage;
@@ -43,7 +44,12 @@ public class SignupPage {
         this(driver);
         this.domain = domain;
     }
- 
+
+    @SneakyThrows
+    public static String localizedUsernameAlreadyExistError(DisplayLanguage language) {
+    	return PropertiesUtil.getPropertiesValueBySFLang("signup.screen.error.userExists", language.name());
+    }    
+    
     /**
      * Navigates to Sign-up screen by URL
      */
@@ -152,12 +158,6 @@ public class SignupPage {
 		logger.info("Retrieve Username Exists error: {}", text);
 		return text;
 	}
-    public SignupPage verifyUsernameExistError(String signupLanguage) throws Exception {
-    	String retrievedMsg = PropertiesUtil.getPropertiesValueByDBLang("signup.screen.error.userExists", signupLanguage);
-    	Assert.assertEquals(getUsernameExistError(),retrievedMsg, "Username exists error");
-    	logger.info("verifyUsernameExistError completed");
-    	return this;
-    }
     
     public String getVerificationCodeError() {
     	String text = commonAction.getText(locator.loc_lblInvalidFeedback);

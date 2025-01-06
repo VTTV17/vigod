@@ -43,6 +43,10 @@ import web.StoreFront.signup.SignupPage;
 import web.StoreFront.userprofile.MyAccount.MyAccount;
 import web.StoreFront.userprofile.userprofileinfo.UserProfileInfo;
 
+/**
+ * Preconditions: Store has published at least 2 display languages, and one of them is ENG
+ */
+
 public class RefactoredSignupSF extends BaseTest {
 	
 	GeneralSF generalSFAction;
@@ -58,7 +62,6 @@ public class RefactoredSignupSF extends BaseTest {
 	
 	@BeforeClass
 	void loadData() {
-		
 		if(Domain.valueOf(domain).equals(Domain.VN)) {
 			sellerCountry = ADMIN_COUNTRY_TIEN;
 			sellerUsername = ADMIN_USERNAME_TIEN;
@@ -78,7 +81,6 @@ public class RefactoredSignupSF extends BaseTest {
 		sellerSFURL = "https://%s".formatted(new StoreInformation(sellerCredentials).getInfo().getStoreURL() + sfDomain);
 		
 		loginSFAPI = new LoginSF(sellerCredentials);
-        
 	}
 	
 	String getActivationKey(BuyerSignupData data) {
@@ -134,10 +136,12 @@ public class RefactoredSignupSF extends BaseTest {
 	@Test(dataProvider = "accountDataProvider")
 	void TC_CreateAccountWithInvalidData(BuyerSignupData buyerData) {
 		
+		String langCode = randomSFDisplayLanguage();
+		
 		//Try creating an account with invalid data
 		generalSFAction.navigateToURL(sellerSFURL);
 		headerSection.clickUserInfoIcon()
-			.changeLanguage(language);
+			.changeLanguageByLangCode(langCode);
 		
 		commonAction.refreshPage();
 		var actualEmptyUsernameError = signupPage.fillOutSignupForm(buyerData.getCountry(), "", buyerData.getPassword(), buyerData.getDisplayName(), buyerData.getBirthday())
@@ -157,27 +161,32 @@ public class RefactoredSignupSF extends BaseTest {
 				.getUsernameError();
 
 		//Assertions for errors
-		Assert.assertEquals(actualEmptyUsernameError, SignupPage.localizedEmptyUsernameError(DisplayLanguage.valueOf(language)));
-		Assert.assertEquals(actualEmptyPasswordError, SignupPage.localizedEmptyPasswordError(DisplayLanguage.valueOf(language)));
-		Assert.assertEquals(actualEmptyNameError, SignupPage.localizedEmptyNameError(DisplayLanguage.valueOf(language)));
-		Assert.assertEquals(actualInvalidUsernameFormatError, SignupPage.localizedInvalidUsernameError(DisplayLanguage.valueOf(language)));
+		DisplayLanguage localizedLanguage = langCode.startsWith("vi") ? DisplayLanguage.VIE : DisplayLanguage.ENG;
+		Assert.assertEquals(actualEmptyUsernameError, SignupPage.localizedEmptyUsernameError(localizedLanguage));
+		Assert.assertEquals(actualEmptyPasswordError, SignupPage.localizedEmptyPasswordError(localizedLanguage));
+		Assert.assertEquals(actualEmptyNameError, SignupPage.localizedEmptyNameError(localizedLanguage));
+		Assert.assertEquals(actualInvalidUsernameFormatError, SignupPage.localizedInvalidUsernameError(localizedLanguage));
 	}	
 
 	@Test(dataProvider = "accountDataProvider")
 	void TC_CreateAccountWithExistingUsername(BuyerSignupData buyerData) {
 		
+		String langCode = randomSFDisplayLanguage();
+		
 		//Arrange expected results
+		DisplayLanguage localizedLanguage = langCode.startsWith("vi") ? DisplayLanguage.VIE : DisplayLanguage.ENG;
 		var expectedError = buyerData.getType().equals(AccountType.MOBILE) 
-				? SignupPage.localizedPhoneAlreadyExistError(DisplayLanguage.valueOf(language)) 
-						: SignupPage.localizedEmailAlreadyExistError(DisplayLanguage.valueOf(language));
+				? SignupPage.localizedPhoneAlreadyExistError(localizedLanguage) 
+						: SignupPage.localizedEmailAlreadyExistError(localizedLanguage);
 		
 		
 		//Create an account
-		createAccountOnSF(buyerData, randomSFDisplayLanguage());
+		//TODO Consider whether it's more convenient to use existing accounts instead of creating them on the fly
+		createAccountOnSF(buyerData, langCode);
 		
 		//Try creating an account with the same username
 		headerSection.clickUserInfoIcon()
-			.changeLanguage(language);
+			.changeLanguageByLangCode(langCode);
 		
 		if (buyerData.getType().equals(AccountType.MOBILE)) 
 			UICommonAction.sleepInMiliSecond(50000, "The time interval between 2 Register API calls is 60s"); //https://mediastep.atlassian.net/browse/BH-37703
@@ -196,11 +205,13 @@ public class RefactoredSignupSF extends BaseTest {
 	@Test(dataProvider = "accountDataProvider")
 	void TC_CreateAccountWithWrongVerificationCode(BuyerSignupData buyerData) {
 		
+		String langCode = randomSFDisplayLanguage();
+		
 		//Create an account on SF
 		generalSFAction.navigateToURL(sellerSFURL);
 		
 		headerSection.clickUserInfoIcon()
-			.changeLanguage(language);
+			.changeLanguageByLangCode(langCode);
 		
 		signupPage.fillOutSignupForm(buyerData);
 		
@@ -214,8 +225,8 @@ public class RefactoredSignupSF extends BaseTest {
 		var actualError = signupPage.getVerificationCodeError();
 		
 		//Assertions for error
-		Assert.assertEquals(actualError, SignupPage.localizedWrongVerificationCodeError(DisplayLanguage.valueOf(language)));
-		
+		DisplayLanguage localizedLanguage = langCode.startsWith("vi") ? DisplayLanguage.VIE : DisplayLanguage.ENG;
+		Assert.assertEquals(actualError, SignupPage.localizedWrongVerificationCodeError(localizedLanguage));
 		
 		//Input the correct code
 		signupPage.inputVerificationCode(code)
@@ -493,8 +504,8 @@ public class RefactoredSignupSF extends BaseTest {
 			.clickLogout();
 		
 		// Re-login
-		new LoginPage(driver).navigate(sellerSFURL)
-			.performLogin(buyerData.getCountry(), buyerData.getUsername(), buyerData.getPassword());
+		generalSFAction.navigateToURL(sellerSFURL);
+		new LoginPage(driver).performLogin(buyerData.getCountry(), buyerData.getUsername(), buyerData.getPassword());
 		
 		//Retrieve info on SF
 		MyAccount accountPage = headerSection.clickUserInfoIcon()
@@ -553,7 +564,7 @@ public class RefactoredSignupSF extends BaseTest {
 	}	
 	@Test(dataProvider = "accountsToDelete")
 	void deleteAccount(String country, String username) {
-		new LoginSF(sellerCredentials).deleteAccount(username, "fortesting!1", DataGenerator.getPhoneCode(country));
+		loginSFAPI.deleteAccount(username, "fortesting!1", DataGenerator.getPhoneCode(country));
 	}		
 	
     @AfterMethod

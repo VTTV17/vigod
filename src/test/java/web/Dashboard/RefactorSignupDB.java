@@ -261,12 +261,14 @@ public class RefactorSignupDB extends BaseTest {
 	}
 
 	@Test
-	public void SignupWithExistingAccount() throws Exception {
+	public void SignupWithExistingAccount() {
 
-		signupPage.navigate()
+		String error = signupPage.navigate()
 			.selectDisplayLanguage(DisplayLanguage.valueOf(language))
 			.fillOutSignupForm(country, username, password)
-			.verifyUsernameExistError(DisplayLanguage.valueOf(language).name());
+			.getUsernameExistError();
+		
+		Assert.assertEquals(error, SignupPage.localizedUsernameAlreadyExistError(DisplayLanguage.valueOf(language)));
 	}
 
 	@Test
