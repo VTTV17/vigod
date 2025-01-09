@@ -32,7 +32,10 @@ public class AllCustomers {
 	HomePage homePage;
 	AllCustomerElement elements;
 	
-	Domain domain;
+    /**
+     * Domain defaults to VN. Use the object's constructor to override it when necessary
+     */
+    Domain domain = Domain.VN;  
 
 	public AllCustomers(WebDriver driver) {
 		this.driver = driver;
@@ -69,15 +72,18 @@ public class AllCustomers {
 		homePage.waitTillSpinnerDisappear1();
 		return this;
 	}
-
+	
 	public AllCustomers navigateUsingURL() {
-		if (domain.equals(Domain.VN)) {
-			navigateByURL(DOMAIN + "/customers/all-customers/list");
-		} else {
-			navigateByURL(DOMAIN_BIZ + "/customers/all-customers/list");
-		}
+    	var url = switch (domain) {
+	        case VN -> DOMAIN + "/customers/all-customers/list";
+	        case BIZ -> DOMAIN_BIZ + "/customers/all-customers/list";
+	        default -> throw new IllegalArgumentException("Unexpected value: " + domain);
+    	};
+	
+		driver.get(url);
+		logger.info("Navigated to: {}", url);
 		
-    	commonAction.sleepInMiliSecond(500, "Wait a little after navigation");
+		UICommonAction.sleepInMiliSecond(500, "Wait a little after navigation");
 		return this;
 	}	
 	
@@ -96,7 +102,7 @@ public class AllCustomers {
 	void waitTillDataPresent() {
 		for (int i=0; i<4; i++) {
 			if (!commonAction.getElements(elements.loc_tmpAnchor).isEmpty()) break;
-			commonAction.sleepInMiliSecond(500, "Records not displayed. Waiting a little more.");
+			UICommonAction.sleepInMiliSecond(500, "Records not displayed. Waiting a little more.");
 		}
 	}
 
@@ -118,7 +124,7 @@ public class AllCustomers {
 
     
     public boolean isCreateCustomerDialogDisplayed(){
-    	commonAction.sleepInMiliSecond(1000, "Wait for create customer dialog to appear");
+    	UICommonAction.sleepInMiliSecond(1000, "Wait for create customer dialog to appear");
     	boolean isDisplayed = !commonAction.getElements(elements.loc_dlgCreateCustomer).isEmpty();
     	logger.info("isCreateCustomerDialogDisplayed: " + isDisplayed);
     	return isDisplayed;
@@ -163,12 +169,12 @@ public class AllCustomers {
 	}	
 	
     public boolean isDeleteCustomerConfirmationDialogDisplayed() {
-    	commonAction.sleepInMiliSecond(1000);
+    	UICommonAction.sleepInMiliSecond(1000);
     	return !commonAction.getElements(elements.loc_dlgDeleteCustomer).isEmpty();
     }   	
 	
     public boolean isMergeCustomerDialogDisplayed(){
-    	commonAction.sleepInMiliSecond(1000, "Wait for merge customer dialog to appear");
+    	UICommonAction.sleepInMiliSecond(1000, "Wait for merge customer dialog to appear");
     	boolean isDisplayed = !commonAction.getElements(elements.loc_dlgMergeCustomer).isEmpty();
     	logger.info("isMergeCustomerDialogDisplayed: " + isDisplayed);
     	return isDisplayed;
@@ -185,18 +191,19 @@ public class AllCustomers {
     }	
 	
     public boolean isImportCustomerDialogDisplayed() {
-    	commonAction.sleepInMiliSecond(1000);
+    	UICommonAction.sleepInMiliSecond(1000);
     	return !commonAction.getElements(elements.loc_dlgImportCustomer).isEmpty();
     }   	
 
     public boolean isPrintBarcodeDialogDisplayed() {
-    	commonAction.sleepInMiliSecond(1000);
+    	UICommonAction.sleepInMiliSecond(1000);
     	return !commonAction.getElements(elements.loc_dlgPrintBarcode).isEmpty();
     }       
     
 	public AllCustomers inputSearchTerm(String searchTerm) {
 		commonAction.sendKeys(elements.loc_txtSearchCustomer, searchTerm);
 		logger.info("Input '" + searchTerm + "' into Search box.");
+		UICommonAction.sleepInMiliSecond(500, "Sleep a little after input customer name into Search box");
 		homePage.waitTillSpinnerDisappear1();
 		return this;
 	}
@@ -210,7 +217,7 @@ public class AllCustomers {
 	public AllCustomers clickFilterDoneBtn() {
 		commonAction.click(elements.loc_btnDoneFilter);
 		logger.info("Clicked on Filter Done button.");
-		commonAction.sleepInMiliSecond(1000, "Wait a little in clickFilterDoneBtn()");
+		UICommonAction.sleepInMiliSecond(1000, "Wait a little in clickFilterDoneBtn()");
 		return this;
 	}
 
@@ -265,7 +272,7 @@ public class AllCustomers {
 
 	public CustomerDetails searchAndGoToCustomerDetailByName(String fullName){
 		inputSearchTerm(fullName);
-		commonAction.sleepInMiliSecond(2000, "wait shown result.");
+		UICommonAction.sleepInMiliSecond(2000, "wait shown result.");
 		clickUser(fullName);
 		return new CustomerDetails(driver);
 	}
@@ -426,7 +433,7 @@ public class AllCustomers {
     	
     	navigateToCustomerDetailScreenByURL(customerId, userId, channel);
     	
-    	commonAction.sleepInMiliSecond(1000, "Wait a little for profile to load");
+    	UICommonAction.sleepInMiliSecond(1000, "Wait a little for profile to load");
     	CustomerDetails customerDetailPage = new CustomerDetails(driver);
     	for (int i=0; i<2; i++) {
     		boolean isViewDetailPermissionGranted;
@@ -588,7 +595,7 @@ public class AllCustomers {
     	clickExportHistory();
     	if (staffPermission.getCustomer().getCustomerManagement().isDownloadExportedCustomer()) {
     		//Remember to export files first
-    		commonAction.sleepInMiliSecond(2000, "Wait in checkPermissionToDownloadExportedCustomer");
+    		UICommonAction.sleepInMiliSecond(2000, "Wait in checkPermissionToDownloadExportedCustomer");
     		Assert.assertNotEquals(commonAction.getElements(elements.loc_icnDownloadExportFile).size(), 0);
     	} else {
     		Assert.assertTrue(isAccessRestrictedPresent());

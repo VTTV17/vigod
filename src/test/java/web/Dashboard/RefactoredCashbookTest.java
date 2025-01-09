@@ -129,6 +129,7 @@ public class RefactoredCashbookTest extends BaseTest {
 		if (group != CashbookGroup.SUPPLIER) {
 			return Arrays.stream(CashbookRevenue.values()).map(name -> CashbookRevenue.getTextByLanguage(name)).collect(Collectors.toList());
 		}
+		//https://mediastep.atlassian.net/browse/BH-27152
 		return Arrays.stream(CashbookRevenue.values()).filter(name -> name!=CashbookRevenue.DEBT_COLLECTION_FROM_SUPPLIER).map(name -> CashbookRevenue.getTextByLanguage(name)).collect(Collectors.toList());
 	}
 	
@@ -136,6 +137,7 @@ public class RefactoredCashbookTest extends BaseTest {
 		if (group != CashbookGroup.SUPPLIER) {
 			return Arrays.stream(CashbookExpense.values()).map(name -> CashbookExpense.getTextByLanguage(name)).collect(Collectors.toList());
 		}
+		//https://mediastep.atlassian.net/browse/BH-27152
 		return Arrays.stream(CashbookExpense.values()).filter(name -> name!=CashbookExpense.DEBT_COLLECTION_FROM_SELLER).map(name -> CashbookExpense.getTextByLanguage(name)).collect(Collectors.toList());
 	}
 

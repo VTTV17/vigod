@@ -1,7 +1,6 @@
 package web.StoreFront.signup;
 
 import java.sql.SQLException;
-import java.util.Random;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -65,13 +64,7 @@ public class SignupPage {
 
     public SignupPage selectCountry(String country) {
         commonAction.click(locator.loc_ddlCountry);
-        if (country.contentEquals("rd")) {
-        	UICommonAction.sleepInMiliSecond(500);
-            int randomNumber = new Random().nextInt(0, commonAction.getElements(locator.loc_lstCountry).size());
-            commonAction.getElements(locator.loc_lstCountry).get(randomNumber).click();
-        } else {
-            driver.findElement(By.xpath("//ul[@id='signup-country-code-menu']//span[text()='%s']".formatted(country))).click();
-        }
+        commonAction.click(By.xpath("//ul[@id='signup-country-code-menu']//span[text()='%s']".formatted(country)));
         logger.info("Selected country: " + country);
         return this;
     }
