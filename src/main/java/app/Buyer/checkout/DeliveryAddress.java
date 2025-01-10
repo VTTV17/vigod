@@ -163,12 +163,10 @@ public class DeliveryAddress extends DeliveryAddressElement {
         List<WebElement> countryList = common.getElements(loc_lstCountry,2);
         int index = new DataGenerator().generatNumberInBound(0, countryList.size() - 1);
         String country = common.getText(countryList.get(index));
+        country = country.substring(country.indexOf(")") + 1).trim();
+        countryList.get(index).click();
         System.out.println("index country: "+index);
         System.out.println("Selected country: "+country);
-//        if (country.contains("(+84)")) index = new DataGenerator().generatNumberInBound(0, countryList.size() - 1);
-//        country = common.getText(countryList.get(index));
-        country = country.substring(country.indexOf(")") + 1).trim();
-        common.click(loc_lstCountry, index);
         return country;
     }
 

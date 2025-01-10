@@ -37,6 +37,7 @@ import java.util.Map;
 
 import static utilities.account.AccountTest.*;
 import static utilities.character_limit.CharacterLimit.MAX_PRICE;
+import static utilities.environment.goBUYEREnvironment.goBUYERBundleId_ShopVi;
 
 public class MyProfileTest extends BaseTest {
     String buyer;
@@ -85,7 +86,7 @@ public class MyProfileTest extends BaseTest {
             throw new RuntimeException(e);
         }
         capabilities.setCapability("platformName", "Android");
-        capabilities.setCapability("appPackage", "preprod.mediastep.shop657");
+        capabilities.setCapability("appPackage", goBUYERBundleId_ShopVi);
         capabilities.setCapability("appActivity", "com.mediastep.gosell.ui.modules.splash.SplashScreenActivity");
         capabilities.setCapability("noReset", "false");
         capabilities.setCapability("autoGrantPermissions", "true");

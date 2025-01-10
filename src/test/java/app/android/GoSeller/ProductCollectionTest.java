@@ -37,6 +37,8 @@ import java.util.List;
 import java.util.Map;
 import static utilities.account.AccountTest.*;
 import static utilities.account.AccountTest.ADMIN_CREATE_NEW_SHOP_PASSWORD;
+import static utilities.environment.goBUYEREnvironment.goBUYERBundleId_ShopVi;
+import static utilities.environment.goSELLEREnvironment.goSELLERBundleId;
 import static utilities.file.FileNameAndPath.FILE_PRODUCT_COLLECTION_TCS;
 
 public class ProductCollectionTest extends BaseTest {
@@ -69,9 +71,9 @@ public class ProductCollectionTest extends BaseTest {
 
     @BeforeClass
     public void setUp() throws Exception {
-        sellerAppPackage = "com.mediastep.GoSellForSeller.PreProd";
+        sellerAppPackage = goSELLERBundleId;
         sellerAppActivity = "com.mediastep.gosellseller.modules.credentials.login.LoginActivity";
-        buyerAppPackage = "preprod.mediastep.shop657";
+        buyerAppPackage = goBUYERBundleId_ShopVi;
 //        buyerAppActivity = buyerAppPackage+".ui.modules.splash.SplashScreenActivity";
         buyerAppActivity = "com.mediastep.gosell.ui.modules.splash.SplashScreenActivity";
 

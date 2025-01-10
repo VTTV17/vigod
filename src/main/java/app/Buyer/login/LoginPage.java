@@ -88,9 +88,6 @@ public class LoginPage {
         commonAction.sleepInMiliSecond(1000);
         clickLoginBtn();
 
-        // wait home screen loaded
-        new UICommonAndroid(driver).waitUntilScreenLoaded(goBUYERHomeScreenActivity);
-
         // Logger
         LogManager.getLogger().info("===== STEP =====> [LoginGoBUYER] DONE!!! ");
 

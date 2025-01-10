@@ -150,7 +150,7 @@ public class BuyerAddress {
 			return "";
 		}
 		System.out.println("SIZE: "+list.size());
-		int index = new DataGenerator().generatNumberInBound(0, list.size() - 1);
+		int index = list.size()>1 ? new DataGenerator().generatNumberInBound(1, list.size() - 1) : 0;
 		String selectIconEl ="("+el_lstCountry_cityProvice_district_ward+")[%s]".formatted(index)+"/following-sibling::*";
 		boolean selectedBefore = commonAction.getElements(By.xpath(selectIconEl),2).size()==1;
 		if(selectedBefore)  {

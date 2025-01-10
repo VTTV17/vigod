@@ -37,7 +37,7 @@ public class LoginPage {
     By COUNTRY_SEARCHBOX = By.xpath("//*[ends-with(@resource-id,'edtCountriesSearch')]");
     By COUNTRY_SEARCHRESULT = By.xpath("//*[ends-with(@resource-id,'tvValue')]");
 
-    By USERNAME = By.xpath("//*[ends-with(@resource-id,'edtUsername')]");
+    By USERNAME = By.xpath("//*[ends-with(@resource-id,'edtUserName')]");
     By PASSWORD = By.xpath("//*[ends-with(@resource-id,'edtPassword')]");
     By TERM_CHECKBOX = By.xpath("//*[ends-with(@resource-id,'cbxTermAndPrivacy')]");
     By LOGIN_BTN = By.xpath("//*[ends-with(@resource-id,'tvLogin')]");

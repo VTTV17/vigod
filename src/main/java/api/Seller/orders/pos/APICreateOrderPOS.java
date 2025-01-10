@@ -263,7 +263,7 @@ public class APICreateOrderPOS {
     	if (productInfo.isHasModel()) {
     		new ConversionUnit(loginInformation).getProductConversionInfoHasModel(productInfo.getProductId(), Integer.parseInt(getFirstModelId(productInfo)));
     	}
-    	return new ConversionUnit(loginInformation).getProductConversionInfoNoModel(productInfo.getProductId());
+    	return new ConversionUnit(loginInformation).getProductConversionInfo(productInfo.getProductId());
     }    
     
     //Product no variation, product has variation, product has conversion, imei
@@ -350,7 +350,7 @@ public class APICreateOrderPOS {
                 if (hasModel)
                     conversionProductInfo = new ConversionUnit(loginInformation).getProductConversionInfoHasModel(productId, Integer.parseInt(modelId));
                 else
-                    conversionProductInfo = new ConversionUnit(loginInformation).getProductConversionInfoNoModel(productId);
+                    conversionProductInfo = new ConversionUnit(loginInformation).getProductConversionInfo(productId);
             JsonObject itemObject = new JsonObject();
             if (conversionProductInfo.size() > 0) {
                     price = (long) (price + conversionProductInfo.get(0).getNewPrice());
