@@ -7,7 +7,6 @@ import lombok.Data;
 import utilities.api.API;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.dashboard.products.productInfomation.ProductConversionInfo;
-import utilities.model.dashboard.products.productInfomation.ProductInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 
 import java.time.Instant;
@@ -79,26 +78,13 @@ public class ConversionUnit {
     public List<Integer> getListConversionUnitIds() {
         return getAllConversionUnits().stream().map(ConversionUnits::getId).toList();
     }
-    public List<ProductConversionInfo> getProductConversionInfoNoModel(int productParentId){
+    public List<ProductConversionInfo> getProductConversionInfo(int productParentId){
         Response response = api.get(getConversion_NoModel_Path.formatted(productParentId),loginInfo.getAccessToken());
         response.then().statusCode(200);
-        List<ProductConversionInfo> productConversionInfoList = response.jsonPath().getList("lstResult[0].data", ProductConversionInfo.class);
-//        response.prettyPrint();
-//        List<ProductInfo> productInfoList = new ArrayList<>();
-//        List<Integer> conversionUnitIds = response.jsonPath().get("lstResult[0].data.itemCloneId");
-//        System.out.println("conversionUnitIds: "+conversionUnitIds);
-//        List<Float> newPrices = response.jsonPath().getList("lstResult[0].data.newPrice",Float.class);
-//
-//        if(conversionUnitIds == null) return productInfoList;
-//        for (int i = 0; i<conversionUnitIds.size();i++) {
-//            List<Long> subNewPrice = new ArrayList<>();
-//            subNewPrice.add(newPrices.get(i).longValue());
-//
-//            ProductInfo productInfo = new ProductInfo();
-//            productInfo.setProductId(conversionUnitIds.get(i));
-//            productInfo.setProductSellingPrice(subNewPrice);
-//            productInfoList.add(productInfo);
-//        }
+        List<ProductConversionInfo> productConversionInfoList = new ArrayList<>();
+        for(int i = 0;i< response.jsonPath().getList("lstResult").size();i++){
+            productConversionInfoList.addAll(response.jsonPath().getList("lstResult[%s].data".formatted(i), ProductConversionInfo.class)) ;
+        }
         return productConversionInfoList;
     }
     public List<ProductConversionInfo> getProductConversionInfoHasModel(int productParentId, int modelId){

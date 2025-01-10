@@ -7,6 +7,7 @@ import io.restassured.response.Response;
 import lombok.Data;
 import utilities.api.API;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
+import utilities.model.dashboard.products.productInfomation.ProductConversionInfo;
 import utilities.model.dashboard.products.productInfomation.ProductInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 import utilities.sort.SortData;
@@ -176,25 +177,30 @@ public class APIAllProducts {
         Map<String, Integer> productCountItemMap = new HashMap();
         int count = 0;
         for (int i = 0; i < productNameList.size(); i++) {
-            List<Long> productPriceList = new ArrayList<>();
+            List<Double> productPriceList = new ArrayList<>();
             if (variationNumberList.get(i) != 0) {
                 Response productDetailResp = api.get(DASHBOARD_PRODUCT_DETAIL_PATH.formatted(productIDList.get(i)), loginInfo.getAccessToken());
                 List<Float> productVariationPriceList = productDetailResp.jsonPath().getList("models.newPrice", Float.class);
                 for (Float productVariationPrice : productVariationPriceList) {
-                    productPriceList.add(productVariationPrice.longValue()); //get prices in case has variation
+                    productPriceList.add(productVariationPrice.doubleValue()); //get prices in case has variation
                 }
             } else {
                 Float price = priceMainList.get(i);
                 Long productPrice = price.longValue();
-                productPriceList.add(productPrice); //get price in case no variation.
+                productPriceList.add(price.doubleValue()); //get price in case no variation.
             }
-            for (Long productPrice : productPriceList) {
+            if(hasConversionList.get(i)) {
+                List<ProductConversionInfo> conversionInfo = new ConversionUnit(loginInformation).getProductConversionInfo(productIDList.get(i));
+                productPriceList = conversionInfo.stream().map(ProductConversionInfo::getNewPrice).toList();
+            }
+            for (Double productPrice : productPriceList) {
                 boolean isChecked = false;
                 String createDate = fortmatIfCreateDateMissMiliSecond(createdDateList.get(i));
                 String dateString = createDate.replaceAll("Z$", "+0000");
                 Date date = formatter.parse(createDate.replaceAll("Z$", "+0000"));
                 switch (operator) {
                     case "is greater than", "lớn hơn":
+
                         if (productPrice > value) {
                             isChecked = true;
                             String productName = productNameList.get(i).toLowerCase().replaceAll("\\s+", " ").trim();
@@ -257,8 +263,8 @@ public class APIAllProducts {
             Response conversionItemRes = api.get(DASHBOAR_CONVERSION_UNIT_ITEM_PATH.formatted(productId), loginInfo.getAccessToken());
             conversionItemRes.then().statusCode(200);
             System.out.println(conversionItemRes.prettyPrint());
-            List<Integer> wholesaleProductIDList = conversionItemRes.jsonPath().getList("conversionItemList.id");
-            count = 1 + wholesaleProductIDList.size();
+            List<Integer> conversionProductIDList = conversionItemRes.jsonPath().getList("conversionItemList.id");
+            count = conversionProductIDList.size();
         } else {
             count = 1;
         }
@@ -487,4 +493,5 @@ public class APIAllProducts {
         });
         return productStocks.values().stream().toList();
     }
+
 }

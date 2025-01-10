@@ -610,5 +610,4 @@ public class CreateProductCollection extends CreateProductCollectionElement {
 
     }
 
-
 }

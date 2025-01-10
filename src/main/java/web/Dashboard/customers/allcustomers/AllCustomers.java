@@ -255,7 +255,7 @@ public class AllCustomers {
 		homePage.hideFacebookBubble();
 		commonAction.click(By.xpath(elements.loc_lblCustomerName.formatted(customerName)));
 		logger.info("Clicked on user: " + customerName);
-		homePage.waitTillSpinnerDisappear();
+		homePage.waitTillSpinnerDisappear1();
 		return new CustomerDetails(driver);
 	}
 

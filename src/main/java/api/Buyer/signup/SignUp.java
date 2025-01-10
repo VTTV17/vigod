@@ -42,7 +42,7 @@ public class SignUp {
     LoginInformation loginInformation;
     public SignUp (LoginInformation loginInformation) {
         this.loginInformation = loginInformation;
-        RestAssured.proxy("localhost", 8888);
+        if (PropertiesUtil.enableProxy) RestAssured.proxy("localhost", 8888);
         baseURI = URI;
 
     }

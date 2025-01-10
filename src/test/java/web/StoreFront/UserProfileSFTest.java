@@ -7,6 +7,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import utilities.enums.Domain;
 import utilities.model.dashboard.storefront.AddressInfo;
 import web.Dashboard.customers.allcustomers.AllCustomers;
 import web.Dashboard.home.HomePage;
@@ -254,11 +255,11 @@ public class UserProfileSFTest extends BaseTest {
                 .goToEditMyAddress()
                 .verifyAddressInfo_VN("", addressInfo.getAddress(), addressInfo.getCityProvince(), addressInfo.getDistrict(), addressInfo.getWard());
         loginDb = new web.Dashboard.login.LoginPage(driver);
-        loginDb.navigate().performLogin(userNameDb_ShopVi, passWordDashboard);
+        loginDb.navigate().performValidLogin("Vietnam", userNameDb_ShopVi, passWordDashboard);
         homePage = new HomePage(driver);
         homePage.waitTillSpinnerDisappear1().selectLanguage(languageDb);
-        allCustomers = new AllCustomers(driver);
-        allCustomers.navigate().searchAndGoToCustomerDetailByName(fullName_UpdateAddress)
+        allCustomers = new AllCustomers(driver, Domain.valueOf(domain));
+        allCustomers.navigateByURL().searchAndGoToCustomerDetailByName(fullName_UpdateAddress)
                 .verifyAddressInfo_VN("", addressInfo.getAddress(), addressInfo.getCityProvince(), addressInfo.getDistrict(), addressInfo.getWard())
                 .clickLogout();
         //Update valid address in outside VietNam
@@ -275,10 +276,10 @@ public class UserProfileSFTest extends BaseTest {
                 .goToEditMyAddress()
                 .verifyAddressInfo_NonVN("", addressInfoNonVN.getStreetAddress(), addressInfoNonVN.getAddress2(),addressInfoNonVN.getStateRegionProvince(), addressInfoNonVN.getCity(), addressInfoNonVN.getZipCode());
         loginDb = new web.Dashboard.login.LoginPage(driver);
-        loginDb.navigate().performLogin(userNameDb_ShopVi, passWordDashboard);
-        allCustomers = new AllCustomers(driver);
+        loginDb.navigate().performValidLogin("Vietnam", userNameDb_ShopVi, passWordDashboard);
+        allCustomers = new AllCustomers(driver, Domain.valueOf(domain));
         homePage.waitTillSpinnerDisappear1();
-        allCustomers.navigate().searchAndGoToCustomerDetailByName(fullName_UpdateAddress)
+        allCustomers.navigateByURL().searchAndGoToCustomerDetailByName(fullName_UpdateAddress)
                 .verifyAddressInfo_NonVN(addressInfoNonVN.getCountry(), addressInfoNonVN.getStreetAddress(), addressInfoNonVN.getAddress2(), addressInfoNonVN.getStateRegionProvince(), addressInfoNonVN.getCity(), addressInfoNonVN.getZipCode())
                 .clickLogout();
         //Buyer access SF B to verify address
@@ -300,18 +301,18 @@ public class UserProfileSFTest extends BaseTest {
                 .goToEditMyAddress()
                 .verifyAddressInfo_VN("", addressInfoVN.getAddress(), addressInfoVN.getCityProvince(), addressInfoVN.getDistrict(), addressInfoVN.getWard());
         loginDb = new web.Dashboard.login.LoginPage(driver);
-        loginDb.navigate().performLogin(userNameDb_ShopB, passWordDashboardShopB);
+        loginDb.navigate().performValidLogin("Vietnam", userNameDb_ShopB, passWordDashboardShopB);
         homePage = new HomePage(driver);
         homePage.waitTillSpinnerDisappear1();
-        allCustomers = new AllCustomers(driver);
-        allCustomers.navigate().searchAndGoToCustomerDetailByName(fullName_UpdateAddress)
+        allCustomers = new AllCustomers(driver, Domain.valueOf(domain));
+        allCustomers.navigateUsingURL().searchAndGoToCustomerDetailByName(fullName_UpdateAddress)
                 .verifyAddressInfo_VN("", addressInfoVN.getAddress(), addressInfoVN.getCityProvince(), addressInfoVN.getDistrict(), addressInfoVN.getWard())
                 .clickLogout();
         myAddress = goToUserProfile()
                 .clickMyAddressSection()
                 .verifyAddressInfo_NonVN("", addressInfoNonVN.getStreetAddress(), addressInfoNonVN.getAddress2(), addressInfoNonVN.getCity(), addressInfoNonVN.getStateRegionProvince(), addressInfoNonVN.getZipCode());
         myAddress.clickUserInfoIcon().clickLogout();
-
+        commonAction.sleepInMiliSecond(2000);
     }
 
     public void CheckUserUpdateAddress_NewAccount() throws SQLException {
@@ -337,10 +338,10 @@ public class UserProfileSFTest extends BaseTest {
                 .goToEditMyAddress()
                 .verifyAddressInfo_VN("", addressInfoVN.getAddress(), addressInfoVN.getCityProvince(), addressInfoVN.getDistrict(), addressInfoVN.getWard());
         loginDb = new web.Dashboard.login.LoginPage(driver);
-        loginDb.navigate().performLogin(userNameDb_ShopVi, passWordDashboard);
-        allCustomers = new AllCustomers(driver);
+        loginDb.navigate().performValidLogin("Vietnam", userNameDb_ShopVi, passWordDashboard);
+        allCustomers = new AllCustomers(driver, Domain.valueOf(domain));
         homePage.waitTillSpinnerDisappear1().selectLanguage(languageDb).waitTillSpinnerDisappear1();
-        allCustomers.navigate().searchAndGoToCustomerDetailByName(buyerDisplayName_Signup)
+        allCustomers.navigateUsingURL().searchAndGoToCustomerDetailByName(buyerDisplayName_Signup)
                 .verifyAddressInfo_VN("", addressInfoVN.getAddress(), addressInfoVN.getCityProvince(), addressInfoVN.getDistrict(), addressInfoVN.getWard())
                 .clickLogout();
         //Update valid address in outside VietNam
@@ -357,16 +358,17 @@ public class UserProfileSFTest extends BaseTest {
                 .goToEditMyAddress()
                 .verifyAddressInfo_NonVN("", addressInfoNonVN.getStreetAddress(), addressInfoNonVN.getAddress2(),addressInfoNonVN.getStateRegionProvince(), addressInfoNonVN.getCity(), addressInfoNonVN.getZipCode());
         loginDb = new web.Dashboard.login.LoginPage(driver);
-        loginDb.navigate().performLogin(userNameDb_ShopVi, passWordDashboard);
-        allCustomers = new AllCustomers(driver);
+        loginDb.navigate().performValidLogin("Vietnam", userNameDb_ShopVi, passWordDashboard);
+        allCustomers = new AllCustomers(driver, Domain.valueOf(domain));
         homePage.waitTillSpinnerDisappear1();
-        allCustomers.navigate().searchAndGoToCustomerDetailByName(buyerDisplayName_Signup)
+        allCustomers.navigateUsingURL().searchAndGoToCustomerDetailByName(buyerDisplayName_Signup)
                 .verifyAddressInfo_NonVN(addressInfoNonVN.getCountry(), addressInfoNonVN.getStreetAddress(), addressInfoNonVN.getAddress2(), addressInfoNonVN.getStateRegionProvince(), addressInfoNonVN.getCity(), addressInfoNonVN.getZipCode())
                 .clickLogout();
         //Buyer access SF B to verify address
         loginSF = new LoginPage(driver);
-        loginSF.navigate(shopDomainB)
-                .performLogin(buyerAccount_Signup, passWordSF);
+        loginSF.navigate(shopDomainB);
+        new HeaderSF(driver).clickUserInfoIcon().clickLogout();
+        loginSF.performLogin(buyerAccount_Signup, passWordSF);
         headerSF = new HeaderSF(driver);
         AddressInfo addressInfo = new AddressInfo();
         addressInfo = headerSF.navigateToUserProfile()
@@ -381,10 +383,10 @@ public class UserProfileSFTest extends BaseTest {
                 .goToEditMyAddress()
                 .verifyAddressInfo_VN("", addressInfo.getAddress(), addressInfo.getCityProvince(), addressInfo.getDistrict(), addressInfo.getWard());
         loginDb = new web.Dashboard.login.LoginPage(driver);
-        loginDb.navigate().performLogin(userNameDb_ShopB, passWordDashboardShopB);
-        allCustomers = new AllCustomers(driver);
+        loginDb.navigate().performValidLogin("Vietnam", userNameDb_ShopB, passWordDashboardShopB);
+        allCustomers = new AllCustomers(driver, Domain.valueOf(domain));
         homePage.waitTillSpinnerDisappear1();
-        allCustomers.navigate().searchAndGoToCustomerDetailByName(buyerDisplayName_Signup)
+        allCustomers.navigateUsingURL().searchAndGoToCustomerDetailByName(buyerDisplayName_Signup)
                 .verifyAddressInfo_VN("", addressInfo.getAddress(), addressInfo.getCityProvince(), addressInfo.getDistrict(), addressInfo.getWard())
                 .clickLogout();
         //Check again on SF A
@@ -417,8 +419,8 @@ public class UserProfileSFTest extends BaseTest {
         signupSF = new SignupPage(driver);
         signupSF.signUpWithEmail("Vietnam", buyerAccount_Signup, passWordSF, buyerDisplayName_Signup, "");
         headerSF = new HeaderSF(driver);
-        headerSF.clickUserInfoIcon().clickLogout();
-        loginAndGoToUserProfile(buyerAccount_Signup);
+        commonAction.sleepInMiliSecond(2000);
+        headerSF.navigateToUserProfile();
         userProfileInfo = new UserProfileInfo(driver);
         userProfileInfo.clickMyAccountSection();
         myAccount = new MyAccount(driver);
@@ -477,8 +479,7 @@ public class UserProfileSFTest extends BaseTest {
         signupSF = new SignupPage(driver);
         signupSF.navigateToSignUp(shopDomain).signUpWithPhoneNumber("Vietnam", buyerAccount_Signup, passWordSF, buyerDisplayName_Signup, "");
         headerSF = new HeaderSF(driver);
-        headerSF.clickUserInfoIcon().clickLogout();
-        loginAndGoToUserProfile(buyerAccount_Signup);
+        headerSF.navigateToUserProfile();
         userProfileInfo = new UserProfileInfo(driver);
         userProfileInfo.clickMyAccountSection();
         myAccount = new MyAccount(driver);
