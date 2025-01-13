@@ -1,5 +1,18 @@
 package api.Buyer.login;
 
+import static io.restassured.RestAssured.given;
+import static utilities.links.Links.SF_DOMAIN;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.json.JSONObject;
+
+import com.google.gson.JsonObject;
+import com.mifmif.common.regex.Generex;
+
 import api.Seller.login.Login;
 import api.Seller.setting.StoreInformation;
 import io.restassured.http.ContentType;
@@ -9,17 +22,11 @@ import utilities.api.payloadbuilder.CapchaPayloadBuilder;
 import utilities.api.payloadbuilder.JsonObjectBuilder;
 import utilities.model.dashboard.storefront.loginSF;
 import utilities.model.sellerApp.login.LoginInformation;
-
-import static io.restassured.RestAssured.given;
-import static utilities.links.Links.SF_DOMAIN;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import org.json.JSONObject;
-
-import com.mifmif.common.regex.Generex;
+import web.StoreFront.login.LoginPage;
 public class LoginSF {
+	
+	final static Logger logger = LogManager.getLogger(LoginPage.class);
+	
     private static String username;
     private static String password;
     private static String phoneCode;
@@ -112,6 +119,44 @@ public class LoginSF {
     	
     	Response response = new API().get("/api/account", token);
     	response.then().log().ifValidationFails().statusCode(200);
+    	
+    	return response;
+    } 
+    
+    /**
+     * Changes password on Storefront
+     * @param username
+     * @param password
+     * @param phoneCode
+     * @param newPassword
+     * @return
+     */
+    public Response changePassword(String username, String password, String phoneCode, String newPassword) {
+    	
+    	//Get Storefront URL
+    	var sfURL = new StoreInformation(loginInformation).getInfo().getStoreURL() + SF_DOMAIN;
+    	
+    	//Prepare path
+    	var changePasswordPath = "https://%s/api/change_password".formatted(sfURL);
+    	
+    	//Get token_id
+    	LoginToSF(username, password, phoneCode);
+    	String token = getInfo().getAccessToken();
+    	
+    	//Prepare headers
+    	Map<String, String> headerMap = new HashMap<>();
+    	headerMap.put("Authorization", "Bearer " + token);
+    	
+    	//Prepare payload
+		JsonObject payload = new JsonObject();
+		payload.addProperty("deviceToken", "");
+		payload.addProperty("currentPassword", password);
+		payload.addProperty("newPassword", newPassword);
+    	
+		//Go baby go
+    	Response response = new API(sfURL).put(changePasswordPath, token, payload.toString(), headerMap);
+    	response.then().log().ifValidationFails().statusCode(200);
+    	logger.info("Password is successfully changed to: {}", newPassword);
     	
     	return response;
     }    
