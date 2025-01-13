@@ -3,6 +3,7 @@ package web.StoreFront;
 import static utilities.links.Links.SF_DOMAIN;
 import static utilities.links.Links.SF_DOMAIN_BIZ;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
@@ -17,6 +18,7 @@ import org.testng.annotations.Test;
 
 import com.mifmif.common.regex.Generex;
 
+import api.Buyer.login.LoginSF;
 import api.Seller.login.Login;
 import api.Seller.setting.StoreInformation;
 import api.Seller.setting.StoreLanguageAPI;
@@ -95,12 +97,12 @@ public class RefactoredLoginSF extends BaseTest {
 		headerSection.clickUserInfoIcon().changeLanguageByLangCode(langCode);
 		
 		//Empty username
-		loginPage.performLogin("", new Generex("[a-z]{5,8}\\d{5,8}[!#@]").random());
+		loginPage.performLogin("", DataGenerator.randomValidPassword());
 		Assert.assertEquals(loginPage.getUsernameError(), LoginPage.localizedEmptyUsernameError(localizedLanguage));
 		commonAction.refreshPage();
 		
 		//Empty password
-		loginPage.performLogin(new Generex("\\d{9}").random(), "");
+		loginPage.performLogin(DataGenerator.randomPhone(), "");
 		Assert.assertEquals(loginPage.getPasswordError(), LoginPage.localizedEmptyPasswordError(localizedLanguage));
 		commonAction.refreshPage();
 		
@@ -111,26 +113,26 @@ public class RefactoredLoginSF extends BaseTest {
 		commonAction.refreshPage();
 		
 		//7-digit phone number
-		loginPage.performLogin(new Generex("\\d{7}").random(), new Generex("[a-z]{5,8}\\d{5,8}[!#@]").random());
+		loginPage.performLogin(DataGenerator.generatePhoneFromRegex("\\d{7}"), DataGenerator.randomValidPassword());
 		Assert.assertEquals(loginPage.getUsernameError(), LoginPage.localizedInvalidUsernameError(DisplayLanguage.valueOf(language)));
 		commonAction.refreshPage();
 		
 		//16-digit phone number
-		loginPage.performLogin(new Generex("\\d{16}").random(), new Generex("[a-z]{5,8}\\d{5,8}[!#@]").random());
+		loginPage.performLogin(DataGenerator.generatePhoneFromRegex("\\d{7}"), DataGenerator.randomValidPassword());
 		Assert.assertEquals(loginPage.getUsernameError(), LoginPage.localizedInvalidUsernameError(DisplayLanguage.valueOf(language)));
 		commonAction.refreshPage();
 		
 		//Mail does not have symbol @
-		loginPage.performLogin(new Generex("[a-z]{5,8}\\d{5,8}\\.[a-z]{2}").random(), new Generex("[a-z]{5,8}\\d{5,8}[!#@]").random());
+		loginPage.performLogin(new Generex("[a-z]{5,8}\\d{5,8}\\.[a-z]{2}").random(), DataGenerator.randomValidPassword());
 		Assert.assertEquals(loginPage.getUsernameError(), LoginPage.localizedInvalidUsernameError(DisplayLanguage.valueOf(language)));
 		commonAction.refreshPage();
 		
 		//Mail does not have suffix '.<>'. Eg. '.com'
-		loginPage.performLogin(new Generex("[a-z]{5,8}\\d{5,8}\\@").random(), new Generex("[a-z]{5,8}\\d{5,8}[!#@]").random());
+		loginPage.performLogin(new Generex("[a-z]{5,8}\\d{5,8}\\@").random(), DataGenerator.randomValidPassword());
 		Assert.assertEquals(loginPage.getUsernameError(), LoginPage.localizedInvalidUsernameError(DisplayLanguage.valueOf(language)));
 		commonAction.refreshPage();
 		
-		loginPage.performLogin(new Generex("[a-z]{5,8}\\d{5,8}\\@[a-z]mail\\.").random(), new Generex("[a-z]{5,8}\\d{5,8}[!#@]").random());
+		loginPage.performLogin(new Generex("[a-z]{5,8}\\d{5,8}\\@[a-z]mail\\.").random(), DataGenerator.randomValidPassword());
 		Assert.assertEquals(loginPage.getUsernameError(), LoginPage.localizedInvalidUsernameError(DisplayLanguage.valueOf(language)));
 	}
 	
@@ -146,12 +148,12 @@ public class RefactoredLoginSF extends BaseTest {
 		headerSection.clickUserInfoIcon().changeLanguageByLangCode(langCode);
 		
 		//Email
-		loginPage.performLogin(new Generex("[a-z]{5}\\d{5}\\@[a-z]mail\\.[a-z]{2,3}").random(), new Generex("[a-z]{5,8}\\d{5,8}[!#@]").random());
+		loginPage.performLogin(DataGenerator.randomCorrectFormatEmail(), DataGenerator.randomValidPassword());
 		Assert.assertEquals(loginPage.getLoginFailError(), LoginPage.localizedWrongCredentialsError(localizedLanguage));
 		commonAction.refreshPage();
 		
 		//Mobile
-		loginPage.performLogin(new Generex("\\d{8,15}").random(), new Generex("[a-z]{5,8}\\d{5,8}[!#@]").random());
+		loginPage.performLogin(DataGenerator.randomPhone(), DataGenerator.randomValidPassword());
 		Assert.assertEquals(loginPage.getLoginFailError(), LoginPage.localizedWrongCredentialsError(localizedLanguage));
 	}
 	
@@ -210,7 +212,7 @@ public class RefactoredLoginSF extends BaseTest {
 		String error = headerSection.clickUserInfoIcon()
 				.clickChangePassword()
 				.inputCurrentPassword("")
-				.inputNewPassword(new Generex("[a-z]{5,8}\\d{5,8}[!#@]").random())
+				.inputNewPassword(DataGenerator.randomValidPassword())
 				.clickDoneBtn()
 				.getCurrentPasswordError();
 		
@@ -220,7 +222,7 @@ public class RefactoredLoginSF extends BaseTest {
 		//Empty new password
 		error = headerSection.clickUserInfoIcon()
 				.clickChangePassword()
-				.inputCurrentPassword(new Generex("[a-z]{5,8}\\d{5,8}[!#@]").random())
+				.inputCurrentPassword(DataGenerator.randomValidPassword())
 				.inputNewPassword("")
 				.clickDoneBtn()
 				.getNewPasswordError();
@@ -231,8 +233,8 @@ public class RefactoredLoginSF extends BaseTest {
 		//Incorrect current password
 		error = headerSection.clickUserInfoIcon()
 				.clickChangePassword()
-				.inputCurrentPassword(new Generex("[a-z]{5,8}\\d{5,8}[!#@]").random())
-				.inputNewPassword(new Generex("[a-z]{5,8}\\d{5,8}[!#@]").random())
+				.inputCurrentPassword(DataGenerator.randomValidPassword())
+				.inputNewPassword(DataGenerator.randomValidPassword())
 				.clickDoneBtn()
 				.getCurrentPasswordError();
 		
@@ -272,6 +274,81 @@ public class RefactoredLoginSF extends BaseTest {
 		Assert.assertEquals(error, ForgotPasswordDialog.localizedInvalidNewPasswordError(localizedLanguage));
 //		commonAction.refreshPage();	
 		
+	}	
+	
+	@Test(dataProvider = "accounts")
+	void TC_ChangeValidPassword(String country, String username, String password) {
+		
+		String newPassword = DataGenerator.randomValidPassword();
+		
+		String langCode = randomSFDisplayLanguage();
+		
+		DisplayLanguage localizedLanguage = langCode.startsWith("vi") ? DisplayLanguage.VIE : DisplayLanguage.ENG;
+		
+		generalSFAction.navigateToURL(sellerSFURL);
+		
+		headerSection.clickUserInfoIcon().changeLanguageByLangCode(langCode);
+		
+		loginPage.performLogin(country, username, password);
+		
+		//Change password
+		headerSection.clickUserInfoIcon().clickChangePassword().inputCurrentPassword(password).inputNewPassword(newPassword).clickDoneBtn();
+		
+		//Try logging in with old password
+		loginPage.performLogin(country, username, password);
+		Assert.assertEquals(loginPage.getLoginFailError(), LoginPage.localizedWrongCredentialsError(localizedLanguage));
+		
+		commonAction.refreshPage();
+		
+		//Login with new password
+		loginPage.performLogin(country, username, newPassword);		
+		
+		//Change password back to the first password
+		var loginSFAPI = new LoginSF(sellerCredentials);
+		String currentPassword = "";
+		for (int i=0; i<4; i++) {
+			currentPassword = newPassword;
+			newPassword = (i==3) ? password : DataGenerator.randomValidPassword();
+			loginSFAPI.changePassword(username, currentPassword, DataGenerator.getPhoneCode(country), newPassword);
+		}
+	}	
+	
+	@Test(dataProvider = "accounts")
+	void TC_ChangePasswordThatResemblesLast4Passwords(String country, String username, String password) {
+		
+		String langCode = randomSFDisplayLanguage();
+		
+		DisplayLanguage localizedLanguage = langCode.startsWith("vi") ? DisplayLanguage.VIE : DisplayLanguage.ENG;
+		
+		String newPassword = DataGenerator.randomValidPassword();
+		
+		//Change password 5 times
+		var loginSFAPI = new LoginSF(sellerCredentials);
+		String currentPassword = "";
+		List<String> oldPasswords = new ArrayList<String>(); 
+		for (int i=0; i<5; i++) {
+			currentPassword = (i==0) ? password : newPassword;
+			
+			newPassword = (i==4) ? password : DataGenerator.randomValidPassword();
+			
+			loginSFAPI.changePassword(username, currentPassword, DataGenerator.getPhoneCode(country), newPassword);
+			
+    		if (!List.of(0, 4).contains(i)) oldPasswords.add(newPassword); //First and last changed passwords aren't added to the list
+		}
+		
+		generalSFAction.navigateToURL(sellerSFURL);
+		
+		loginPage.performLogin(country, username, password);
+		
+		headerSection.clickUserInfoIcon().changeLanguageByLangCode(langCode);
+		
+		//Change password to the latest 4 passwords
+		for (String pw : oldPasswords) {
+			ChangePasswordDialog changePasswordDlg = headerSection.clickUserInfoIcon().clickChangePassword().inputCurrentPassword(newPassword).inputNewPassword(pw).clickDoneBtn();
+			Assert.assertEquals(changePasswordDlg.getCurrentPasswordError(), ForgotPasswordDialog.localizedSame4PasswordsError(localizedLanguage));
+			changePasswordDlg.clickCloseBtn();
+		}
+
 	}	
 	
     @AfterMethod

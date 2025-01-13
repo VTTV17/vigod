@@ -393,6 +393,11 @@ public class DataGenerator {
 		return generatePhoneFromRegex(getPhoneRegex(country));
 	}	    
     
+	/**
+	 * Gets a random element from the list
+	 * @param <T>
+	 * @param list
+	 */
     public static <T> T getRandomListElement(List<T> list) {
         return list.get(new Random().nextInt(0, list.size()));
     }
@@ -544,4 +549,26 @@ public class DataGenerator {
 
         return utcPlusTimeZoneDate.toString();
     }
+
+    /**
+     * Generates a random valid password. Eg "password12#"
+     */
+    static public String randomValidPassword() {
+    	return new Generex("[a-z]{5,8}\\d{5,8}[!#@]").random();
+    }
+    
+    /**
+     * Generates a fake email address. Eg "cdfgg12345@hmail.cdf"
+     */
+    static public String randomCorrectFormatEmail() {
+    	return new Generex("[a-z]{5}\\d{5}\\@[a-z]mail\\.[a-z]{2,3}").random();
+    }
+    
+    /**
+     * Generates a phone number ranging from 8 to 15 digits. Eg "12345678"
+     */
+    static public String randomPhone() {
+    	return generatePhoneFromRegex("\\d{8,15}");
+    }
+    
 }

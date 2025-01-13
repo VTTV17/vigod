@@ -24,6 +24,9 @@ import org.testng.annotations.Test;
 
 import com.mifmif.common.regex.Generex;
 
+import api.Buyer.login.LoginSF;
+import api.Seller.login.Login;
+import utilities.account.AccountTest;
 import utilities.api.thirdparty.KibanaAPI;
 import utilities.commons.UICommonAction;
 import utilities.data.DataGenerator;
@@ -186,126 +189,6 @@ public class LoginStorefront extends BaseTest {
 		headerPage.clickUserInfoIcon().clickLoginIcon();
 		Assert.assertEquals(loginPage.clickForgotPassword().inputUsername(nonExistingPhoneAccount).clickContinueBtn().getUsernameError(), ForgotPasswordDialog.localizedPhoneNotExistError(DisplayLanguage.valueOf(language)));
 	}
-
-	@Test
-	public void BH_4593_ChangePasswordWithInvalidData() {
-		
-		String newPassword = BUYER_MAIL_PASSWORD + "@" + generate.generateNumber(3);
-		
-		// Login
-		loginPage.navigate(SF_URL_TIEN);
-		headerPage.clickUserInfoIcon().changeLanguage(language);
-		
-		loginPage.performLogin(BUYER_MAIL_COUNTRY, BUYER_MAIL_USERNAME, BUYER_MAIL_PASSWORD);
-		
-		// Empty current password
-		ChangePasswordDialog changePasswordDlg = headerPage.clickUserInfoIcon().clickChangePassword().inputCurrentPassword("").inputNewPassword(newPassword).clickDoneBtn();
-		Assert.assertEquals(changePasswordDlg.getCurrentPasswordError(), ForgotPasswordDialog.localizedWrongCurrentPasswordError(DisplayLanguage.valueOf(language)));
-		changePasswordDlg.clickCloseBtn();
-		
-		// Empty new password
-		headerPage.clickUserInfoIcon().clickChangePassword().inputCurrentPassword(BUYER_MAIL_PASSWORD).inputNewPassword("").clickDoneBtn();
-		Assert.assertEquals(changePasswordDlg.getNewPasswordError(), LoginPage.localizedEmptyPasswordError(DisplayLanguage.valueOf(language)));
-		changePasswordDlg.clickCloseBtn();
-		
-		// Incorrect current password
-		headerPage.clickUserInfoIcon().clickChangePassword().inputCurrentPassword(BUYER_MAIL_PASSWORD + "abc").inputNewPassword(newPassword).clickDoneBtn();
-		Assert.assertEquals(changePasswordDlg.getCurrentPasswordError(), ForgotPasswordDialog.localizedWrongCurrentPasswordError(DisplayLanguage.valueOf(language)));
-		changePasswordDlg.clickCloseBtn();
-
-		// Inadequate number of characters
-		newPassword = "asvn45$";
-		headerPage.clickUserInfoIcon().clickChangePassword().inputCurrentPassword(BUYER_MAIL_PASSWORD).inputNewPassword(newPassword).clickDoneBtn();
-		Assert.assertEquals(changePasswordDlg.getNewPasswordError(), ForgotPasswordDialog.localizedInvalidNewPasswordError(DisplayLanguage.valueOf(language)));
-		changePasswordDlg.clickCloseBtn();
-		
-		// Absence of digits
-		newPassword = "asvn$%^&";
-		headerPage.clickUserInfoIcon().clickChangePassword().inputCurrentPassword(BUYER_MAIL_PASSWORD).inputNewPassword(newPassword).clickDoneBtn();
-		Assert.assertEquals(changePasswordDlg.getNewPasswordError(), ForgotPasswordDialog.localizedInvalidNewPasswordError(DisplayLanguage.valueOf(language)));
-		changePasswordDlg.clickCloseBtn();
-		
-		// Absence of special characters
-		newPassword = "asvn4567";
-		headerPage.clickUserInfoIcon().clickChangePassword().inputCurrentPassword(BUYER_MAIL_PASSWORD).inputNewPassword(newPassword).clickDoneBtn();
-		Assert.assertEquals(changePasswordDlg.getNewPasswordError(), ForgotPasswordDialog.localizedInvalidNewPasswordError(DisplayLanguage.valueOf(language)));
-		changePasswordDlg.clickCloseBtn();
-	}
-	
-
-	//Already covered
-	@Test
-	public void BH_3813_ChangePassword() {
-		String country = BUYER_FORGOT_MAIL_COUNTRY;
-		String username = BUYER_FORGOT_MAIL_USERNAME;
-		String password = BUYER_FORGOT_MAIL_PASSWORD;
-		String newPassword = new Generex("[a-z]{5,8}\\d{5,8}[!#@]").random();
-		
-		// Login
-		loginPage.navigate(SF_URL_TIEN).performLogin(country, username, password);
-		
-		// Change password back to the first password
-		String currentPassword = "";
-		for (int i=0; i<5; i++) {
-			
-			currentPassword = (i==0) ? password : newPassword;
-			
-			newPassword = (i!=4) ? new Generex("[a-z]{5,8}\\d{5,8}[!#@]").random() : password;
-			
-			headerPage.clickUserInfoIcon().clickChangePassword().inputCurrentPassword(currentPassword).inputNewPassword(newPassword).clickDoneBtn();
-		}
-		
-		// Logout then re-login with old password
-		headerPage.clickUserInfoIcon().clickLogout();
-		loginPage.performLogin(country, username, newPassword);
-		headerPage.clickUserInfoIcon().clickLogout();
-	}	
-	
-	@Test
-	public void BH_3814_ChangePasswordThatResemblesLast4Passwords() {
-		
-		String country = BUYER_FORGOT_MAIL_COUNTRY;
-		String username = BUYER_FORGOT_MAIL_USERNAME;
-		String password = BUYER_FORGOT_MAIL_PASSWORD;
-		String newPassword = password + "@" + generate.generateNumber(3);
-
-		// Login
-		loginPage.navigate(SF_URL_TIEN);
-		headerPage.clickUserInfoIcon().changeLanguage(language);
-		loginPage.performLogin(country, username, password);
-		
-		// Change password back to the first password
-		String currentPassword = "";
-		List<String> oldPasswords = new ArrayList<String>(); 
-		for (int i=0; i<5; i++) {
-			
-			currentPassword = (i==0) ? password : newPassword;
-    		
-			newPassword = (i!=4) ? password + generate.generateNumber(3)+ "!" : password;
-			
-    		headerPage.clickUserInfoIcon()
-    		.clickChangePassword()
-    		.inputCurrentPassword(currentPassword)
-    		.inputNewPassword(newPassword)
-    		.clickDoneBtn();
-    		
-    		if (i==0||i==4) continue; // First and last changed passwords will not be added to the list
-    		oldPasswords.add(newPassword);
-		}
-		
-		// Verify new password should not be the same as the last 4 passwords.
-		for (String pw : oldPasswords) {
-			ChangePasswordDialog changePasswordDlg = headerPage.clickUserInfoIcon().clickChangePassword().inputCurrentPassword(newPassword).inputNewPassword(pw).clickDoneBtn();
-			Assert.assertEquals(changePasswordDlg.getCurrentPasswordError(), ForgotPasswordDialog.localizedSame4PasswordsError(DisplayLanguage.valueOf(language)));
-			changePasswordDlg.clickCloseBtn();
-		}
-		
-		// Logout then re-login with old password
-		headerPage.clickUserInfoIcon().clickLogout();
-		loginPage.performLogin(country, username, newPassword);
-		headerPage.clickUserInfoIcon().clickLogout();
-	}	
-
 
     @AfterMethod
     public void writeResult(ITestResult result) throws Exception {
