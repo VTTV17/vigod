@@ -62,9 +62,20 @@ public class SignupPage {
     	return PropertiesUtil.getPropertiesValueBySFLang("signup.screen.error.wrongVerificationCode", language.name());
     }
 
+    /**
+     * Retrieves the currently selected country
+     */
+    public String getSelectedCountry() {
+    	String selectedCountry = commonAction.getText(locator.loc_ddlCountry).split("\\s*\\+\\d+")[0];
+    	logger.info("Retrieved selected country: {}", selectedCountry);
+    	return selectedCountry;
+    }    
     public SignupPage selectCountry(String country) {
+    	
+    	if (getSelectedCountry().contentEquals(country)) return this;
+    	
         commonAction.click(locator.loc_ddlCountry);
-        commonAction.click(By.xpath("//ul[@id='signup-country-code-menu']//span[text()='%s']".formatted(country)));
+        commonAction.click(By.xpath(locator.loc_ddvCountryByName(country)));
         logger.info("Selected country: " + country);
         return this;
     }
