@@ -59,9 +59,20 @@ public class LoginPage {
         return this;
     }
 
+    /**
+     * Retrieves the currently selected country
+     */
+    public String getSelectedCountry() {
+    	String selectedCountry = commonAction.getText(locator.loc_ddlCountry).split("\\s*\\+\\d+")[0];
+    	logger.info("Retrieved selected country: {}", selectedCountry);
+    	return selectedCountry;
+    }
     public LoginPage selectCountry(String country) {
+    	
+    	if (getSelectedCountry().contentEquals(country)) return this;
+    	
     	commonAction.click(locator.loc_ddlCountry);
-    	commonAction.click(new ByChained(locator.loc_lstCountry, By.xpath(locator.loc_ddvCountryByName.formatted(country))));
+    	commonAction.click(locator.loc_ddvCountryByName(country));
     	logger.info("Selected country: " + country);
     	return this;
     }        

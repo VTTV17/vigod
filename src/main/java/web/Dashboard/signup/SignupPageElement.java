@@ -6,6 +6,7 @@ public class SignupPageElement {
 
 	String loc_ddvCountry = "//*[contains(@class, 'select-country__option')]//div[@class='label' and text()=\"%s\"]";
 	
+	By loc_ddlSelectedCountryValue =  By.cssSelector(".input-field.phone-code .select-country__single-value .option .main-content");
     By loc_ddlCountry = By.cssSelector(".input-field.phone-code .select-country__input-container input");
     By loc_ddlPhoneCode = By.cssSelector(".input-field.phone-code .option .code");
     

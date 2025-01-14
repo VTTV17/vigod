@@ -91,8 +91,19 @@ public class SignupPage {
 		new LoginPage(driver, domain).selectDisplayLanguage(lang);
 		return this;
 	}    
+	
+    /**
+     * Retrieves the currently selected country
+     */
+    public String getSelectedCountry() {
+    	String selectedCountry = commonAction.getText(locator.loc_ddlSelectedCountryValue);
+    	logger.info("Retrieved selected country: {}", selectedCountry);
+    	return selectedCountry;
+    }
     public SignupPage selectCountry(String country) {
-    	commonAction.waitVisibilityOfElementLocated(locator.loc_ddlPhoneCode); //Implicitly means the dropdown has a default value and ready for further actions. Reason #1
+    	
+    	if (getSelectedCountry().contentEquals(country)) return this;
+    	
     	commonAction.click(locator.loc_ddlCountry);
     	commonAction.click(By.xpath(locator.loc_ddvCountry.formatted(country)));
     	logger.info("Selected country: " + country);    	

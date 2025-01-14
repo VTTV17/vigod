@@ -16,7 +16,9 @@ public class SignupPageElement {
     By loc_btnCompleteEmail = By.cssSelector("#frm-get-email .btn-submit");
     By loc_btnSignup = By.cssSelector("#frm-signup .btn-submit");
     By loc_ddlCountry = By.cssSelector("#signup-country-code");
-    By loc_lstCountry = By.cssSelector("#signup-country-code-menu .dropdown-item");
+    String loc_ddvCountryByName(String country) {
+    	return "//ul[@id='signup-country-code-menu']//span[text()='%s']".formatted(country);
+    }
     By loc_txtVerificationCode = By.cssSelector("#activate-code");
     By loc_btnConfirmOTP = By.cssSelector("#frm-activate .btn-submit");
     By loc_lnkResendOTP = By.id("open-activate-resend-code");

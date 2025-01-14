@@ -23,6 +23,7 @@ import api.Seller.login.Login;
 import api.Seller.setting.StoreInformation;
 import api.Seller.setting.StoreLanguageAPI;
 import utilities.account.AccountTest;
+import utilities.api.thirdparty.KibanaAPI;
 import utilities.commons.UICommonAction;
 import utilities.data.DataGenerator;
 import utilities.driver.InitWebdriver;
@@ -37,6 +38,9 @@ import web.StoreFront.header.HeaderSF;
 import web.StoreFront.login.ForgotPasswordDialog;
 import web.StoreFront.login.LoginPage;
 
+/**
+ * This suite tests Sign-in, Forgot password and Change password functionalities on Storefront
+ */
 public class RefactoredLoginSF extends BaseTest {
 	
 	GeneralSF generalSFAction;
@@ -68,6 +72,19 @@ public class RefactoredLoginSF extends BaseTest {
 		
 		sellerSFURL = "https://%s".formatted(new StoreInformation(sellerCredentials).getInfo().getStoreURL() + sfDomain);
 	}
+
+	/**
+	 * Pool of existing buyer accounts
+	 */
+	@DataProvider
+	Object[][] buyerAccountDP() {
+		return new Object[][] { 
+			{AccountTest.SF_EMAIL_COUNTRY, AccountTest.SF_EMAIL_USERNAME, AccountTest.BUYER_MASTER_PASSWORD},
+			{AccountTest.SF_PHONE_COUNTRY, AccountTest.SF_PHONE_USERNAME, AccountTest.BUYER_MASTER_PASSWORD},
+			{AccountTest.GOMUA_EMAIL_COUNTRY, AccountTest.GOMUA_EMAIL_USERNAME, AccountTest.BUYER_MASTER_PASSWORD},
+			{AccountTest.GOMUA_PHONE_COUNTRY, AccountTest.GOMUA_PHONE_USERNAME, AccountTest.BUYER_MASTER_PASSWORD},
+		};
+	}		
 	
 	@BeforeMethod
 	void instantiatePageObjects() {
@@ -84,7 +101,7 @@ public class RefactoredLoginSF extends BaseTest {
         		.map(AdditionalLanguages::getLangCode)
         		.collect(Collectors.collectingAndThen(Collectors.toList(), collected -> collected.get(new Random().nextInt(collected.size()))));
 	}	
-	
+
 	@Test
 	void TC_LoginWithInvalidData() {
 		
@@ -157,16 +174,7 @@ public class RefactoredLoginSF extends BaseTest {
 		Assert.assertEquals(loginPage.getLoginFailError(), LoginPage.localizedWrongCredentialsError(localizedLanguage));
 	}
 	
-	@DataProvider
-	Object[][] accounts() {
-		return new Object[][] { 
-			{AccountTest.ADMIN_COUNTRY_TIEN, AccountTest.SF_USERNAME_VI_1, AccountTest.SF_SHOP_VI_PASSWORD},
-			{AccountTest.ADMIN_COUNTRY_TIEN, AccountTest.SF_USERNAME_PHONE_VI_1, AccountTest.SF_SHOP_VI_PASSWORD},
-			{AccountTest.ADMIN_COUNTRY_TIEN, AccountTest.GOMUA_USERNAME_EMAIL, AccountTest.ADMIN_PASSWORD_TIEN},
-			{AccountTest.ADMIN_COUNTRY_TIEN, AccountTest.GOMUA_USERNAME_PHONE, AccountTest.ADMIN_PASSWORD_TIEN},
-		};
-	}	
-	@Test(dataProvider = "accounts")
+	@Test(dataProvider = "buyerAccountDP")
 	void TC_LoginWithCorrectCredentials(String country, String username, String password) {
 		
 		generalSFAction.navigateToURL(sellerSFURL);
@@ -195,7 +203,7 @@ public class RefactoredLoginSF extends BaseTest {
 		}
 	}
 
-	@Test(dataProvider = "accounts")
+	@Test(dataProvider = "buyerAccountDP")
 	void TC_ChangeInvalidPassword(String country, String username, String password) {
 		
 		String langCode = randomSFDisplayLanguage();
@@ -276,7 +284,7 @@ public class RefactoredLoginSF extends BaseTest {
 		
 	}	
 	
-	@Test(dataProvider = "accounts")
+	@Test(dataProvider = "buyerAccountDP")
 	void TC_ChangeValidPassword(String country, String username, String password) {
 		
 		String newPassword = DataGenerator.randomValidPassword();
@@ -313,7 +321,7 @@ public class RefactoredLoginSF extends BaseTest {
 		}
 	}	
 	
-	@Test(dataProvider = "accounts")
+	@Test(dataProvider = "buyerAccountDP")
 	void TC_ChangePasswordThatResemblesLast4Passwords(String country, String username, String password) {
 		
 		String langCode = randomSFDisplayLanguage();
@@ -348,8 +356,83 @@ public class RefactoredLoginSF extends BaseTest {
 			Assert.assertEquals(changePasswordDlg.getCurrentPasswordError(), ForgotPasswordDialog.localizedSame4PasswordsError(localizedLanguage));
 			changePasswordDlg.clickCloseBtn();
 		}
-
 	}	
+	
+	@Test
+	void TC_ForgotPasswordForNonExistingAccount() {
+		
+		String langCode = randomSFDisplayLanguage();
+		
+		DisplayLanguage localizedLanguage = langCode.startsWith("vi") ? DisplayLanguage.VIE : DisplayLanguage.ENG;
+		
+		generalSFAction.navigateToURL(sellerSFURL);
+		
+		headerSection.clickUserInfoIcon().changeLanguageByLangCode(langCode);
+		
+		//Wrong email as username
+		headerSection.clickUserInfoIcon().clickLoginIcon();
+		String error = loginPage.clickForgotPassword()
+			.inputUsername(DataGenerator.randomCorrectFormatEmail())
+			.clickContinueBtn()
+			.getUsernameError();
+		Assert.assertEquals(error, ForgotPasswordDialog.localizedEmailNotExistError(localizedLanguage));
+		
+		commonAction.refreshPage();
+		
+		//Wrong phone as username
+		headerSection.clickUserInfoIcon().clickLoginIcon();
+		error = loginPage.clickForgotPassword()
+			.inputUsername(DataGenerator.randomPhone())
+			.clickContinueBtn()
+			.getUsernameError();
+		Assert.assertEquals(error, ForgotPasswordDialog.localizedPhoneNotExistError(localizedLanguage));
+	}	
+
+	/**
+	 * Be cautious because this TC may fail due to bot detection mechanisms https://mediastep.atlassian.net/browse/BH-37703
+	 * @param country
+	 * @param username
+	 * @param password
+	 */
+	@Test(dataProvider = "buyerAccountDP")
+	void TC_ForgotPasswordForEmailOrPhoneAccount(String country, String username, String password) {
+		
+		String newPassword = DataGenerator.randomValidPassword();
+		
+		generalSFAction.navigateToURL(sellerSFURL);
+		
+		headerSection.clickUserInfoIcon().clickLoginIcon();
+		
+		//Forgot password
+		loginPage.clickForgotPassword()
+			.selectCountry(country)
+			.inputUsername(username)
+			.clickContinueBtn()
+			.inputPassword(newPassword)
+			.inputVerificationCode(new KibanaAPI().getKeyFromKibana(username.matches("\\d+") ? DataGenerator.getPhoneCode(country)+":"+username : username, "resetKey"))
+			.clickConfirmBtn();
+		
+		//Log out
+		headerSection.clickUserInfoIcon().clickLogout();
+		
+		//Login with new password
+		loginPage.performLogin(country, username, newPassword);
+		
+		//Log out
+		headerSection.clickUserInfoIcon().clickLogout();
+		
+		//Change password back to the original value
+		var loginSFAPI = new LoginSF(sellerCredentials);
+		String currentPassword = "";
+		for (int i=0; i<4; i++) {
+			currentPassword = newPassword;
+			newPassword = (i==3) ? password : DataGenerator.randomValidPassword();
+			loginSFAPI.changePassword(username, currentPassword, DataGenerator.getPhoneCode(country), newPassword);
+		}
+	}	
+	
+	//TODO Login with Facebook functionality => Left for manual testing
+	//TODO Buyers logging in with Facebook can't change password nor reset password on Storefront => Left for manual testing
 	
     @AfterMethod
     public void writeResult(ITestResult result) throws Exception {

@@ -41,6 +41,7 @@ public class AccountTest {
     public static String ADMIN_SHOP_COFFEE_PASSWORD = PropertiesUtil.getEnvironmentData("adminShopCoffeePass");
     public static String ADMIN_SHOP_COFFEE_USERNAME = PropertiesUtil.getEnvironmentData("adminShopCoffeeUserName");
     public static String ADMIN_CREATE_NEW_SHOP_PASSWORD = "fortesting!1";
+    
     public static String ADMIN_COUNTRY_TIEN = PropertiesUtil.getEnvironmentData("adminCountryShopTien");
     public static String ADMIN_USERNAME_TIEN = PropertiesUtil.getEnvironmentData("adminUsernameShopTien");
     public static String ADMIN_PASSWORD_TIEN = PropertiesUtil.getEnvironmentData("adminPasswordShopTien");
@@ -63,20 +64,30 @@ public class AccountTest {
     public static String ADMIN_FACEBOOK_PASSWORD = PropertiesUtil.getEnvironmentData("adminFacebookPassword");
     public static String ADMIN_FACEBOOK_BIZ_USERNAME = PropertiesUtil.getEnvironmentData("admin.fb.biz.username");
     public static String ADMIN_FACEBOOK_BIZ_PASSWORD = PropertiesUtil.getEnvironmentData("admin.fb.biz.password");
+    
     public static String ADMIN_USERNAME_GOWEB = PropertiesUtil.getEnvironmentData("adminGoWebUserName");
     public static String ADMIN_USERNAME_GOAPP = PropertiesUtil.getEnvironmentData("adminGoAppUserName");
     public static String ADMIN_USERNAME_GOPOS = PropertiesUtil.getEnvironmentData("adminGoPOSUserName");
     public static String ADMIN_USERNAME_GOSOCIAL = PropertiesUtil.getEnvironmentData("adminGoSocialUserName");
     public static String ADMIN_USERNAME_GOLEAD = PropertiesUtil.getEnvironmentData("adminGoLeadUserName");
+    
     public static String SF_USERNAME_VI_1 = PropertiesUtil.getEnvironmentData("buyer1");
     public static String SF_USERNAME_VI_2 = PropertiesUtil.getEnvironmentData("buyer2");
     public static String SF_USERNAME_VI_3 = PropertiesUtil.getEnvironmentData("buyer3");
     public static String SF_USERNAME_VI_4 = PropertiesUtil.getEnvironmentData("buyer4");
     public static String SF_USERNAME_PHONE_VI_1 = PropertiesUtil.getEnvironmentData("buyerPhone1");
     public static String SF_USERNAME_VI_5 = PropertiesUtil.getEnvironmentData("buyer5");
-    public static String GOMUA_USERNAME_EMAIL = PropertiesUtil.getEnvironmentData("gomuaBuyer");
-    public static String GOMUA_PASSWORD_EMAIL = PropertiesUtil.getEnvironmentData("gomuaBuyerPassword");
-    public static String GOMUA_USERNAME_PHONE = PropertiesUtil.getEnvironmentData("gomuaBuyerPhone");
+    
+    public final static String SF_EMAIL_COUNTRY = PropertiesUtil.getEnvironmentData("emailBuyerCountry");
+    public final static String SF_EMAIL_USERNAME = PropertiesUtil.getEnvironmentData("emailBuyerUsername");
+    public final static String SF_PHONE_COUNTRY = PropertiesUtil.getEnvironmentData("phoneBuyerCountry");
+    public final static String SF_PHONE_USERNAME = PropertiesUtil.getEnvironmentData("phoneBuyerUsername");
+    public final static String GOMUA_EMAIL_COUNTRY = PropertiesUtil.getEnvironmentData("gomuaEmailBuyerCountry");
+    public final static String GOMUA_EMAIL_USERNAME = PropertiesUtil.getEnvironmentData("gomuaEmailBuyerUsername");
+    public final static String GOMUA_PHONE_COUNTRY = PropertiesUtil.getEnvironmentData("gomuaPhoneBuyerCountry");
+    public final static String GOMUA_PHONE_USERNAME = PropertiesUtil.getEnvironmentData("gomuaPhoneBuyerUsername");
+    public final static String BUYER_MASTER_PASSWORD = PropertiesUtil.getEnvironmentData("buyerMasterPassword");
+    
     public static String STAFF_SHOP_VI_USERNAME = PropertiesUtil.getEnvironmentData("staffShopViUserName");
     public static String STAFF_COFFEE_SHOP_USERNAME = PropertiesUtil.getEnvironmentData("staffShopCoffeeShop");
     public static String STAFF_SHOP_VI_PASSWORD = PropertiesUtil.getEnvironmentData("staffShopViPass");
@@ -84,6 +95,7 @@ public class AccountTest {
     public static String STAFF_VN_PASSWORD = PropertiesUtil.getEnvironmentData("staff.vn.password");
     public static String STAFF_BIZ_USERNAME = PropertiesUtil.getEnvironmentData("staff.biz.username");
     public static String STAFF_BIZ_PASSWORD = PropertiesUtil.getEnvironmentData("staff.biz.password");
+    
     public static String ADMIN_FORGOTPASSWORD_USERNAME_MAIL = PropertiesUtil.getEnvironmentData("adminForgotPasswordUsernameMail");
     public static String ADMIN_FORGOTPASSWORD_PASSWORD_MAIL = PropertiesUtil.getEnvironmentData("adminForgotPasswordPasswordMail");
     public static String ADMIN_FORGOTPASSWORD_COUNTRY_MAIL = PropertiesUtil.getEnvironmentData("adminForgotPasswordCountryMail");

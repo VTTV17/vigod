@@ -6,8 +6,11 @@ public class LoginPageElement {
 
     By loc_lblScreenText = By.cssSelector("#login-modal .modal-content");
     By loc_ddlCountry = By.id("login-country-code");
-	By loc_lstCountry = By.id("login-country-code-menu");
-	String loc_ddvCountryByName = ".//span[text()='%s']";
+	
+	By loc_ddvCountryByName(String country) {
+		return By.xpath("//ul[@id='login-country-code-menu']//span[text()='%s']".formatted(country));
+	}
+	
     By loc_txtUsername = By.id("login-username");
     By loc_txtPassword = By.id("login-password"); 
     By loc_btnLogin = By.cssSelector("#frm-login .btn-submit");
