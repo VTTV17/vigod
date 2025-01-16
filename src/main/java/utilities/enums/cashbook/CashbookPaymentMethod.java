@@ -1,7 +1,9 @@
 package utilities.enums.cashbook;
 
 import java.util.Arrays;
+import java.util.List;
 
+import utilities.enums.Domain;
 import utilities.utils.PropertiesUtil;
 
 public enum CashbookPaymentMethod {
@@ -20,13 +22,13 @@ public enum CashbookPaymentMethod {
         this.enumValue = label;
     }
     
-	public static String[] getAllEnumKeys() {
-		return Arrays.stream(CashbookPaymentMethod.values()).map(Enum::name).toArray(String[]::new);
-	}    
+//	public static String[] getAllEnumKeys() {
+//		return Arrays.stream(CashbookPaymentMethod.values()).map(Enum::name).toArray(String[]::new);
+//	}    
 	
-    public static String[] getAllEnumValues() {
-        return Arrays.stream(CashbookPaymentMethod.values()).map(value -> value.enumValue).toArray(String[]::new);
-    }
+//    public static String[] getAllEnumValues() {
+//        return Arrays.stream(CashbookPaymentMethod.values()).map(value -> value.enumValue).toArray(String[]::new);
+//    }
 	
     public static String getTextByLanguage(CashbookPaymentMethod cashbookEnums) {
     	try {
@@ -35,6 +37,13 @@ public enum CashbookPaymentMethod {
 			e.printStackTrace();
 		}
     	return null;
+    }
+    
+    public static List<CashbookPaymentMethod> availablePaymentListByDomain(Domain domain) {
+    	if (domain.equals(Domain.VN)) {
+    		return Arrays.asList(CashbookPaymentMethod.values());
+    	}
+    	return Arrays.asList(CASH, BANK_TRANSFER);
     }
     
 }

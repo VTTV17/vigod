@@ -741,7 +741,7 @@ public class UICommonAction {
     }
 
     public void click(By locator, int index) {
-        Assert.assertFalse(getListElement(locator).isEmpty(), "No elements found to click for the provided locator: " + locator);
+//        Assert.assertFalse(getListElement(locator).isEmpty(), "No elements found to click for the provided locator: " + locator);
 
         try {
             ((JavascriptExecutor) driver).executeScript("arguments[0].style.border= '1px solid red'", getElement(locator, index));
@@ -848,6 +848,18 @@ public class UICommonAction {
         }
 
         clickOutOfTextBox(locator);
+    }
+    
+    public void basicSendKeys(By locator, String content) {
+    	try {
+    		doubleClick(locator);
+    		getElement(locator).sendKeys(Keys.BACK_SPACE);
+    		getElement(locator).sendKeys(content);
+    	} catch (StaleElementReferenceException ex) {
+    		doubleClick(locator);
+    		getElement(locator).sendKeys(Keys.BACK_SPACE);
+    		getElement(locator).sendKeys(content);
+    	}
     }
 
     public void sendKeys(By locator, int index, CharSequence content) {

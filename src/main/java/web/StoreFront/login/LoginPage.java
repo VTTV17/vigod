@@ -4,22 +4,20 @@ import static utilities.links.Links.SF_DOMAIN;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.support.pagefactory.ByChained;
 import org.testng.Assert;
 
+import api.Buyer.login.LoginSF;
 import api.Seller.setting.StoreInformation;
 import lombok.SneakyThrows;
-import api.Buyer.login.LoginSF;
-import web.StoreFront.GeneralSF;
-import web.StoreFront.header.HeaderSF;
-import web.StoreFront.signup.SignupPage;
-import utilities.utils.PropertiesUtil;
 import utilities.commons.UICommonAction;
 import utilities.enums.DisplayLanguage;
 import utilities.model.sellerApp.login.LoginInformation;
+import utilities.utils.PropertiesUtil;
+import web.StoreFront.GeneralSF;
+import web.StoreFront.header.HeaderSF;
+import web.StoreFront.signup.SignupPage;
 
 public class LoginPage {
 	

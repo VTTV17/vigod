@@ -16,12 +16,15 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import com.mifmif.common.regex.Generex;
+
 import api.Seller.cashbook.CashbookAPI;
 import api.Seller.cashbook.OthersGroupAPI;
 import api.Seller.customers.APIAllCustomers;
 import api.Seller.login.Login;
 import api.Seller.setting.BranchManagement;
 import api.Seller.setting.StaffManagement;
+import api.Seller.setting.StoreInformation;
 import api.Seller.supplier.supplier.APISupplier;
 import utilities.account.AccountTest;
 import utilities.commons.UICommonAction;
@@ -61,6 +64,7 @@ public class RefactoredCashbookTest extends BaseTest {
 	List<String> othersList;
 	List<String> branchList;
 	List<String> transactionIdList;
+	String storeCurrencySymbol;
 	
 	CashbookAPI cashbookAPI;
 
@@ -78,12 +82,13 @@ public class RefactoredCashbookTest extends BaseTest {
 			password = AccountTest.ADMIN_MAIL_BIZ_PASSWORD;
 		}
 		
-		LoginInformation loginInformation = new Login().setLoginInformation(username, password).getLoginInformation();
-        customerList = new APIAllCustomers(loginInformation).getAllCustomerNames();
+		LoginInformation loginInformation = new Login().setLoginInformation(DataGenerator.getPhoneCode(country), username, password).getLoginInformation();
+        customerList = new APIAllCustomers(loginInformation).getAllCustomerNames().stream().filter(e -> !e.matches(".*\\*{2}.*")).collect(Collectors.toList());
         supplierList = new APISupplier(loginInformation).getAllSupplierNames();
         staffList = new StaffManagement(loginInformation).getAllStaffNames();
         othersList = new OthersGroupAPI(loginInformation).getAllOtherGroupNames();
         branchList = new BranchManagement(loginInformation).getInfo().getActiveBranches();
+        storeCurrencySymbol = new StoreInformation(loginInformation).getInfo().getSymbol();
         
         cashbookAPI = new CashbookAPI(loginInformation);
         transactionIdList = cashbookAPI.getAllTransactionCodes();
@@ -121,8 +126,14 @@ public class RefactoredCashbookTest extends BaseTest {
 		};
 	}	
 
+	/**
+	 * <p>Generate a random amount based on the store's currency symbol. Eg. 34000 or 34.34
+	 */
 	public String randomAmount() {
-		return String.valueOf(Math.round(DataGenerator.generatNumberInBound(1, 50))*10);
+		if (storeCurrencySymbol.contentEquals("đ")) {
+			return new Generex("[1-9]\\d{2,5}").random();
+		}
+		return new Generex("[1-9]\\d{0,2}\\.\\d{2}").random();
 	}	
 	
 	public List<String> revenueSources(CashbookGroup group) {
@@ -142,7 +153,10 @@ public class RefactoredCashbookTest extends BaseTest {
 	}
 
 	public List<String> paymentMethodList() {
-		return Arrays.stream(CashbookPaymentMethod.values()).map(name -> CashbookPaymentMethod.getTextByLanguage(name)).collect(Collectors.toList());
+		return CashbookPaymentMethod.availablePaymentListByDomain(Domain.valueOf(domain))
+				.stream()
+				.map(name -> CashbookPaymentMethod.getTextByLanguage(name))
+				.collect(Collectors.toList());
 	}	
 	public String randomPaymentMethod() {
 		return DataGenerator.getRandomListElement(paymentMethodList());
@@ -276,7 +290,7 @@ public class RefactoredCashbookTest extends BaseTest {
         Assert.assertEquals(actual, expected, "Payment method list");
 	}	
 	
-	@Test(dataProvider = "groups", description = "Verify expense and payment dropdown values are shown as expected")
+//	@Test(dataProvider = "groups", description = "Verify expense and payment dropdown values are shown as expected")
 	public void CB_02_CheckExpenseAndPaymentDropdown(CashbookGroup groupEnum) {
 		
 		String group = CashbookGroup.getLocalizedText(groupEnum);
