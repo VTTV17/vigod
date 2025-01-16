@@ -68,7 +68,7 @@ public class Cashbook {
 
 	public Cashbook navigate() {
 		new HomePage(driver).navigateToPage("Cashbook");
-		commonAction.sleepInMiliSecond(3000);
+		UICommonAction.sleepInMiliSecond(3000);
 		commonAction.removeFbBubble();
 		return this;
 	}
@@ -190,7 +190,7 @@ public class Cashbook {
 	public Cashbook inputCashbookSearchTerm(String searchTerm) {
 		commonAction.sendKeys(elements.loc_txtSearchRecord, searchTerm);
 		logger.info("Input '" + searchTerm + "' into Search box.");
-		commonAction.sleepInMiliSecond(1000);
+		UICommonAction.sleepInMiliSecond(1000);
 		return this;
 	}	
 	
@@ -212,7 +212,7 @@ public class Cashbook {
 	    }
 		By customerLocator = By.xpath(elements.searchResultXpath.formatted("and text()=\"%s\"".formatted(name)));
 		commonAction.waitVisibilityOfElementLocated(customerLocator);
-		commonAction.sleepInMiliSecond(500); //There's something wrong here. Without this delay, names are not selected
+		UICommonAction.sleepInMiliSecond(500); //There's something wrong here. Without this delay, names are not selected
 		//The element will go stale after the delay, so we fetch the element again
 		commonAction.click(customerLocator);
 		logger.info("Selected Sender Name: %s.".formatted(name));
@@ -268,7 +268,7 @@ public class Cashbook {
 	}
 
 	public Cashbook inputAmount(String amount) {
-		commonAction.sendKeys(new ByChained(elements.loc_txtAmount, By.xpath("./parent::*/parent::*/preceding-sibling::input")), amount);
+		commonAction.basicSendKeys(new ByChained(elements.loc_txtAmount, By.xpath("./parent::*/parent::*/preceding-sibling::input")), amount);
 		logger.info("Input amount: %s.".formatted(amount));
 		return this;
 	}
@@ -404,28 +404,28 @@ public class Cashbook {
     	text = commonAction.getText(commonAction.getElement(elements.loc_lblCashbookSummary, 0).findElement(By.xpath("./parent::*/preceding-sibling::*")));
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.management.openingBalance"));
     	commonAction.hoverOverElement(commonAction.getElement(elements.loc_lblCashbookSummary, 0).findElement(By.xpath("./parent::*/preceding-sibling::*/div[contains(@class,'help__wrapper')]")));
-    	commonAction.sleepInMiliSecond(500);
+    	UICommonAction.sleepInMiliSecond(500);
     	text = commonAction.getText(elements.loc_tltCashbookSummary);
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.management.tooltip.openingBalance"));
     	
     	text = commonAction.getText(commonAction.getElement(elements.loc_lblCashbookSummary, 1).findElement(By.xpath("./parent::*/preceding-sibling::*")));
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.management.totalRevenue"));
     	commonAction.hoverOverElement(commonAction.getElement(elements.loc_lblCashbookSummary, 1).findElement(By.xpath("./parent::*/preceding-sibling::*/div[contains(@class,'help__wrapper')]")));
-    	commonAction.sleepInMiliSecond(500);
+    	UICommonAction.sleepInMiliSecond(500);
     	text = commonAction.getText(elements.loc_tltCashbookSummary);
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.management.tooltip.totalRevenue"));
     	
     	text = commonAction.getText(commonAction.getElement(elements.loc_lblCashbookSummary, 2).findElement(By.xpath("./parent::*/preceding-sibling::*")));
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.management.totalExpenditure"));
     	commonAction.hoverOverElement(commonAction.getElement(elements.loc_lblCashbookSummary, 2).findElement(By.xpath("./parent::*/preceding-sibling::*/div[contains(@class,'help__wrapper')]")));
-    	commonAction.sleepInMiliSecond(500);
+    	UICommonAction.sleepInMiliSecond(500);
     	text = commonAction.getText(elements.loc_tltCashbookSummary);
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.management.tooltip.totalExpenditure"));
     	    	
     	text = commonAction.getText(commonAction.getElement(elements.loc_lblCashbookSummary, 3).findElement(By.xpath("./parent::*/preceding-sibling::*")));
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.management.endingBalance"));
     	commonAction.hoverOverElement(commonAction.getElement(elements.loc_lblCashbookSummary, 3).findElement(By.xpath("./parent::*/preceding-sibling::*/div[contains(@class,'help__wrapper')]")));
-    	commonAction.sleepInMiliSecond(500);
+    	UICommonAction.sleepInMiliSecond(500);
     	text = commonAction.getText(elements.loc_tltCashbookSummary);
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.management.tooltip.endingBalance"));
     	
@@ -598,7 +598,7 @@ public class Cashbook {
 		commonAction.click(elements.loc_dtpPrincipleTimeRange);
 		commonAction.click(elements.loc_btnResetDatePicker);
 		logger.info("Clicked on Reset Time ranger picker button.");
-		commonAction.sleepInMiliSecond(1000);
+		UICommonAction.sleepInMiliSecond(1000);
 		return this;
 	}    
 	
@@ -667,7 +667,7 @@ public class Cashbook {
 		int currentSize = 0;
 		
 		for (int i=0; i<5; i++) {
-			commonAction.sleepInMiliSecond(1000);
+			UICommonAction.sleepInMiliSecond(1000);
 			if (!driver.findElements(optionLocator).isEmpty()) break;
 		}
 
@@ -675,7 +675,7 @@ public class Cashbook {
 			
 			List<WebElement> options = driver.findElements(optionLocator);
 			commonAction.scrollToElement(options.get(options.size()-1));
-			commonAction.sleepInMiliSecond(1500);
+			UICommonAction.sleepInMiliSecond(1500);
 	
 			previousSize = currentSize;
 			currentSize = driver.findElements(optionLocator).size();
@@ -744,7 +744,7 @@ public class Cashbook {
     	}
     	
     	List<List<String>> records = getRecords();
-    	commonAction.sleepInMiliSecond(2000, "Waiting for summary to load");
+    	UICommonAction.sleepInMiliSecond(2000, "Waiting for summary to load");
     	List<BigDecimal> originalSummary = getCashbookSummaryBig();
     	
     	for (int i=0; i<2; i++) {
@@ -857,7 +857,7 @@ public class Cashbook {
         		}
         		group = CashbookGroup.getLocalizedText(CashbookGroup.STAFF);
         		if (staffPermission.getSetting().getStaffManagement().isViewStaffList()) {
-        			commonAction.sleepInMiliSecond(1000, "This is weird!!!");
+        			UICommonAction.sleepInMiliSecond(1000, "This is weird!!!");
         			selectGroup(group);
         			selectName(staff, true);
         		} else {

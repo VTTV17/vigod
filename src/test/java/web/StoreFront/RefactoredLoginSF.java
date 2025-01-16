@@ -131,26 +131,26 @@ public class RefactoredLoginSF extends BaseTest {
 		
 		//7-digit phone number
 		loginPage.performLogin(DataGenerator.generatePhoneFromRegex("\\d{7}"), DataGenerator.randomValidPassword());
-		Assert.assertEquals(loginPage.getUsernameError(), LoginPage.localizedInvalidUsernameError(DisplayLanguage.valueOf(language)));
+		Assert.assertEquals(loginPage.getUsernameError(), LoginPage.localizedInvalidUsernameError(localizedLanguage));
 		commonAction.refreshPage();
 		
 		//16-digit phone number
 		loginPage.performLogin(DataGenerator.generatePhoneFromRegex("\\d{7}"), DataGenerator.randomValidPassword());
-		Assert.assertEquals(loginPage.getUsernameError(), LoginPage.localizedInvalidUsernameError(DisplayLanguage.valueOf(language)));
+		Assert.assertEquals(loginPage.getUsernameError(), LoginPage.localizedInvalidUsernameError(localizedLanguage));
 		commonAction.refreshPage();
 		
 		//Mail does not have symbol @
 		loginPage.performLogin(new Generex("[a-z]{5,8}\\d{5,8}\\.[a-z]{2}").random(), DataGenerator.randomValidPassword());
-		Assert.assertEquals(loginPage.getUsernameError(), LoginPage.localizedInvalidUsernameError(DisplayLanguage.valueOf(language)));
+		Assert.assertEquals(loginPage.getUsernameError(), LoginPage.localizedInvalidUsernameError(localizedLanguage));
 		commonAction.refreshPage();
 		
 		//Mail does not have suffix '.<>'. Eg. '.com'
 		loginPage.performLogin(new Generex("[a-z]{5,8}\\d{5,8}\\@").random(), DataGenerator.randomValidPassword());
-		Assert.assertEquals(loginPage.getUsernameError(), LoginPage.localizedInvalidUsernameError(DisplayLanguage.valueOf(language)));
+		Assert.assertEquals(loginPage.getUsernameError(), LoginPage.localizedInvalidUsernameError(localizedLanguage));
 		commonAction.refreshPage();
 		
 		loginPage.performLogin(new Generex("[a-z]{5,8}\\d{5,8}\\@[a-z]mail\\.").random(), DataGenerator.randomValidPassword());
-		Assert.assertEquals(loginPage.getUsernameError(), LoginPage.localizedInvalidUsernameError(DisplayLanguage.valueOf(language)));
+		Assert.assertEquals(loginPage.getUsernameError(), LoginPage.localizedInvalidUsernameError(localizedLanguage));
 	}
 	
 	@Test
@@ -303,6 +303,7 @@ public class RefactoredLoginSF extends BaseTest {
 		headerSection.clickUserInfoIcon().clickChangePassword().inputCurrentPassword(password).inputNewPassword(newPassword).clickDoneBtn();
 		
 		//Try logging in with old password
+		headerSection.clickUserInfoIcon().changeLanguageByLangCode(langCode);
 		loginPage.performLogin(country, username, password);
 		Assert.assertEquals(loginPage.getLoginFailError(), LoginPage.localizedWrongCredentialsError(localizedLanguage));
 		

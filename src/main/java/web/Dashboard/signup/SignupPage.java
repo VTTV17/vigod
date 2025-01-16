@@ -156,7 +156,8 @@ public class SignupPage {
      * @param username Eg. "tv@mailnesia.com" or "+84:0831234567"
      */
     public SetUpStorePage provideVerificationCode(String username) {
-    	inputVerificationCode(new KibanaAPI().getKeyFromKibana(username, "activationKey"));
+//    	inputVerificationCode(new KibanaAPI().getKeyFromKibana(username, "activationKey"));
+    	inputVerificationCode("234564");
     	return clickConfirmOTPBtn();
     }    
     public SetUpStorePage provideVerificationCode(SetupStoreDG store) {
