@@ -448,7 +448,7 @@ public class RefactoredCashbookTest extends BaseTest {
 
 		
 		/* Filter by branch*/
-		commonAction.refreshPage();
+		navigateToPage();
 		homePage.hideFacebookBubble();
 		records = cashbookPage.clickResetDateRangerPicker()
 				.clickFilterBtn()
@@ -460,7 +460,7 @@ public class RefactoredCashbookTest extends BaseTest {
 		records.stream().forEach(record -> Assert.assertEquals(record.get(Cashbook.BRANCH_IDX), branch));
 		
 		/* Filter by transaction */
-		commonAction.refreshPage();
+		navigateToPage();
 		homePage.hideFacebookBubble();
 		records = cashbookPage.clickResetDateRangerPicker()
 				.clickFilterBtn()
@@ -482,7 +482,7 @@ public class RefactoredCashbookTest extends BaseTest {
 		
 		/* Filter by Expense type */
 		String filteredExpenseType = DataGenerator.getRandomListElement(expenseSources(CashbookGroup.CUSTOMER));
-		commonAction.refreshPage();
+		navigateToPage();
 		homePage.hideFacebookBubble();
 		records = cashbookPage.clickResetDateRangerPicker()
 				.clickFilterBtn()
@@ -495,7 +495,7 @@ public class RefactoredCashbookTest extends BaseTest {
 		
 		/* Filter by Revenue type */
 		String filteredRevenueType = DataGenerator.getRandomListElement(revenueSources(CashbookGroup.CUSTOMER)); 
-		commonAction.refreshPage();
+		navigateToPage();
 		homePage.hideFacebookBubble();
 		records = cashbookPage.clickResetDateRangerPicker()
                 .clickFilterBtn()
@@ -508,7 +508,7 @@ public class RefactoredCashbookTest extends BaseTest {
 
 		
 		/* Filter by Created by */
-		commonAction.refreshPage();
+		navigateToPage();
 		homePage.hideFacebookBubble();
 		records = cashbookPage.clickResetDateRangerPicker()
                 .clickFilterBtn()
@@ -527,7 +527,7 @@ public class RefactoredCashbookTest extends BaseTest {
 		records.stream().forEach(record -> Assert.assertEquals(record.get(Cashbook.CREATEDBY_IDX), "system"));
 		
 		/* Filter by Sender/Recipient Group */
-		commonAction.refreshPage();
+		navigateToPage();
 		homePage.hideFacebookBubble();
 		records = cashbookPage.clickResetDateRangerPicker()
 				.clickFilterBtn()
@@ -559,7 +559,7 @@ public class RefactoredCashbookTest extends BaseTest {
 		*/
 		
 		/* Filter by Payment methods */
-		commonAction.refreshPage();
+		navigateToPage();
 		homePage.hideFacebookBubble();
 		records = cashbookPage.clickResetDateRangerPicker()
 			.clickFilterBtn()
@@ -605,7 +605,7 @@ public class RefactoredCashbookTest extends BaseTest {
 		cashbookPage.clickCancelBtn();
 		
 		/* Combine filter conditions */
-		commonAction.refreshPage();
+		navigateToPage();
 		homePage.hideFacebookBubble();
 		cashbookPage.clickResetDateRangerPicker()
 			.clickFilterBtn()
