@@ -2,6 +2,7 @@ package api.Buyer.login;
 
 import static io.restassured.RestAssured.given;
 import static utilities.links.Links.SF_DOMAIN;
+import static utilities.links.Links.SF_DOMAIN_BIZ;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -35,6 +36,11 @@ public class LoginSF {
         this.loginInformation = loginInformation;
     }
     public Response LoginToSF(String username, String password, String phoneCode) {
+    	
+    	var storeInfo = new StoreInformation(loginInformation).getInfo();
+    	
+    	var sfDomain = storeInfo.getDashboardDomain().contentEquals("GOSELL_BIZ") ? SF_DOMAIN_BIZ : SF_DOMAIN;
+    	
         String body = """
                 {
                     "username": "%s",
@@ -45,7 +51,7 @@ public class LoginSF {
                 .cookie("StoreId=%s".formatted(new Login().getInfo(loginInformation).getStoreID()))
                 .when()
                 .body(body)
-                .post("https://%s%s/api/login".formatted(new StoreInformation(loginInformation).getInfo().getStoreURL(), SF_DOMAIN));
+                .post("https://%s%s/api/login".formatted(storeInfo.getStoreURL(), sfDomain));
         loginSF.then().log().ifValidationFails().statusCode(200);
         LoginSF.username = username;
         LoginSF.password = password;
@@ -133,8 +139,13 @@ public class LoginSF {
      */
     public Response changePassword(String username, String password, String phoneCode, String newPassword) {
     	
+    	var storeInfo = new StoreInformation(loginInformation).getInfo();
+    	
+    	var sfDomain = storeInfo.getDashboardDomain().contentEquals("GOSELL_BIZ") ? SF_DOMAIN_BIZ : SF_DOMAIN;
+    	
+    	
     	//Get Storefront URL
-    	var sfURL = new StoreInformation(loginInformation).getInfo().getStoreURL() + SF_DOMAIN;
+    	var sfURL = storeInfo.getStoreURL() + sfDomain;
     	
     	//Prepare path
     	var changePasswordPath = "https://%s/api/change_password".formatted(sfURL);
