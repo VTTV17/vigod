@@ -104,7 +104,12 @@ public class RefactoredCashbookTest extends BaseTest {
 
 	@BeforeMethod
 	public void navigateToPage() {
-		cashbookPage.navigateUsingURL();
+		//Not sure why the page is sometimes blank after navigation on CI env => We'll temporarily use the loop below
+		for (int i=0; i<4; i++) {
+			cashbookPage.navigateUsingURL();
+			if (cashbookPage.isPageTitlePresent()) break;
+			UICommonAction.sleepInMiliSecond(5000, "Wait a little in navigateToPage()");
+		}
 	}
 
     @AfterMethod
@@ -443,7 +448,7 @@ public class RefactoredCashbookTest extends BaseTest {
 
 		
 		/* Filter by branch*/
-		commonAction.refreshPage();
+		navigateToPage();
 		homePage.hideFacebookBubble();
 		records = cashbookPage.clickResetDateRangerPicker()
 				.clickFilterBtn()
@@ -455,7 +460,7 @@ public class RefactoredCashbookTest extends BaseTest {
 		records.stream().forEach(record -> Assert.assertEquals(record.get(Cashbook.BRANCH_IDX), branch));
 		
 		/* Filter by transaction */
-		commonAction.refreshPage();
+		navigateToPage();
 		homePage.hideFacebookBubble();
 		records = cashbookPage.clickResetDateRangerPicker()
 				.clickFilterBtn()
@@ -477,7 +482,7 @@ public class RefactoredCashbookTest extends BaseTest {
 		
 		/* Filter by Expense type */
 		String filteredExpenseType = DataGenerator.getRandomListElement(expenseSources(CashbookGroup.CUSTOMER));
-		commonAction.refreshPage();
+		navigateToPage();
 		homePage.hideFacebookBubble();
 		records = cashbookPage.clickResetDateRangerPicker()
 				.clickFilterBtn()
@@ -490,7 +495,7 @@ public class RefactoredCashbookTest extends BaseTest {
 		
 		/* Filter by Revenue type */
 		String filteredRevenueType = DataGenerator.getRandomListElement(revenueSources(CashbookGroup.CUSTOMER)); 
-		commonAction.refreshPage();
+		navigateToPage();
 		homePage.hideFacebookBubble();
 		records = cashbookPage.clickResetDateRangerPicker()
                 .clickFilterBtn()
@@ -503,7 +508,7 @@ public class RefactoredCashbookTest extends BaseTest {
 
 		
 		/* Filter by Created by */
-		commonAction.refreshPage();
+		navigateToPage();
 		homePage.hideFacebookBubble();
 		records = cashbookPage.clickResetDateRangerPicker()
                 .clickFilterBtn()
@@ -522,7 +527,7 @@ public class RefactoredCashbookTest extends BaseTest {
 		records.stream().forEach(record -> Assert.assertEquals(record.get(Cashbook.CREATEDBY_IDX), "system"));
 		
 		/* Filter by Sender/Recipient Group */
-		commonAction.refreshPage();
+		navigateToPage();
 		homePage.hideFacebookBubble();
 		records = cashbookPage.clickResetDateRangerPicker()
 				.clickFilterBtn()
@@ -554,7 +559,7 @@ public class RefactoredCashbookTest extends BaseTest {
 		*/
 		
 		/* Filter by Payment methods */
-		commonAction.refreshPage();
+		navigateToPage();
 		homePage.hideFacebookBubble();
 		records = cashbookPage.clickResetDateRangerPicker()
 			.clickFilterBtn()
@@ -600,7 +605,7 @@ public class RefactoredCashbookTest extends BaseTest {
 		cashbookPage.clickCancelBtn();
 		
 		/* Combine filter conditions */
-		commonAction.refreshPage();
+		navigateToPage();
 		homePage.hideFacebookBubble();
 		cashbookPage.clickResetDateRangerPicker()
 			.clickFilterBtn()

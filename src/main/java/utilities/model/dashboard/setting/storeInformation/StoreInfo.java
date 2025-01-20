@@ -14,4 +14,5 @@ public class StoreInfo {
     private List<String> sFLangList;
     private String timeZone;
     private String symbol; //Store's currency symbol
+    private String dashboardDomain; //Store's domain - either VN or BIZ
 }
