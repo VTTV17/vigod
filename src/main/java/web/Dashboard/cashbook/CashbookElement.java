@@ -6,7 +6,7 @@ public class CashbookElement {
 
 	By loc_icnDataLoading = By.cssSelector("[data-loading='true']");
 	
-	By loc_lblPageTitle = By.cssSelector(".gs-page-title");
+	By loc_lblPageTitle = By.cssSelector("[role=heading]");
 	By loc_lblTotalRecordCount = By.cssSelector(".gs-page-title span.uik-tag__wrapper span");
 	By loc_lblCashbookSummary = By.cssSelector(".cashbook-summary .number");
 	By loc_tltCashbookSummary = By.cssSelector(".tippy-tooltip-content");

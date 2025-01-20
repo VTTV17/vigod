@@ -103,6 +103,12 @@ public class Cashbook {
 		commonAction.waitInvisibilityOfElementLocated(elements.loc_icnDataLoading);
 		homePage.waitTillSpinnerDisappear1();
 	}
+
+	public boolean isPageTitlePresent() {
+		var isPresent = !commonAction.getElements(elements.loc_lblPageTitle).isEmpty();
+		logger.info("Is page title present: {}", isPresent);
+		return isPresent;
+	}
 	
 	public List<Long> getCashbookSummary() {
 		List<Long> summary = new ArrayList<>();

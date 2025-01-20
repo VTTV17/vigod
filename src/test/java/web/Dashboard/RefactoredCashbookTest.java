@@ -104,7 +104,12 @@ public class RefactoredCashbookTest extends BaseTest {
 
 	@BeforeMethod
 	public void navigateToPage() {
-		cashbookPage.navigateUsingURL();
+		//Not sure why the page is sometimes blank after navigation on CI env => We'll temporarily use the loop below
+		for (int i=0; i<3; i++) {
+			cashbookPage.navigateUsingURL();
+			if (cashbookPage.isPageTitlePresent()) break;
+			UICommonAction.sleepInMiliSecond(10000, "Wait a little in navigateToPage()");
+		}
 	}
 
     @AfterMethod
