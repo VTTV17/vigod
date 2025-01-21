@@ -108,7 +108,7 @@ public class CreateServiceTest extends BaseTest {
     }
     public CreateServicePage loginDbAndGoToCreateServicePage() throws Exception {
         login = new LoginPage(driver);
-        login.navigate().performLogin(userName, passWord);
+        login.navigate().performValidLogin("Vietnam",userName, passWord);
         home = new HomePage(driver);
         home.waitTillSpinnerDisappear1().selectLanguage(languageDB).hideFacebookBubble();
         serviceManagement = new ServiceManagementPage(driver);
@@ -118,7 +118,7 @@ public class CreateServiceTest extends BaseTest {
 
     public void checkPermisionCreateSVByPackage(String userName, boolean isPermission) throws Exception {
         login = new LoginPage(driver);
-        login.navigate().performLogin(userName, passWordTestPermission);
+        login.navigate().performValidLogin("Vietnam",userName, passWordTestPermission);
         home = new HomePage(driver);
         home.waitTillSpinnerDisappear1().selectLanguage(languageDB).hideFacebookBubble().navigateToPage(Constant.SERVICES_MENU_ITEM_NAME);
         serviceManagement = new ServiceManagementPage(driver);
@@ -143,7 +143,7 @@ public class CreateServiceTest extends BaseTest {
     }
     public void checkPermisionUpdateSVByPackage(String userName, boolean isPermission) throws Exception {
         login = new LoginPage(driver);
-        login.navigate().performLogin(userName, passWordTestPermission);
+        login.navigate().performValidLogin("Vietnam",userName, passWordTestPermission);
         home = new HomePage(driver);
         home.waitTillSpinnerDisappear1().selectLanguage(languageDB).hideFacebookBubble().navigateToPage(Constant.SERVICES_MENU_ITEM_NAME);
         serviceManagement = new ServiceManagementPage(driver);
@@ -306,7 +306,7 @@ public class CreateServiceTest extends BaseTest {
         collectionSFPage.verifyCollectionPageTitle(sfAllServicesTxt)
                 .verifyNewServiceDisplayInList(serviceName, sellingPrice, listingPrice);
     }
-
+    //Bug: https://mediastep.atlassian.net/browse/BH-41512
     @Test
     public void CS06_CreateListingPriceService() throws Exception {
         testCaseId = "CS06";
@@ -349,7 +349,7 @@ public class CreateServiceTest extends BaseTest {
         collectionSFPage.verifyCollectionPageTitle(selectedCollection.get(0))
                 .verifyListingServiceDisplayInList(serviceName);
     }
-
+    //Bug khong vo duoc service detail voi service co SEO
     @Test
     public void CS07_CreateServiceWithSEOInfo() throws Exception {
         testCaseId = "CS07";
@@ -793,7 +793,7 @@ public class CreateServiceTest extends BaseTest {
                     .verifyServiceNotShowInServiceList(serviceEdit);
         }
     }
-    @Test
+    @Test(dependsOnMethods = "CS04_CreateServiceBelongTo1Collection")
     public void ES07_DeleteServiceInServiceDetail() throws Exception {
         testCaseId = "ES07";
         loginAndNavigateToServiceManagement()
