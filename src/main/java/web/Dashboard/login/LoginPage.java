@@ -1,6 +1,8 @@
 package web.Dashboard.login;
 
 import api.Seller.login.Login;
+import lombok.SneakyThrows;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
@@ -44,6 +46,23 @@ public class LoginPage {
         this.domain = domain;
     }
 
+    @SneakyThrows
+    public static String localizedEmptyFieldError(DisplayLanguage language) {
+    	return PropertiesUtil.getPropertiesValueByDBLang("services.create.inputFieldEmptyError", language.name());
+    }     
+    @SneakyThrows
+    public static String localizedInvalidPhoneError(DisplayLanguage language) {
+    	return PropertiesUtil.getPropertiesValueByDBLang("login.screen.error.invalidPhone", language.name());
+    }     
+    @SneakyThrows
+    public static String localizedInvalidEmailError(DisplayLanguage language) {
+    	return PropertiesUtil.getPropertiesValueByDBLang("login.screen.error.invalidMail", language.name());
+    }     
+    @SneakyThrows
+    public static String localizedWrongCredentialsError(DisplayLanguage language) {
+    	return PropertiesUtil.getPropertiesValueByDBLang("login.screen.error.wrongCredentials", language.name());
+    }
+    
     //Will move these locators to a separate file later
     By loc_lblLoginScreen = By.cssSelector(".login-widget");
     By loc_lblForgotPasswordScreen = By.cssSelector(".forgot-page-wrapper");

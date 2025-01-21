@@ -5,7 +5,10 @@ import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 
+import lombok.SneakyThrows;
 import utilities.commons.UICommonAction;
+import utilities.enums.DisplayLanguage;
+import utilities.utils.PropertiesUtil;
 
 public class ForgotPasswordPage {
 
@@ -18,6 +21,15 @@ public class ForgotPasswordPage {
         this.driver = driver;
         commonAction = new UICommonAction(driver);
     }
+
+    @SneakyThrows
+    public static String localizedInvalidPasswordError(DisplayLanguage language) {
+    	return PropertiesUtil.getPropertiesValueByDBLang("login.forgotPassword.error.invalidPassword", language.name());
+    }  
+    @SneakyThrows
+    public static String localizedWrongVerificationCodeError(DisplayLanguage language) {
+    	return PropertiesUtil.getPropertiesValueByDBLang("login.screen.error.wrongVerificationCode", language.name());
+    }    
     
     //Will move these locators to a separate file later
     By loc_txtUsername = By.id("phoneOrEmail"); 
