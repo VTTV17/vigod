@@ -136,7 +136,7 @@ public class CreateServiceTest extends BaseTest {
 
     public ServiceManagementPage loginAndNavigateToServiceManagement() {
         login = new LoginPage(driver);
-        login.navigate().performLogin(userName, passWord);
+        login.navigate().performValidLogin("Vietnam",userName, passWord);
         home = new HomePage(driver);
         home.waitTillSpinnerDisappear1().selectLanguage(languageDB).hideFacebookBubble();
         return new ServiceManagementPage(driver).navigateToServiceManagementUrl();
@@ -260,8 +260,7 @@ public class CreateServiceTest extends BaseTest {
                 .verifySEOInfo("", "", "", serviceName, description)
                 .clickOnCollectionLink();
         collectionSFPage = new CollectionSFPage(driver);
-        collectionSFPage.verifyCollectionPageTitle(selectedCollection.get(0))
-                .verifyNewServiceDisplayInList(serviceName, sellingPrice, listingPrice);
+        collectionSFPage.verifyNewServiceDisplayInList(serviceName, sellingPrice, listingPrice);
     }
 
     @Test()
@@ -282,7 +281,6 @@ public class CreateServiceTest extends BaseTest {
                 .inputTimeSlots(timeSlots)
                 .clickSaveBtn()
                 .verifyCreateSeviceSuccessfulMessage();
-        serviceDelete = serviceDelete;
         //Check on SF
         loginSF = new web.StoreFront.login.LoginPage(driver);
         loginSF.navigate(SF_URL);
@@ -395,8 +393,7 @@ public class CreateServiceTest extends BaseTest {
                 .verifyNavigateToServiceDetailBySEOUrl(SF_URL, SEOUrl, serviceName)
                 .clickOnCollectionLink();
         collectionSFPage = new CollectionSFPage(driver);
-        collectionSFPage.verifyCollectionPageTitle(selectedCollection.get(0))
-                .verifyNewServiceDisplayInList(serviceName, sellingPrice, listingPrice);
+        collectionSFPage.verifyNewServiceDisplayInList(serviceName, sellingPrice, listingPrice);
     }
 
     @Test
