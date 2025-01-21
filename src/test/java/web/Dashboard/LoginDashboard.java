@@ -28,7 +28,6 @@ import utilities.driver.InitWebdriver;
 import utilities.enums.DisplayLanguage;
 import utilities.enums.Domain;
 import utilities.model.sellerApp.login.LoginInformation;
-import utilities.utils.PropertiesUtil;
 import web.Dashboard.confirmationdialog.ConfirmationDialog;
 import web.Dashboard.home.HomePage;
 import web.Dashboard.login.ForgotPasswordPage;
@@ -40,50 +39,28 @@ public class LoginDashboard extends BaseTest {
 	LoginPage loginPage;
 	HomePage homePage;
 
-	/**
-	 * A temporary function that helps get rid of the annoying try catch block when reading text from property file
-	 * @param propertyKey
-	 */
-	public String translateText(String propertyKey, DisplayLanguage lang) {
-		try {
-			return PropertiesUtil.getPropertiesValueByDBLang(propertyKey, lang.name());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return "";
-	}	
-	
 	@BeforeMethod
 	public void setup() {
 		driver = new InitWebdriver().getDriver(browser, headless);
 		loginPage = new LoginPage(driver, Domain.valueOf(domain));
 		homePage = new HomePage(driver);
 		commonAction = new UICommonAction(driver);
-		generate = new DataGenerator();
-	}
-
-	@Deprecated
-	public void LoginDB_01_CheckTranslation() throws Exception {
-		loginPage.navigate().changeDisplayLanguage(DisplayLanguage.valueOf(language))
-			.verifyTextAtLoginScreen();
-
-//		loginPage.clickForgotPassword().verifyTextAtForgotPasswordScreen();
 	}
 
 	@Test
 	public void LoginDB_02_LoginWithAllFieldsLeftBlank() {
 
-		String emptyFieldError = translateText("services.create.inputFieldEmptyError", DisplayLanguage.valueOf(language));
+		String emptyFieldError = LoginPage.localizedEmptyFieldError(DisplayLanguage.valueOf(language));
 		
 		loginPage.navigate().changeDisplayLanguage(DisplayLanguage.valueOf(language));
 		
 		// Empty username
-		String error = loginPage.performLogin("", new Generex("[a-z]{5,8}\\d{5,8}[!#@]").random()).getUsernameError();
+		String error = loginPage.performLogin("", DataGenerator.randomValidPassword()).getUsernameError();
 		Assert.assertEquals(error, emptyFieldError);
 		commonAction.refreshPage();
 
 		// Empty password
-		error = loginPage.performLogin(new Generex("\\d{9}").random(), "").getPasswordError();
+		error = loginPage.performLogin(DataGenerator.randomPhone(), "").getPasswordError();
 		Assert.assertEquals(error, emptyFieldError);
 		commonAction.refreshPage();
 
@@ -97,40 +74,40 @@ public class LoginDashboard extends BaseTest {
 	@Test
 	public void LoginDB_03_LoginWithInvalidPhoneFormat() {
 
-		String invalidPhoneError = translateText("login.screen.error.invalidPhone", DisplayLanguage.valueOf(language));
+		String invalidPhoneError = LoginPage.localizedInvalidPhoneError(DisplayLanguage.valueOf(language));
 		
 		loginPage.navigate().changeDisplayLanguage(DisplayLanguage.valueOf(language));
 		
 		// 7-digit phone number
 		//https://mediastep.atlassian.net/browse/BH-29615
-		String error = loginPage.performLogin(new Generex("\\d{7}").random(), new Generex("[a-z]{5,8}\\d{5,8}[!#@]").random()).getUsernameError();
+		String error = loginPage.performLogin(DataGenerator.generatePhoneFromRegex("\\d{7}"), DataGenerator.randomValidPassword()).getUsernameError();
 		Assert.assertEquals(error, invalidPhoneError);
 		commonAction.refreshPage();
 
 		// 16-digit phone number
-		error = loginPage.performLogin(new Generex("\\d{16}").random(), new Generex("[a-z]{5,8}\\d{5,8}[!#@]").random()).getUsernameError();
+		error = loginPage.performLogin(DataGenerator.generatePhoneFromRegex("\\d{16}"), DataGenerator.randomValidPassword()).getUsernameError();
 		Assert.assertEquals(error, invalidPhoneError);
 	}
 
 	@Test
 	public void LoginDB_04_LoginWithInvalidMailFormat() {
 
-		String invalidEmailError = translateText("login.screen.error.invalidMail", DisplayLanguage.valueOf(language));
+		String invalidEmailError = LoginPage.localizedInvalidEmailError(DisplayLanguage.valueOf(language));
 		
 		loginPage.navigate().changeDisplayLanguage(DisplayLanguage.valueOf(language));
 		
 		// Mail does not have symbol @
-		String error = loginPage.performLogin(new Generex("[a-z]{5,8}\\d{5,8}\\.[a-z]{2}").random(), new Generex("[a-z]{5,8}\\d{5,8}[!#@]").random()).getUsernameError();
+		String error = loginPage.performLogin(new Generex("[a-z]{5,8}\\d{5,8}\\.[a-z]{2}").random(), DataGenerator.randomValidPassword()).getUsernameError();
 		Assert.assertEquals(error, invalidEmailError);
 		commonAction.refreshPage();
 
 		// Mail does not have suffix '.<>'. Eg. '.com'
-		error = loginPage.performLogin(new Generex("[a-z]{5,8}\\d{5,8}\\@").random(), new Generex("[a-z]{5,8}\\d{5,8}[!#@]").random()).getUsernameError();
+		error = loginPage.performLogin(new Generex("[a-z]{5,8}\\d{5,8}\\@").random(), DataGenerator.randomValidPassword()).getUsernameError();
 		Assert.assertEquals(error, invalidEmailError);
 		commonAction.refreshPage();
 
 		error = loginPage.performLogin(new Generex("[a-z]{5,8}\\d{5,8}\\@[a-z]mail\\.").random(),
-				new Generex("[a-z]{5,8}\\d{5,8}[!#@]").random()).getUsernameError();
+				DataGenerator.randomValidPassword()).getUsernameError();
 		Assert.assertEquals(error, invalidEmailError);
 
 	}
@@ -138,17 +115,17 @@ public class LoginDashboard extends BaseTest {
 	@Test
 	public void LoginDB_05_LoginWithNonExistingAccount() {
 
-		String wrongCredentialsError = translateText("login.screen.error.wrongCredentials", DisplayLanguage.valueOf(language));
+		String wrongCredentialsError = LoginPage.localizedWrongCredentialsError(DisplayLanguage.valueOf(language));
 		
 		loginPage.navigate().changeDisplayLanguage(DisplayLanguage.valueOf(language));
 		
 		// Email account
-		String error = loginPage.performLogin(new Generex("[a-z]{5}\\d{5}\\@[a-z]mail\\.[a-z]{2,3}").random(), new Generex("[a-z]{5,8}\\d{5,8}[!#@]").random())
+		String error = loginPage.performLogin(DataGenerator.randomCorrectFormatEmail(), DataGenerator.randomValidPassword())
 				.getLoginFailError();
 		Assert.assertEquals(error, wrongCredentialsError);
 
 		// Phone account
-		error = loginPage.performLogin(new Generex("\\d{8,15}").random(), new Generex("[a-z]{5,8}\\d{5,8}[!#@]").random()).getLoginFailError();
+		error = loginPage.performLogin(DataGenerator.randomPhone(), DataGenerator.randomValidPassword()).getLoginFailError();
 		Assert.assertEquals(error, wrongCredentialsError);
 	}
 
@@ -180,11 +157,16 @@ public class LoginDashboard extends BaseTest {
 		homePage.verifyPageLoaded().clickLogout();
 
 		// Phone account
-		loginPage.performLogin(phoneCountry, phoneUsername, phonePassword);
-		homePage.verifyPageLoaded().clickLogout();
-	}
+		//TODO create a phone account for domain .biz
+		if (Domain.valueOf(domain).equals(Domain.VN) ) {
+			loginPage.performLogin(phoneCountry, phoneUsername, phonePassword);
+			homePage.verifyPageLoaded().clickLogout();
+		}
 
-	@Test
+	}
+	
+	//Captcha verification is now needed for FB login attempts done on automated browsers
+//	@Test
 	public void LoginDB_07_LoginWithFacebook() {
 		
 		String mailUsername, mailPassword;
@@ -215,19 +197,19 @@ public class LoginDashboard extends BaseTest {
 		}
 		
 		//Wrong credentials
-		String error = loginPage.switchToStaffTab().performLogin(mailUsername, new Generex("[a-z]{5,8}\\d{5,8}[!#@]").random()).getLoginFailError();
-		Assert.assertEquals(error, translateText("login.screen.error.wrongCredentials", DisplayLanguage.valueOf(language)));
+		String error = loginPage.switchToStaffTab().performLogin(mailUsername, DataGenerator.randomValidPassword()).getLoginFailError();
+		Assert.assertEquals(error, LoginPage.localizedWrongCredentialsError(DisplayLanguage.valueOf(language)));
 
 		//Correct credentials
 		loginPage.switchToStaffTab().performLogin(mailUsername, mailPassword);
 		homePage.clickLogout();
 	}
 
-	//It takes a while for the OTP code to be present on Kibana => Temporarily skipped
+	//Temporarily commented out because captcha needs to be solved
 //	@Test
 	public void LoginDB_09_StaffForgotPassword() {
 		
-		String invalidPasswordError = translateText("login.forgotPassword.error.invalidPassword", DisplayLanguage.valueOf(language));
+		String invalidPasswordError = ForgotPasswordPage.localizedInvalidPasswordError(DisplayLanguage.valueOf(language));
 		
 		String mailUsername, mailPassword;
 		if(Domain.valueOf(domain).equals(Domain.VN)) {
@@ -263,7 +245,7 @@ public class LoginDashboard extends BaseTest {
 		
 		// Incorrect verification code
 		forgotPasswordPage.inputVerificationCode(String.valueOf(Integer.parseInt(code) - 1)).clickConfirmBtn();
-		Assert.assertEquals(forgotPasswordPage.getVerificationCodeError(), translateText("login.screen.error.wrongVerificationCode", DisplayLanguage.valueOf(language)));
+		Assert.assertEquals(forgotPasswordPage.getVerificationCodeError(), ForgotPasswordPage.localizedWrongVerificationCodeError(DisplayLanguage.valueOf(language)));
 
 		// Correct verification code
 		forgotPasswordPage.inputVerificationCode(code).clickConfirmBtn();
@@ -289,7 +271,7 @@ public class LoginDashboard extends BaseTest {
 			password = AccountTest.ADMIN_MAIL_BIZ_PASSWORD;
 		}
 		
-		String newPassword = new Generex("[a-z]{5,8}\\d{5,8}[!#@]").random();
+		String newPassword = DataGenerator.randomValidPassword();
 
 		// Login
 		loginPage.navigate().changeDisplayLanguage(DisplayLanguage.valueOf(language))
@@ -313,13 +295,13 @@ public class LoginDashboard extends BaseTest {
 
 			LoginInformation ownerCredentials = new Login().setLoginInformation(DataGenerator.getPhoneCode(country), username, currentPassword).getLoginInformation();
 			
-			newPassword = (i != 4) ? new Generex("[a-z]{5,8}\\d{5,8}[!#@]").random() : password;
+			newPassword = (i == 4) ? password : DataGenerator.randomValidPassword();
 
 			new APIAccount(ownerCredentials).changePassword(currentPassword, newPassword);
 		}
 	}
 	
-	//It takes a while for the OTP code to be present on Kibana => Temporarily skipped
+	//Temporarily commented out because captcha needs to be solved
 //	@Test
 	public void LoginDB_11_SellerForgotPassword()  {
 
@@ -334,7 +316,7 @@ public class LoginDashboard extends BaseTest {
 			password = AccountTest.ADMIN_MAIL_BIZ_PASSWORD;
 		}
 		
-		String newPassword = new Generex("[a-z]{5,8}\\d{5,8}[!#@]").random();
+		String newPassword = DataGenerator.randomValidPassword();
 
 		loginPage.navigate().changeDisplayLanguage(DisplayLanguage.valueOf(language));
 		ForgotPasswordPage forgotPasswordPage = loginPage.clickForgotPassword();
@@ -359,7 +341,7 @@ public class LoginDashboard extends BaseTest {
 			
 			LoginInformation ownerCredentials = new Login().setLoginInformation(DataGenerator.getPhoneCode(country), username, currentPassword).getLoginInformation();
 
-			newPassword = (i != 4) ? new Generex("[a-z]{5,8}\\d{5,8}[!#@]").random() : password;
+			newPassword = (i == 4) ? password : DataGenerator.randomValidPassword();
 
 			new APIAccount(ownerCredentials).changePassword(currentPassword, newPassword);
 		}
