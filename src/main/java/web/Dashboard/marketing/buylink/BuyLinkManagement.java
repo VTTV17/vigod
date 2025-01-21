@@ -51,9 +51,9 @@ public class BuyLinkManagement extends HomePage{
 		createBuyLink = new CreateBuyLink(driver);
 		PageFactory.initElements(driver, this);
 	}
-	By loc_btnExploreNow = By.cssSelector(".buylink-intro .gs-button__green");
-	By loc_btnCreateBuyLink = By.cssSelector(".buylink-header button div");
-	By loc_lblBuyLinkManagementTitle = By.cssSelector(".gs-page-title");
+	By loc_btnExploreNow = By.cssSelector(".buylink-intro button");
+	By loc_btnCreateBuyLink = By.cssSelector(".buylink button");
+	By loc_lblBuyLinkManagementTitle = By.cssSelector("[role='heading']");
 	By loc_lblUrlCol = By.xpath("//section[contains(@class,'gs-table-header-item')][2]/span");
 	By loc_lblCouponCol = By.xpath("//section[contains(@class,'gs-table-header-item')][3]/span");
 	By loc_lblCreateDateCol = By.xpath("//section[contains(@class,'gs-table-header-item')][4]/span");

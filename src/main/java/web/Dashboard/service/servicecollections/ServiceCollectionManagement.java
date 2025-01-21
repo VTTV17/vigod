@@ -177,7 +177,7 @@ public class ServiceCollectionManagement {
 	}
 	public void deleteTheFirstCollection() {
 		commonAction.click(loc_lst_icnDelete,0);
-		commonAction.click(loc_dlgConfirmation_btnOK);
+		new ConfirmationDialog(driver).clickOKBtn_V2();
 		commonAction.sleepInMiliSecond(1000);
 		commonAction.click(loc_dlgConfirmation_btnOK);
 		new HomePage(driver).waitTillSpinnerDisappear();

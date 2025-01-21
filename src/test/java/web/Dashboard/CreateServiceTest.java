@@ -306,7 +306,7 @@ public class CreateServiceTest extends BaseTest {
         collectionSFPage.verifyCollectionPageTitle(sfAllServicesTxt)
                 .verifyNewServiceDisplayInList(serviceName, sellingPrice, listingPrice);
     }
-
+    //Bug: https://mediastep.atlassian.net/browse/BH-41512
     @Test
     public void CS06_CreateListingPriceService() throws Exception {
         testCaseId = "CS06";
@@ -349,7 +349,7 @@ public class CreateServiceTest extends BaseTest {
         collectionSFPage.verifyCollectionPageTitle(selectedCollection.get(0))
                 .verifyListingServiceDisplayInList(serviceName);
     }
-
+    //Bug khong vo duoc service detail voi service co SEO
     @Test
     public void CS07_CreateServiceWithSEOInfo() throws Exception {
         testCaseId = "CS07";
@@ -793,7 +793,7 @@ public class CreateServiceTest extends BaseTest {
                     .verifyServiceNotShowInServiceList(serviceEdit);
         }
     }
-    @Test
+    @Test(dependsOnMethods = "CS04_CreateServiceBelongTo1Collection")
     public void ES07_DeleteServiceInServiceDetail() throws Exception {
         testCaseId = "ES07";
         loginAndNavigateToServiceManagement()
