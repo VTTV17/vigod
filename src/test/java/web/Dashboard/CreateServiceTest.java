@@ -108,7 +108,7 @@ public class CreateServiceTest extends BaseTest {
     }
     public CreateServicePage loginDbAndGoToCreateServicePage() throws Exception {
         login = new LoginPage(driver);
-        login.navigate().performLogin(userName, passWord);
+        login.navigate().performValidLogin("Vietnam",userName, passWord);
         home = new HomePage(driver);
         home.waitTillSpinnerDisappear1().selectLanguage(languageDB).hideFacebookBubble();
         serviceManagement = new ServiceManagementPage(driver);
@@ -118,7 +118,7 @@ public class CreateServiceTest extends BaseTest {
 
     public void checkPermisionCreateSVByPackage(String userName, boolean isPermission) throws Exception {
         login = new LoginPage(driver);
-        login.navigate().performLogin(userName, passWordTestPermission);
+        login.navigate().performValidLogin("Vietnam",userName, passWordTestPermission);
         home = new HomePage(driver);
         home.waitTillSpinnerDisappear1().selectLanguage(languageDB).hideFacebookBubble().navigateToPage(Constant.SERVICES_MENU_ITEM_NAME);
         serviceManagement = new ServiceManagementPage(driver);
@@ -143,7 +143,7 @@ public class CreateServiceTest extends BaseTest {
     }
     public void checkPermisionUpdateSVByPackage(String userName, boolean isPermission) throws Exception {
         login = new LoginPage(driver);
-        login.navigate().performLogin(userName, passWordTestPermission);
+        login.navigate().performValidLogin("Vietnam",userName, passWordTestPermission);
         home = new HomePage(driver);
         home.waitTillSpinnerDisappear1().selectLanguage(languageDB).hideFacebookBubble().navigateToPage(Constant.SERVICES_MENU_ITEM_NAME);
         serviceManagement = new ServiceManagementPage(driver);
