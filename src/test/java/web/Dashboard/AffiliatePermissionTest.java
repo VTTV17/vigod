@@ -365,12 +365,12 @@ public class AffiliatePermissionTest extends BaseTest{
     @DataProvider
     public Object[] DropshipOrderData(){
         return new Object[][]{
-//                {"1"},
-//                {"10"}, //Bug khong co quyen view list, dang hien restricted pag
-//                {"11"},
-//                {"100"}, //bug tuong tu
-//                {"101"},
-//                {"110"},//bug tuong tu
+                {"1"},
+                {"10"}, //Bug khong co quyen view list, dang hien restricted pag
+                {"11"},
+                {"100"}, //bug tuong tu
+                {"101"},
+                {"110"},//bug tuong tu
                 {"111"}
         };
     }
@@ -628,13 +628,13 @@ public class AffiliatePermissionTest extends BaseTest{
 //                {"1011111"},
 //                {"1100000"},
 //                {"1100001"},
-//                {"1100010"},
-//                {"1100011"},
-//                {"1100100"},
-//                {"1100101"},
-//                {"1100110"},
-//                {"1100111"},
-//                {"1101000"},
+                {"1100010"},
+                {"1100011"},
+                {"1100100"},
+                {"1100101"},
+                {"1100110"},
+                {"1100111"},
+                {"1101000"},
 //                {"1101001"},
 //                {"1101010"},
 //                {"1101011"},

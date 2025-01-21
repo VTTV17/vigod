@@ -26,7 +26,7 @@ public class CollectionSFPage {
         commons = new UICommonAction(driver);
         PageFactory.initElements(driver,this);
     }
-    By loc_lblNewestServiceName = By.xpath("(//div[@class='product-infomation']//p)[1]");
+    By loc_lblNewestServiceName = By.xpath("(//div[@class='product-infomation']/*)[1]");
     By loc_lblNewestServiceSellingPrice = By.xpath("(//span[contains(@class,'price')])[1]");
     By loc_lblNewestServiceListingPrice = By.xpath("(//span[contains(@class,'old-price')])[1]");
 

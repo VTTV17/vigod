@@ -9,7 +9,7 @@ import org.openqa.selenium.support.PageFactory;
 import java.util.List;
 
 public class ProductCollectionManagementElement {
-    By loc_btnCreateProductCollection = By.cssSelector(".gs-content-header-right-el button");
+    By loc_btnCreateProductCollection = By.cssSelector(".collection-list-page button");
     By loc_lst_lblCollectionName = By.cssSelector(".collection-name b");
     By loc_lst_lblTypes = By.xpath("//div[contains(@class,'collection-name')]/following-sibling::div[contains(@class,'collection-type')][1]");
     By loc_lst_lblModes = By.xpath("//div[contains(@class,'collection-name')]/following-sibling::div[contains(@class,'collection-type')][2]");

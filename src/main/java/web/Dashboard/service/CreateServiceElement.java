@@ -57,7 +57,7 @@ public class CreateServiceElement {
     By loc_lblSEOKeywords = By.xpath("//span[@class='gs-fake-link ']//parent::div/following-sibling::div[@class='mb-2'][3]/span");
     By loc_tltSEOKeywords = By.xpath("//span[@class='gs-fake-link ']//parent::div/following-sibling::div[@class='mb-2'][3]//div/div");
     By loc_lblURLLink = By.xpath("//span[@class='gs-fake-link ']//parent::div/following-sibling::div[@class='mb-2'][4]/span");
-    By loc_lblCreateNewService = By.xpath("//h5[@class='gs-page-title']");
+    By loc_lblCreateNewService = By.cssSelector(".service-form-page span[role='heading']");
     By loc_plhSelectCollections = By.xpath("//label[@for='productCollection']//following::div[contains(@class,'placeholder')]");
     By loc_lblErrorMessageServiceName = By.xpath("//label[@for='serviceName']//following-sibling::div[@class='invalid-feedback']");
     By loc_lblErrorMessageListingPrice = By.xpath("//input[@id='orgPrice']/following-sibling::div[@class='invalid-feedback']");
@@ -75,7 +75,7 @@ public class CreateServiceElement {
     By loc_dlgNotification_lblMessage = By.cssSelector(".modal-body");
 
     /*--------------Edit service-------------*/
-    By loc_btnEditTranslation = By.xpath("//h5[contains(@class,'product-name')]/following-sibling::div//button[contains(@class,'gs-button__gray--outline')][1]");
+    By loc_btnEditTranslation = By.xpath("//div[@class='gss-content-header--action-btn--group']//button[contains(@class,'gs-button__gray--outline')][1]");
     By loc_dlgTranslate_txtName = By.cssSelector("input[name='informationName']");
     By loc_dlgTranslate_txaDescription = By.xpath("//label[@for='serviceDescription']//following::div[@class='fr-element fr-view'][2]");
     By loc_dlgTranslate_txtLocations = By.xpath("//div[@class='modal-body']//div[@class='row']//input");
@@ -85,7 +85,7 @@ public class CreateServiceElement {
     By loc_dlgTranslate_txtSEOKeywords = By.cssSelector(".product-translate-modal #seoKeywords");
     By loc_dlgTranslate_txtURLLink = By.cssSelector(".product-translate-modal #seoUrl");
     By loc_btnActiveDeactive = By.xpath("(//button[contains(@class,'yellow')])[1]");
-    By loc_lblStatus = By.xpath("//h5[contains(@class,'product-name')]/preceding-sibling::span");
+    By loc_lblStatus = By.cssSelector(".toolbar__product-status");
     By loc_urlLivePreview = By.cssSelector(".seo-editor__live-preview-url a");
     By loc_lstImage = By.cssSelector(".image-view");
     By loc_lstIconRemoveImage = By.cssSelector(".image-widget__btn-remove");

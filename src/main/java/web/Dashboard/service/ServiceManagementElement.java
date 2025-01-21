@@ -10,7 +10,7 @@ public class ServiceManagementElement {
         this.driver = driver;
         PageFactory.initElements(driver, this);
     }
-    By loc_btnCreateService = By.cssSelector(".service-list-page .gss-content-header button");
+    By loc_btnCreateService = By.cssSelector(".service-list-page button[type='submit']");
     By loc_lst_icnEdit = By.cssSelector(".first-button");
     By loc_lst_lblServiceName = By.cssSelector(".product-table__name b");
     By loc_lst_icnDelete = By.cssSelector(".lastest-button");
