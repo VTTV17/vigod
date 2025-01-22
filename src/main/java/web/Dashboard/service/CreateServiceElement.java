@@ -84,6 +84,8 @@ public class CreateServiceElement {
     By loc_dlgTranslate_txtSEODescription = By.cssSelector(".product-translate-modal #seoDescription");
     By loc_dlgTranslate_txtSEOKeywords = By.cssSelector(".product-translate-modal #seoKeywords");
     By loc_dlgTranslate_txtURLLink = By.cssSelector(".product-translate-modal #seoUrl");
+    By loc_dlgTranslate_btnLanguage = By.cssSelector(".product-translate__titleHeader button");
+    By loc_dlgTranslate_ddlLanguageOptions = By.cssSelector(".uik-select__optionList button .uik-select__label");
     By loc_btnActiveDeactive = By.xpath("(//button[contains(@class,'yellow')])[1]");
     By loc_lblStatus = By.cssSelector(".toolbar__product-status");
     By loc_urlLivePreview = By.cssSelector(".seo-editor__live-preview-url a");

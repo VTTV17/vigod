@@ -347,7 +347,6 @@ public class CreateServiceTest extends BaseTest {
         collectionSFPage.verifyCollectionPageTitle(selectedCollection.get(0))
                 .verifyListingServiceDisplayInList(serviceName);
     }
-    //Bug khong vo duoc service detail voi service co SEO
     @Test
     public void CS07_CreateServiceWithSEOInfo() throws Exception {
         testCaseId = "CS07";
@@ -557,8 +556,6 @@ public class CreateServiceTest extends BaseTest {
         serviceDetailPage.verifySEOInfo(SEOTitleTranslate, SEODesctiptionTranslate, SEOKeywordTranslate, "", "")
                      .verifyNavigateToServiceDetailBySEOUrl(SF_URL, SEOUrlTranslate, serviceEdit);
         //edit seo
-//        home = new HomePage(driver);
-//        home.navigateToPageByURL().waitTillSpinnerDisappear1().navigateToPage(Constant.SERVICES_MENU_ITEM_NAME);
         new ServiceManagementPage(driver).navigateToServiceManagementUrl().goToEditService(serviceEdit);
         SEOTitle = "SEO title update " + generate.generateString(5);
         SEODesctiption = "SEO description update " + generate.generateString(5);
