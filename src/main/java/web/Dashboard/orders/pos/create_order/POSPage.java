@@ -700,7 +700,8 @@ public class POSPage extends POSElement {
                 Map<String, Double> itemTotalDiscountMap = getPromotionDetailApply(loc_ddlPromotion(i + 1), loc_tltPromotionApplyOnItem);
                 for (Map.Entry<String, Double> entry : itemTotalDiscountMap.entrySet()) {
                     ItemTotalDiscount itemTotalDiscount = new ItemTotalDiscount();
-                    itemTotalDiscount.setLabel(entry.getKey().equals("Giá sỉ") ? "Bán sỉ" : entry.getKey());
+                    String label = entry.getKey().equals("Giá sỉ") ? "Bán sỉ" : entry.getKey();
+                    itemTotalDiscount.setLabel(label.replaceAll(",","."));
                     itemTotalDiscount.setValue(entry.getValue());
                     itemTotalDiscountList.add(itemTotalDiscount);
                 }

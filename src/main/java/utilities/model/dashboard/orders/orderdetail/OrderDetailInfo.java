@@ -1,5 +1,6 @@
 package utilities.model.dashboard.orders.orderdetail;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
@@ -8,6 +9,7 @@ import lombok.Data;
 import java.time.LocalDateTime;
 import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+@JsonIgnoreProperties(ignoreUnknown = true)
 @Data
 public class OrderDetailInfo {
     private OrderInfo orderInfo;
