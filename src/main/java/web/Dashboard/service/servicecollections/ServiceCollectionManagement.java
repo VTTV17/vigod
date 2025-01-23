@@ -96,7 +96,7 @@ public class ServiceCollectionManagement {
 			throw new Exception("Service collection %s not found".formatted(collectionName));
 		}
 		new HomePage(driver).waitTillSpinnerDisappear1();
-//		commonAction.sleepInMiliSecond(1000);
+		commonAction.sleepInMiliSecond(1000);
 		logger.info("Go to collection: "+collectionName);
 		return new EditServiceCollection(driver);
 	}

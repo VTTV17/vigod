@@ -133,14 +133,14 @@ public class ProductCollectionTest extends BaseTest {
 
     public CreateProductCollection loginAndNavigateToCreateProductCollection() throws Exception {
         loginDashboard = new LoginPage(driver);
-        loginDashboard.navigate().performLogin(userNameDb, passwordDb);
+        loginDashboard.navigate().performValidLogin("Vietnam", userNameDb, passwordDb);
         createProductCollection = new CreateProductCollection(driver);
         return createProductCollection.navigate(languageDashboard);
     }
 
     public EditProductCollection loginAndNavigateToEditCollection(String collectionName) throws Exception {
         loginDashboard = new LoginPage(driver);
-        loginDashboard.navigate().performLogin(userNameDb, passwordDb);
+        loginDashboard.navigate().performValidLogin("Vietnam", userNameDb, passwordDb);
         editProductCollection = new EditProductCollection(driver);
         return editProductCollection.navigateEditCollection(collectionName, languageDashboard);
     }
@@ -244,7 +244,7 @@ public class ProductCollectionTest extends BaseTest {
      */
     public void checkPlanPermission(String packageType, String userName) throws IOException {
         loginDashboard = new LoginPage(driver);
-        loginDashboard.navigate().performLogin(userName, passwordCheckPermission);
+        loginDashboard.navigate().performValidLogin("Vietnam", userName, passwordCheckPermission);
         home = new HomePage(driver);
         home.waitTillSpinnerDisappear()
                 .checkPermissionAllPageByPackage("Products-Product Collections", packageType)
@@ -497,7 +497,7 @@ public class ProductCollectionTest extends BaseTest {
     @Test(priority = 19)
     public void PC_19_BH_4795_DeleteAProductCollection() {
         loginDashboard = new LoginPage(driver);
-        loginDashboard.navigate().performLogin(userNameDb, passwordDb);
+        loginDashboard.navigate().performValidLogin("Vietnam", userNameDb, passwordDb);
         home = new HomePage(driver);
         home.waitTillSpinnerDisappear();
         ProductCollectionManagement productCollectionManagement = new ProductCollectionManagement(driver);

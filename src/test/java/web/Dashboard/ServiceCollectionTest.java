@@ -87,7 +87,7 @@ public class ServiceCollectionTest extends BaseTest {
 //        super.writeResult(result);
         if (driver != null) driver.quit();
     }
-//    @AfterClass
+    @AfterClass
     public void callAPIDeleteData(){
         //Delete Service
         ServiceInfoAPI serviceInfoAPI = new ServiceInfoAPI(loginInformation);
@@ -107,14 +107,14 @@ public class ServiceCollectionTest extends BaseTest {
     }
     public CreateServiceCollection loginAndNavigateToCreateServiceCollection() throws Exception {
         loginDashboard = new LoginPage(driver);
-        loginDashboard.navigate().performLogin(userNameDb, passwordDb);
+        loginDashboard.navigate().performValidLogin("Vietnam", userNameDb, passwordDb);
         new HomePage(driver).selectLanguage(languageDashboard);
         createServiceCollection = new CreateServiceCollection(driver);
         return createServiceCollection.navigate(languageDashboard);
     }
     public EditServiceCollection loginAndNavigateToEditServiceCollection(String collectionName) throws Exception {
         loginDashboard = new LoginPage(driver);
-        loginDashboard.navigate().performLogin(userNameDb, passwordDb);
+        loginDashboard.navigate().performValidLogin("Vietnam", userNameDb, passwordDb);
         new HomePage(driver).selectLanguage(languageDashboard);
         editServiceCollection = new EditServiceCollection(driver);
         return editServiceCollection.navigateEditServiceCollection(collectionName);
@@ -236,7 +236,7 @@ public class ServiceCollectionTest extends BaseTest {
     }
     public void checkPlanPermission(String userName, boolean hasPermission) {
         loginDashboard = new LoginPage(driver);
-        loginDashboard.navigate().performLogin(userName, passwordCheckPermission);
+        loginDashboard.navigate().performValidLogin("Vietnam", userName, passwordCheckPermission);
         new HomePage(driver).selectLanguage(languageDashboard);
         ServiceCollectionManagement serviceCollectionManagement = new ServiceCollectionManagement(driver);
         serviceCollectionManagement.navigateToServiceCollectUrl();
@@ -468,7 +468,7 @@ public class ServiceCollectionTest extends BaseTest {
     public void SC14_DeleteCollection(){
         testCaseId = "SC14";
         loginDashboard = new LoginPage(driver);
-        loginDashboard.navigate().performLogin(userNameDb, passwordDb);
+        loginDashboard.navigate().performValidLogin("Vietnam", userNameDb, passwordDb);
         new HomePage(driver).selectLanguage(languageDashboard);
         ServiceCollectionManagement serviceCollectionManagement = new ServiceCollectionManagement(driver);
         serviceCollectionManagement.navigateToServiceCollectUrl();
