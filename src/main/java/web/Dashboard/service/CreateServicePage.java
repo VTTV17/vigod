@@ -592,15 +592,17 @@ public class CreateServicePage extends HomePage {
         List<WebElement> languageOptions = commons.getElements(createServiceUI.loc_dlgTranslate_ddlLanguageOptions, 2);
         for (int i = 0; i < languageOptions.size(); i++) {
             switch (language) {
-                case ENG -> {
+                case ENG: {
                     if (commons.getText(languageOptions.get(i)).equals("English") || commons.getText(languageOptions.get(i)).equals("Tiếng Anh"))
                         commons.click(createServiceUI.loc_dlgTranslate_ddlLanguageOptions, i);
+                    break;
                 }
-                case VIE -> {
+                case VIE: {
                     if (commons.getText(languageOptions.get(i)).equals("Vietnamese") || commons.getText(languageOptions.get(i)).equals("Tiếng Việt"))
                         commons.click(createServiceUI.loc_dlgTranslate_ddlLanguageOptions, i);
+                    break;
                 }
-                default -> throw new Exception("Language: %s not define".formatted(language.name()));
+                default: throw new Exception("Language: %s not define".formatted(language.name()));
             }
         }
         return this;

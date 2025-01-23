@@ -10,6 +10,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import utilities.enums.DisplayLanguage;
 import utilities.model.dashboard.onlineshop.ListingStoreInfo;
 import web.Dashboard.home.HomePage;
 import web.Dashboard.login.LoginPage;
@@ -487,7 +488,8 @@ public class CreateServiceTest extends BaseTest {
         serviceEdit = serviceInfo.getServiceName();
         createService = loginAndNavigateToServiceManagement()
                 .goToEditService(serviceEdit)
-                .clickEditTranslation();
+                .clickEditTranslation()
+                .selectLanguageTranslate(DisplayLanguage.ENG);
         String keyword = createService.getNameTranslate();
         String name = createService.getNameTranslate() + " updated en";
         String description = createService.getDescriptionTranslate() + " updated en";
@@ -532,6 +534,7 @@ public class CreateServiceTest extends BaseTest {
                 .clickSaveBtn().verifyUpdateServiceSuccessfully()
                 .clickCloseBTNOnNotificationPopup();
                 new CreateServicePage(driver).clickEditTranslation()
+                        .selectLanguageTranslate(DisplayLanguage.ENG)
                 .inputSEOTitleTranslate(SEOTitleTranslate)
                 .inputSEODescriptionTranslate(SEODesctiptionTranslate)
                 .inputSEOKeywordTranslate(SEOKeywordTranslate)
@@ -572,6 +575,7 @@ public class CreateServiceTest extends BaseTest {
                 .clickSaveBtn().verifyUpdateServiceSuccessfully()
                 .clickCloseBTNOnNotificationPopup();
                 new CreateServicePage(driver).clickEditTranslation()
+                        .selectLanguageTranslate(DisplayLanguage.ENG)
                 .inputSEOTitleTranslate(SEOTitleTranslate)
                 .inputSEODescriptionTranslate(SEODesctiptionTranslate)
                 .inputSEOKeywordTranslate(SEOKeywordTranslate)
@@ -606,7 +610,8 @@ public class CreateServiceTest extends BaseTest {
                 .inputSEOUrl("")
                 .clickSaveBtn().verifyUpdateServiceSuccessfully()
                 .clickCloseBTNOnNotificationPopup();
-        new CreateServicePage(driver).clickEditTranslation();
+        new CreateServicePage(driver).clickEditTranslation()
+         .selectLanguageTranslate(DisplayLanguage.ENG);
         String descriptionTranslate = createService.getDescriptionTranslate();
         String serviceNameTranslate = createService.getNameTranslate();
         createService.inputSEOTitleTranslate("")
