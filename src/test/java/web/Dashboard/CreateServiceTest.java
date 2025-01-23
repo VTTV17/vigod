@@ -229,7 +229,7 @@ public class CreateServiceTest extends BaseTest {
         listingPrice = "2" + generate.generateNumber(5);
         createService.inputServiceName(serviceName)
                 .inputListingPrice(listingPrice);
-        sellingPrice = createService.inputSellingPrice(listingPrice, generate.generateNumber(2));
+        sellingPrice = createService.inputSellingPrice(listingPrice,"10");
         createService.uncheckOnShowAsListingService()
                 .inputServiceDescription(description)
                 .inputCollections(1);
@@ -744,10 +744,6 @@ public class CreateServiceTest extends BaseTest {
         serviceDetailPage = new ServiceDetailPage(driver);
         serviceDetailPage.verifyServiceListSize(imageSize);
         //delete image
-//        home = new HomePage(driver);
-//        home.navigateToPageByURL()
-////                .waitTillSpinnerDisappear1()
-//                .navigateToPage(Constant.SERVICES_MENU_ITEM_NAME);
         new ServiceManagementPage(driver).navigateToServiceManagementUrl().goToEditService(serviceEdit)
                 .removeAllImages()
                 .uploadImages(images)
@@ -775,18 +771,15 @@ public class CreateServiceTest extends BaseTest {
         selectedCollection = createService.getSelectedCollection();
         createService.clickSaveBtn().verifyUpdateServiceSuccessfully();
         for (String collectionName : selectedCollection) {
-//            new HomePage(driver).navigateToPageByURL().navigateToPage("Services", "Service Collections");
             ServiceCollectionManagement serCollection = new ServiceCollectionManagement(driver);
             serCollection.navigateToServiceCollectUrl().goToEditServiceCollection(collectionName)
                     .verifyServiceShowInServiceList(serviceEdit);
         }
-//        new HomePage(driver).navigateToPageByURL().navigateToPage("Services");
         serviceManagement = new ServiceManagementPage(driver);
         serviceManagement.navigateToServiceManagementUrl().goToEditService(serviceEdit)
                 .removeAllCollection()
                 .clickSaveBtn().verifyUpdateServiceSuccessfully();
         for (String collectionName : selectedCollection) {
-//            new HomePage(driver).navigateToPageByURL().navigateToPage("Services", "Service Collections");
             ServiceCollectionManagement serCollection = new ServiceCollectionManagement(driver);
             serCollection.navigateToServiceCollectUrl().goToEditServiceCollection(collectionName)
                     .verifyServiceNotShowInServiceList(serviceEdit);
