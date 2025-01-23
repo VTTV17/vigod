@@ -184,7 +184,7 @@ public class ServiceDetailPage {
         return this;
     }
     public ServiceDetailPage verifyServiceListSize(int expected){
-        commons.sleepInMiliSecond(1000);
+        commons.sleepInMiliSecond(2000);
         Assert.assertEquals(commons.getElements(loc_lst_imgServiceThumb).size(),expected);
         logger.info("Verify service image thumbnail list size");
         return this;

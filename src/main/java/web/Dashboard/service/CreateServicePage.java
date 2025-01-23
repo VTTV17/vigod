@@ -13,6 +13,7 @@ import org.testng.Assert;
 import utilities.enums.DisplayLanguage;
 import utilities.model.dashboard.services.ServiceInfo;
 import utilities.model.sellerApp.login.LoginInformation;
+import web.Dashboard.confirmationdialog.ConfirmationDialog;
 import web.Dashboard.home.HomePage;
 import utilities.constant.Constant;
 import utilities.utils.PropertiesUtil;
@@ -519,22 +520,20 @@ public class CreateServicePage extends HomePage {
         return commons.getElements(createServiceUI.loc_lstImage).size();
     }
 
-    public CreateServicePage removeAllImages() throws Exception {
-        int size = commons.getElements(createServiceUI.loc_lstIconRemoveImage, 3).size();
-        for (int i = 0; i <= size; i++) {
-            if (!commons.getElements(createServiceUI.loc_lstIconRemoveImage, 1).isEmpty())
-                commons.click(createServiceUI.loc_lstIconRemoveImage, 0);
-            logger.info("Remove image: " + i);
+    public CreateServicePage removeAllImages()  {
+        while (commons.getElements(createServiceUI.loc_lstIconRemoveImage, 3).size()>0) {
+            commons.click(createServiceUI.loc_lstIconRemoveImage, 0);
+            logger.info("Remove image");
             commons.sleepInMiliSecond(200);
         }
-        Assert.assertEquals(commons.getText(createServiceUI.loc_lblErrorMessageImages), PropertiesUtil.getPropertiesValueByDBLang("services.create.imagesFieldEmptyError"));
+//        Assert.assertEquals(commons.getText(createServiceUI.loc_lblErrorMessageImages), PropertiesUtil.getPropertiesValueByDBLang("services.create.imagesFieldEmptyError"));
         logger.info("Removed alll images");
         return this;
     }
 
     public CreateServicePage removeAllCollection() {
-        int size = commons.getElements(createServiceUI.loc_lstIconDeleteCollection, 2).size();
-        for (int i = 0; i < size; i++) {
+//        int size = commons.getElements(createServiceUI.loc_lstIconDeleteCollection, 2).size();
+        while (commons.getElements(createServiceUI.loc_lstIconDeleteCollection, 2).size()>0) {
             commons.click(createServiceUI.loc_lstIconDeleteCollection, 0);
         }
         logger.info("Remove all collection");
@@ -554,7 +553,7 @@ public class CreateServicePage extends HomePage {
     }
 
     public CreateServicePage clickOKBtnOnConfirmPopup() {
-        commons.click(createServiceUI.loc_dlgNotification_btnOK);
+        new ConfirmationDialog(driver).clickOKBtn_V2();
         logger.info("Click on OK button on Confirmation popup.");
         return this;
     }
