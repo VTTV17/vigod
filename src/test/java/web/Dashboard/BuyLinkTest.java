@@ -95,9 +95,9 @@ public class BuyLinkTest extends BaseTest {
     @AfterClass
     public void afterClass(){
         //delete product
-//        for (int productId:productIds) {
-//            new APIEditProduct(loginInformation).deleteProduct(productId);
-//        }
+        for (int productId:productIds) {
+            new APIEditProduct(loginInformation).deleteProduct(productId);
+        }
     }
     public void deleteNewestBuyLink(){
         APIBuyLink apiBuyLink = new APIBuyLink(loginInformation);
@@ -106,14 +106,14 @@ public class BuyLinkTest extends BaseTest {
     }
     public BuyLinkManagement LoginAndNavigateToBuyLinkPage() {
         login = new LoginPage(driver);
-        login.navigate().performLogin(userNameDb, passWordDb);
+        login.navigate().performValidLogin("Vietnam",userNameDb, passWordDb);
         home = new HomePage(driver);
         home.waitTillSpinnerDisappear1().selectLanguage(languageDB).hideFacebookBubble();
         return new BuyLinkManagement(driver).navigateUrl();
     }
     public CreateBuyLink LoginAndNavigateToCreateBuyLinkPage() {
         login = new LoginPage(driver);
-        login.navigate().performLogin(userNameDb, passWordDb);
+        login.navigate().performValidLogin("Vietnam", userNameDb, passWordDb);
         home = new HomePage(driver);
         home.waitTillSpinnerDisappear1().selectLanguage(languageDB).hideFacebookBubble();
         buyLinkManagement = new BuyLinkManagement(driver);
@@ -160,7 +160,7 @@ public class BuyLinkTest extends BaseTest {
         new Checkout(driver).clickOnCompleteBtn()
                 .verifyProductNames(productName)
                 .verifyDiscountAmount("0đ");
-//        deleteNewestBuyLink();
+        deleteNewestBuyLink();
     }
     @Test
     public void BL04_CheckBuyLinkFixAmountDiscountCodeAndCheckout() throws Exception {
