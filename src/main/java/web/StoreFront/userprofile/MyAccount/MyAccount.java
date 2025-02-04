@@ -15,6 +15,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import org.testng.asserts.SoftAssert;
 
+import web.StoreFront.GeneralSF;
 import web.StoreFront.header.HeaderSF;
 import utilities.utils.PropertiesUtil;
 import utilities.commons.UICommonAction;
@@ -149,7 +150,6 @@ public class MyAccount extends HeaderSF {
         logger.info("Click on Save button");
         wait.until(ExpectedConditions.visibilityOf(commonAction.getElement(myAccountUI.loc_lblToastMessage)));
         waitTillLoaderDisappear();
-        commonAction.sleepInMiliSecond(1000);
         return this;
     }
 
@@ -454,6 +454,10 @@ public class MyAccount extends HeaderSF {
     public MyAccount refreshPage(){
         commonAction.refreshPage();
         waitTillLoaderDisappear();
+        return this;
+    }
+    public MyAccount waitSuccessToastMessageShow(){
+        new GeneralSF(driver).waitSuccessToastMessageShow();
         return this;
     }
 }

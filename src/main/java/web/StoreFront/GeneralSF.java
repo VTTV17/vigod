@@ -28,6 +28,7 @@ public class GeneralSF {
 	By loc_dlgLogin_btnLogin = By.cssSelector(".modal-login");
 	By loc_dlgLogin_btnRegister = By.cssSelector(".modal-register");
 	By loc_icnSearchLoading = By.cssSelector(".lds-ellipsis");
+	By loc_toastMessageSuccess = By.cssSelector(".toast-success");
 
 	public GeneralSF waitTillLoaderDisappear() {
 		commons.waitInvisibilityOfElementLocated(loc_icnSpinner);
@@ -80,6 +81,11 @@ public class GeneralSF {
 	public GeneralSF waitDotLoadingDisappear(){
 //		commons.waitVisibilityOfElementLocated(loc_icnSearchLoading);
 		commons.waitInvisibilityOfElementLocated(loc_icnSearchLoading);
+		return this;
+	}
+	public GeneralSF waitSuccessToastMessageShow(){
+		commons.waitVisibilityOfElementLocated(loc_toastMessageSuccess);
+		logger.info("Success test message is shown.");
 		return this;
 	}
 }

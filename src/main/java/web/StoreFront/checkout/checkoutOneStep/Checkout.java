@@ -129,7 +129,10 @@ public class Checkout extends CheckoutElement {
 
     public String selectCityProvince(String city) {
         if(city.isEmpty()){
-            commonAction.selectByIndex(loc_dlgUpdateAddress_ddlCityProvince, new DataGenerator().generatNumberInBound(1,commonAction.getAllOptionInDropDown(commonAction.getElement(loc_dlgUpdateAddress_ddlCityProvince)).size()));
+            // country= Vietnam, has option = Other >> eliminate Other when random address in Vietnam
+            int sizeOfOptions = commonAction.getAllOptionInDropDown(commonAction.getElement(loc_dlgUpdateAddress_ddlCityProvince)).size();
+            int maxIndex = sizeOfOptions>2 ? sizeOfOptions - 1: 2;
+            commonAction.selectByIndex(loc_dlgUpdateAddress_ddlCityProvince, new DataGenerator().generatNumberInBound(1,maxIndex));
             city =  commonAction.getDropDownSelectedValue(loc_dlgUpdateAddress_ddlCityProvince);
         }else {
             commonAction.selectByVisibleText(loc_dlgUpdateAddress_ddlCityProvince, city);

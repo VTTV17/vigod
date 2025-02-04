@@ -74,12 +74,12 @@ public class ServiceCollectionTest extends BaseTest {
         userName_GoLead = ADMIN_USERNAME_GOLEAD;
         passwordCheckPermission = ADMIN_CREATE_NEW_SHOP_PASSWORD;
         generate = new DataGenerator();
-        languageDashboard = language;
-        languageSF = language;
         tcsFileName = FileNameAndPath.FILE_SERVICE_COLLECTION_TCS;
     }
     @BeforeMethod
     public void setUp(){
+        languageDashboard = language;
+        languageSF = language;
         driver = new InitWebdriver().getDriver(browser, "false");
     }
     @AfterMethod

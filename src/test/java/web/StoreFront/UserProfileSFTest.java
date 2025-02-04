@@ -171,6 +171,7 @@ public class UserProfileSFTest extends BaseTest {
     public void CheckUserHasAddressBefore_ExistedAccount_NonVietNam() {
         myAddress = loginAndGoToUserProfile(userName_NonVN)
                 .clickMyAddressSection();
+        commonAction.sleepInMiliSecond(2000,"Wait address load.");
         String countryExpected = myAddress.getCountry();
         String addressExpected = myAddress.getAddress();
         String address2Expected = myAddress.getAddress2();
@@ -434,6 +435,7 @@ public class UserProfileSFTest extends BaseTest {
                 .inputPhoneNumber(phoneNumber_Edit)
                 .inputBirthday(birthday_Edit)
                 .clickOnSaveButton()
+                .waitSuccessToastMessageShow()
                 .refreshPage()
                 .verifyBirday(birthday_Edit)
                 .verifyDisplayName(displayName_Edit)
@@ -460,6 +462,7 @@ public class UserProfileSFTest extends BaseTest {
                 .inputCompanyName(companyName_Edit)
                 .inputTaxCode(taxCode_Edit)
                 .clickOnSaveButton()
+                .waitSuccessToastMessageShow()
                 .refreshPage()
                 .verifyBirthdayDisabled()
                 .verifyDisplayName(displayName_Edit)
@@ -492,6 +495,7 @@ public class UserProfileSFTest extends BaseTest {
                 .inputEmail(email_Edit)
                 .inputBirthday(birthday_Edit)
                 .clickOnSaveButton()
+                .waitSuccessToastMessageShow()
                 .refreshPage()
                 .verifyBirthdayDisabled()
                 .verifyDisplayName(displayName_Edit)
@@ -518,6 +522,7 @@ public class UserProfileSFTest extends BaseTest {
                 .inputEmail(email_Edit)
                 .inputBirthday(birthday_Edit)
                 .clickOnSaveButton()
+                .waitSuccessToastMessageShow()
                 .refreshPage()
                 .verifyBirthdayDisabled()
                 .verifyDisplayName(displayName_Edit)
@@ -624,7 +629,7 @@ public class UserProfileSFTest extends BaseTest {
         myAccount.addOtherEmails("Other mail", otherEmail1, otherEmail2);
         otherEmailMapOrigin.put(otherEmail1, "Other mail");
         otherEmailMapOrigin.put(otherEmail2, "Other mail");
-        myAccount.clickOnSaveButton();
+        myAccount.clickOnSaveButton().waitSuccessToastMessageShow();
         Map otherPhoneActual = myAccount.getOtherPhoneMap();
         Map otherEmailActual = myAccount.getOtherEmailMap();
         myAccount.verifyOtherPhoneNumber(otherPhoneActual, otherPhoneMapOrigin)
@@ -650,6 +655,7 @@ public class UserProfileSFTest extends BaseTest {
         Map<String,String> otherPhoneEdit = myAccount.editOtherPhoneNumber();
         Map<String,String> otherEmailEdit = myAccount.editOtherEmail();
         myAccount.clickOnSaveButton()
+                .waitSuccessToastMessageShow()
                 .verifyOtherPhoneNumber(myAccount.getOtherPhoneMap(),otherPhoneEdit)
                 .verifyOtherEmail(myAccount.getOtherEmailMap(),otherEmailEdit);
         productDetailSF = new ProductDetailPage(driver);
@@ -672,6 +678,7 @@ public class UserProfileSFTest extends BaseTest {
         myAccount.deleteAllOtherPhone()
                 .deleteAllOtherEmail()
                 .clickOnSaveButton()
+                .waitSuccessToastMessageShow()
                 .verifyOtherPhoneListSize(0)
                 .verifyOtherEmailListSize(0);
     }
