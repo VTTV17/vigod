@@ -52,7 +52,7 @@ import web.Dashboard.pagination.Pagination;
  * - There exist some customers and suppliers and staff and some Others values
  */
 
-public class RefactoredCashbookTest extends BaseTest {
+public class CashbookTest extends BaseTest {
 
 	LoginPage loginPage;
 	Cashbook cashbookPage;

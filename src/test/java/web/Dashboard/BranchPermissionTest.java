@@ -1,7 +1,5 @@
 package web.Dashboard;
 
-import java.io.IOException;
-
 import org.testng.ITestResult;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
@@ -46,9 +44,7 @@ public class BranchPermissionTest extends BaseTest {
 		staffCredentials = new Login().setLoginInformation("+84", "staff74053@mailnesia.com", "fortesting!1").getLoginInformation();
 		permissionAPI = new PermissionAPI(ownerCredentials);
 		
-//    	permissionGroupId = permissionAPI.createPermissionGroupThenGrantItToStaff(ownerCredentials, staffCredentials);
-//    	permissionGroupId = 1910;
-    	permissionGroupId = 5645;
+    	permissionGroupId = permissionAPI.createPermissionGroupThenGrantItToStaff(ownerCredentials, staffCredentials);
     	
 		driver = new InitWebdriver().getDriver(browser, headless);
 		loginPage = new LoginPage(driver);
@@ -62,7 +58,7 @@ public class BranchPermissionTest extends BaseTest {
 
 	@AfterClass
 	void deletePermissionGroup() {
-//		permissionAPI.deleteGroupPermission(permissionGroupId);
+		permissionAPI.deleteGroupPermission(permissionGroupId);
 		driver.quit();
 	}		
 	
@@ -81,15 +77,15 @@ public class BranchPermissionTest extends BaseTest {
 	@DataProvider
 	public Object[][] branchPermission() {
 		return new Object[][] { 
-//			{"0000000"},
+			{"0000000"},
 //			{"0000001"},
 //			{"0000010"},
 //			{"0000011"},
 //			{"0000100"},
 //			{"0000101"},
 //			{"0000110"},
-//			{"0000111"},
-//			{"0001000"}, //Bug2 Case 120
+			{"0000111"},
+			{"0001000"}, //Bug2 Case 120
 //			{"0001001"}, //Bug2 Case 56
 //			{"0001010"}, //Bug2 Case 88
 //			{"0001011"}, //Bug2 Case 24
@@ -137,7 +133,7 @@ public class BranchPermissionTest extends BaseTest {
 //			{"0110101"}, //Bug2 Case 42
 //			{"0110110"}, //Bug2 Case 74
 //			{"0110111"}, //Bug2 Case 106
-//			{"0111000"},
+			{"0111000"},
 //			{"0111001"},
 //			{"0111010"},
 //			{"0111011"},
@@ -152,7 +148,7 @@ public class BranchPermissionTest extends BaseTest {
 //			{"1000100"},
 //			{"1000101"},
 //			{"1000110"},
-//			{"1000111"},
+			{"1000111"},
 //			{"1001000"}, //Bug2 Case 119
 //			{"1001001"}, //Bug2 Case 55
 //			{"1001010"}, //Bug2 Case 87
@@ -201,13 +197,13 @@ public class BranchPermissionTest extends BaseTest {
 //			{"1110101"}, //Bug2 Case 41
 //			{"1110110"}, //Bug2 Case 73
 //			{"1110111"}, //Bug2 Case 9
-//			{"1111000"},
-//			{"1111001"},
-//			{"1111010"},
-//			{"1111011"},
+			{"1111000"},
+//			{"1111001"}, //Bug
+//			{"1111010"}, //Bug
+//			{"1111011"}, //Bug
 //			{"1111100"},
-			{"1111101"},
-			{"1111110"},
+//			{"1111101"},
+//			{"1111110"},
 			{"1111111"},
 		};
 	}		
@@ -226,7 +222,7 @@ public class BranchPermissionTest extends BaseTest {
 		System.out.println(allPermissionDTO.getSetting().getBranchManagement());
 		
 		commonAction.refreshPage();
-		commonAction.sleepInMiliSecond(2000, "OMG");
+		UICommonAction.sleepInMiliSecond(2000, "OMG");
 		
 		branchPage.checkBranchPermission(allPermissionDTO);
 	}		

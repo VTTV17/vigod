@@ -1,6 +1,5 @@
 package web.Dashboard;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -92,9 +91,7 @@ public class FacebookPermissionTest extends BaseTest {
 		latestAutomationId = fbAPI.getAllAutomation().get(0).getId();
 		latestBroadcastId = fbAPI.getAllBroadcast().get(0).getId();
 		
-//    	permissionGroupId = permissionAPI.createPermissionGroupThenGrantItToStaff(ownerCredentials, staffCredentials);
-    	permissionGroupId = 6670;
-    	
+    	permissionGroupId = permissionAPI.createPermissionGroupThenGrantItToStaff(ownerCredentials, staffCredentials);
     	
 		driver = new InitWebdriver().getDriver(browser, headless);
 		loginPage = new LoginPage(driver);
@@ -112,14 +109,14 @@ public class FacebookPermissionTest extends BaseTest {
 		fbAPI.getAllAutomation().parallelStream().filter(campaign -> campaign.getId() > latestAutomationId).forEach(t -> fbAPI.deleteAutomation(t.getId()));
 	}
 	void deleteBroadcastCampaigns() {
-		fbAPI.getAllAutomation().parallelStream().filter(campaign -> campaign.getId() > latestAutomationId).forEach(t -> fbAPI.deleteAutomation(t.getId()));
+		fbAPI.getAllBroadcast().parallelStream().filter(campaign -> campaign.getId() > latestBroadcastId).forEach(t -> fbAPI.deleteBroadcast(t.getId()));
 	}
 	@AfterClass
 	void rollback() {
 		deleteTags();
 		deleteAutomationCampaigns();
 		deleteBroadcastCampaigns();
-//		permissionAPI.deleteGroupPermission(permissionGroupId);
+		permissionAPI.deleteGroupPermission(permissionGroupId);
 		driver.quit();
 	}		
 	
@@ -142,34 +139,34 @@ public class FacebookPermissionTest extends BaseTest {
 	@DataProvider
 	public Object[][] facebookPermission() {
 		return new Object[][] { 
-//			{"0000000000000000000000000000"},
+			{"0000000000000000000000000000"},
 //			{"0000000000000000000000000001"},
 //			{"0000000000000000000000000011"},
 //			{"0000000000000000000000000111"}, 
 //			{"0000000000000000000000001111"},
-//			{"0000000000000000000000011111"},
+			{"0000000000000000000000011111"},
 //			{"0000000000000000000000111111"},
 //			{"0000000000000000000001111111"},
-//			{"0000000000000000000011111111"},
+			{"0000000000000000000011111111"},
 //			{"0000000000000000000111111111"},
 //			{"0000000000000000001111111111"},
-//			{"0000000000000000011111111111"},
+			{"0000000000000000011111111111"},
 //			{"0000000000000000111111111111"},
 //			{"0000000000000001111111111111"}, 
 //			{"0000000000000011111111111111"},
-//			{"0000000000000111111111111111"},
+			{"0000000000000111111111111111"},
 //			{"0000000000001111111111111111"},//unlink
 //			{"0000000000011111111111111111"},//chat
 //			{"0000000000111111111111111111"},//order
-			{"0000000001111111111111111111"},//view campaign
+//			{"0000000001111111111111111111"},//view campaign
 			{"0000000011111111111111111111"},//View campaign detail
-			{"0000000111111111111111111111"},//Create automation campaign
-			{"0000001111111111111111111111"},//edit campaign
-			{"0000011111111111111111111111"},//delete campaign
+//			{"0000000111111111111111111111"},//Create automation campaign
+//			{"0000001111111111111111111111"},//edit campaign
+//			{"0000011111111111111111111111"},//delete campaign
 			{"0000111111111111111111111111"},//viewbroadcst
-			{"0001111111111111111111111111"},//view detail
-			{"0011111111111111111111111111"},//create broadcast
-			{"0111111111111111111111111111"},//edit
+//			{"0001111111111111111111111111"},//view detail
+//			{"0011111111111111111111111111"},//create broadcast
+//			{"0111111111111111111111111111"},//edit
 			{"1111111111111111111111111111"},//delete
 		};
 	}	
@@ -192,7 +189,7 @@ public class FacebookPermissionTest extends BaseTest {
 		System.out.println(allPermissionDTO.getGoChat().getFacebook());
 		
 		commonAction.refreshPage();
-		commonAction.sleepInMiliSecond(1000, "OMG");
+		UICommonAction.sleepInMiliSecond(1000, "OMG");
 		
 		//Check permission on Dashboard
 		fbPage.checkPermissionToConnectAccount(allPermissionDTO);
