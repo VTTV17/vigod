@@ -19,8 +19,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import api.Seller.products.inventory.APIInventoryHistoryV2;
-import api.Seller.products.inventory.APIInventoryV2;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.testng.Assert;
@@ -32,7 +30,6 @@ import org.testng.annotations.Test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
-import api.Seller.analytics.APIOrdersAnalytics;
 import api.Seller.cashbook.CashbookAPI;
 import api.Seller.customers.APIAllCustomers;
 import api.Seller.customers.APICustomerDetail;
@@ -45,6 +42,8 @@ import api.Seller.products.all_products.APIAddConversionUnit;
 import api.Seller.products.all_products.APICreateProduct;
 import api.Seller.products.all_products.APIProductDetailV2;
 import api.Seller.products.all_products.WholesaleProduct;
+import api.Seller.products.inventory.APIInventoryHistoryV2;
+import api.Seller.products.inventory.APIInventoryV2;
 import api.Seller.products.lot_date.APICreateLotDate;
 import api.Seller.products.lot_date.APIEditLotDate;
 import api.Seller.setting.BranchManagement;
@@ -58,7 +57,6 @@ import utilities.enums.Domain;
 import utilities.enums.analytics.TimeFrame;
 import utilities.enums.cashbook.CashbookRevenue;
 import utilities.enums.pos.ReceivedAmountType;
-import utilities.model.dashboard.analytics.AnalyticsOrderSummaryInfo;
 import utilities.model.dashboard.cashbook.CashbookRecord;
 import utilities.model.dashboard.customer.CustomerDebtRecord;
 import utilities.model.dashboard.customer.CustomerInfoFull;
@@ -419,6 +417,7 @@ public class POSOrderTest extends BaseTest {
     }
     LoginInformation getCredential(boolean isStaff){
         if(isStaff)return new Login().setLoginInformation("+84", STAFF_SHOP_VI_USERNAME, STAFF_SHOP_VI_PASSWORD)
+//        		if(isStaff)return new Login().setLoginInformation("+84", "lymacvui23@mailnesia.com", "fortesting!1")
                 .getLoginInformation();
         else return new Login().setLoginInformation(phoneCode, username, pass).getLoginInformation();
     }
@@ -472,7 +471,7 @@ public class POSOrderTest extends BaseTest {
         credentials = getCredential(condition.isStaffCreateOrder());
         long newestOrderbefore = new APIAllOrders(credentials).getNewestOrderId();
         logger.info("Newest order before: " + newestOrderbefore);
-        AnalyticsOrderSummaryInfo ordersAnalyticsSummaryBefore = new APIOrdersAnalytics(credentials).getOrderAnalyticsSummary(timeFrame);
+//        AnalyticsOrderSummaryInfo ordersAnalyticsSummaryBefore = new APIOrdersAnalytics(credentials).getOrderAnalyticsSummary(timeFrame);
         OrderListSummaryVM orderListSummaryBefore = new APIAllOrders(credentials).getOrderListSummary(APIAllOrders.Channel.GOSELL);
 
         //Get branch info
