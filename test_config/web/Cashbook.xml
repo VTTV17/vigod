@@ -3,7 +3,7 @@
 <suite name="Cashbook Suite">
     <test name="Cashbook-Feature">
         <classes>
-            <class name="web.Dashboard.RefactoredCashbookTest"/>
+            <class name="web.Dashboard.CashbookTest"/>
         </classes>
     </test>
 </suite>
