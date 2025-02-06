@@ -262,6 +262,7 @@ public class Checkout extends CheckoutElement {
     }
 
     public Checkout verifyAddressInfo_VN(String country, String address, String city, String district, String ward) {
+        commonAction.sleepInMiliSecond(3000);
         if (country != "") {
             verifyCountrySelectedValue(country);
         }
