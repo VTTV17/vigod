@@ -2,6 +2,7 @@ package web.StoreFront;
 
 import api.Seller.login.Login;
 import api.Seller.products.all_products.APICreateProduct;
+import api.Seller.products.all_products.APIEditProduct;
 import org.testng.ITestResult;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
@@ -78,7 +79,7 @@ public class UserProfileSFTest extends BaseTest {
     String languageDb;
     String languageSF;
     String userName_PhoneAccount_EditInfo_HasBirthday;
-    LoginInformation loginInformation;
+    LoginInformation loginInformationShopA, loginInformationShopB;
 
     @BeforeClass
     public void getData() {
@@ -99,10 +100,10 @@ public class UserProfileSFTest extends BaseTest {
         shopDomainB = SF_COFFEE;
         fullName_UpdateAddress = PropertiesUtil.getEnvironmentData("buyerName3");
         MAX_PRICE = 999999L;
-        loginInformation = new Login().setLoginInformation("+84",userNameDb_ShopVi,passWordDashboard).getLoginInformation();
-        productIDToBuyNow = String.valueOf(new APICreateProduct(loginInformation).createWithoutVariationProduct(false,30).getProductID());
-        loginInformation = new Login().setLoginInformation(userNameDb_ShopB,passWordDashboardShopB).getLoginInformation();
-        productIDToBuyNowShopB = String.valueOf(new APICreateProduct(loginInformation).createWithoutVariationProduct(false,100).getProductID());
+        loginInformationShopA = new Login().setLoginInformation("+84",userNameDb_ShopVi,passWordDashboard).getLoginInformation();
+        productIDToBuyNow = String.valueOf(new APICreateProduct(loginInformationShopA).createWithoutVariationProduct(false,30).getProductID());
+        loginInformationShopB = new Login().setLoginInformation(userNameDb_ShopB,passWordDashboardShopB).getLoginInformation();
+        productIDToBuyNowShopB = String.valueOf(new APICreateProduct(loginInformationShopB).createWithoutVariationProduct(false,100).getProductID());
         displayName = PropertiesUtil.getEnvironmentData("buyerName1");
         membershipLevel = PropertiesUtil.getEnvironmentData("membershipLevel");
         barcodeNumber = PropertiesUtil.getEnvironmentData("barcodeBuyer1");
@@ -122,6 +123,8 @@ public class UserProfileSFTest extends BaseTest {
     public void writeResult(ITestResult result) throws IOException {
 //        super.writeResult(result);
         if (driver != null) driver.quit();
+//        new APIEditProduct(loginInformationShopA).deleteProduct(Integer.parseInt(productIDToBuyNow));
+//        new APIEditProduct(loginInformationShopB).deleteProduct(Integer.parseInt(productIDToBuyNowShopB));
     }
 
     public UserProfileInfo loginAndGoToUserProfile(String userName) {

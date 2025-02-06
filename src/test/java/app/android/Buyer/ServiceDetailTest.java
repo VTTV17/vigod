@@ -10,6 +10,7 @@ import api.Seller.services.ServiceInfoAPI;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.appium.java_client.AppiumDriver;
 import io.appium.java_client.android.AndroidDriver;
+import lombok.SneakyThrows;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.testng.ITestResult;
 import org.testng.annotations.*;
@@ -18,6 +19,7 @@ import app.Buyer.navigationbar.NavigationBar;
 import app.Buyer.search.BuyerSearchDetailPage;
 import app.Buyer.servicedetail.BuyerServiceDetail;
 import app.Buyer.servicedetail.SelectLocationPage;
+import utilities.driver.InitAndroidDriver;
 import utilities.udid.DevicesUDID;
 import utilities.utils.PropertiesUtil;
 import utilities.account.AccountTest;
@@ -30,6 +32,8 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.List;
 
+import static utilities.environment.goBUYEREnvironment.goBUYERBundleId;
+import static utilities.environment.goBUYEREnvironment.goBUYERBundleId_ShopVi;
 import static utilities.file.FileNameAndPath.FILE_CREATE_SERVICE_TCS;
 
 public class ServiceDetailTest extends BaseTest {
@@ -48,11 +52,12 @@ public class ServiceDetailTest extends BaseTest {
     String serviceDescription;
     int sellingPrice;
     LoginInformation loginInformation;
+    ServiceInfo serviceListingInfo, serviceInfo;
     @BeforeClass
     public void setUp() throws Exception {
         String appPackage = "com.mediastep.shop0037";
         String appActivity = appPackage+".ui.modules.splash.SplashScreenActivity";
-        driver=launchApp(appPackage,appActivity);
+        driver=launchApp("appShopVi");
         generator = new DataGenerator();
         PropertiesUtil.setEnvironment("STAG");
         PropertiesUtil.setSFLanguage("VIE");
@@ -62,36 +67,24 @@ public class ServiceDetailTest extends BaseTest {
         buyer = AccountTest.SF_USERNAME_VI_1;
         passBuyer = AccountTest.SF_SHOP_VI_PASSWORD;
         selectLocationTitle = PropertiesUtil.getPropertiesValueBySFLang("serviceDetail.selectLocationTitle");
-        ServiceInfo serviceInfo = callAPICreateService(false);
+        serviceInfo = callAPICreateService(false);
         serviceNormalCheck = serviceInfo.getServiceName();
         serviceNormalId = serviceInfo.getServiceId();
         sellingPrice = serviceInfo.getSellingPrice();
         locations = serviceInfo.getLocations();
         serviceDescription = serviceInfo.getServiceDescription();
+        serviceListingInfo = callAPICreateService(true);
+
         tcsFileName = FILE_CREATE_SERVICE_TCS;
     }
     @AfterClass
     public void tearDown(){
         driver.quit();
     }
-    public AppiumDriver launchApp(String appPackage, String appActivity) {
-        DesiredCapabilities capabilities = new DesiredCapabilities();
-        try {
-            capabilities.setCapability("udid", new DevicesUDID().get());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        capabilities.setCapability("platformName", "Android");
-        capabilities.setCapability("appPackage", appPackage);
-        capabilities.setCapability("appActivity", appActivity);
-        capabilities.setCapability("noReset", "false");
-        capabilities.setCapability("autoGrantPermissions","true");
-        String url = "http://127.0.0.1:4723/wd/hub";
-        try {
-            return new InitAppiumDriver().getAppiumDriver(capabilities, url);
-        } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
-        }
+    @SneakyThrows
+    public AppiumDriver launchApp(String apkFileName) {
+       return new InitAndroidDriver().getAndroidDriver(new DevicesUDID().get(), System.getProperty("user.dir") + "/src/main/resources/app/" + apkFileName +".apk");
+
     }
     @AfterMethod
     public void restartApp(ITestResult result) throws IOException {
@@ -134,10 +127,9 @@ public class ServiceDetailTest extends BaseTest {
     public void SD02_CheckListingService() throws Exception {
         testCaseId = "SD02";
         //call api create service
-        ServiceInfo serviceInfo = callAPICreateService(true);
-        serviceListingCheck = serviceInfo.getServiceName();
-        String[] locations = serviceInfo.getLocations();
-        String serviceDescription = serviceInfo.getServiceDescription();
+        serviceListingCheck = serviceListingInfo.getServiceName();
+        String[] locations = serviceListingInfo.getLocations();
+        String serviceDescription = serviceListingInfo.getServiceDescription();
         //Check on buyer app
         navigationBar = new NavigationBar(driver);
         navigationBar.tapOnSearchIcon()
@@ -225,9 +217,10 @@ public class ServiceDetailTest extends BaseTest {
         serviceDetail.tapOnBookingNow();
         new SelectLocationPage(driver).verifyPageTitle(selectLocationTitle);
     }
-    @Test
+    @Test()
     public void SD06_CheckTapOnContactNow(){
         testCaseId = "SD06";
+        serviceListingCheck = serviceListingInfo.getServiceName();
         navigationBar = new NavigationBar(driver);
         navigationBar.tapOnSearchIcon()
                 .tapOnSearchBar()
