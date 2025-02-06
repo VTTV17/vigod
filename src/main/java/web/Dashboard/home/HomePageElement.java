@@ -51,7 +51,6 @@ public class HomePageElement {
     By loc_dlgSalePitch = By.cssSelector(".gs-sale-pitch_content");
     public By loc_lblToastMessage = By.cssSelector(".Toastify__toast-body");
     By loc_toastMessage_btnClose = By.cssSelector(".Toastify__close-button");
-    By loc_imgFacebookBubble = By.id("fb-root");
     By loc_imgFacebookActionBubble = By.id("fb-open-app-action");
     By loc_stnStatistics = By.cssSelector(".statistic");
     By loc_icnBell = By.cssSelector(".header-right__ele-right #recommendationBtn");

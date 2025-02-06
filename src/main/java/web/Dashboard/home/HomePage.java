@@ -500,9 +500,11 @@ public class HomePage extends HomePageElement {
         commons.waitElementVisible(loc_lblWhatToDoNextTitle);
         return this;
     }
-
+    
+    /**
+     * Hides the Facebook bubble icon displayed on Dashboard
+     */
     public HomePage hideFacebookBubble() {
-        commons.removeElement(loc_imgFacebookBubble);
         commons.removeElement(loc_imgFacebookActionBubble);
         logger.info("Hid Facebook bubble.");
         return this;
