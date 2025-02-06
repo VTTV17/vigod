@@ -54,17 +54,12 @@ import web.Dashboard.pagination.Pagination;
 
 public class CashbookTest extends BaseTest {
 
+	List<String> customerList, supplierList, staffList, othersList, branchList, transactionIdList;
+	String storeCurrencySymbol;
+	
 	LoginPage loginPage;
 	Cashbook cashbookPage;
 	HomePage homePage;
-
-	List<String> customerList;
-	List<String> supplierList;
-	List<String> staffList;
-	List<String> othersList;
-	List<String> branchList;
-	List<String> transactionIdList;
-	String storeCurrencySymbol;
 	
 	CashbookAPI cashbookAPI;
 
@@ -108,7 +103,6 @@ public class CashbookTest extends BaseTest {
 		for (int i=0; i<4; i++) {
 			cashbookPage.navigate();
 			if (cashbookPage.isPageTitlePresent()) break;
-			UICommonAction.sleepInMiliSecond(2000, "Wait a little in navigateToPage()");
 		}
 	}
 
