@@ -108,7 +108,7 @@ public class CashbookTest extends BaseTest {
 		for (int i=0; i<4; i++) {
 			cashbookPage.navigate();
 			if (cashbookPage.isPageTitlePresent()) break;
-			UICommonAction.sleepInMiliSecond(5000, "Wait a little in navigateToPage()");
+			UICommonAction.sleepInMiliSecond(2000, "Wait a little in navigateToPage()");
 		}
 	}
 
