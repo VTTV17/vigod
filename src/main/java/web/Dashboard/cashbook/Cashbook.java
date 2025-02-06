@@ -66,42 +66,35 @@ public class Cashbook {
 		this.domain = domain;
 	}
 
-	public Cashbook navigate() {
-		new HomePage(driver).navigateToPage("Cashbook");
-		UICommonAction.sleepInMiliSecond(3000);
-		commonAction.removeFbBubble();
-		return this;
-	}
-
-	Cashbook navigateByURL(String url) {
-		driver.get(url);
-		logger.info("Navigated to: " + url);
-		commonAction.removeFbBubble();
-		homePage.waitTillSpinnerDisappear1();
-		return this;
-	}		
+    /**
+     * Navigates to Sign-in screen by URL
+     */
+    public Cashbook navigate() {
+    	var url = switch (domain) {
+	        case VN -> DOMAIN + "/cashbook/management";
+	        case BIZ -> DOMAIN_BIZ + "/cashbook/management";
+	        default -> throw new IllegalArgumentException("Unexpected value: " + domain);
+    	};
+    	
+    	driver.get(url);
+    	UICommonAction.sleepInMiliSecond(2000, "Wait a bit after navigating to: %s".formatted(url));
+    	
+    	//Waits until the screen is ready
+    	waitUntilSkeletonScreenGone();
+    	homePage.waitTillSpinnerDisappear1();
+    	
+    	//The Facebook bubble overlaps the Delete Cashbook button so we'll deliberately hide it
+    	homePage.hideFacebookBubble();
+    	
+        return this;
+    }	
 	
-	//Will be removed
-	public Cashbook navigateByURL() {
-		driver.get(DOMAIN + "/cashbook/management");
-		commonAction.removeFbBubble();
-		return this;
-	}
-
-	public Cashbook navigateUsingURL() {
-		if (domain.equals(Domain.VN)) {
-			navigateByURL(DOMAIN + "/cashbook/management");
-		} else {
-			navigateByURL(DOMAIN_BIZ + "/cashbook/management");
-		}
-		
-    	waitTillPageReady();
-		return this;
-	}		
-	
-	public void waitTillPageReady() {
-		commonAction.waitInvisibilityOfElementLocated(elements.loc_icnDataLoading);
-		homePage.waitTillSpinnerDisappear1();
+    /**
+     * Waits until the skeleton screen displayed in the Summary section to disappear
+     */
+	public void waitUntilSkeletonScreenGone() {
+		commonAction.waitInvisibilityOfElementLocated(elements.loc_icnSkeletonScreen);
+		logger.info("Skeleton screen displayed on Summary section is gone.");
 	}
 
 	public boolean isPageTitlePresent() {
@@ -126,7 +119,7 @@ public class Cashbook {
 	}
 	
 	public List<BigDecimal> getCashbookSummaryBig() {
-		waitTillPageReady();
+		waitUntilSkeletonScreenGone();
 		
 		List<BigDecimal> summary = new ArrayList<>();
 		for (int i = 0; i < 4; i++) {
@@ -168,7 +161,8 @@ public class Cashbook {
 	}
 
 	public List<List<String>> getRecords() {
-		waitTillPageReady();
+		waitUntilSkeletonScreenGone();
+		homePage.waitTillSpinnerDisappear1();
 		
 		int recordCount = commonAction.getElements(elements.loc_tblCashbookRecord).size();
 		logger.debug("{} cashbook record(s) found", recordCount);
@@ -353,8 +347,9 @@ public class Cashbook {
 	}
 
 	public String getGroup() {
-		logger.info("Getting Group value from Transaction Id Popup");
-		return commonAction.getText(elements.loc_ddlSenderGroup);
+		String text = commonAction.getText(elements.loc_ddlSenderGroup);
+		logger.info("Retrieved Group value from Transaction Id Popup: {}", text);
+		return text;
 	}
 
 	public String getName() {
@@ -364,18 +359,21 @@ public class Cashbook {
 	}
 
 	public String getSourceOrExpense() {
-		logger.info("Getting Source/Expense value from Transaction Id Popup");
-		return commonAction.getText(elements.loc_ddlSource);
+		String text = commonAction.getText(elements.loc_ddlSource);
+		logger.info("Retrieved Source/Expense value from Transaction Id Popup: {}", text);
+		return text;
 	}
 
 	public String getBranch() {
-		logger.info("Getting Branch value from Transaction Id Popup");
-		return commonAction.getText(elements.loc_ddlBranch);
+		String text = commonAction.getText(elements.loc_ddlBranch);
+		logger.info("Retrieved Branch value from Transaction Id Popup: {}", text);
+		return text;
 	}
 
 	public String getPaymentMethod() {
-		logger.info("Getting Payment method value from Transaction Id Popup");
-		return commonAction.getText(elements.loc_ddlPaymentMethod);
+		String text = commonAction.getText(elements.loc_ddlPaymentMethod);
+		logger.info("Retrieved Payment method value from Transaction Id Popup: {}", text);
+		return text;
 	}
 
 	public String getAmount() {
@@ -706,7 +704,10 @@ public class Cashbook {
 	public Cashbook clickFilterDoneBtn() {
 		commonAction.click(elements.loc_btnFilterDone);
 		logger.info("Clicked on Filter Done button.");
-		waitTillPageReady();
+		
+		waitUntilSkeletonScreenGone();
+		homePage.waitTillSpinnerDisappear1();
+		
 		return this;
 	}
 
@@ -741,7 +742,7 @@ public class Cashbook {
 	}	    
     
     public void checkPermissionToViewReceiptPaymentList(AllPermissions staffPermission) {
-    	navigateByURL(); 
+    	navigate(); 
     	
     	if (isCashbookPermissionProhibited(staffPermission)) {
     		logger.info("Staff does not have Cashbook permission. Skipping checkPermissionToViewReceiptPaymentList");
@@ -750,7 +751,6 @@ public class Cashbook {
     	}
     	
     	List<List<String>> records = getRecords();
-    	UICommonAction.sleepInMiliSecond(2000, "Waiting for summary to load");
     	List<BigDecimal> originalSummary = getCashbookSummaryBig();
     	
     	for (int i=0; i<2; i++) {
@@ -779,7 +779,7 @@ public class Cashbook {
     }
     
     public void checkPermissionToViewReceiptPaymentDetail(AllPermissions staffPermission) {
-    	navigateByURL(); 
+    	navigate(); 
     	
     	if (isCashbookPermissionProhibited(staffPermission)) {
     		logger.info("Staff does not have Cashbook permission. Skipping checkPermissionToViewReceiptPaymentDetail");
@@ -811,7 +811,7 @@ public class Cashbook {
     }
     
     public void checkPermissionToCreateReceiptPayment(AllPermissions staffPermission, String nonAssignedCustomer, String assignedCustomer, String supplier, String staff) {
-    	navigateByURL(); 
+    	navigate(); 
     	
     	if (isCashbookPermissionProhibited(staffPermission)) {
     		logger.info("Staff does not have Cashbook permission. Skipping checkPermissionToCreateReceiptPayment");
@@ -883,7 +883,7 @@ public class Cashbook {
     }
     
     public void checkPermissionToEditReceiptPayment(AllPermissions staffPermission) {
-    	navigateByURL(); 
+    	navigate(); 
     	
     	if (isCashbookPermissionProhibited(staffPermission)) {
     		logger.info("Staff does not have Cashbook permission. Skipping checkPermissionToEditReceiptPayment");
@@ -928,7 +928,7 @@ public class Cashbook {
     }
     
     public void checkPermissionToDeleteReceiptPayment(AllPermissions staffPermission) {
-    	navigateByURL(); 
+    	navigate(); 
     	
     	if (isCashbookPermissionProhibited(staffPermission)) {
     		logger.info("Staff does not have Cashbook permission. Skipping checkPermissionToDeleteReceiptPayment");

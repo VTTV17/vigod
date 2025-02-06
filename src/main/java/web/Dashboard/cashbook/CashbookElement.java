@@ -3,8 +3,8 @@ package web.Dashboard.cashbook;
 import org.openqa.selenium.By;
 
 public class CashbookElement {
-
-	By loc_icnDataLoading = By.cssSelector("[data-loading='true']");
+	
+	By loc_icnSkeletonScreen = By.cssSelector("[data-loading='true']");
 	
 	By loc_lblPageTitle = By.cssSelector("[role=heading]");
 	By loc_lblTotalRecordCount = By.cssSelector(".gs-page-title span.uik-tag__wrapper span");

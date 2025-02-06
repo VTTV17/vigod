@@ -106,9 +106,9 @@ public class CashbookTest extends BaseTest {
 	public void navigateToPage() {
 		//Not sure why the page is sometimes blank after navigation on CI env => We'll temporarily use the loop below
 		for (int i=0; i<4; i++) {
-			cashbookPage.navigateUsingURL();
+			cashbookPage.navigate();
 			if (cashbookPage.isPageTitlePresent()) break;
-			UICommonAction.sleepInMiliSecond(5000, "Wait a little in navigateToPage()");
+			UICommonAction.sleepInMiliSecond(2000, "Wait a little in navigateToPage()");
 		}
 	}
 

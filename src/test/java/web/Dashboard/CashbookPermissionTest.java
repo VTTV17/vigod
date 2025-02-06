@@ -21,6 +21,7 @@ import api.Seller.supplier.supplier.APISupplier;
 import utilities.commons.UICommonAction;
 import utilities.data.DataGenerator;
 import utilities.driver.InitWebdriver;
+import utilities.enums.Domain;
 import utilities.model.dashboard.setting.branchInformation.BranchInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 import utilities.model.staffPermission.AllPermissions;
@@ -71,7 +72,7 @@ public class CashbookPermissionTest extends BaseTest {
 		loginPage = new LoginPage(driver);
 		homePage = new HomePage(driver);
 		commonAction = new UICommonAction(driver);
-		cashbookPage = new Cashbook(driver);
+		cashbookPage = new Cashbook(driver, Domain.valueOf(domain));
 		
 		loginPage.staffLogin(staffCredentials.getEmail(), staffCredentials.getPassword());
 		homePage.waitTillSpinnerDisappear1().selectLanguage(language).hideFacebookBubble();
