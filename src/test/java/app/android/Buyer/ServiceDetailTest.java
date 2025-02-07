@@ -54,11 +54,10 @@ public class ServiceDetailTest extends BaseTest {
     int sellingPrice;
     LoginInformation loginInformation;
     ServiceInfo serviceListingInfo, serviceInfo;
+    String appPackage = "com.mediastep.shop0037";
     @BeforeClass
     public void setUp() throws Exception {
-        String appPackage = "com.mediastep.shop0037";
         String appActivity = appPackage+".ui.modules.splash.SplashScreenActivity";
-        driver=launchApp("appShopVi");
         generator = new DataGenerator();
         PropertiesUtil.setEnvironment("STAG");
         PropertiesUtil.setSFLanguage("VIE");
@@ -82,15 +81,16 @@ public class ServiceDetailTest extends BaseTest {
     public void tearDown(){
         driver.quit();
     }
+    @BeforeMethod
     @SneakyThrows
-    public AppiumDriver launchApp(String apkFileName) {
-       return new InitAndroidDriver().getAndroidDriver("emulator-5554", System.getProperty("user.dir") + getDirectorySlash("src") +
-               getDirectorySlash("main") +   getDirectorySlash("resources") + getDirectorySlash("app")+ apkFileName +".apk");
+    public void launchApp() {
+       driver = new InitAndroidDriver().getAndroidDriver(new DevicesUDID().get(), System.getProperty("user.dir") + getDirectorySlash("src") +
+               getDirectorySlash("main") +   getDirectorySlash("resources") + getDirectorySlash("app") +"appShopVi.apk");
     }
     @AfterMethod
     public void restartApp(ITestResult result) throws IOException {
         super.writeResult(result);
-        ((AndroidDriver) driver).resetApp();
+        ((AndroidDriver) driver).removeApp(appPackage);
     }
     public ServiceInfo callAPICreateService(boolean enableListing){
         String serviceName = "Service automation "+ generator.generateString(6);
