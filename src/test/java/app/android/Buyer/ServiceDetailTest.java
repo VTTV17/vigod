@@ -84,7 +84,7 @@ public class ServiceDetailTest extends BaseTest {
     @BeforeMethod
     @SneakyThrows
     public void launchApp() {
-       driver = new InitAndroidDriver().getAndroidDriver(new DevicesUDID().get(), System.getProperty("user.dir") + getDirectorySlash("src") +
+       driver = new InitAndroidDriver().getAndroidDriver("emulator-5554", System.getProperty("user.dir") + getDirectorySlash("src") +
                getDirectorySlash("main") +   getDirectorySlash("resources") + getDirectorySlash("app") +"appShopVi.apk");
     }
     @AfterMethod
