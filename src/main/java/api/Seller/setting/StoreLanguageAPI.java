@@ -15,6 +15,7 @@ import utilities.model.dashboard.setting.languages.AdditionalLanguages;
 import utilities.model.dashboard.setting.languages.CreatedLanguage;
 import utilities.model.dashboard.setting.languages.DefaultLanguage;
 import utilities.model.dashboard.setting.languages.LanguageCatalog;
+import utilities.model.dashboard.setting.languages.translation.Translation;
 import utilities.model.sellerApp.login.LoginInformation;
 
 public class StoreLanguageAPI {
@@ -27,6 +28,7 @@ public class StoreLanguageAPI {
 	String addLanguagePath = "/storeservice/api/store-language/create?defaultLangKey=%s";
 	String publishLanguagePath = "/storeservice/api/store-language/publish";
 	String removeLanguagePath = "/storeservice/api/store-language/store/%s/%s";
+	String getTranslation = "/ssrstorefront/api/custom-multi-language/langKey/%s?defaultLangKey=en&storeId=%s";
 
 	API api = new API();
 	LoginDashboardInfo loginInfo;
@@ -127,5 +129,16 @@ public class StoreLanguageAPI {
 	
 	public void selectDefaultLanguage(int storeLangId) {
 		selectDefaultLanguageResponse(storeLangId);
+	} 
+	
+	public Translation getTranslation(String langCode) {
+		
+        var path = getTranslation.formatted(langCode, loginInfo.getStoreID());
+		
+        Response response = api.get(path, loginInfo.getAccessToken()).then().statusCode(200).extract().response();
+        
+        logger.info("Retrieved translations for {}", langCode);
+		
+		return response.as(Translation.class);
 	} 	
 }

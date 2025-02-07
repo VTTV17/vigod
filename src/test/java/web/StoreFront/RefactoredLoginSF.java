@@ -27,15 +27,14 @@ import utilities.api.thirdparty.KibanaAPI;
 import utilities.commons.UICommonAction;
 import utilities.data.DataGenerator;
 import utilities.driver.InitWebdriver;
-import utilities.enums.DisplayLanguage;
 import utilities.enums.Domain;
 import utilities.model.dashboard.setting.languages.AdditionalLanguages;
+import utilities.model.dashboard.setting.languages.translation.StorefrontCSR;
 import utilities.model.sellerApp.login.LoginInformation;
 import web.Dashboard.customers.allcustomers.AllCustomers;
 import web.Dashboard.customers.allcustomers.details.CustomerDetails;
 import web.StoreFront.header.ChangePasswordDialog;
 import web.StoreFront.header.HeaderSF;
-import web.StoreFront.login.ForgotPasswordDialog;
 import web.StoreFront.login.LoginPage;
 
 /**
@@ -50,7 +49,8 @@ public class RefactoredLoginSF extends BaseTest {
 	String sellerCountry, sellerUsername, sellerPassword, sellerSFURL, sfDomain;
 	LoginInformation sellerCredentials;
 	
-	List<AdditionalLanguages> publishedLanguages;
+	String sfDisplayLanguage;
+	List<StorefrontCSR> translation;
 	
 	@BeforeClass
 	void loadData() {
@@ -68,7 +68,9 @@ public class RefactoredLoginSF extends BaseTest {
 		
 		sellerCredentials = new Login().setLoginInformation(DataGenerator.getPhoneCode(sellerCountry), sellerUsername, sellerPassword).getLoginInformation();
 		
-        publishedLanguages = new StoreLanguageAPI(sellerCredentials).getAdditionalLanguages();
+		var storeLanguageAPI = new StoreLanguageAPI(sellerCredentials);
+        sfDisplayLanguage = randomSFDisplayLanguage(storeLanguageAPI.getAdditionalLanguages());
+        translation = storeLanguageAPI.getTranslation(sfDisplayLanguage).getStorefrontCSR();
 		
 		sellerSFURL = "https://%s".formatted(new StoreInformation(sellerCredentials).getInfo().getStoreURL() + sfDomain);
 	}
@@ -95,83 +97,110 @@ public class RefactoredLoginSF extends BaseTest {
 		commonAction = new UICommonAction(driver);
 	}	
 
-	String randomSFDisplayLanguage() {
+	String randomSFDisplayLanguage(List<AdditionalLanguages> publishedLanguages) {
         return publishedLanguages.stream()
         		.filter(AdditionalLanguages::getPublished)
         		.map(AdditionalLanguages::getLangCode)
         		.collect(Collectors.collectingAndThen(Collectors.toList(), collected -> collected.get(new Random().nextInt(collected.size()))));
 	}	
+	
+	String localizedText(List<StorefrontCSR> translation, String key) {
+		return translation.stream()
+				.filter(e -> e.getKey().contentEquals(key))
+				.findFirst()
+				.map(e -> e.getValue())
+				.orElse("");
+	}
+	String localizedEmptyUsernameError() {
+		return localizedText(translation, "gosell.welcome.required.username");
+	}
+	String localizedEmptyPasswordError() {
+		return localizedText(translation, "gosell.welcome.required.pwd");
+	}
+	String localizedInvalidUsernameError() {
+		return localizedText(translation, "gosell.welcome.invalid.username");
+	}
+	String localizedWrongCredentialsError() {
+		return localizedText(translation, "gosell.welcome.loginFail");
+	}
+	String localizedWrongCurrentPasswordError() {
+		return localizedText(translation, "gosell.welcome.invalid.password");
+	}
+	String localizedInvalidNewPasswordError() {
+		return localizedText(translation, "gosell.welcome.invalid.pwd");
+	}
+	String localizedSame4PasswordsError() {
+		return localizedText(translation, "gosell.error.pwd.matchCurrent");
+	}
+	String localizedEmailNotExistError() {
+		return localizedText(translation, "gosell.welcome.notexist.email");
+	}
+	String localizedPhoneNotExistError() {
+		return localizedText(translation, "gosell.welcome.notexist.phone");
+	}
 
 	@Test
 	void TC_LoginWithInvalidData() {
 		
-		String langCode = randomSFDisplayLanguage();
-		
-		DisplayLanguage localizedLanguage = langCode.startsWith("vi") ? DisplayLanguage.VIE : DisplayLanguage.ENG;
-		
 		generalSFAction.navigateToURL(sellerSFURL);
 		
-		headerSection.clickUserInfoIcon().changeLanguageByLangCode(langCode);
+		headerSection.clickUserInfoIcon().changeLanguageByLangCode(sfDisplayLanguage);
 		
 		//Empty username
 		loginPage.performLogin("", DataGenerator.randomValidPassword());
-		Assert.assertEquals(loginPage.getUsernameError(), LoginPage.localizedEmptyUsernameError(localizedLanguage));
+		Assert.assertEquals(loginPage.getUsernameError(), localizedEmptyUsernameError());
 		commonAction.refreshPage();
 		
 		//Empty password
 		loginPage.performLogin(DataGenerator.randomPhone(), "");
-		Assert.assertEquals(loginPage.getPasswordError(), LoginPage.localizedEmptyPasswordError(localizedLanguage));
+		Assert.assertEquals(loginPage.getPasswordError(), localizedEmptyPasswordError());
 		commonAction.refreshPage();
 		
 		//Empty username and password
 		loginPage.performLogin("", "");
-		Assert.assertEquals(loginPage.getUsernameError(), LoginPage.localizedEmptyUsernameError(localizedLanguage));
-		Assert.assertEquals(loginPage.getPasswordError(), LoginPage.localizedEmptyPasswordError(localizedLanguage));
+		Assert.assertEquals(loginPage.getUsernameError(), localizedEmptyUsernameError());
+		Assert.assertEquals(loginPage.getPasswordError(), localizedEmptyPasswordError());
 		commonAction.refreshPage();
 		
 		//7-digit phone number
 		loginPage.performLogin(DataGenerator.generatePhoneFromRegex("\\d{7}"), DataGenerator.randomValidPassword());
-		Assert.assertEquals(loginPage.getUsernameError(), LoginPage.localizedInvalidUsernameError(localizedLanguage));
+		Assert.assertEquals(loginPage.getUsernameError(), localizedInvalidUsernameError());
 		commonAction.refreshPage();
 		
 		//16-digit phone number
 		loginPage.performLogin(DataGenerator.generatePhoneFromRegex("\\d{7}"), DataGenerator.randomValidPassword());
-		Assert.assertEquals(loginPage.getUsernameError(), LoginPage.localizedInvalidUsernameError(localizedLanguage));
+		Assert.assertEquals(loginPage.getUsernameError(), localizedInvalidUsernameError());
 		commonAction.refreshPage();
 		
 		//Mail does not have symbol @
 		loginPage.performLogin(new Generex("[a-z]{5,8}\\d{5,8}\\.[a-z]{2}").random(), DataGenerator.randomValidPassword());
-		Assert.assertEquals(loginPage.getUsernameError(), LoginPage.localizedInvalidUsernameError(localizedLanguage));
+		Assert.assertEquals(loginPage.getUsernameError(), localizedInvalidUsernameError());
 		commonAction.refreshPage();
 		
 		//Mail does not have suffix '.<>'. Eg. '.com'
 		loginPage.performLogin(new Generex("[a-z]{5,8}\\d{5,8}\\@").random(), DataGenerator.randomValidPassword());
-		Assert.assertEquals(loginPage.getUsernameError(), LoginPage.localizedInvalidUsernameError(localizedLanguage));
+		Assert.assertEquals(loginPage.getUsernameError(), localizedInvalidUsernameError());
 		commonAction.refreshPage();
 		
 		loginPage.performLogin(new Generex("[a-z]{5,8}\\d{5,8}\\@[a-z]mail\\.").random(), DataGenerator.randomValidPassword());
-		Assert.assertEquals(loginPage.getUsernameError(), LoginPage.localizedInvalidUsernameError(localizedLanguage));
+		Assert.assertEquals(loginPage.getUsernameError(), localizedInvalidUsernameError());
 	}
 	
 	@Test
 	void TC_LoginWithWrongCredentials() {
 		
-		String langCode = randomSFDisplayLanguage();
-		
-		DisplayLanguage localizedLanguage = langCode.startsWith("vi") ? DisplayLanguage.VIE : DisplayLanguage.ENG;
-		
 		generalSFAction.navigateToURL(sellerSFURL);
 		
-		headerSection.clickUserInfoIcon().changeLanguageByLangCode(langCode);
+		headerSection.clickUserInfoIcon().changeLanguageByLangCode(sfDisplayLanguage);
 		
 		//Email
 		loginPage.performLogin(DataGenerator.randomCorrectFormatEmail(), DataGenerator.randomValidPassword());
-		Assert.assertEquals(loginPage.getLoginFailError(), LoginPage.localizedWrongCredentialsError(localizedLanguage));
+		Assert.assertEquals(loginPage.getLoginFailError(), localizedWrongCredentialsError());
 		commonAction.refreshPage();
 		
 		//Mobile
 		loginPage.performLogin(DataGenerator.randomPhone(), DataGenerator.randomValidPassword());
-		Assert.assertEquals(loginPage.getLoginFailError(), LoginPage.localizedWrongCredentialsError(localizedLanguage));
+		Assert.assertEquals(loginPage.getLoginFailError(), localizedWrongCredentialsError());
 	}
 	
 	@Test(dataProvider = "buyerAccountDP")
@@ -206,15 +235,11 @@ public class RefactoredLoginSF extends BaseTest {
 	@Test(dataProvider = "buyerAccountDP")
 	void TC_ChangeInvalidPassword(String country, String username, String password) {
 		
-		String langCode = randomSFDisplayLanguage();
-		
-		DisplayLanguage localizedLanguage = langCode.startsWith("vi") ? DisplayLanguage.VIE : DisplayLanguage.ENG;
-		
 		generalSFAction.navigateToURL(sellerSFURL);
 		
-		headerSection.clickUserInfoIcon().changeLanguageByLangCode(langCode);
-		
 		loginPage.performLogin(country, username, password);
+		
+		headerSection.clickUserInfoIcon().changeLanguageByLangCode(sfDisplayLanguage);
 		
 		//Empty current password
 		String error = headerSection.clickUserInfoIcon()
@@ -224,7 +249,7 @@ public class RefactoredLoginSF extends BaseTest {
 				.clickDoneBtn()
 				.getCurrentPasswordError();
 		
-		Assert.assertEquals(error, ForgotPasswordDialog.localizedWrongCurrentPasswordError(localizedLanguage));
+		Assert.assertEquals(error, localizedWrongCurrentPasswordError());
 		commonAction.refreshPage();
 		
 		//Empty new password
@@ -235,7 +260,7 @@ public class RefactoredLoginSF extends BaseTest {
 				.clickDoneBtn()
 				.getNewPasswordError();
 		
-		Assert.assertEquals(error, LoginPage.localizedEmptyPasswordError(localizedLanguage));
+		Assert.assertEquals(error, localizedEmptyPasswordError());
 		commonAction.refreshPage();
 		
 		//Incorrect current password
@@ -246,7 +271,7 @@ public class RefactoredLoginSF extends BaseTest {
 				.clickDoneBtn()
 				.getCurrentPasswordError();
 		
-		Assert.assertEquals(error, ForgotPasswordDialog.localizedWrongCurrentPasswordError(localizedLanguage));
+		Assert.assertEquals(error, localizedWrongCurrentPasswordError());
 		commonAction.refreshPage();
 		
 		//Inadequate number of characters
@@ -257,7 +282,7 @@ public class RefactoredLoginSF extends BaseTest {
 				.clickDoneBtn()
 				.getNewPasswordError();
 		
-		Assert.assertEquals(error, ForgotPasswordDialog.localizedInvalidNewPasswordError(localizedLanguage));
+		Assert.assertEquals(error, localizedInvalidNewPasswordError());
 		commonAction.refreshPage();	
 		
 		//Absence of digits
@@ -268,7 +293,7 @@ public class RefactoredLoginSF extends BaseTest {
 				.clickDoneBtn()
 				.getNewPasswordError();
 		
-		Assert.assertEquals(error, ForgotPasswordDialog.localizedInvalidNewPasswordError(localizedLanguage));
+		Assert.assertEquals(error, localizedInvalidNewPasswordError());
 		commonAction.refreshPage();	
 		
 		//Absence of special characters
@@ -279,9 +304,7 @@ public class RefactoredLoginSF extends BaseTest {
 				.clickDoneBtn()
 				.getNewPasswordError();
 		
-		Assert.assertEquals(error, ForgotPasswordDialog.localizedInvalidNewPasswordError(localizedLanguage));
-//		commonAction.refreshPage();	
-		
+		Assert.assertEquals(error, localizedInvalidNewPasswordError());
 	}	
 	
 	@Test(dataProvider = "buyerAccountDP")
@@ -289,13 +312,7 @@ public class RefactoredLoginSF extends BaseTest {
 		
 		String newPassword = DataGenerator.randomValidPassword();
 		
-		String langCode = randomSFDisplayLanguage();
-		
-		DisplayLanguage localizedLanguage = langCode.startsWith("vi") ? DisplayLanguage.VIE : DisplayLanguage.ENG;
-		
 		generalSFAction.navigateToURL(sellerSFURL);
-		
-		headerSection.clickUserInfoIcon().changeLanguageByLangCode(langCode);
 		
 		loginPage.performLogin(country, username, password);
 		
@@ -303,9 +320,9 @@ public class RefactoredLoginSF extends BaseTest {
 		headerSection.clickUserInfoIcon().clickChangePassword().inputCurrentPassword(password).inputNewPassword(newPassword).clickDoneBtn();
 		
 		//Try logging in with old password
-		headerSection.clickUserInfoIcon().changeLanguageByLangCode(langCode);
+		headerSection.clickUserInfoIcon().changeLanguageByLangCode(sfDisplayLanguage);
 		loginPage.performLogin(country, username, password);
-		Assert.assertEquals(loginPage.getLoginFailError(), LoginPage.localizedWrongCredentialsError(localizedLanguage));
+		Assert.assertEquals(loginPage.getLoginFailError(), localizedWrongCredentialsError());
 		
 		commonAction.refreshPage();
 		
@@ -324,10 +341,6 @@ public class RefactoredLoginSF extends BaseTest {
 	
 	@Test(dataProvider = "buyerAccountDP")
 	void TC_ChangePasswordThatResemblesLast4Passwords(String country, String username, String password) {
-		
-		String langCode = randomSFDisplayLanguage();
-		
-		DisplayLanguage localizedLanguage = langCode.startsWith("vi") ? DisplayLanguage.VIE : DisplayLanguage.ENG;
 		
 		String newPassword = DataGenerator.randomValidPassword();
 		
@@ -349,12 +362,12 @@ public class RefactoredLoginSF extends BaseTest {
 		
 		loginPage.performLogin(country, username, password);
 		
-		headerSection.clickUserInfoIcon().changeLanguageByLangCode(langCode);
+		headerSection.clickUserInfoIcon().changeLanguageByLangCode(sfDisplayLanguage);
 		
 		//Change password to the latest 4 passwords
 		for (String pw : oldPasswords) {
 			ChangePasswordDialog changePasswordDlg = headerSection.clickUserInfoIcon().clickChangePassword().inputCurrentPassword(newPassword).inputNewPassword(pw).clickDoneBtn();
-			Assert.assertEquals(changePasswordDlg.getCurrentPasswordError(), ForgotPasswordDialog.localizedSame4PasswordsError(localizedLanguage));
+			Assert.assertEquals(changePasswordDlg.getCurrentPasswordError(), localizedSame4PasswordsError());
 			changePasswordDlg.clickCloseBtn();
 		}
 	}	
@@ -363,13 +376,9 @@ public class RefactoredLoginSF extends BaseTest {
 //	@Test
 	void TC_ForgotPasswordForNonExistingAccount() {
 		
-		String langCode = randomSFDisplayLanguage();
-		
-		DisplayLanguage localizedLanguage = langCode.startsWith("vi") ? DisplayLanguage.VIE : DisplayLanguage.ENG;
-		
 		generalSFAction.navigateToURL(sellerSFURL);
 		
-		headerSection.clickUserInfoIcon().changeLanguageByLangCode(langCode);
+		headerSection.clickUserInfoIcon().changeLanguageByLangCode(sfDisplayLanguage);
 		
 		//Wrong email as username
 		headerSection.clickUserInfoIcon().clickLoginIcon();
@@ -377,7 +386,7 @@ public class RefactoredLoginSF extends BaseTest {
 			.inputUsername(DataGenerator.randomCorrectFormatEmail())
 			.clickContinueBtn()
 			.getUsernameError();
-		Assert.assertEquals(error, ForgotPasswordDialog.localizedEmailNotExistError(localizedLanguage));
+		Assert.assertEquals(error, localizedEmailNotExistError());
 		
 		commonAction.refreshPage();
 		
@@ -387,7 +396,7 @@ public class RefactoredLoginSF extends BaseTest {
 			.inputUsername(DataGenerator.randomPhone())
 			.clickContinueBtn()
 			.getUsernameError();
-		Assert.assertEquals(error, ForgotPasswordDialog.localizedPhoneNotExistError(localizedLanguage));
+		Assert.assertEquals(error, localizedPhoneNotExistError());
 	}	
 
 	/**
