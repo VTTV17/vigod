@@ -80,11 +80,7 @@ public class MyProfileTest extends BaseTest {
     @BeforeMethod
     public void launchApp() {
         DesiredCapabilities capabilities = new DesiredCapabilities();
-        try {
-            capabilities.setCapability("udid", new DevicesUDID().get());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        capabilities.setCapability("udid", "emulator-5554");
         capabilities.setCapability("platformName", "Android");
         capabilities.setCapability("appPackage", goBUYERBundleId_ShopVi);
         capabilities.setCapability("appActivity", "com.mediastep.gosell.ui.modules.splash.SplashScreenActivity");

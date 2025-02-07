@@ -35,6 +35,7 @@ import java.util.List;
 import static utilities.environment.goBUYEREnvironment.goBUYERBundleId;
 import static utilities.environment.goBUYEREnvironment.goBUYERBundleId_ShopVi;
 import static utilities.file.FileNameAndPath.FILE_CREATE_SERVICE_TCS;
+import static utilities.file.FileNameAndPath.getDirectorySlash;
 
 public class ServiceDetailTest extends BaseTest {
     NavigationBar navigationBar;
@@ -83,8 +84,8 @@ public class ServiceDetailTest extends BaseTest {
     }
     @SneakyThrows
     public AppiumDriver launchApp(String apkFileName) {
-       return new InitAndroidDriver().getAndroidDriver(new DevicesUDID().get(), System.getProperty("user.dir") + "/src/main/resources/app/" + apkFileName +".apk");
-
+       return new InitAndroidDriver().getAndroidDriver("emulator-5554", System.getProperty("user.dir") + getDirectorySlash("src") +
+               getDirectorySlash("main") +   getDirectorySlash("resources") + getDirectorySlash("app")+ apkFileName +".apk");
     }
     @AfterMethod
     public void restartApp(ITestResult result) throws IOException {
