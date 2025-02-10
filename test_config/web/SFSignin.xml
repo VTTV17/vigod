@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Storefront Signin Suite">
+    <test name="Storefront-Signin-Feature">
+        <classes>
+            <class name="web.StoreFront.RefactoredLoginSF">
+            </class>
+        </classes>
+    </test>
+</suite>
