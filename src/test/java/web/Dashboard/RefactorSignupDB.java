@@ -19,6 +19,7 @@ import org.testng.annotations.Test;
 
 import api.Seller.login.Login;
 import api.Seller.setting.APIAccount;
+import business.PlanMoney;
 import utilities.account.AccountTest;
 import utilities.api.thirdparty.KibanaAPI;
 import utilities.commons.UICommonAction;
@@ -35,7 +36,6 @@ import utilities.model.dashboard.setting.packageinfo.PlanPaymentReview;
 import utilities.model.dashboard.setting.plan.PlanStatus;
 import utilities.model.dashboard.setupstore.PurchasePlanDG;
 import utilities.model.dashboard.setupstore.SetupStoreDG;
-import utilities.packageplan.PlanMoney;
 import utilities.thirdparty.Mailnesia;
 import utilities.thirdparty.Mailnesia.MailType;
 import web.Dashboard.home.HomePage;

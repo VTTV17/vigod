@@ -1,4 +1,4 @@
-package utilities.packageplan;
+package business;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
