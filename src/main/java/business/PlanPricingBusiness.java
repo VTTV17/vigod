@@ -9,7 +9,11 @@ import utilities.data.DataGenerator;
 import utilities.enums.Domain;
 import utilities.enums.newpackage.NewPackage;
 
-public class PlanMoney {
+/**
+ * This business class handles the logic of GoSELL plan pricing such as calculating refund amount, remaining day, total package price and so on
+ */
+
+public class PlanPricingBusiness {
 
 	static BigDecimal workoutRefund(NewPackage plan, int years, long remainingDays, int finalScale) {
 
