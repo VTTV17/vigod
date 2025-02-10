@@ -19,6 +19,7 @@ import org.testng.annotations.Test;
 
 import api.Seller.login.Login;
 import api.Seller.setting.APIAccount;
+import business.PlanPricingBusiness;
 import utilities.account.AccountTest;
 import utilities.api.thirdparty.KibanaAPI;
 import utilities.commons.UICommonAction;
@@ -35,7 +36,6 @@ import utilities.model.dashboard.setting.packageinfo.PlanPaymentReview;
 import utilities.model.dashboard.setting.plan.PlanStatus;
 import utilities.model.dashboard.setupstore.PurchasePlanDG;
 import utilities.model.dashboard.setupstore.SetupStoreDG;
-import utilities.packageplan.PlanMoney;
 import utilities.thirdparty.Mailnesia;
 import utilities.thirdparty.Mailnesia.MailType;
 import web.Dashboard.home.HomePage;
@@ -752,9 +752,9 @@ public class RefactorSignupDB extends BaseTest {
 		NewPackage currentPlanName = NewPackage.getKeyFromValue(currentPlan.getBundlePackagePlanName());
 		Instant registeredDate = Instant.parse(currentPlan.getRegisterPackageDate());
 		Instant expiryDate = Instant.parse(currentPlan.getExpiredPackageDate());
-		int period = PlanMoney.deducePeriod(registeredDate, expiryDate);
+		int period = PlanPricingBusiness.deducePeriod(registeredDate, expiryDate);
 
-		BigDecimal expectedRefund = PlanMoney.calculateRefund(storeDG.getCountry(), currentPlanName, period, PlanMoney.workoutRemainingDays(expiryDate));
+		BigDecimal expectedRefund = PlanPricingBusiness.calculateRefund(storeDG.getCountry(), currentPlanName, period, PlanPricingBusiness.workoutRemainingDays(expiryDate));
 
 		//Get new package
 		for (int i=0; i<20; i++) {
@@ -777,10 +777,10 @@ public class RefactorSignupDB extends BaseTest {
 		BigDecimal actualTotalAmount = new BigDecimal(planPaymentReview.getFinalTotal().replaceAll("[^\\d+\\.]",""));
 		
 		//Compare refundAmount
-		expectedRefund = PlanMoney.resetRefund(storeDG.getDomain(), planPaymentDG.getNewPackage(), planPaymentDG.getPeriod(), expectedRefund);
+		expectedRefund = PlanPricingBusiness.resetRefund(storeDG.getDomain(), planPaymentDG.getNewPackage(), planPaymentDG.getPeriod(), expectedRefund);
 		Assert.assertEquals(new BigDecimal(planPaymentReview.getRefundAmount().replaceAll("[^\\d+\\.]","")).compareTo(expectedRefund), 0);
 		
-		BigDecimal expectedTotal = PlanMoney.calculateFinalTotalPrice(storeDG.getDomain(), planPaymentDG.getNewPackage(), planPaymentDG.getPeriod(), expectedRefund);
+		BigDecimal expectedTotal = PlanPricingBusiness.calculateFinalTotalPrice(storeDG.getDomain(), planPaymentDG.getNewPackage(), planPaymentDG.getPeriod(), expectedRefund);
 		
 		boolean isPaymentNeeded = expectedTotal.compareTo(BigDecimal.ZERO) != 0;
 		
@@ -828,7 +828,7 @@ public class RefactorSignupDB extends BaseTest {
 		NewPackage currentPlanName = NewPackage.getKeyFromValue(currentPlan.getBundlePackagePlanName());
 		Instant registeredDate = Instant.parse(currentPlan.getRegisterPackageDate());
 		Instant expiryDate = Instant.parse(currentPlan.getExpiredPackageDate());
-		int period = PlanMoney.deducePeriod(registeredDate, expiryDate);
+		int period = PlanPricingBusiness.deducePeriod(registeredDate, expiryDate);
 		
 		new LoginPage(driver, Domain.valueOf(domain)).navigate()
 			.changeDisplayLanguage(DisplayLanguage.valueOf(language))
@@ -851,7 +851,7 @@ public class RefactorSignupDB extends BaseTest {
 		
 		BigDecimal actualTotal = new BigDecimal(planPaymentReview.getFinalTotal().replaceAll("[^\\d+\\.]",""));
 		
-		BigDecimal expectedTotal = PlanMoney.calculatePriceIncludingTax(storeDG.getDomain(), planPaymentDG.getNewPackage(), planPaymentDG.getPeriod());
+		BigDecimal expectedTotal = PlanPricingBusiness.calculatePriceIncludingTax(storeDG.getDomain(), planPaymentDG.getNewPackage(), planPaymentDG.getPeriod());
 		
 		//Compare total amount
 		Assert.assertEquals(actualTotal.compareTo(expectedTotal), 0, "Actual: %s, expected: %s".formatted(actualTotal, expectedTotal));
@@ -928,7 +928,7 @@ public class RefactorSignupDB extends BaseTest {
 		NewPackage currentPlanName = NewPackage.getKeyFromValue(currentPlan.getBundlePackagePlanName());
 		Instant registeredDate = Instant.parse(currentPlan.getRegisterPackageDate());
 		Instant expiryDate = Instant.parse(currentPlan.getExpiredPackageDate());
-		int period = PlanMoney.deducePeriod(registeredDate, expiryDate);
+		int period = PlanPricingBusiness.deducePeriod(registeredDate, expiryDate);
 		
 		new LoginPage(driver, Domain.valueOf(domain)).navigate()
 			.changeDisplayLanguage(DisplayLanguage.valueOf(language))
