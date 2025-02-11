@@ -3,10 +3,10 @@ package utilities.model.dashboard.setupstore;
 import java.util.Random;
 
 import lombok.Data;
-import utilities.data.DataGenerator;
 import utilities.enums.Domain;
 import utilities.enums.PaymentMethod;
 import utilities.enums.newpackage.NewPackage;
+import utilities.utils.ListUtils;
 
 @Data
 public class PurchasePlanDG {
@@ -19,11 +19,11 @@ public class PurchasePlanDG {
 		period = store.getDomain().equals(Domain.BIZ) ? 1 : new Random().nextInt(1, 4);
 		
 		if (store.getCountry().contentEquals("Vietnam")) {
-			newPackage = DataGenerator.getRandomListElement(NewPackage.forVNStore());
-			paymentMethod = DataGenerator.getRandomListElement(PaymentMethod.forVNShop());
+			newPackage = ListUtils.getRandomListElement(NewPackage.forVNStore());
+			paymentMethod = ListUtils.getRandomListElement(PaymentMethod.forVNShop());
 		} else {
-			newPackage = DataGenerator.getRandomListElement(NewPackage.forForeignStore());
-			paymentMethod = DataGenerator.getRandomListElement(PaymentMethod.forForeignShop());
+			newPackage = ListUtils.getRandomListElement(NewPackage.forForeignStore());
+			paymentMethod = ListUtils.getRandomListElement(PaymentMethod.forForeignShop());
 		}
 	}
 }

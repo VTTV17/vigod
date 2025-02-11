@@ -1,10 +1,8 @@
 package web.Dashboard;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-import api.Seller.customers.APIEditCustomer;
 import org.testng.ITestResult;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
@@ -13,13 +11,13 @@ import org.testng.annotations.Test;
 
 import api.Seller.cashbook.CashbookAPI;
 import api.Seller.customers.APIAllCustomers;
+import api.Seller.customers.APIEditCustomer;
 import api.Seller.login.Login;
 import api.Seller.setting.BranchManagement;
 import api.Seller.setting.PermissionAPI;
 import api.Seller.setting.StaffManagement;
 import api.Seller.supplier.supplier.APISupplier;
 import utilities.commons.UICommonAction;
-import utilities.data.DataGenerator;
 import utilities.driver.InitWebdriver;
 import utilities.enums.Domain;
 import utilities.model.dashboard.setting.branchInformation.BranchInfo;
@@ -27,6 +25,7 @@ import utilities.model.sellerApp.login.LoginInformation;
 import utilities.model.staffPermission.AllPermissions;
 import utilities.model.staffPermission.CreatePermission;
 import utilities.permission.CheckPermission;
+import utilities.utils.ListUtils;
 import web.Dashboard.cashbook.Cashbook;
 import web.Dashboard.home.HomePage;
 import web.Dashboard.login.LoginPage;
@@ -112,11 +111,11 @@ public class CashbookPermissionTest extends BaseTest {
     }
     
 	String randomSupplier(APISupplier supplierAPI) {
-		return DataGenerator.getRandomListElement(supplierAPI.getAllSupplierNames());
+		return ListUtils.getRandomListElement(supplierAPI.getAllSupplierNames());
 	}		
 	
 	String randomStaff(StaffManagement staffAPI) {
-		return DataGenerator.getRandomListElement(staffAPI.getAllStaffNames());
+		return ListUtils.getRandomListElement(staffAPI.getAllStaffNames());
 	}		
 	
 	int getStaffUserId(LoginInformation staffCredentials) {
@@ -159,9 +158,9 @@ public class CashbookPermissionTest extends BaseTest {
 	CreatePermission setPermissionModel(String cashbookPermissionBinary) {
 		CreatePermission model = new CreatePermission();
 		model.setHome_none("11");
-		model.setSetting_staffManagement(DataGenerator.getRandomListElement(Arrays.asList(new String[] {"1", "0"})));
-		model.setSupplier_supplier(DataGenerator.getRandomListElement(Arrays.asList(new String[] {"1", "0"})));
-		model.setCustomer_customerManagement(DataGenerator.getRandomListElement(Arrays.asList(new String[] {"00", "01", "10", "11"})));
+		model.setSetting_staffManagement(ListUtils.getRandomListElement(Arrays.asList(new String[] {"1", "0"})));
+		model.setSupplier_supplier(ListUtils.getRandomListElement(Arrays.asList(new String[] {"1", "0"})));
+		model.setCustomer_customerManagement(ListUtils.getRandomListElement(Arrays.asList(new String[] {"00", "01", "10", "11"})));
 		model.setCashbook_none(cashbookPermissionBinary);
 		return model;
 	}

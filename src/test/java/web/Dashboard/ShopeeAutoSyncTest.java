@@ -49,6 +49,7 @@ import utilities.model.dashboard.salechanel.shopee.ShopeeProduct;
 import utilities.model.dashboard.salechanel.shopee.Variation;
 import utilities.model.dashboard.setting.branchInformation.BranchInfo;
 import utilities.model.sellerApp.login.LoginInformation;
+import utilities.utils.ListUtils;
 import utilities.utils.PropertiesUtil;
 import web.Dashboard.confirmationdialog.ConfirmationDialog;
 import web.Dashboard.login.LoginPage;
@@ -369,7 +370,7 @@ public class ShopeeAutoSyncTest extends BaseTest {
     void TC_LinkProduct(Boolean hasVariations) {
         
     	//Select Shopee products matching a specific condition
-        var selectedShopeeProduct = DataGenerator.getRandomListElement(filterProductsByCondition(List.of(hasVariations), List.of("UNLINK"), BULK_PRODUCT_COUNT));
+        var selectedShopeeProduct = ListUtils.getRandomListElement(filterProductsByCondition(List.of(hasVariations), List.of("UNLINK"), BULK_PRODUCT_COUNT));
         var shopeeVariationList = selectedShopeeProduct.getVariations();
         
         //Create a GoSELL product to link with the Shopee product
@@ -424,7 +425,7 @@ public class ShopeeAutoSyncTest extends BaseTest {
 	void TC_UnlinkLinkedProduct_NoVar() {
 		
 		//Select Shopee products matching a specific condition
-		var selectedShopeeProduct = DataGenerator.getRandomListElement(filterProductsByCondition(List.of(Boolean.FALSE), List.of("UNLINK"), BULK_PRODUCT_COUNT));
+		var selectedShopeeProduct = ListUtils.getRandomListElement(filterProductsByCondition(List.of(Boolean.FALSE), List.of("UNLINK"), BULK_PRODUCT_COUNT));
 		
 		//Create a GoSELL product to link with the Shopee product
 		var gosellProductId = new APICreateProduct(credentials).createProductTo3rdPartyThenRetrieveId(0, new Random().nextInt(1, 101));
@@ -466,7 +467,7 @@ public class ShopeeAutoSyncTest extends BaseTest {
 		
 		/**Precondition**/
 		//Select Shopee products matching a specific condition
-		var selectedShopeeProduct = DataGenerator.getRandomListElement(filterProductsByCondition(List.of(Boolean.TRUE), List.of("UNLINK"), BULK_PRODUCT_COUNT));
+		var selectedShopeeProduct = ListUtils.getRandomListElement(filterProductsByCondition(List.of(Boolean.TRUE), List.of("UNLINK"), BULK_PRODUCT_COUNT));
 		var shopeeVariationList = selectedShopeeProduct.getVariations();
 		
 		//Create a GoSELL product to link with the Shopee product
@@ -607,7 +608,7 @@ public class ShopeeAutoSyncTest extends BaseTest {
 		
 	    /** Precondition **/
 	    // Select Shopee products matching a specific condition
-	    var selectedShopeeProduct = DataGenerator.getRandomListElement(filterProductsByCondition(List.of(hasVariations), List.of("UNLINK"), BULK_PRODUCT_COUNT));
+	    var selectedShopeeProduct = ListUtils.getRandomListElement(filterProductsByCondition(List.of(hasVariations), List.of("UNLINK"), BULK_PRODUCT_COUNT));
 	    
 	    // Create a GoSELL product to link with the Shopee product
 	    var gosellProductId = new APICreateProduct(credentials).createProductTo3rdPartyThenRetrieveId(hasVariations ? selectedShopeeProduct.getVariations().size() : 0, new Random().nextInt(1, 101));
@@ -618,7 +619,7 @@ public class ShopeeAutoSyncTest extends BaseTest {
 	    
 	    /** TC starts here **/
 	    // Get a random Shopee product that matches a specific condition
-	    var shopeeProductPreAction = DataGenerator.getRandomListElement(filterProductsByCondition(List.of(hasVariations), List.of("LINK", "SYNC"), BULK_PRODUCT_COUNT));
+	    var shopeeProductPreAction = ListUtils.getRandomListElement(filterProductsByCondition(List.of(hasVariations), List.of("LINK", "SYNC"), BULK_PRODUCT_COUNT));
 	    
 	    // UI implementation
 	    var productPage = new ProductsPage(driver).navigateByURL();
@@ -651,7 +652,7 @@ public class ShopeeAutoSyncTest extends BaseTest {
 		
 		/** Precondition **/
 		//Select Shopee products matching a specific condition
-		var shopeeProductPreAction = DataGenerator.getRandomListElement(filterProductsByCondition(List.of(Boolean.TRUE), List.of("UNLINK"), BULK_PRODUCT_COUNT));
+		var shopeeProductPreAction = ListUtils.getRandomListElement(filterProductsByCondition(List.of(Boolean.TRUE), List.of("UNLINK"), BULK_PRODUCT_COUNT));
 		//TODO handle the case where the products are unlinked
 		//TODO handle the case where the products don't have variations
 		
@@ -698,7 +699,7 @@ public class ShopeeAutoSyncTest extends BaseTest {
 		
 		/** Precondition **/
 		//Select Shopee products matching a specific condition
-		var shopeeProductPreAction = DataGenerator.getRandomListElement(filterProductsByCondition(List.of(Boolean.FALSE), List.of("UNLINK"), BULK_PRODUCT_COUNT));
+		var shopeeProductPreAction = ListUtils.getRandomListElement(filterProductsByCondition(List.of(Boolean.FALSE), List.of("UNLINK"), BULK_PRODUCT_COUNT));
 		
 		//Create a GoSELL product to link with the Shopee product
 		var gosellProductId = new APICreateProduct(credentials).createProductTo3rdPartyThenRetrieveId(0, new Random().nextInt(1, 101));
@@ -759,7 +760,7 @@ public class ShopeeAutoSyncTest extends BaseTest {
 		
 		/** Precondition **/
 		//Select Shopee products matching a specific condition
-		var selectedShopeeProduct = DataGenerator.getRandomListElement(filterProductsByCondition(List.of(Boolean.TRUE), List.of("UNLINK"), BULK_PRODUCT_COUNT));
+		var selectedShopeeProduct = ListUtils.getRandomListElement(filterProductsByCondition(List.of(Boolean.TRUE), List.of("UNLINK"), BULK_PRODUCT_COUNT));
 		
 		//Create a GoSELL product to link with the Shopee product
 		var gosellProductId = new APICreateProduct(credentials).createProductTo3rdPartyThenRetrieveId(selectedShopeeProduct.getVariations().size(), new Random().nextInt(1, 101));
@@ -996,7 +997,7 @@ public class ShopeeAutoSyncTest extends BaseTest {
 		
 		/**Precondition**/
 		//Select Shopee products matching a specific condition
-		var selectedShopeeProduct = DataGenerator.getRandomListElement(filterProductsByCondition(List.of(Boolean.TRUE), List.of("UNLINK"), BULK_PRODUCT_COUNT));
+		var selectedShopeeProduct = ListUtils.getRandomListElement(filterProductsByCondition(List.of(Boolean.TRUE), List.of("UNLINK"), BULK_PRODUCT_COUNT));
 		var shopeeVariationList = selectedShopeeProduct.getVariations();
 		
 		//Create a GoSELL product to push to Shopee
@@ -1082,7 +1083,7 @@ public class ShopeeAutoSyncTest extends BaseTest {
 		
 		/**Precondition**/
 		//Select Shopee products matching a specific condition
-		var selectedShopeeProduct = DataGenerator.getRandomListElement(filterProductsByCondition(List.of(Boolean.TRUE), List.of("UNLINK"), BULK_PRODUCT_COUNT));
+		var selectedShopeeProduct = ListUtils.getRandomListElement(filterProductsByCondition(List.of(Boolean.TRUE), List.of("UNLINK"), BULK_PRODUCT_COUNT));
 		var shopeeVariationList = selectedShopeeProduct.getVariations();
 		
 		//Create a GoSELL product to push to Shopee
@@ -1161,7 +1162,7 @@ public class ShopeeAutoSyncTest extends BaseTest {
 	void TC_ChangeStockFromDetailScreen(Boolean hasVariations) {
 		
 		//Select Shopee products matching a specific condition
-		var selectedShopeeProduct = DataGenerator.getRandomListElement(filterProductsByCondition(List.of(hasVariations), List.of("UNLINK"), BULK_PRODUCT_COUNT));
+		var selectedShopeeProduct = ListUtils.getRandomListElement(filterProductsByCondition(List.of(hasVariations), List.of("UNLINK"), BULK_PRODUCT_COUNT));
 		
 		//Create a GoSELL product to link with the Shopee product
 		MAX_PRICE = PRODUCT_MAX_PRICE;
@@ -1208,7 +1209,7 @@ public class ShopeeAutoSyncTest extends BaseTest {
 	void TC_AddStockFromDetailScreen(Boolean hasVariations) {
 		
 		//Select Shopee products matching a specific condition
-		var selectedShopeeProduct = DataGenerator.getRandomListElement(filterProductsByCondition(List.of(hasVariations), List.of("UNLINK"), BULK_PRODUCT_COUNT));
+		var selectedShopeeProduct = ListUtils.getRandomListElement(filterProductsByCondition(List.of(hasVariations), List.of("UNLINK"), BULK_PRODUCT_COUNT));
 		
 		//Create a GoSELL product to link with the Shopee product
 		MAX_PRICE = PRODUCT_MAX_PRICE;
@@ -1255,7 +1256,7 @@ public class ShopeeAutoSyncTest extends BaseTest {
 	void TC_ChangeStockFromManagementScreen(Boolean hasVariations) {
 		
 		//Select Shopee products matching a specific condition
-		var selectedShopeeProduct = DataGenerator.getRandomListElement(filterProductsByCondition(List.of(hasVariations), List.of("UNLINK"), BULK_PRODUCT_COUNT));
+		var selectedShopeeProduct = ListUtils.getRandomListElement(filterProductsByCondition(List.of(hasVariations), List.of("UNLINK"), BULK_PRODUCT_COUNT));
 		
 		//Create a GoSELL product to link with the Shopee product
 		MAX_PRICE = PRODUCT_MAX_PRICE;
@@ -1304,7 +1305,7 @@ public class ShopeeAutoSyncTest extends BaseTest {
 	void TC_AddStockFromManagementScreen(Boolean hasVariations) {
 		
 		//Select Shopee products matching a specific condition
-		var selectedShopeeProduct = DataGenerator.getRandomListElement(filterProductsByCondition(List.of(hasVariations), List.of("UNLINK"), BULK_PRODUCT_COUNT));
+		var selectedShopeeProduct = ListUtils.getRandomListElement(filterProductsByCondition(List.of(hasVariations), List.of("UNLINK"), BULK_PRODUCT_COUNT));
 		
 		//Create a GoSELL product to link with the Shopee product
 		MAX_PRICE = PRODUCT_MAX_PRICE;
@@ -1353,7 +1354,7 @@ public class ShopeeAutoSyncTest extends BaseTest {
 	void TC_CreatePOSOrderThenCancelIt(Boolean hasVariations) {
 		
 		//Select Shopee products matching a specific condition
-		var selectedShopeeProduct = DataGenerator.getRandomListElement(filterProductsByCondition(List.of(hasVariations), List.of("UNLINK"), BULK_PRODUCT_COUNT));
+		var selectedShopeeProduct = ListUtils.getRandomListElement(filterProductsByCondition(List.of(hasVariations), List.of("UNLINK"), BULK_PRODUCT_COUNT));
 		
 		//Create a GoSELL product to link with the Shopee product
 		MAX_PRICE = PRODUCT_MAX_PRICE;
@@ -1426,7 +1427,7 @@ public class ShopeeAutoSyncTest extends BaseTest {
 	void TC_ReturnOrder(Boolean hasVariations) {
 		
 		//Select Shopee products matching a specific condition
-		var selectedShopeeProduct = DataGenerator.getRandomListElement(filterProductsByCondition(List.of(hasVariations), List.of("UNLINK"), BULK_PRODUCT_COUNT));
+		var selectedShopeeProduct = ListUtils.getRandomListElement(filterProductsByCondition(List.of(hasVariations), List.of("UNLINK"), BULK_PRODUCT_COUNT));
 		
 		//Create a GoSELL product to link with the Shopee product
 		MAX_PRICE = PRODUCT_MAX_PRICE;

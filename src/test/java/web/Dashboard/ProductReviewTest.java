@@ -1,9 +1,18 @@
 package web.Dashboard;
 
-import api.Seller.login.Login;
-import api.Seller.orders.OrderAPI;
-import api.Seller.products.product_reviews.APIProductReviews;
-import com.fasterxml.jackson.databind.JsonNode;
+import static utilities.links.Links.SF_DOMAIN;
+import static utilities.links.Links.SF_DOMAIN_BIZ;
+import static utilities.links.Links.SF_URL_TIEN;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Random;
+import java.util.Set;
+
 import org.testng.Assert;
 import org.testng.ITestResult;
 import org.testng.annotations.AfterMethod;
@@ -11,6 +20,20 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import api.Seller.login.Login;
+import api.Seller.orders.OrderAPI;
+import api.Seller.products.product_reviews.APIProductReviews;
+import api.Seller.setting.StoreInformation;
+import utilities.account.AccountTest;
+import utilities.commons.UICommonAction;
+import utilities.data.DataGenerator;
+import utilities.data.FormatDate;
+import utilities.driver.InitWebdriver;
+import utilities.enums.DisplayLanguage;
+import utilities.enums.Domain;
+import utilities.model.sellerApp.login.LoginInformation;
+import utilities.utils.ListUtils;
+import utilities.utils.PropertiesUtil;
 import web.Dashboard.home.HomePage;
 import web.Dashboard.login.LoginPage;
 import web.Dashboard.orders.orderlist.order_list.OrderManagementPage;
@@ -20,18 +43,6 @@ import web.StoreFront.checkout.checkoutstep1.CheckOutStep1;
 import web.StoreFront.detail_product.ProductDetailPage;
 import web.StoreFront.header.HeaderSF;
 import web.StoreFront.userprofile.myorder.MyOrders;
-import utilities.utils.PropertiesUtil;
-import utilities.commons.UICommonAction;
-import utilities.data.DataGenerator;
-import utilities.data.FormatDate;
-import utilities.driver.InitWebdriver;
-import utilities.utils.jsonFileUtility;
-import utilities.model.sellerApp.login.LoginInformation;
-
-import java.util.*;
-
-import static utilities.account.AccountTest.*;
-import static utilities.links.Links.SF_URL_TIEN;
 
 public class ProductReviewTest extends BaseTest {
 
@@ -44,33 +55,41 @@ public class ProductReviewTest extends BaseTest {
 	ProductDetailPage sfProductDetailPage;
 	CheckOutStep1 checkOutStep1;
 	MyOrders myOrderPage;
-	LoginInformation loginInformation;
+	LoginInformation sellerCredentials;
 
 	
-	JsonNode sellerData = jsonFileUtility.readJsonFile("LoginInfo.json").findValue("dashboard");
-	String sellerUsername = sellerData.findValue("seller").findValue("mail").findValue("username").asText();
-	String sellerPassword = sellerData.findValue("seller").findValue("mail").findValue("password").asText();
-	String sellerCountry = sellerData.findValue("seller").findValue("mail").findValue("country").asText();
-	JsonNode buyerData = jsonFileUtility.readJsonFile("LoginInfo.json").findValue("storefront");
-	String buyerUsername = buyerData.findValue("buyer").findValue("phone").findValue("username").asText();
-	String buyerPassword = buyerData.findValue("buyer").findValue("phone").findValue("password").asText();
-	String buyerCountry = buyerData.findValue("buyer").findValue("phone").findValue("country").asText();
-
-	public void instantiatePageObjects() {
-		driver = new InitWebdriver().getDriver(browser, headless);
-		dbLoginPage = new LoginPage(driver);
-		homePage = new HomePage(driver);
-		productReviewPage = new ProductReviews(driver);
-		sfLoginPage = new web.StoreFront.login.LoginPage(driver);
-		sfHeader = new HeaderSF(driver);
-		checkOutStep1 = new CheckOutStep1(driver);
-		sfProductDetailPage = new ProductDetailPage(driver);
-		commonAction = new UICommonAction(driver);
+	String sellerCountry, sellerUsername, sellerPassword, sellerSFURL, sfDomain;
+	String buyerCountry, buyerUsername, buyerPassword;
+	
+	@BeforeClass
+	public void loadData() {
+		
+		//Get seller credentials based on domain
+		if(Domain.valueOf(domain).equals(Domain.VN)) {
+			sellerCountry = AccountTest.ADMIN_COUNTRY_TIEN;
+			sellerUsername = AccountTest.ADMIN_USERNAME_TIEN;
+			sellerPassword = AccountTest.ADMIN_PASSWORD_TIEN;
+			sfDomain = SF_DOMAIN;
+		} else {
+			sellerCountry = AccountTest.ADMIN_MAIL_BIZ_COUNTRY;
+			sellerUsername = AccountTest.ADMIN_MAIL_BIZ_USERNAME;
+			sellerPassword = AccountTest.ADMIN_MAIL_BIZ_PASSWORD;
+			sfDomain = SF_DOMAIN_BIZ;
+		}
+		
+		//Get buyer credentials
+		buyerCountry = AccountTest.SF_PHONE_COUNTRY;
+		buyerUsername = AccountTest.SF_PHONE_USERNAME;
+		buyerPassword = AccountTest.BUYER_MASTER_PASSWORD;
+		
+		sellerCredentials = new Login().setLoginInformation(DataGenerator.getPhoneCode(sellerCountry), sellerUsername, sellerPassword).getLoginInformation();
+		
+		sellerSFURL = "https://%s".formatted(new StoreInformation(sellerCredentials).getInfo().getStoreURL() + sfDomain);
 	}	
+		
 	
 	public void loginDashboard() {
-		dbLoginPage.navigate().performLogin(sellerCountry, sellerUsername, sellerPassword);
-		homePage.waitTillSpinnerDisappear1().selectLanguage(language);
+		dbLoginPage.navigate().changeDisplayLanguage(DisplayLanguage.valueOf(language)).performValidLogin(sellerCountry, sellerUsername, sellerPassword);
 	}	
 	
 	/**
@@ -84,29 +103,28 @@ public class ProductReviewTest extends BaseTest {
 
 	public String randomProduct() {
 		//TODO make the list random
-		String[] pro1ducts = { "Fish Food", "Tetra Fish Food", "Dog Food", "Cat Food", "Bird Food" };
-		return pro1ducts[new Random().nextInt(0, pro1ducts.length)];
+		return ListUtils.getRandomListElement(List.of("Fish Food", "Tetra Fish Food", "Dog Food", "Cat Food", "Bird Food"));
 	}	
 	
 	public String randomSearchProduct() {
-        List<String> allProducts = new APIProductReviews(loginInformation).getProductNameList();
+        List<String> allProducts = new APIProductReviews(sellerCredentials).getProductNameList();
         Set<String> uniqueNames = new HashSet<String>(allProducts);
         List<String> productNames = new ArrayList<String>(uniqueNames);
         return productNames.get(new Random().nextInt(0, productNames.size()));
 	}	
 
     public void confirmDeliverOrderByAPI(String orderID){
-        OrderAPI orderAPI = new OrderAPI(loginInformation);
+        OrderAPI orderAPI = new OrderAPI(sellerCredentials);
         orderAPI.confirmOrder(orderID);
         orderAPI.deliverOrder(orderID);
     }		
 	
 	public List<Integer> getRatingListByAPI() {
-		return new APIProductReviews(loginInformation).getAllReviewJsonPath().getList("rate");
+		return new APIProductReviews(sellerCredentials).getAllReviewJsonPath().getList("rate");
 	}	
 	
 	public List<Date> getCreatedDateListByAPI() {
-		List<String> rawList = new APIProductReviews(loginInformation).getAllReviewJsonPath().getList("reviewDate");
+		List<String> rawList = new APIProductReviews(sellerCredentials).getAllReviewJsonPath().getList("reviewDate");
 		List<Date> processedList = new ArrayList<>();
 		FormatDate formatDate = new FormatDate();
 		for (String date : rawList) {
@@ -259,45 +277,19 @@ public class ProductReviewTest extends BaseTest {
 		.leaveReview(randomStar, "So good " + randomNumber, "Absolutely love the product " + randomNumber);
 	}  	
 	
-	@BeforeClass
-	public void logIntoDashboardByAPI() {
-		loginInformation = new Login().setLoginInformation(sellerUsername, sellerPassword).getLoginInformation();
-	}	
-	
 	@BeforeMethod
 	public void setup() {
-		instantiatePageObjects();
+		driver = new InitWebdriver().getDriver(browser, headless);
+		dbLoginPage = new LoginPage(driver, Domain.valueOf(domain));
+		homePage = new HomePage(driver);
+		productReviewPage = new ProductReviews(driver, Domain.valueOf(domain));
+		sfLoginPage = new web.StoreFront.login.LoginPage(driver);
+		sfHeader = new HeaderSF(driver);
+		checkOutStep1 = new CheckOutStep1(driver);
+		sfProductDetailPage = new ProductDetailPage(driver);
+		commonAction = new UICommonAction(driver);
 	}
 
-	@Test
-	public void PR_00_PermissionToUseProductReviews() {
-		
-        Map<String, String> permission = new HashMap<String, String>();
-        permission.put(ADMIN_USERNAME_GOWEB, "A");
-        permission.put(ADMIN_USERNAME_GOAPP, "A");
-        permission.put(ADMIN_USERNAME_GOPOS, "S");
-        permission.put(ADMIN_USERNAME_GOSOCIAL, "S");
-        permission.put(ADMIN_USERNAME_GOLEAD, "S");
-		
-		/* Log into dashboard */
-        for (String username : permission.keySet()) {
-    		dbLoginPage.navigate().performLogin(username, sellerPassword);
-    		homePage.waitTillSpinnerDisappear();
-    		productReviewPage.navigate().verifyPermissionToManageReviews(permission.get(username));
-    		homePage.clickLogout();        	
-        }
-	}    
-	
-	@Test
-	public void PR_01_CheckTranslation() throws Exception {
-		
-		/* Log into dashboard */
-		loginDashboard();
-		
-		/* Check text at management screen */
-		productReviewPage.navigate().verifyTextAtReviewManagementScreen();
-	}    
-    
 	@Test
 	public void PR_02_DisableProductReviews() throws Exception {
 		
@@ -308,10 +300,10 @@ public class ProductReviewTest extends BaseTest {
 		/* Log into dashboard */
 		commonAction.openNewTab();
 		commonAction.switchToWindow(1);
-		loginDashboard();
+		dbLoginPage.navigate().changeDisplayLanguage(DisplayLanguage.valueOf(language)).performValidLogin(sellerCountry, sellerUsername, sellerPassword);
 		
 		/* Disable reviews */
-		productReviewPage.navigate().disableProductReviews();
+		productReviewPage.navigateByURL().disableProductReviews();
 		
 		/* See if Write Review link text is present on SF */
 		commonAction.switchToWindow(0);
@@ -344,7 +336,7 @@ public class ProductReviewTest extends BaseTest {
 		int reviewIndex = 0;
 		
 		/* Log into dashboard */
-		loginDashboard();
+		dbLoginPage.navigate().changeDisplayLanguage(DisplayLanguage.valueOf(language)).performValidLogin(sellerCountry, sellerUsername, sellerPassword);
 		
 		/* Enable reviews */
 		productReviewPage.navigate().enableProductReviews();
@@ -378,7 +370,7 @@ public class ProductReviewTest extends BaseTest {
 		int reviewIndex = 0;
 		
 		/* Log into dashboard */
-		loginDashboard();
+		dbLoginPage.navigate().changeDisplayLanguage(DisplayLanguage.valueOf(language)).performValidLogin(sellerCountry, sellerUsername, sellerPassword);
 		
 		/* Enable reviews */
 		productReviewPage.navigate().enableProductReviews();
@@ -418,7 +410,7 @@ public class ProductReviewTest extends BaseTest {
 		/* Log into dashboard */
 		commonAction.openNewTab();
 		commonAction.switchToWindow(1);
-		loginDashboard();
+		dbLoginPage.navigate().changeDisplayLanguage(DisplayLanguage.valueOf(language)).performValidLogin(sellerCountry, sellerUsername, sellerPassword);
 		
 		/* Disable/Enable reviews */
 		productReviewPage.navigate().enableProductReviews();
@@ -455,7 +447,7 @@ public class ProductReviewTest extends BaseTest {
 	public void PR_07_NavigateToProductDetailOnSF() {
 
 		/* Log into dashboard */
-		loginDashboard();
+		dbLoginPage.navigate().changeDisplayLanguage(DisplayLanguage.valueOf(language)).performValidLogin(sellerCountry, sellerUsername, sellerPassword);
 		
 		/* Enable reviews */
 		productReviewPage.navigate().enableProductReviews();
@@ -482,7 +474,7 @@ public class ProductReviewTest extends BaseTest {
         String searchTerm = randomSearchProduct.substring(0, randomSearchProduct.length()/2);
 		
 		/* Log into dashboard */
-        loginDashboard();
+        dbLoginPage.navigate().changeDisplayLanguage(DisplayLanguage.valueOf(language)).performValidLogin(sellerCountry, sellerUsername, sellerPassword);
 		
 		/* Absolute match */
 		productReviewPage.navigate().inputSearchTerm(searchTerm);

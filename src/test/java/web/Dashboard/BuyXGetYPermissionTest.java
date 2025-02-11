@@ -22,6 +22,7 @@ import utilities.model.sellerApp.login.LoginInformation;
 import utilities.model.staffPermission.AllPermissions;
 import utilities.model.staffPermission.CreatePermission;
 import utilities.permission.CheckPermission;
+import utilities.utils.ListUtils;
 import web.Dashboard.home.HomePage;
 import web.Dashboard.login.LoginPage;
 import web.Dashboard.promotion.buyxgety.BuyXGetYPage;
@@ -81,9 +82,9 @@ public class BuyXGetYPermissionTest extends BaseTest {
 	
 	CreatePermission setPermissionModel(String permissionBinary) {
 		CreatePermission model = new CreatePermission();
-		model.setProduct_productManagement(DataGenerator.getRandomListElement(Arrays.asList(new String[] {"00", "01", "10", "11"})));
-		model.setCustomer_segment(DataGenerator.getRandomListElement(Arrays.asList(new String[] {"1", "0"})));
-		model.setProduct_collection(DataGenerator.getRandomListElement(Arrays.asList(new String[] {"1", "0"})));
+		model.setProduct_productManagement(ListUtils.getRandomListElement(Arrays.asList(new String[] {"00", "01", "10", "11"})));
+		model.setCustomer_segment(ListUtils.getRandomListElement(Arrays.asList(new String[] {"1", "0"})));
+		model.setProduct_collection(ListUtils.getRandomListElement(Arrays.asList(new String[] {"1", "0"})));
 		model.setHome_none("11");
 		model.setPromotion_buyXGetY(permissionBinary);
 		return model;

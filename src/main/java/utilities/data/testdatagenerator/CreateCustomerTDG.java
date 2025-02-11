@@ -18,19 +18,20 @@ import utilities.model.dashboard.customer.CustomerGeoLocation;
 import utilities.model.dashboard.customer.CustomerPhone;
 import utilities.model.dashboard.customer.create.CreateCustomerModel;
 import utilities.model.dashboard.customer.create.UICreateCustomerData;
+import utilities.utils.ListUtils;
 
 public class CreateCustomerTDG {
 	
 	public static List<String> personality = Arrays.asList("Affable", "Gregarious", "Observant", "Cranky", "Ambitious", "Humorous", "Discreet", "Aggressive", "Bossy", "Impatient", "Hostile");
 	
 	public static String randomizePersonality() {
-		return DataGenerator.getRandomListElement(personality);
+		return ListUtils.getRandomListElement(personality);
 	}
 	static String randomizeGender() {
-		return DataGenerator.getRandomListElement(Arrays.asList("MALE", "FEMALE", null));
+		return ListUtils.getRandomListElement(Arrays.asList("MALE", "FEMALE", null));
 	}
 	static String randomizeBirthday() {
-		return DataGenerator.getRandomListElement(Arrays.asList("2000-07-26T00:00:00+07:00", null));
+		return ListUtils.getRandomListElement(Arrays.asList("2000-07-26T00:00:00+07:00", null));
 	}
 	static String randomizeVNAddress() {
 		return "%s Quang Trung".formatted(new Generex("[1-9]\\d{2}").random());
@@ -39,7 +40,7 @@ public class CreateCustomerTDG {
 		return "%s High Street".formatted(new Generex("[1-9]\\d{2}").random());
 	}
 	static String randomizeAddress2() {
-		return DataGenerator.getRandomListElement(List.of("%s High Street".formatted(new Generex("[1-9]\\d{2}").random()), ""));
+		return ListUtils.getRandomListElement(List.of("%s High Street".formatted(new Generex("[1-9]\\d{2}").random()), ""));
 	}
 	static List<String> randomizeTags() {
 		int tagCount = DataGenerator.generatNumberInBound(0, 21);
@@ -60,9 +61,9 @@ public class CreateCustomerTDG {
 		String customerEmail = "auto-buyer%s@mailnesia.com".formatted(phoneNumber);
 
 		List<CityTree> cities = APICatalog.getCityTree(countryCode);
-		CityTree city = DataGenerator.getRandomListElement(cities.subList(0, cities.size()-1)); //Deliberately remove the last element which is 'Other' from the list
-		District district = DataGenerator.getRandomListElement(city.getDistricts());
-		Ward ward = DataGenerator.getRandomListElement(district.getWards());
+		CityTree city = ListUtils.getRandomListElement(cities.subList(0, cities.size()-1)); //Deliberately remove the last element which is 'Other' from the list
+		District district = ListUtils.getRandomListElement(city.getDistricts());
+		Ward ward = ListUtils.getRandomListElement(district.getWards());
 		
 		CustomerEmail email = new CustomerEmail();
 		email.setEmail(customerEmail);
@@ -108,7 +109,7 @@ public class CreateCustomerTDG {
 		String customerEmail = "auto-buyer%s@mailnesia.com".formatted(customerPhone);
 
 		List<CityTree> cities = APICatalog.getCityTree(countryCode);
-		CityTree city = DataGenerator.getRandomListElement(cities);
+		CityTree city = ListUtils.getRandomListElement(cities);
 		
 		CustomerEmail email = new CustomerEmail();
 		email.setEmail(customerEmail);
@@ -156,7 +157,7 @@ public class CreateCustomerTDG {
 		String customerEmail = "auto-buyer%s@mailnesia.com".formatted(customerPhone);
 
 		List<CityTree> cities = APICatalog.getCityTree(countryCode);
-		CityTree city = DataGenerator.getRandomListElement(cities);
+		CityTree city = ListUtils.getRandomListElement(cities);
 		
 		CustomerEmail email = new CustomerEmail();
 		email.setEmail(customerEmail);
@@ -205,9 +206,9 @@ public class CreateCustomerTDG {
 		String customerEmail = "auto-buyer%s@mailnesia.com".formatted(phoneNumber);
 
 		List<CityTree> cities = APICatalog.getCityTree(countryCode);
-		CityTree city = DataGenerator.getRandomListElement(cities.subList(0, cities.size()-1)); //Deliberately remove the last element which is 'Other' from the list
-		District district = DataGenerator.getRandomListElement(city.getDistricts());
-		Ward ward = DataGenerator.getRandomListElement(district.getWards());
+		CityTree city = ListUtils.getRandomListElement(cities.subList(0, cities.size()-1)); //Deliberately remove the last element which is 'Other' from the list
+		District district = ListUtils.getRandomListElement(city.getDistricts());
+		Ward ward = ListUtils.getRandomListElement(district.getWards());
 		
 		String cityName = dashboardDisplayLang.equals(DisplayLanguage.VIE) ? city.getInCountry() : city.getOutCountry(); 
 		String districtName = dashboardDisplayLang.equals(DisplayLanguage.VIE) ? district.getInCountry() : district.getOutCountry(); 
@@ -242,7 +243,7 @@ public class CreateCustomerTDG {
 		String customerEmail = "auto-buyer%s@mailnesia.com".formatted(phoneNumber);
 		
 		List<CityTree> cities = APICatalog.getCityTree(countryCode);
-		CityTree city = DataGenerator.getRandomListElement(cities);
+		CityTree city = ListUtils.getRandomListElement(cities);
 		
 		String cityName = dashboardDisplayLang.equals(DisplayLanguage.VIE) ? city.getInCountry() : city.getOutCountry(); 
 		
