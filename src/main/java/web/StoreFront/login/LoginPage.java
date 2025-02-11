@@ -2,6 +2,8 @@ package web.StoreFront.login;
 
 import static utilities.links.Links.SF_DOMAIN;
 
+import java.util.List;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.JavascriptExecutor;
@@ -10,11 +12,11 @@ import org.testng.Assert;
 
 import api.Buyer.login.LoginSF;
 import api.Seller.setting.StoreInformation;
-import lombok.SneakyThrows;
 import utilities.commons.UICommonAction;
-import utilities.enums.DisplayLanguage;
+import utilities.model.dashboard.setting.languages.translation.StorefrontCSR;
 import utilities.model.sellerApp.login.LoginInformation;
 import utilities.utils.PropertiesUtil;
+import utilities.utils.localization.TranslateText;
 import web.StoreFront.GeneralSF;
 import web.StoreFront.header.HeaderSF;
 import web.StoreFront.signup.SignupPage;
@@ -33,22 +35,18 @@ public class LoginPage {
         locator = new LoginPageElement();
     }
 
-    @SneakyThrows
-    public static String localizedEmptyUsernameError(DisplayLanguage language) {
-    	return PropertiesUtil.getPropertiesValueBySFLang("login.error.emptyUsername", language.name());
-    }    
-    @SneakyThrows
-    public static String localizedEmptyPasswordError(DisplayLanguage language) {
-    	return PropertiesUtil.getPropertiesValueBySFLang("login.error.emptyPassword", language.name());
-    }
-    @SneakyThrows
-    public static String localizedInvalidUsernameError(DisplayLanguage language) {
-    	return PropertiesUtil.getPropertiesValueBySFLang("login.error.invalidUsername", language.name());
-    }
-    @SneakyThrows
-    public static String localizedWrongCredentialsError(DisplayLanguage language) {
-    	return PropertiesUtil.getPropertiesValueBySFLang("login.error.wrongCredentials", language.name());
-    }
+    public static String localizedEmptyUsernameError(List<StorefrontCSR> translation) {
+    	return TranslateText.localizedText(translation, "gosell.welcome.required.username");
+    }     
+    public static String localizedEmptyPasswordError(List<StorefrontCSR> translation) {
+    	return TranslateText.localizedText(translation, "gosell.welcome.required.pwd");
+    }   
+    public static String localizedInvalidUsernameError(List<StorefrontCSR> translation) {
+    	return TranslateText.localizedText(translation, "gosell.welcome.invalid.username");
+    }   
+    public static String localizedWrongCredentials(List<StorefrontCSR> translation) {
+    	return TranslateText.localizedText(translation, "gosell.welcome.loginFail");
+    }   
     
     //TODO delete this function
     public LoginPage navigate(String domain) {

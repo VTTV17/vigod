@@ -1,5 +1,7 @@
 package web.StoreFront.login;
 
+import java.util.List;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
@@ -7,10 +9,10 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.pagefactory.ByChained;
 import org.testng.Assert;
 
-import lombok.SneakyThrows;
 import utilities.commons.UICommonAction;
-import utilities.enums.DisplayLanguage;
+import utilities.model.dashboard.setting.languages.translation.StorefrontCSR;
 import utilities.utils.PropertiesUtil;
+import utilities.utils.localization.TranslateText;
 import web.StoreFront.GeneralSF;
 
 public class ForgotPasswordDialog {
@@ -27,26 +29,12 @@ public class ForgotPasswordDialog {
         locator = new ForgotPasswordDialogElement();
     }
 
-    @SneakyThrows
-    public static String localizedEmailNotExistError(DisplayLanguage language) {
-    	return PropertiesUtil.getPropertiesValueBySFLang("forgotPassword.error.notExistingEmail", language.name());
-    }     
-    @SneakyThrows
-    public static String localizedPhoneNotExistError(DisplayLanguage language) {
-    	return PropertiesUtil.getPropertiesValueBySFLang("forgotPassword.error.notExistingPhone", language.name());
-    }     
-    @SneakyThrows
-    public static String localizedWrongCurrentPasswordError(DisplayLanguage language) {
-    	return PropertiesUtil.getPropertiesValueBySFLang("forgotPassword.error.wrongCurrentPassword", language.name());
-    }     
-    @SneakyThrows
-    public static String localizedInvalidNewPasswordError(DisplayLanguage language) {
-    	return PropertiesUtil.getPropertiesValueBySFLang("forgotPassword.error.invalidNewPassword", language.name());
-    }     
-    @SneakyThrows
-    public static String localizedSame4PasswordsError(DisplayLanguage language) {
-    	return PropertiesUtil.getPropertiesValueBySFLang("forgotPassword.error.same4Passwords", language.name());
-    }     
+    public static String localizedEmailNotExistError(List<StorefrontCSR> translation) {
+    	return TranslateText.localizedText(translation, "gosell.welcome.notexist.email");
+    }    
+    public static String localizedPhoneNotExistError(List<StorefrontCSR> translation) {
+    	return TranslateText.localizedText(translation, "gosell.welcome.notexist.phone");
+    }    
     
     public ForgotPasswordDialog selectCountry(String country) {
     	commonAction.click(locator.loc_ddlCountry);
