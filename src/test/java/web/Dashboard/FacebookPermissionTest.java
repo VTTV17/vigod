@@ -20,7 +20,6 @@ import api.Seller.login.Login;
 import api.Seller.setting.PermissionAPI;
 import api.Seller.setting.StaffManagement;
 import utilities.commons.UICommonAction;
-import utilities.data.DataGenerator;
 import utilities.driver.InitWebdriver;
 import utilities.model.dashboard.customer.CustomerProfileFB;
 import utilities.model.dashboard.customer.segment.SegmentList;
@@ -33,6 +32,7 @@ import utilities.model.sellerApp.login.LoginInformation;
 import utilities.model.staffPermission.AllPermissions;
 import utilities.model.staffPermission.CreatePermission;
 import utilities.permission.CheckPermission;
+import utilities.utils.ListUtils;
 import web.Dashboard.gochat.Facebook;
 import web.Dashboard.home.HomePage;
 import web.Dashboard.login.LoginPage;
@@ -128,7 +128,7 @@ public class FacebookPermissionTest extends BaseTest {
 	CreatePermission setPermissionModel(String permissionBinary) {
 		CreatePermission model = new CreatePermission();
 		model.setHome_none("11");
-		model.setSetting_staffManagement(DataGenerator.getRandomListElement(Arrays.asList(new String[] {"0", "1"})));
+		model.setSetting_staffManagement(ListUtils.getRandomListElement(Arrays.asList(new String[] {"0", "1"})));
 		model.setCustomer_customerManagement("11");
 		model.setCustomer_segment("1");
 //		model.setCustomer_customerManagement(DataGenerator.getRandomListElement(Arrays.asList(new String[] {"11", "00"})));

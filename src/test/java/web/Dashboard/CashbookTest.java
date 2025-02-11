@@ -37,6 +37,7 @@ import utilities.enums.cashbook.CashbookGroup;
 import utilities.enums.cashbook.CashbookPaymentMethod;
 import utilities.enums.cashbook.CashbookRevenue;
 import utilities.model.sellerApp.login.LoginInformation;
+import utilities.utils.ListUtils;
 import utilities.utils.PropertiesUtil;
 import web.Dashboard.cashbook.Cashbook;
 import web.Dashboard.home.HomePage;
@@ -118,10 +119,10 @@ public class CashbookTest extends BaseTest {
 	
 	public String randomSender(CashbookGroup group) {
 		return switch (group) {
-			case CUSTOMER: yield DataGenerator.getRandomListElement(customerList);
-			case SUPPLIER: yield DataGenerator.getRandomListElement(supplierList);
-			case STAFF: yield DataGenerator.getRandomListElement(staffList);
-			default: yield DataGenerator.getRandomListElement(othersList);
+			case CUSTOMER: yield ListUtils.getRandomListElement(customerList);
+			case SUPPLIER: yield ListUtils.getRandomListElement(supplierList);
+			case STAFF: yield ListUtils.getRandomListElement(staffList);
+			default: yield ListUtils.getRandomListElement(othersList);
 		};
 	}	
 
@@ -158,7 +159,7 @@ public class CashbookTest extends BaseTest {
 				.collect(Collectors.toList());
 	}	
 	public String randomPaymentMethod() {
-		return DataGenerator.getRandomListElement(paymentMethodList());
+		return ListUtils.getRandomListElement(paymentMethodList());
 	}
 
 	/**
@@ -322,7 +323,7 @@ public class CashbookTest extends BaseTest {
 		for (String source : revenueSources(groupEnum)) {
 			boolean isAccountingChecked = new Random().nextBoolean();
 			String sender = randomSender(groupEnum);
-			String branch = DataGenerator.getRandomListElement(branchList);
+			String branch = ListUtils.getRandomListElement(branchList);
 			String paymentMethod = randomPaymentMethod();
 			String amount = randomAmount();
 			String note = "%s %s".formatted(sender, paymentMethod);
@@ -362,7 +363,7 @@ public class CashbookTest extends BaseTest {
 		for (String source : expenseSources(groupEnum)) {
 			boolean isAccountingChecked = new Random().nextBoolean();
 			String sender = randomSender(groupEnum);
-			String branch = DataGenerator.getRandomListElement(branchList);
+			String branch = ListUtils.getRandomListElement(branchList);
 			String paymentMethod = randomPaymentMethod();
 			String amount = randomAmount();
 			String note = "%s %s".formatted(sender, paymentMethod);
@@ -399,7 +400,7 @@ public class CashbookTest extends BaseTest {
 		cashbookPage.clickResetDateRangerPicker();
 		
 		for (int i=0; i<3; i++) {
-			String transactionId = DataGenerator.getRandomListElement(transactionIdList);
+			String transactionId = ListUtils.getRandomListElement(transactionIdList);
 			cashbookPage.inputCashbookSearchTerm(transactionId);
 			
 			List<List<String>> searchedRecords = cashbookPage.getRecords();
@@ -414,7 +415,7 @@ public class CashbookTest extends BaseTest {
 		cashbookPage.clickResetDateRangerPicker();
 		
 		List<List<String>> records = cashbookPage.getRecords();
-		List<String> randomRecord = DataGenerator.getRandomListElement(records);
+		List<String> randomRecord = ListUtils.getRandomListElement(records);
 		String recordId = randomRecord.get(Cashbook.ID_IDX);
 		String branch = randomRecord.get(Cashbook.BRANCH_IDX);
 		String createdBy = randomRecord.get(Cashbook.CREATEDBY_IDX);
@@ -475,7 +476,7 @@ public class CashbookTest extends BaseTest {
 
 		
 		/* Filter by Expense type */
-		String filteredExpenseType = DataGenerator.getRandomListElement(expenseSources(CashbookGroup.CUSTOMER));
+		String filteredExpenseType = ListUtils.getRandomListElement(expenseSources(CashbookGroup.CUSTOMER));
 		navigateToPage();
 		homePage.hideFacebookBubble();
 		records = cashbookPage.clickResetDateRangerPicker()
@@ -488,7 +489,7 @@ public class CashbookTest extends BaseTest {
 		records.stream().forEach(record -> Assert.assertEquals(record.get(Cashbook.EXPENSETYPE_IDX), filteredExpenseType));
 		
 		/* Filter by Revenue type */
-		String filteredRevenueType = DataGenerator.getRandomListElement(revenueSources(CashbookGroup.CUSTOMER)); 
+		String filteredRevenueType = ListUtils.getRandomListElement(revenueSources(CashbookGroup.CUSTOMER)); 
 		navigateToPage();
 		homePage.hideFacebookBubble();
 		records = cashbookPage.clickResetDateRangerPicker()
@@ -581,7 +582,7 @@ public class CashbookTest extends BaseTest {
 		records.addAll(cashbookPage.getRecords());
 		paginationSection.clickPreviousBtn();
 		
-		List<String> randomRecord = DataGenerator.getRandomListElement(records);
+		List<String> randomRecord = ListUtils.getRandomListElement(records);
 		
 		String recordId = randomRecord.get(Cashbook.ID_IDX);
 		String branch = randomRecord.get(Cashbook.BRANCH_IDX);

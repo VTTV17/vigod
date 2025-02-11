@@ -1,6 +1,5 @@
 package api.Seller.gochat;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -13,20 +12,20 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import api.Seller.login.Login;
 import io.restassured.response.Response;
 import utilities.api.API;
-import utilities.data.DataGenerator;
 import utilities.model.dashboard.customer.CustomerProfileFB;
 import utilities.model.dashboard.customer.segment.SegmentList;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
-import utilities.model.gochat.facebook.GeneralAutomationCampaign;
-import utilities.model.gochat.facebook.GeneralBroadcastCampaign;
 import utilities.model.gochat.facebook.AllConversation;
 import utilities.model.gochat.facebook.ConnectedPages;
 import utilities.model.gochat.facebook.CreatedAutomationCampaign;
 import utilities.model.gochat.facebook.CreatedBroadcast;
 import utilities.model.gochat.facebook.FBPost;
+import utilities.model.gochat.facebook.GeneralAutomationCampaign;
+import utilities.model.gochat.facebook.GeneralBroadcastCampaign;
 import utilities.model.gochat.facebook.StoreConfig;
 import utilities.model.gochat.facebook.TagManagement;
 import utilities.model.sellerApp.login.LoginInformation;
+import utilities.utils.ListUtils;
 
 public class APIFacebook {
 	final static Logger logger = LogManager.getLogger(APIFacebook.class);
@@ -128,7 +127,7 @@ public class APIFacebook {
 		return createTagResponse(name, color, isShown).as(TagManagement.class);
 	}
 	public TagManagement createRandomTag() {
-		String[] color = DataGenerator.getRandomListElement(List.of("Red #D93635", "Yellow #FECF2F", "Green #23A762", "Blue #136DFB", "Orange #F3833B")).split("\\s");
+		String[] color = ListUtils.getRandomListElement(List.of("Red #D93635", "Yellow #FECF2F", "Green #23A762", "Blue #136DFB", "Orange #F3833B")).split("\\s");
 		return createTag(color[0] + System.currentTimeMillis(), color[1], true);
 	}
 	public void deleteTag(int tagId) {

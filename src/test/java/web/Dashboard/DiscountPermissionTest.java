@@ -1,6 +1,5 @@
 package web.Dashboard;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -16,13 +15,13 @@ import api.Seller.login.Login;
 import api.Seller.promotion.CreatePromotion;
 import api.Seller.promotion.PromotionList;
 import api.Seller.setting.PermissionAPI;
-import utilities.data.DataGenerator;
 import utilities.driver.InitWebdriver;
 import utilities.enums.DiscountStatus;
 import utilities.enums.DiscountType;
 import utilities.model.sellerApp.login.LoginInformation;
 import utilities.model.staffPermission.AllPermissions;
 import utilities.model.staffPermission.CreatePermission;
+import utilities.utils.ListUtils;
 import web.Dashboard.home.HomePage;
 import web.Dashboard.login.LoginPage;
 import web.Dashboard.promotion.discount.DiscountPage;
@@ -72,10 +71,10 @@ public class DiscountPermissionTest extends BaseTest {
 	CreatePermission setPermissionModel(String permissionBinary) {
 		CreatePermission model = new CreatePermission();
 		model.setHome_none("11");
-		model.setProduct_productManagement(DataGenerator.getRandomListElement(Arrays.asList(new String[] {"00", "01", "10", "11"})));
-		model.setCustomer_segment(DataGenerator.getRandomListElement(Arrays.asList(new String[] {"1", "0"})));
-		model.setProduct_collection(DataGenerator.getRandomListElement(Arrays.asList(new String[] {"1", "0"})));
-		model.setService_serviceCollection(DataGenerator.getRandomListElement(Arrays.asList(new String[] {"1", "0"})));
+		model.setProduct_productManagement(ListUtils.getRandomListElement(Arrays.asList(new String[] {"00", "01", "10", "11"})));
+		model.setCustomer_segment(ListUtils.getRandomListElement(Arrays.asList(new String[] {"1", "0"})));
+		model.setProduct_collection(ListUtils.getRandomListElement(Arrays.asList(new String[] {"1", "0"})));
+		model.setService_serviceCollection(ListUtils.getRandomListElement(Arrays.asList(new String[] {"1", "0"})));
 		model.setPromotion_discountCode(permissionBinary);
 		return model;
 	}

@@ -1,14 +1,23 @@
 package web.Dashboard.products.productreviews;
 
-import api.Seller.products.product_reviews.APIProductReviews;
+import static utilities.links.Links.DOMAIN;
+import static utilities.links.Links.DOMAIN_BIZ;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.pagefactory.ByChained;
 import org.testng.Assert;
+
+import api.Seller.products.product_reviews.APIProductReviews;
+import api.Seller.products.product_reviews.APIProductReviews.ReviewManagementInfo;
 import utilities.assert_customize.AssertCustomize;
 import utilities.commons.UICommonAction;
+import utilities.enums.Domain;
 import utilities.model.sellerApp.login.LoginInformation;
 import utilities.model.staffPermission.AllPermissions;
 import utilities.permission.CheckPermission;
@@ -17,17 +26,16 @@ import web.Dashboard.home.HomePage;
 import web.Dashboard.pagination.Pagination;
 import web.StoreFront.detail_product.ProductDetailPage;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static api.Seller.products.product_reviews.APIProductReviews.ReviewManagementInfo;
-import static utilities.links.Links.DOMAIN;
-
 public class ProductReviews extends ProductReviewElement {
     WebDriver driver;
     UICommonAction commons;
     HomePage homePage;
 
+    /**
+     * Domain defaults to VN. Use the object's constructor to override it when necessary
+     */
+    Domain domain = Domain.VN;        
+    
     final static Logger logger = LogManager.getLogger(ProductReviews.class);
 
     public ProductReviews(WebDriver driver) {
@@ -35,12 +43,34 @@ public class ProductReviews extends ProductReviewElement {
         commons = new UICommonAction(driver);
         homePage = new HomePage(driver);
     }
+    public ProductReviews(WebDriver driver, Domain domain) {
+		this(driver);
+		this.domain = domain;
+    }
 
     public ProductReviews navigate() {
         new HomePage(driver).navigateToPage("Products", "Product Reviews");
         return this;
     }
 
+    /**
+     * Navigates to Sign-in screen by URL
+     */
+    public ProductReviews navigateByURL() {
+    	
+    	var subURL = "/review_product/list";
+    	
+    	var url = switch (domain) {
+	        case VN -> DOMAIN + subURL;
+	        case BIZ -> DOMAIN_BIZ + subURL;
+	        default -> throw new IllegalArgumentException("Unexpected value: " + domain);
+    	};
+    	
+    	driver.get(url);
+    	logger.info("Navigated to: {}", url);
+        return this;
+    }    
+    
     /**
      * Check whether Product Reviews feature is enabled
      */
@@ -146,7 +176,7 @@ public class ProductReviews extends ProductReviewElement {
      * @return
      */
     public boolean isReviewApproved(int reviewIndex) {
-        commons.sleepInMiliSecond(1000);
+        UICommonAction.sleepInMiliSecond(1000);
         return commons.getElement(loc_btnEnableSpecificReviewToggle, reviewIndex).findElement(loc_btnToggleStatus).isSelected();
     }
 
@@ -204,7 +234,7 @@ public class ProductReviews extends ProductReviewElement {
             Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("product.review.management.disable.store.review"));
         }
         commons.hoverActions(loc_btnEnableReviewToggle);
-        commons.sleepInMiliSecond(500);
+        UICommonAction.sleepInMiliSecond(500);
         text = commons.getText(loc_tltEnableReviewToggle);
         Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("product.review.management.disable.store.review"));
 
@@ -214,7 +244,7 @@ public class ProductReviews extends ProductReviewElement {
             Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("product.review.management.enable.store.review"));
         }
         commons.hoverActions(loc_btnEnableReviewToggle);
-        commons.sleepInMiliSecond(500);
+        UICommonAction.sleepInMiliSecond(500);
         text = commons.getText(loc_tltEnableReviewToggle);
         Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("product.review.management.enable.store.review"));
 

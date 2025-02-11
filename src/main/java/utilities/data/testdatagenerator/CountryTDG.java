@@ -5,6 +5,7 @@ import java.util.List;
 
 import utilities.data.DataGenerator;
 import utilities.model.dashboard.setupstore.CountryData;
+import utilities.utils.ListUtils;
 
 public class CountryTDG {
 	/**
@@ -80,7 +81,7 @@ public class CountryTDG {
 	    CountryData countryEntity;
 	    int attempts = 0;
 	    do {
-	        countryEntity = DataGenerator.getRandomListElement(DataGenerator.getCountryListExp());
+	        countryEntity = ListUtils.getRandomListElement(DataGenerator.getCountryListExp());
 	        attempts++;
 	    } while ((excludedCountries.contains(countryEntity.getOut_country()) ||
 	              countryEntity.getTimezone() == null ||
@@ -96,7 +97,7 @@ public class CountryTDG {
 	    CountryData countryEntity;
 	    int attempts = 0;
 	    do {
-	        countryEntity = DataGenerator.getRandomListElement(DataGenerator.getCountryListExp());
+	        countryEntity = ListUtils.getRandomListElement(DataGenerator.getCountryListExp());
 	        attempts++;
 	    } while (excludedCountries.contains(countryEntity.getOut_country()) && attempts < 500);
 	    return countryEntity;

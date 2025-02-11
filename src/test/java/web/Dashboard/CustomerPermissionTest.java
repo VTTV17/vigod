@@ -1,6 +1,5 @@
 package web.Dashboard;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -19,11 +18,11 @@ import api.Seller.login.Login;
 import api.Seller.mediaservices.MediaServices.ExportHistoryInfo;
 import api.Seller.setting.BranchManagement;
 import api.Seller.setting.PermissionAPI;
-import utilities.data.DataGenerator;
 import utilities.driver.InitWebdriver;
 import utilities.model.sellerApp.login.LoginInformation;
 import utilities.model.staffPermission.AllPermissions;
 import utilities.model.staffPermission.CreatePermission;
+import utilities.utils.ListUtils;
 import web.Dashboard.customers.allcustomers.AllCustomers;
 import web.Dashboard.customers.segments.Segments;
 import web.Dashboard.home.HomePage;
@@ -155,13 +154,13 @@ public class CustomerPermissionTest extends BaseTest {
 		model.setSetting_staffManagement("1");
 		model.setAffiliate_dropshipPartner("1");
 		model.setMarketing_loyaltyPoint("1");
-		model.setProduct_productManagement(DataGenerator.getRandomListElement(Arrays.asList(new String[] {"00", "01", "10", "11"})));
+		model.setProduct_productManagement(ListUtils.getRandomListElement(Arrays.asList(new String[] {"00", "01", "10", "11"})));
 		model.setCustomer_customerManagement(permissionBinary);
 		return model;
 	}
 	
 	CreatePermission setSegmentCustomerPermissionModel(String permissionBinary) {
-		CreatePermission model = setCustomerPermissionModel(DataGenerator.getRandomListElement(Arrays.asList(new String[] {"00", "01", "10", "11"})));
+		CreatePermission model = setCustomerPermissionModel(ListUtils.getRandomListElement(Arrays.asList(new String[] {"00", "01", "10", "11"})));
 		model.setCustomer_segment(permissionBinary);
 		return model;
 	}

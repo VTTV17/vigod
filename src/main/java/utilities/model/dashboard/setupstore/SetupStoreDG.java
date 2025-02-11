@@ -7,6 +7,7 @@ import lombok.Data;
 import utilities.data.DataGenerator;
 import utilities.data.testdatagenerator.CountryTDG;
 import utilities.enums.Domain;
+import utilities.utils.ListUtils;
 
 @Data
 public class SetupStoreDG {
@@ -56,7 +57,7 @@ public class SetupStoreDG {
 		email = "auto0-shop%s@mailnesia.com".formatted(phone);	
 		name = "Automation Shop %s".formatted(getPhone());
 
-		if (accountType==null) accountType = DataGenerator.getRandomListElement(Arrays.asList(new String[] {"EMAIL", "MOBILE"}));
+		if (accountType==null) accountType = ListUtils.getRandomListElement(Arrays.asList(new String[] {"EMAIL", "MOBILE"}));
 		username = accountType.contentEquals("EMAIL") ? email : phone;
 		contact = accountType.contentEquals("EMAIL") ? phone : email;
 		password = "fortesting!1";

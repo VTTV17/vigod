@@ -6,6 +6,7 @@ import utilities.data.DataGenerator;
 import utilities.enums.AccountType;
 import utilities.model.dashboard.setupstore.CountryData;
 import utilities.model.dashboard.storefront.BuyerSignupData;
+import utilities.utils.ListUtils;
 
 /**
  * This class helps generate dummy data to create buyers
@@ -13,7 +14,7 @@ import utilities.model.dashboard.storefront.BuyerSignupData;
 public class SignupBuyerTDG {
 	
 	static String password = "fortesting!1";
-	static String birthday = DataGenerator.getRandomListElement(Arrays.asList("21/02/1990", ""));
+	static String birthday = ListUtils.getRandomListElement(Arrays.asList("21/02/1990", ""));
 	
 	static String phoneByCountry(String country) {
 		return country.contentEquals("Vietnam") ? "0" + DataGenerator.randomValidPhoneByCountry(country) : DataGenerator.randomValidPhoneByCountry(country);

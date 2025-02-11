@@ -67,6 +67,7 @@ import utilities.model.dashboard.orders.ordermanagement.OrderListSummaryVM;
 import utilities.model.dashboard.orders.pos.CreatePOSOrderCondition;
 import utilities.model.dashboard.setting.branchInformation.BranchInfo;
 import utilities.model.sellerApp.login.LoginInformation;
+import utilities.utils.ListUtils;
 import web.Dashboard.confirmationdialog.ConfirmationDialog;
 import web.Dashboard.home.HomePage;
 import web.Dashboard.login.LoginPage;
@@ -136,7 +137,7 @@ public class POSOrderTest extends BaseTest {
         var profileIdPool = allCustomerAPI.getProfileRecords().stream().filter(pro -> pro.getSaleChannel().contentEquals("GOSELL")).map(id -> id.getId()).toList();
 
         //Get a random profileId from the pool
-        return DataGenerator.getRandomListElement(profileIdPool);
+        return ListUtils.getRandomListElement(profileIdPool);
     }
 
     /**
@@ -476,7 +477,7 @@ public class POSOrderTest extends BaseTest {
 
         //Get branch info
         BranchInfo branchInfo = new BranchManagement(credentials).getInfo();
-        String branchName = DataGenerator.getRandomListElement(branchInfo.getBranchName());
+        String branchName = ListUtils.getRandomListElement(branchInfo.getBranchName());
 
         // Set stock quantity
         int stockQuantity = 5;
