@@ -131,6 +131,10 @@ public class StoreLanguageAPI {
 		selectDefaultLanguageResponse(storeLangId);
 	} 
 	
+	/**
+	 * Get translation suite by langCode. 
+	 * @param langCode Eg. vi, en, lo, ch
+	 */
 	public Translation getTranslation(String langCode) {
 		
         var path = getTranslation.formatted(langCode, loginInfo.getStoreID());
