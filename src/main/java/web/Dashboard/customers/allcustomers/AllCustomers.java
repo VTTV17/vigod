@@ -22,6 +22,7 @@ import web.Dashboard.customers.allcustomers.analytics.CustomerAnalytics;
 import web.Dashboard.customers.allcustomers.create_customer.CreateCustomerPopup;
 import web.Dashboard.customers.allcustomers.details.CustomerDetails;
 import web.Dashboard.home.HomePage;
+import web.Dashboard.sales_channels.shopee.link_products.LinkProductsPage;
 
 public class AllCustomers {
 
@@ -270,6 +271,29 @@ public class AllCustomers {
 		return new CreateCustomerPopup(driver);
 	}
 
+	public AllCustomers tickCustomerByName(String customerName) {
+		commonAction.click(elements.loc_chkCustomer(customerName));
+        logger.info("Ticked customer: {}", customerName);
+		return this;
+	}	
+	
+	public AllCustomers clickSelectAction() {
+		commonAction.click(elements.loc_lnkSelectAction);
+		logger.info("Clicked Select Action link text");
+		return this;
+	}	
+	
+	public AllCustomers clickDeleteBtn() {
+		commonAction.click(elements.loc_btnDelete);
+		logger.info("Clicked Delete button");
+		return this;
+	}	
+	
+	public AllCustomers clickDeleteCustomerConfirmBtn() {
+		new ConfirmationDialog(driver).clickOnRedBtn();
+		return this;
+	}	
+	
 	public CustomerDetails searchAndGoToCustomerDetailByName(String fullName){
 		inputSearchTerm(fullName);
 		UICommonAction.sleepInMiliSecond(2000, "wait shown result.");
