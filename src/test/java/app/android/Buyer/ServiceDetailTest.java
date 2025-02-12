@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.List;
 
+import static utilities.account.AccountTest.ANDROID_GOBUYER_APPNAME_SHOPVI;
 import static utilities.environment.goBUYEREnvironment.goBUYERBundleId;
 import static utilities.environment.goBUYEREnvironment.goBUYERBundleId_ShopVi;
 import static utilities.file.FileNameAndPath.FILE_CREATE_SERVICE_TCS;
@@ -54,10 +55,11 @@ public class ServiceDetailTest extends BaseTest {
     int sellingPrice;
     LoginInformation loginInformation;
     ServiceInfo serviceListingInfo, serviceInfo;
-    String appPackage = "com.mediastep.shop0037";
+    String appPackage = goBUYERBundleId_ShopVi;
+    String udid = PropertiesUtil.getEnvironmentData("udidAndroidVi");
+    String apkFile = ANDROID_GOBUYER_APPNAME_SHOPVI;
     @BeforeClass
     public void setUp() throws Exception {
-        String appActivity = appPackage+".ui.modules.splash.SplashScreenActivity";
         generator = new DataGenerator();
         PropertiesUtil.setEnvironment("STAG");
         PropertiesUtil.setSFLanguage("VIE");
@@ -84,8 +86,8 @@ public class ServiceDetailTest extends BaseTest {
     @BeforeMethod
     @SneakyThrows
     public void launchApp() {
-       driver = new InitAndroidDriver().getAndroidDriver("emulator-5554", System.getProperty("user.dir") + getDirectorySlash("src") +
-               getDirectorySlash("main") +   getDirectorySlash("resources") + getDirectorySlash("app") +"appShopVi.apk");
+       driver = new InitAndroidDriver().getAndroidDriver(udid, System.getProperty("user.dir") + getDirectorySlash("src") +
+               getDirectorySlash("main") +   getDirectorySlash("resources") + getDirectorySlash("app") + apkFile);
     }
     @AfterMethod
     public void restartApp(ITestResult result) throws IOException {
