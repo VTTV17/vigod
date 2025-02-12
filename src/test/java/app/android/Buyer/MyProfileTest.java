@@ -14,6 +14,8 @@ import app.Buyer.checkout.CheckoutOneStep;
 import app.Buyer.checkout.DeliveryAddress;
 import app.Buyer.login.LoginPage;
 import app.Buyer.navigationbar.NavigationBar;
+import io.appium.java_client.android.AndroidDriver;
+import lombok.SneakyThrows;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.testng.ITestResult;
 import org.testng.annotations.AfterMethod;
@@ -23,6 +25,7 @@ import org.testng.annotations.Test;
 import utilities.account.AccountTest;
 import utilities.commons.UICommonMobile;
 import utilities.data.DataGenerator;
+import utilities.driver.InitAndroidDriver;
 import utilities.driver.InitAppiumDriver;
 import utilities.file.FileNameAndPath;
 import utilities.model.dashboard.storefront.AddressInfo;
@@ -38,6 +41,7 @@ import java.util.Map;
 import static utilities.account.AccountTest.*;
 import static utilities.character_limit.CharacterLimit.MAX_PRICE;
 import static utilities.environment.goBUYEREnvironment.goBUYERBundleId_ShopVi;
+import static utilities.file.FileNameAndPath.getDirectorySlash;
 
 public class MyProfileTest extends BaseTest {
     String buyer;
@@ -55,6 +59,9 @@ public class MyProfileTest extends BaseTest {
     int branchID;
     String userName_UpdateAddress;
     LoginInformation loginInformation;
+    String appPackage = goBUYERBundleId_ShopVi;
+    String udid = PropertiesUtil.getEnvironmentData("udidAndroidVi");
+    String apkFile = ANDROID_GOBUYER_APPNAME_SHOPVI;
 
     @BeforeClass
     public void setUp() throws Exception {
@@ -78,26 +85,15 @@ public class MyProfileTest extends BaseTest {
     }
 
     @BeforeMethod
+    @SneakyThrows
     public void launchApp() {
-        DesiredCapabilities capabilities = new DesiredCapabilities();
-        capabilities.setCapability("udid", "emulator-5554");
-        capabilities.setCapability("platformName", "Android");
-        capabilities.setCapability("appPackage", goBUYERBundleId_ShopVi);
-        capabilities.setCapability("appActivity", "com.mediastep.gosell.ui.modules.splash.SplashScreenActivity");
-        capabilities.setCapability("noReset", "false");
-        capabilities.setCapability("autoGrantPermissions", "true");
-        String url = "http://127.0.0.1:4723/wd/hub";
-        try {
-            driver = new InitAppiumDriver().getAppiumDriver(capabilities, url);
-        } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
-        }
+        driver = new InitAndroidDriver().getAndroidDriver(udid, System.getProperty("user.dir") + getDirectorySlash("src") +
+                getDirectorySlash("main") +   getDirectorySlash("resources") + getDirectorySlash("app") + apkFile);
     }
 
     @AfterMethod
     public void writeResult(ITestResult result) throws IOException {
-//        super.writeResult(result);
-        if (driver != null) driver.quit();
+        ((AndroidDriver) driver).removeApp(appPackage);
         new APIEditProduct(loginInformation).deleteProduct(productIDToAddToCart);
     }
 

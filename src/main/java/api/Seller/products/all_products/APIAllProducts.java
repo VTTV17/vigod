@@ -191,8 +191,9 @@ public class APIAllProducts {
             }
             if(hasConversionList.get(i)) {
                 List<ProductConversionInfo> conversionInfo = new ConversionUnit(loginInformation).getProductConversionInfo(productIDList.get(i));
-                productPriceList = conversionInfo.stream().map(ProductConversionInfo::getNewPrice).toList();
+                productPriceList.addAll(conversionInfo.stream().map(ProductConversionInfo::getNewPrice).toList());
             }
+            System.out.println("productPriceList Of %s : %s".formatted(productNameList.get(i),productPriceList));
             for (Double productPrice : productPriceList) {
                 boolean isChecked = false;
                 String createDate = fortmatIfCreateDateMissMiliSecond(createdDateList.get(i));
@@ -264,7 +265,7 @@ public class APIAllProducts {
             conversionItemRes.then().statusCode(200);
             System.out.println(conversionItemRes.prettyPrint());
             List<Integer> conversionProductIDList = conversionItemRes.jsonPath().getList("conversionItemList.id");
-            count = conversionProductIDList.size();
+            count = conversionProductIDList.size()+1;
         } else {
             count = 1;
         }

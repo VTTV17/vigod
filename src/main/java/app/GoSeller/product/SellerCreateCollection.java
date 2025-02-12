@@ -201,6 +201,7 @@ public class SellerCreateCollection {
         System.out.println("priorityList: "+priorityList);
         for (int i = 0; i < productListSize; i++) {
             if (i < priorityList.size()) {
+                common.sleepInMiliSecond(200);
                 common.inputText(editPriorityList,i, String.valueOf(priorityList.get(i)));
                 productPriorityMap.put(common.getText(productNameList.get(i)).toLowerCase(), priorityList.get(i));
             } else {
