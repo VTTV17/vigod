@@ -131,4 +131,6 @@ public class AccountTest {
     public static String ANDROID_GoBUYER_APP = PropertiesUtil.getEnvironmentData("AndroidGoBUYERAppName");
     public static String IOS_GoSELLER_APP = PropertiesUtil.getEnvironmentData("IOSGoSELLERAppName");
     public static String IOS_GoBUYER_APP = PropertiesUtil.getEnvironmentData("IOSGoBUYERAppName");
+    public static String ANDROID_GOBUYER_APPNAME_SHOPVI = PropertiesUtil.getEnvironmentData("AndroidBuyerAppShopVi");
+
 }
