@@ -61,7 +61,7 @@ public class CreateCustomer extends BaseTest {
 		};
 	}
 
-	@Test(dataProvider = "customerData")
+	@Test(dataProvider = "customerData", invocationCount = 3)
 	public void TC_CreateCustomer(UICreateCustomerData data) {
 		
 		//Create a customer
@@ -75,7 +75,7 @@ public class CreateCustomer extends BaseTest {
 		
 		//See his details
 		var customerDetail =  customerPage.clickUser(data.getName());
-		Assert.assertEquals(customerDetail.getPhoneNumber().split("\\:")[1], data.getPhone()); //We'll won't the phoneCode for now
+		Assert.assertEquals(customerDetail.getPhoneNumber().split("\\:")[1], data.getPhone()); //We won't check the phoneCode for now
 		Assert.assertEquals(customerDetail.getCountry(), data.getCountry());
 		Assert.assertEquals(customerDetail.getAddress(), data.getAddress());
 		
@@ -85,8 +85,6 @@ public class CreateCustomer extends BaseTest {
 			.clickSelectAction()
 			.clickDeleteBtn()
 			.clickDeleteCustomerConfirmBtn();
-		
-		homePage.getToastMessage();
 	}
 	
     @AfterClass
