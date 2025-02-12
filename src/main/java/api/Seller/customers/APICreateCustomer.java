@@ -49,6 +49,7 @@ public class APICreateCustomer {
 		String payload = new ObjectMapper().writeValueAsString(customerData);
 		
 		Response response = api.post(basePath, token, payload);
+		response.then().statusCode(200);
 		return response;
 	} 
 

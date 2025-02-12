@@ -3,7 +3,7 @@
 <suite name="Default Suite">
     <test name="GoSELL-Tien">
         <classes>
-            <class name="web.Dashboard.CreateCustomerTest">
+            <class name="web.Dashboard.CreateCustomerAPITest">
             </class>
         </classes>
     </test>
