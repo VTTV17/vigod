@@ -24,10 +24,15 @@ public class AllCustomerElement {
 	By loc_ddlFilterBranch = By.xpath("(//div[contains(@class,'filter-title')])[1]/following-sibling::div");
 	String loc_ddlFilterBranchValues = "//div[@class='uik-select__label' and text()='%s']";
 	String loc_ddlFilterBranchNone = "//div[@class='uik-select__label' and (.='Không xác định' or .='None Branch')]";
-	By loc_btnCreateCustomer = By.cssSelector(".gs-content-header-right-el > .gs-button__green");
+	By loc_btnCreateCustomer = By.xpath("(//*[contains(@class, 'gs-page-container-max customer-list')]//button[contains(@class,'gs-button__green')])[1]");
 	By loc_btnDoneFilter = By.cssSelector(".dropdown-menu-right .gs-button__green");
 	By loc_dlgCreateCustomer = By.cssSelector(".create-customer-modal");	
 	By loc_dlgImportCustomer = By.cssSelector(".customer-list-import-modal");	
 	By loc_dlgPrintBarcode = By.cssSelector(".customer-list-barcode-printer");
 	By loc_dlgDeleteCustomer = By.cssSelector(".modal-danger.modal-header");
+	
+    By loc_chkCustomer(String customerName) {
+    	return By.xpath(loc_lblCustomerName.formatted(customerName)+"/parent::td/preceding-sibling::*//div[contains(@class,'uik-checkbox__label')]");
+    }
+	
 }

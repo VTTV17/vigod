@@ -167,8 +167,9 @@ public class CreateCustomerPopup {
     public void fillAddress(UICreateCustomerData data) {
     	if(data.getCountry().contentEquals("Vietnam")) {
     		fillVNAddress(data.getCountry(), data.getAddress(), data.getProvince(), data.getDistrict(), data.getWard());
+    	} else {
+    		fillForeignAddress(data.getCountry(), data.getAddress(), data.getAddress2(), data.getProvince(), data.getCity(), data.getZipCode());
     	}
-    	fillForeignAddress(data.getCountry(), data.getAddress(), data.getAddress2(), data.getProvince(), data.getCity(), data.getZipCode());
     }
     
     public CreateCustomerPopup createCustomer(UICreateCustomerData data) {
@@ -186,6 +187,7 @@ public class CreateCustomerPopup {
     	
     	//TODO: Check status before the click
     	clickCustomerCreationCheckbox();
+    	clickAddBtn();
     	return this;
     }    
     
