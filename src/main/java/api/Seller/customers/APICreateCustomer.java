@@ -49,7 +49,7 @@ public class APICreateCustomer {
 		String payload = new ObjectMapper().writeValueAsString(customerData);
 		
 		Response response = api.post(basePath, token, payload);
-		response.then().log().ifValidationFails().statusCode(100);
+		response.then().log().ifValidationFails().statusCode(200);
 		return response;
 	} 
 
