@@ -17,6 +17,7 @@ public class CountryTDG {
 		excludedCountries = new ArrayList<>();
 		//these countries have phone numbers of less than 8 digits
 		excludedCountries.add("Aland Islands");
+		excludedCountries.add("Austria");
 		excludedCountries.add("Andorra");
 		excludedCountries.add("Aruba");
 		excludedCountries.add("Belize");
@@ -69,7 +70,6 @@ public class CountryTDG {
 		//wrong phoneCode in database
 		excludedCountries.add("Montserrat");
 		excludedCountries.add("Trinidad And Tobago");
-		
 	}
 	
 	/**

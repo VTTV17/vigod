@@ -22,10 +22,8 @@ import utilities.utils.ListUtils;
 
 public class CreateCustomerTDG {
 	
-	public static List<String> personality = Arrays.asList("Affable", "Gregarious", "Observant", "Cranky", "Ambitious", "Humorous", "Discreet", "Aggressive", "Bossy", "Impatient", "Hostile");
-	
 	public static String randomizePersonality() {
-		return ListUtils.getRandomListElement(personality);
+		return ListUtils.getRandomListElement(Arrays.asList("Affable", "Gregarious", "Observant", "Cranky", "Ambitious", "Humorous", "Discreet", "Aggressive", "Bossy", "Impatient", "Hostile"));
 	}
 	static String randomizeGender() {
 		return ListUtils.getRandomListElement(Arrays.asList("MALE", "FEMALE", null));
@@ -48,7 +46,7 @@ public class CreateCustomerTDG {
 	}	
 	public static List<String> randomizeTags(int tagCount) {
 		List<String> tags = new ArrayList<>();
-		IntStream.range(0, tagCount).forEach(e -> tags.add(randomizePersonality() + String.valueOf(System.nanoTime()).replaceAll("0{2}$", "").replaceAll("^\\d{3}", "")));
+		IntStream.range(0, tagCount).forEach(e -> tags.add(randomizePersonality() + new Generex("\\d{9}").random()));
 		return tags;
 	}	
 	

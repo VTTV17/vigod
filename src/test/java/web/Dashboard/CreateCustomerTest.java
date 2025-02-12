@@ -20,9 +20,9 @@ import web.Dashboard.customers.allcustomers.AllCustomers;
 import web.Dashboard.home.HomePage;
 import web.Dashboard.login.LoginPage;
 
-public class CreateCustomer extends BaseTest {
+public class CreateCustomerTest extends BaseTest {
 
-	String sellerCountry, sellerUsername, sellerPassword, sellerSFURL, sfDomain;
+	String sellerCountry, sellerUsername, sellerPassword;
 	
 	LoginPage loginPage;
 	HomePage homePage;
