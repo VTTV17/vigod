@@ -1,13 +1,10 @@
 package web.Dashboard.analytics;
 
-import com.beust.ah.A;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.xmlbeans.impl.xb.xsdschema.All;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.testng.Assert;
-
 import utilities.assert_customize.AssertCustomize;
 import utilities.links.Links;
 import utilities.model.staffPermission.AllPermissions;
