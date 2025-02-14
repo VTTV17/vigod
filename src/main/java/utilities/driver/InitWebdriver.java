@@ -47,7 +47,7 @@ public class InitWebdriver {
                     driver = new SafariDriver();
                 }
                 default -> {
-//                	WebDriverManager.chromedriver().setup(); //No longer needed in selenium v4.6.0 and above
+                	WebDriverManager.chromedriver().setup();
                     ChromeOptions chromeOptions = new ChromeOptions();
                     chromeOptions.addArguments("--start-maximized");
                     if (headless) chromeOptions.addArguments("--headless=new");
@@ -57,15 +57,11 @@ public class InitWebdriver {
                     chromeOptions.addArguments("--no-sandbox");
                     Map<String, Object> prefs = new HashMap<>();
                     prefs.put("download.default_directory", FileNameAndPath.downloadFolder);
-//                  prefs.put("debuggerAddress", "localhost:4343");
-//                  chromeOptions.setExperimentalOption("prefs", prefs);
-//                  chromeOptions.setExperimentalOption("debuggerAddress","localhost:4343");
-//                    chromeOptions.setExperimentalOption("prefs", prefs);
+                    chromeOptions.setExperimentalOption("prefs", prefs);
                     driver = new ChromeDriver(chromeOptions);
                     if (headless) driver.manage().window().setSize(new Dimension(1920, 1080));
                 }
             }
-            driver.manage().window().setPosition(new Point(1920, 0));
             driver.manage().window().maximize();
         }
         return driver;
