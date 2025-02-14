@@ -16,9 +16,6 @@ public class CountryTDG {
 	static {
 		excludedCountries = new ArrayList<>();
 		//these countries have phone numbers of less than 8 digits
-		excludedCountries.add("Aland Islands");
-		excludedCountries.add("Austria");
-		excludedCountries.add("Andorra");
 		excludedCountries.add("Aruba");
 		excludedCountries.add("Belize");
 		excludedCountries.add("Bonaire, Sint Eustatius and Saba");

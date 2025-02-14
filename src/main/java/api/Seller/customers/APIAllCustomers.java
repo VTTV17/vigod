@@ -3,7 +3,6 @@ package api.Seller.customers;
 import api.Seller.login.Login;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.core.type.TypeReference;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import lombok.Data;
@@ -16,7 +15,6 @@ import utilities.model.sellerApp.login.LoginInformation;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class APIAllCustomers {
@@ -202,7 +200,8 @@ public class APIAllCustomers {
         String basePath = deleteProfilePath.replaceAll("<storeId>", String.valueOf(loginInfo.getStoreID())).replaceAll("<profileId>", String.valueOf(profileIdsString));
         String token = loginInfo.getAccessToken();
 
-        api.delete(basePath, token);
+        Response response = api.delete(basePath, token);
+        response.then().log().ifValidationFails().statusCode(200);
         logger.info("Deleted customer segment with id: {}", profileIds);
     }
 

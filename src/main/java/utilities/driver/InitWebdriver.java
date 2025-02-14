@@ -3,6 +3,7 @@ package utilities.driver;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.apache.logging.log4j.LogManager;
 import org.openqa.selenium.Dimension;
+import org.openqa.selenium.Point;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -46,21 +47,25 @@ public class InitWebdriver {
                     driver = new SafariDriver();
                 }
                 default -> {
-                	WebDriverManager.chromedriver().setup();
+//                	WebDriverManager.chromedriver().setup(); //No longer needed in selenium v4.6.0 and above
                     ChromeOptions chromeOptions = new ChromeOptions();
                     chromeOptions.addArguments("--start-maximized");
-                    if (headless) chromeOptions.addArguments("--headless");
+                    if (headless) chromeOptions.addArguments("--headless=new");
                     chromeOptions.addArguments("--disable-site-isolation-trials");
                     chromeOptions.addArguments("--disable-dev-shm-usage");
                     chromeOptions.addArguments("--remote-allow-origins=*");
                     chromeOptions.addArguments("--no-sandbox");
                     Map<String, Object> prefs = new HashMap<>();
                     prefs.put("download.default_directory", FileNameAndPath.downloadFolder);
-                    chromeOptions.setExperimentalOption("prefs", prefs);
+//                  prefs.put("debuggerAddress", "localhost:4343");
+//                  chromeOptions.setExperimentalOption("prefs", prefs);
+//                  chromeOptions.setExperimentalOption("debuggerAddress","localhost:4343");
+//                    chromeOptions.setExperimentalOption("prefs", prefs);
                     driver = new ChromeDriver(chromeOptions);
                     if (headless) driver.manage().window().setSize(new Dimension(1920, 1080));
                 }
             }
+            driver.manage().window().setPosition(new Point(1920, 0));
             driver.manage().window().maximize();
         }
         return driver;
