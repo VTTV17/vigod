@@ -31,7 +31,7 @@ public class LoginPage {
     }
 
     By ADMIN_TAB = By.xpath("//android.widget.LinearLayout[@content-desc='Quản trị viên' or @content-desc='Admin']/android.widget.TextView");
-    By STAFF_TAB = By.xpath("//android.widget.LinearLayout[@content-desc='Nhân viên' or @content-desc='Staff']");
+    By STAFF_TAB = By.xpath("//*[ends-with(@resource-id,':id/tvTabStaff')]");
 
     By COUNTRYCODE = By.xpath("//*[ends-with(@resource-id,'edtCountry')]");
     By COUNTRY_SEARCHBOX = By.xpath("//*[ends-with(@resource-id,'edtCountriesSearch')]");

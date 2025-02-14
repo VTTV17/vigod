@@ -1,5 +1,6 @@
 package utilities.driver;
 
+import io.appium.java_client.AppiumDriver;
 import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.android.options.UiAutomator2Options;
 import utilities.commons.UICommonAndroid;
@@ -12,9 +13,8 @@ import static utilities.account.AccountTest.ANDROID_GoSELLER_APP;
 import static utilities.environment.goSELLEREnvironment.goSELLERBundleId;
 
 
-public class InitAndroidDriver {
+public class InitAndroidDriver implements IAppiumDriverInitializer {
     String url = "http://127.0.0.1:%s/wd/hub".formatted(System.getProperty("appiumPort"));
-
 
     public AndroidDriver getAndroidDriver(String udid, String appPath) throws MalformedURLException, URISyntaxException {
         UiAutomator2Options options = new UiAutomator2Options();
@@ -30,15 +30,25 @@ public class InitAndroidDriver {
         options.setCapability("appium:newCommandTimeout", "30000");
         options.setCapability("appium:app", appPath);
         return new AndroidDriver(new URI(url).toURL(), options);
+    }    
+    
+	@Override
+	public AppiumDriver getDriver(String udid, String appPath) throws MalformedURLException, URISyntaxException {
+		return getAndroidDriver(udid, appPath);
+	}
+
+    @Override
+    public AndroidDriver getSellerDriver(String udid) {
+		try {
+			AndroidDriver driver = getAndroidDriver(udid, System.getProperty("user.dir") + "/src/main/resources/app/" + ANDROID_GoSELLER_APP);
+			new UICommonAndroid(driver).relaunchApp(goSELLERBundleId);
+			return driver;
+		} catch (MalformedURLException | URISyntaxException e) {
+			throw new RuntimeException(e);
+		}
     }
 
-
-    public AndroidDriver getSellerDriver(String udid) throws MalformedURLException, URISyntaxException {
-        AndroidDriver driver = getAndroidDriver(udid, System.getProperty("user.dir") + "/src/main/resources/app/" + ANDROID_GoSELLER_APP);
-        new UICommonAndroid(driver).relaunchApp(goSELLERBundleId);
-        return driver;
-    }
-
+    @Override
     public AndroidDriver getBuyerDriver(String udid, String goBuyerBundleId) {
         AndroidDriver driver = null;
         try {

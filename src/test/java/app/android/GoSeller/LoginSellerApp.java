@@ -11,19 +11,20 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.mifmif.common.regex.Generex;
 
-import io.appium.java_client.AppiumDriver;
 import app.GoSeller.home.HomePage;
 import app.GoSeller.login.LoginPage;
-import utilities.thirdparty.Mailnesia;
-import utilities.utils.PropertiesUtil;
+import io.appium.java_client.AppiumDriver;
 import utilities.commons.UICommonMobile;
-import utilities.utils.jsonFileUtility;
 import utilities.data.DataGenerator;
 import utilities.database.InitConnection;
 import utilities.driver.InitAppiumDriver;
 import utilities.driver.InitWebdriver;
 import utilities.screenshot.Screenshot;
+import utilities.thirdparty.Mailnesia;
+import utilities.utils.PropertiesUtil;
+import utilities.utils.jsonFileUtility;
 
 
 public class LoginSellerApp {
@@ -73,15 +74,13 @@ public class LoginSellerApp {
 
 	public AppiumDriver launchApp() throws Exception {
         DesiredCapabilities capabilities = new DesiredCapabilities();
-        capabilities.setCapability("udid", "RF8N20PY57D"); //192.168.2.43:5555 10.10.2.100:5555 RF8N20PY57D 
+        capabilities.setCapability("udid", "R5CW81WLFPT"); //192.168.2.43:5555 10.10.2.100:5555 RF8N20PY57D 
         capabilities.setCapability("platformName", "Android");
         capabilities.setCapability("appPackage", "com.mediastep.GoSellForSeller.STG");
         capabilities.setCapability("appActivity", "com.mediastep.gosellseller.modules.credentials.login.LoginActivity");
         capabilities.setCapability("noReset", "false");
         
-        String url = "http://127.0.0.1:4723/wd/hub";
-
-		return new InitAppiumDriver().getAppiumDriver(capabilities, url);
+		return new InitAppiumDriver().getAppiumDriver(capabilities, "http://127.0.0.1:4723/wd/hub");
 	}	    
     
     @BeforeMethod
@@ -90,7 +89,6 @@ public class LoginSellerApp {
     	generate = new DataGenerator();
     	
     	new UICommonMobile(driver).waitSplashScreenLoaded();
-//		new NotificationPermission(driver).clickAllowBtn();
     }
 
 	@AfterMethod(alwaysRun = true)
@@ -101,7 +99,7 @@ public class LoginSellerApp {
 	}	  
     
     @Test
-    public void LoginDB_01_LoginWithEmptyCredentials() throws InterruptedException {
+    public void LoginDB_01_LoginWithEmptyCredentials() {
     	loginPage = new LoginPage(driver);
     	
     	//Empty username and password
@@ -109,33 +107,15 @@ public class LoginSellerApp {
     	Assert.assertFalse(loginPage.isLoginBtnEnabled());
     	
     	//Empty username
-    	loginPage.inputUsername("").inputPassword(PASSWORD).clickAgreeTerm();
+    	loginPage.inputUsername("").inputPassword(DataGenerator.randomValidPassword()).clickAgreeTerm();
     	Assert.assertFalse(loginPage.isLoginBtnEnabled());
     	
     	//Empty password
-    	loginPage.inputUsername(MAIL).inputPassword("").clickAgreeTerm();
+    	loginPage.inputUsername(DataGenerator.randomCorrectFormatEmail()).inputPassword("").clickAgreeTerm();
     	Assert.assertFalse(loginPage.isLoginBtnEnabled());
     }
-    
-    @Test
-    public void LoginDB_02_LoginWithInvalidPhoneFormat() throws InterruptedException {
-    	loginPage = new LoginPage(driver);
-    	
-    	loginPage.clickUsername(); //Workaround to simulate a tap on username field
-    	
-    	new UICommonMobile(driver).hideKeyboard("android");
-    	
-    	//7-digit phone number
-    	loginPage.inputUsername(generate.generateNumber(7)).inputPassword(PASSWORD).clickAgreeTerm();
-    	
-    	Assert.assertFalse(loginPage.isLoginBtnEnabled());
-    	Assert.assertEquals(loginPage.getUsernameError(), "Điền từ 8 – 15 số");
-    	
-    	//16-digit phone number
-    	loginPage.inputUsername(generate.generateNumber(16)).inputPassword(PASSWORD).clickAgreeTerm();
-    	
-    	Assert.assertEquals(loginPage.getUsernameError(), "Điền từ 8 – 15 số");
-    }
+
+	//TODO: From now on, GoSELLER won't validate phone length when logging
     
     @Test
     public void LoginDB_03_LoginWithInvalidMailFormat() throws InterruptedException {
@@ -146,16 +126,16 @@ public class LoginSellerApp {
     	new UICommonMobile(driver).hideKeyboard("android");
     	
     	// Mail does not have symbol @
-    	loginPage.inputUsername(generate.generateString(10)).inputPassword(PASSWORD).clickAgreeTerm();
+    	loginPage.inputUsername(new Generex("[a-z]{5,8}\\d{5,8}\\.[a-z]{2}").random()).inputPassword(DataGenerator.randomValidPassword()).clickAgreeTerm();
     	
     	Assert.assertFalse(loginPage.isLoginBtnEnabled());
     	Assert.assertEquals(loginPage.getUsernameError(), "Email không đúng");
     	
     	// Mail does not have suffix '.<>'. Eg. '.com'
-    	loginPage.inputUsername(generate.generateString(10) + "@").inputPassword(PASSWORD).clickAgreeTerm();
+    	loginPage.inputUsername(new Generex("[a-z]{5,8}\\d{5,8}\\@").random()).inputPassword(DataGenerator.randomValidPassword()).clickAgreeTerm();
     	Assert.assertEquals(loginPage.getUsernameError(), "Email không đúng");
     	
-    	loginPage.inputUsername(generate.generateString(10) + "@" + generate.generateString(5) + ".").inputPassword(PASSWORD).clickAgreeTerm();
+    	loginPage.inputUsername(new Generex("[a-z]{5,8}\\d{5,8}\\@[a-z]mail\\.").random()).inputPassword(DataGenerator.randomValidPassword()).clickAgreeTerm();
     	Assert.assertEquals(loginPage.getUsernameError(), "Email không đúng");
     }
 
@@ -164,15 +144,15 @@ public class LoginSellerApp {
     	loginPage = new LoginPage(driver);
     	
     	//On first attempt, the screen always gets refreshed
-    	loginPage.performLogin(SELLER_FORGOT_MAIL_COUNTRY, SELLER_FORGOT_MAIL_USERNAME, generate.generateString(10));
+    	loginPage.performLogin(SELLER_FORGOT_MAIL_COUNTRY, DataGenerator.randomValidPassword(), DataGenerator.randomValidPassword());
     	Thread.sleep(2000);
     	
     	// Incorrect mail account
-    	loginPage.performLogin(SELLER_FORGOT_MAIL_COUNTRY, SELLER_FORGOT_MAIL_USERNAME, generate.generateString(10));
+    	loginPage.performLogin(SELLER_FORGOT_MAIL_COUNTRY, DataGenerator.randomValidPassword(), DataGenerator.randomValidPassword());
     	Assert.assertEquals(loginPage.getPasswordError(), "Email/Số điện thoại hoặc mật khẩu không chính xác");
     	
     	// Incorrect phone account
-    	loginPage.performLogin(SELLER_FORGOT_MAIL_COUNTRY, SELLER_FORGOT_PHONE_USERNAME, generate.generateString(10));
+    	loginPage.performLogin(SELLER_FORGOT_MAIL_COUNTRY, DataGenerator.randomPhone(), DataGenerator.randomValidPassword());
     	Assert.assertEquals(loginPage.getPasswordError(), "Email/Số điện thoại hoặc mật khẩu không chính xác");
     }    
     

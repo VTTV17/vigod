@@ -18,12 +18,10 @@ public class HomePage {
 	final static Logger logger = LogManager.getLogger(HomePage.class);
 
     WebDriver driver;
-    WebDriverWait wait;
     UICommonMobile commonAction;
 
     public HomePage (WebDriver driver) {
         this.driver = driver;
-        wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         commonAction = new UICommonMobile(driver);
     }
 
@@ -109,8 +107,8 @@ public class HomePage {
     public void LogOut(){
         clickAccountTab();
         clickLogoutBtn();
-        commonAction.sleepInMiliSecond(1000);
+        UICommonMobile.sleepInMiliSecond(1000);
         clickLogoutOKBtn();
-        commonAction.sleepInMiliSecond(1000);
+        UICommonMobile.sleepInMiliSecond(1000);
     }
 }

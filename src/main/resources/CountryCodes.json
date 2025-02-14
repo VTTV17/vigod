@@ -12,7 +12,7 @@
     "Aland Islands": {
         "phoneCode": "358",
         "countryCode": "AX",
-        "phoneRegex": "4946\\d{2,6}|(?:4[0-8]|50)\\d{4,8}"
+        "phoneRegex": "4946\\d{4,6}|(?:4[0-8]|50)\\d{6,8}"
     },
     "Albania": {
         "phoneCode": "355",
@@ -32,7 +32,7 @@
     "Andorra": {
         "phoneCode": "376",
         "countryCode": "AD",
-        "phoneRegex": "690\\d{6}|[356]\\d{5}"
+        "phoneRegex": "690\\d{6}"
     },
     "Angola": {
         "phoneCode": "244",
@@ -76,7 +76,7 @@
     "Austria": {
         "phoneCode": "43",
         "countryCode": "AT",
-        "phoneRegex": "6(?:5[0-3579]|6[013-9]|[7-9]\\d)\\d{4,10}"
+        "phoneRegex": "6(?:5[0-3579]|6[013-9]|[7-9]\\d)\\d{5,10}"
     },
     "Azerbaijan": {
         "phoneCode": "994",
@@ -300,7 +300,7 @@
     "Democratic Republic of the Congo": {
         "phoneCode": "243",
         "countryCode": "CD",
-        "phoneRegex": "88\\d{5}|(?:8[0-59]|9[017-9])\\d{7}"
+        "phoneRegex": "(?:8[0-59]|9[017-9])\\d{7}"
     },
     "Denmark": {
         "phoneCode": "45",
@@ -380,7 +380,7 @@
     "Finland": {
         "phoneCode": "358",
         "countryCode": "FI",
-        "phoneRegex": "4946\\d{2,6}|(?:4[0-8]|50)\\d{4,8}"
+        "phoneRegex": "4946\\d{4,6}|(?:4[0-8]|50)\\d{6,8}"
     },
     "France": {
         "phoneCode": "33",

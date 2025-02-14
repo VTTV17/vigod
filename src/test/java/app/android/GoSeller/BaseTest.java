@@ -17,12 +17,14 @@ public class BaseTest {
     public String browser;
     public String headless;
     public String language;
+    public String domain;
 
     @BeforeSuite
     public void getConfig() {
         this.browser = PropertiesUtil.browser;
         this.headless = PropertiesUtil.headless;
         this.language = PropertiesUtil.dbLanguage;
+        this.domain = PropertiesUtil.domain;
     }
 
     @BeforeMethod

@@ -3,6 +3,7 @@ package utilities.driver;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.apache.logging.log4j.LogManager;
 import org.openqa.selenium.Dimension;
+import org.openqa.selenium.Point;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -49,7 +50,7 @@ public class InitWebdriver {
                 	WebDriverManager.chromedriver().setup();
                     ChromeOptions chromeOptions = new ChromeOptions();
                     chromeOptions.addArguments("--start-maximized");
-                    if (headless) chromeOptions.addArguments("--headless");
+                    if (headless) chromeOptions.addArguments("--headless=new");
                     chromeOptions.addArguments("--disable-site-isolation-trials");
                     chromeOptions.addArguments("--disable-dev-shm-usage");
                     chromeOptions.addArguments("--remote-allow-origins=*");
