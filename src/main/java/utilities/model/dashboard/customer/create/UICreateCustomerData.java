@@ -2,10 +2,8 @@ package utilities.model.dashboard.customer.create;
 
 import java.util.List;
 
-import lombok.Builder;
-import lombok.Getter;
-@Builder
-@Getter
+import lombok.Data;
+@Data
 public class UICreateCustomerData {
 
 	String name;

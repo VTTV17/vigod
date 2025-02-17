@@ -212,21 +212,22 @@ public class CreateCustomerTDG {
 		String districtName = dashboardDisplayLang.equals(DisplayLanguage.VIE) ? district.getInCountry() : district.getOutCountry(); 
 		String wardName = dashboardDisplayLang.equals(DisplayLanguage.VIE) ? ward.getInCountry() : ward.getOutCountry();
 		
-		return UICreateCustomerData.builder()
-				.name(customerName)
-				.phone(phoneNumber)
-				.email(customerEmail)
-				.note(randomizePersonality() + " customer")
-				.tags(randomizeTags())
-				.country(country)
-				.address(randomizeVNAddress())
-				.province(cityName)
-				.district(districtName)
-				.ward(wardName)
-				.isCreateUser(false)
-				.gender(randomizeGender())
-				.birthday(null)
-				.build();
+		UICreateCustomerData data = new UICreateCustomerData();
+		data.setName(customerName);
+		data.setPhone(phoneNumber);
+		data.setEmail(customerEmail);
+		data.setNote(randomizePersonality() + " customer");
+		data.setTags(randomizeTags());
+		data.setCountry(country);
+		data.setAddress(randomizeVNAddress());
+		data.setProvince(cityName);
+		data.setDistrict(districtName);
+		data.setWard(wardName);
+		data.setIsCreateUser(false);
+		data.setGender(randomizeGender());
+		data.setBirthday(null);
+		
+		return data;
 	}
 	
 	/**
@@ -245,22 +246,24 @@ public class CreateCustomerTDG {
 		
 		String cityName = dashboardDisplayLang.equals(DisplayLanguage.VIE) ? city.getInCountry() : city.getOutCountry(); 
 		
-		return UICreateCustomerData.builder()
-				.name(customerName)
-				.phone(phoneNumber)
-				.email(customerEmail)
-				.note(randomizePersonality() + " customer")
-				.tags(randomizeTags())
-				.country(country)
-				.address(randomizeForeignAddress())
-				.address2(randomizeAddress2())
-				.province(cityName)
-				.city("LA")
-				.zipCode("%s%s".formatted(countryCode, new Generex("[1-9]\\d{6}").random()))
-				.isCreateUser(false)
-				.gender(randomizeGender())
-				.birthday(null)
-				.build();
+		UICreateCustomerData data = new UICreateCustomerData();
+		data.setName(customerName);
+		data.setPhone(phoneNumber);
+		data.setEmail(customerEmail);
+		data.setNote(randomizePersonality() + " customer");
+		data.setTags(randomizeTags());
+		data.setCountry(country);
+		data.setAddress(randomizeForeignAddress());
+		data.setAddress2(randomizeAddress2());
+		data.setProvince(cityName);
+		data.setCity("LA");
+		
+		data.setZipCode("%s%s".formatted(countryCode, new Generex("[1-9]\\d{6}").random()));
+		data.setIsCreateUser(false);
+		data.setGender(randomizeGender());
+		data.setBirthday(null);
+		
+		return data;
 	}	
 	
 	
