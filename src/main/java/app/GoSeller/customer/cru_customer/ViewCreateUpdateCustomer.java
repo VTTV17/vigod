@@ -1,6 +1,10 @@
 package app.GoSeller.customer.cru_customer;
 
+import app.Buyer.account.BuyerMyProfile;
 import app.Buyer.buyergeneral.BuyerGeneral;
+import app.GoSeller.customer.customer_list.CustomerListScreen;
+import app.GoSeller.general.SellerGeneral;
+import lombok.SneakyThrows;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
@@ -12,6 +16,7 @@ import utilities.commons.UICommonMobile;
 import utilities.constant.Constant;
 import utilities.data.DataGenerator;
 import utilities.model.dashboard.customer.create.UICreateCustomerData;
+import utilities.utils.PropertiesUtil;
 
 import java.time.Duration;
 import java.util.List;
@@ -74,6 +79,11 @@ public class ViewCreateUpdateCustomer extends ViewCreateUpdateCustomerElement {
     }
     public String getCountry() {
         String value = common.getText(loc_ddlCountry);
+        logger.info("Retrieved Country: " + value);
+        return value;
+    }
+    public String getCountryInAddressScreen() {
+        String value = common.getText(loc_address_ddlCountry);
         logger.info("Retrieved Country: " + value);
         return value;
     }
@@ -143,6 +153,11 @@ public class ViewCreateUpdateCustomer extends ViewCreateUpdateCustomerElement {
         logger.info("Input address2: "+address2);
         return this;
     }
+    public String inputAddress2(){
+        String address2 = generator.generateString(10);
+        inputAddress2(address2);
+        return address2;
+    }
     public String getAddress2(){
         return common.getText(loc_address_txtAddress2);
     }
@@ -150,6 +165,11 @@ public class ViewCreateUpdateCustomer extends ViewCreateUpdateCustomerElement {
         common.inputText(loc_address_txtCity,city);
         logger.info("Input city: "+city);
         return this;
+    }
+    public String inputCity(){
+        String city = generator.generateString(10);
+        inputCity(city);
+        return city;
     }
     public String getCity(){
         return common.getText(loc_address_txtCity);
@@ -168,7 +188,11 @@ public class ViewCreateUpdateCustomer extends ViewCreateUpdateCustomerElement {
         logger.info("Input zipcode: "+zipCode);
         return this;
     }
-
+    public String inputZipCode(){
+        String zipCode = generator.generateNumber(10);
+        inputZipCode(zipCode);
+        return zipCode;
+    }
     public String randomSelectItemInAddressList(){
         List<WebElement> list = common.getElements(loc_lstCountry_cityProvice_district_ward,7);
         if(list.isEmpty()) {
@@ -178,7 +202,8 @@ public class ViewCreateUpdateCustomer extends ViewCreateUpdateCustomerElement {
         }
         System.out.println("SIZE: "+list.size());
         int index = list.size()>1 ? new DataGenerator().generatNumberInBound(1, list.size() - 1) : 0;
-        String selectIconEl ="("+loc_lstCountry_cityProvice_district_ward+")[%s]".formatted(index)+"/following-sibling::*";
+        String selectIconEl ="("+el_lstCountry_cityProvice_district_ward+")[%s]".formatted(index)+"/following-sibling::*";
+        System.out.println("selectIconEl: "+selectIconEl);
         boolean selectedBefore = common.getElements(By.xpath(selectIconEl),2).size()==1;
         if(selectedBefore)  {
             new BuyerGeneral(driver).tapCloseIconOnHeader();
@@ -202,45 +227,67 @@ public class ViewCreateUpdateCustomer extends ViewCreateUpdateCustomerElement {
         logger.info("Tap on Full address field.");
         return this;
     }
-    public UICreateCustomerData createCustomerInVietNam(){
-        String fullName = inputFullName();
-        String phone = inputPhoneNumber();
-        String email = inputEmail();
+    public ViewCreateUpdateCustomer clickSaveOnAddressScreen(){
+        common.click(loc_address_btnSave);
+        logger.info("Tap on Save button on Address screen.");
+        return this;
+    }
+    public UICreateCustomerData createCustomer(boolean isVietNam) {
+        UICreateCustomerData data = new UICreateCustomerData();
+        data.setName(inputFullName());
+        data.setPhone(inputPhoneNumber());
+        data.setEmail(inputEmail());
+        if(!isVietNam) data.setCountry(selectCountry(false));
         clickFullAddress();
-        String address = inputAddress();
-        String cityProvince = selectCityProvince();
-        String district = selectDistrict();
-        String ward = selectWard();
-        return UICreateCustomerData.builder()
-                .name(fullName)
-                .phone(phone)
-                .email(email)
-                .address(address)
-                .province(cityProvince)
-                .district(district)
-                .ward(ward)
-                .build();
+        data.setAddress(inputAddress());
+        if(!isVietNam){
+            data.setAddress2(inputAddress2());
+            data.setProvince(selectStateRegion());
+            data.setCity(inputCity());
+            data.setZipCode(inputZipCode());
+        }else {
+            data.setProvince(selectCityProvince());
+            data.setDistrict(selectDistrict());
+            data.setWard(selectWard());
+        }
+        clickSaveOnAddressScreen();
+        new SellerGeneral(driver).tapHeaderRightIcon();
+        return data;
     }
     public UICreateCustomerData getCustomerInfo(boolean isVietNam){
-        String fullName = getFullName();
-        String phone = getPhoneNumber();
-        String email = getEmail();
+        UICreateCustomerData data = new UICreateCustomerData();
+        data.setName(getFullName());
+        data.setPhone(getPhoneNumber());
+        scrollDown();
+        data.setEmail(getEmail());
         clickFullAddress();
-        String address = getAddress();
-        String cityProvince = getCityProvince();
-        String district = getDistrict();
-        String ward = getWard();
-        return UICreateCustomerData.builder()
-                .name(fullName)
-                .phone(phone)
-                .email(email)
-                .address(address)
-                .province(cityProvince)
-                .district(district)
-                .ward(ward)
-                .build();
+        data.setAddress(getAddress());
+        if(!isVietNam){
+            data.setCountry(getCountryInAddressScreen());
+            data.setAddress2(getAddress2());
+            data.setProvince(getStateRegion());
+            data.setCity(getCity());
+            data.setZipCode(getZipCode());
+        }else {
+            data.setProvince(getCityProvince());
+            data.setDistrict(getDistrict());
+            data.setWard(getWard());
+        }
+        return data;
     }
     public void verifyCustomerInfo(UICreateCustomerData customerInfoExpected, UICreateCustomerData customerInfoActual){
-        Assert.assertEquals(customerInfoActual, customerInfoExpected, "Verify customer info.");
+        Assert.assertEquals(customerInfoExpected, customerInfoActual, "Customer info.");
+        System.out.println("customerInfoExpected: "+customerInfoExpected);
+        System.out.println("customerInfoExpected: "+customerInfoActual);
+    }
+    @SneakyThrows
+    public CustomerListScreen verifyCreateSuccessMessage(){
+        new SellerGeneral(driver).verifyToastMessage(PropertiesUtil.getPropertiesValueByDBLang("customers.create.successMessage"));
+        return new CustomerListScreen(driver);
+    }
+    public ViewCreateUpdateCustomer scrollDown(){
+        common.swipeByCoordinatesInPercent(0.75,0.75,0.75,0.45);
+        logger.info("Scroll down");
+        return new ViewCreateUpdateCustomer(driver);
     }
 }
