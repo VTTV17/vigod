@@ -25,6 +25,7 @@ import utilities.data.DataGenerator;
 import utilities.driver.InitAndroidDriver;
 import utilities.enums.Domain;
 import utilities.screenshot.Screenshot;
+import utilities.utils.PropertiesUtil;
 
 
 public class LoginGoSeller extends BaseTest {
@@ -35,7 +36,8 @@ public class LoginGoSeller extends BaseTest {
 	
     @BeforeMethod
     public void launchApp() {
-    	driver = new InitAndroidDriver().getSellerDriver("R5CW81WLFPT");
+//    	driver = new InitAndroidDriver().getSellerDriver("R5CW81WLFPT");
+    	driver = new InitAndroidDriver().getSellerDriver(PropertiesUtil.getEnvironmentData("udidAndroidVi"));
     	new UICommonMobile(driver).waitSplashScreenLoaded();
     }
 
