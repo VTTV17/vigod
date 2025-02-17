@@ -3,6 +3,8 @@ package app.GoSeller.login;
 import java.time.Duration;
 
 import app.GoSeller.home.HomePage;
+import lombok.SneakyThrows;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
@@ -11,7 +13,9 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 import utilities.commons.UICommonMobile;
 import utilities.data.DataGenerator;
+import utilities.enums.DisplayLanguage;
 import utilities.model.sellerApp.login.LoginInformation;
+import utilities.utils.PropertiesUtil;
 
 public class LoginPage {
 
@@ -30,6 +34,15 @@ public class LoginPage {
         commonAction = new UICommonMobile(driver);
     }
 
+    @SneakyThrows
+    public static String localizedInvalidEmailError(DisplayLanguage language) {
+    	return PropertiesUtil.getPropertiesValueByDBLang("seller.login.error.invalidMail", language.name());
+    }       
+    @SneakyThrows
+    public static String localizedWrongCredentialsError(DisplayLanguage language) {
+    	return PropertiesUtil.getPropertiesValueByDBLang("seller.login.error.wrongCredentials", language.name());
+    }
+    
     By ADMIN_TAB = By.xpath("//android.widget.LinearLayout[@content-desc='Quản trị viên' or @content-desc='Admin']/android.widget.TextView");
     By STAFF_TAB = By.xpath("//*[ends-with(@resource-id,':id/tvTabStaff')]");
 

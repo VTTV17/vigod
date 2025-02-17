@@ -11,11 +11,13 @@ import java.io.IOException;
 
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.mifmif.common.regex.Generex;
 
+import api.catalog.APICatalog;
 import app.GoSeller.home.HomePage;
 import app.GoSeller.login.LoginPage;
 import io.appium.java_client.AppiumDriver;
@@ -23,6 +25,7 @@ import utilities.account.AccountTest;
 import utilities.commons.UICommonMobile;
 import utilities.data.DataGenerator;
 import utilities.driver.InitAndroidDriver;
+import utilities.enums.DisplayLanguage;
 import utilities.enums.Domain;
 import utilities.screenshot.Screenshot;
 import utilities.utils.PropertiesUtil;
@@ -33,6 +36,13 @@ public class LoginGoSeller extends BaseTest {
 	AppiumDriver driver;
 	LoginPage loginPage;
 	HomePage homePage;
+	
+	DisplayLanguage language;
+
+	@BeforeClass
+	public void getDisplayLanguage() {
+		language = APICatalog.getCurrentLocation().contentEquals("VN") ? DisplayLanguage.VIE : DisplayLanguage.ENG;
+	}
 	
     @BeforeMethod
     public void launchApp() {
@@ -77,14 +87,14 @@ public class LoginGoSeller extends BaseTest {
     	// Mail does not have symbol @
     	loginPage.performLogin(new Generex("[a-z]{5,8}\\d{5,8}\\.[a-z]{2}").random(), DataGenerator.randomValidPassword());
     	Assert.assertFalse(loginPage.isLoginBtnEnabled());
-    	Assert.assertEquals(loginPage.getUsernameError(), "Email không đúng");
+    	Assert.assertEquals(loginPage.getUsernameError(), LoginPage.localizedInvalidEmailError(language));
     	
     	// Mail does not have suffix '.<>'. Eg. '.com'
     	loginPage.performLogin(new Generex("[a-z]{5,8}\\d{5,8}\\@").random(), DataGenerator.randomValidPassword());
-    	Assert.assertEquals(loginPage.getUsernameError(), "Email không đúng");
+    	Assert.assertEquals(loginPage.getUsernameError(), LoginPage.localizedInvalidEmailError(language));
     	
     	loginPage.performLogin(new Generex("[a-z]{5,8}\\d{5,8}\\@[a-z]mail\\.").random(), DataGenerator.randomValidPassword());
-    	Assert.assertEquals(loginPage.getUsernameError(), "Email không đúng");
+    	Assert.assertEquals(loginPage.getUsernameError(), LoginPage.localizedInvalidEmailError(language));
     }
 
     @Test
@@ -97,11 +107,11 @@ public class LoginGoSeller extends BaseTest {
     	
     	// Incorrect mail account
     	loginPage.performLogin(DataGenerator.randomCorrectFormatEmail(), DataGenerator.randomValidPassword());
-    	Assert.assertEquals(loginPage.getPasswordError(), "Email/Số điện thoại hoặc mật khẩu không chính xác");
+    	Assert.assertEquals(loginPage.getPasswordError(), LoginPage.localizedWrongCredentialsError(language));
     	
     	// Incorrect phone account
     	loginPage.performLogin(DataGenerator.randomPhone(), DataGenerator.randomValidPassword());
-    	Assert.assertEquals(loginPage.getPasswordError(), "Email/Số điện thoại hoặc mật khẩu không chính xác");
+    	Assert.assertEquals(loginPage.getPasswordError(), LoginPage.localizedWrongCredentialsError(language));
     }    
     
     @Test
@@ -155,7 +165,7 @@ public class LoginGoSeller extends BaseTest {
     	
     	// Incorrect credentials
     	loginPage.clickStaffTab().performLogin(mailUsername, DataGenerator.randomValidPassword());
-    	Assert.assertEquals(loginPage.getPasswordError(), "Email/Số điện thoại hoặc mật khẩu không chính xác");
+    	Assert.assertEquals(loginPage.getPasswordError(), LoginPage.localizedWrongCredentialsError(language));
     	
     	// Correct credentials
     	loginPage.clickStaffTab().performLogin(mailUsername, mailPassword);

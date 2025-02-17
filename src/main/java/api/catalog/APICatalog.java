@@ -35,5 +35,13 @@ public class APICatalog {
     	}
     	return getForeignCityTree(countryCode);
     }  
+ 
+    public static String getCurrentLocation() {
+    	String basePath = "/catalogservices/api/ip-info";
+    	String token = "notokenneeded";
+    	
+    	Response response = new API().get(basePath, token).then().statusCode(200).extract().response();
+    	return response.jsonPath().getString("country");
+    }     
     
 }
