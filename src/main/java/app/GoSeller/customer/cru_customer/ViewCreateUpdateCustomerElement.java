@@ -18,9 +18,13 @@ public class ViewCreateUpdateCustomerElement {
     By loc_address_ddlCityProvince = By.xpath("//*[contains(@resource-id, 'etCity')]");
     By loc_address_ddlDistrict = By.xpath("//*[contains(@resource-id, 'etDistrict')]");
     By loc_address_ddlWard = By.xpath("//*[contains(@resource-id, 'etWard')]");
-    By loc_lstCountry_cityProvice_district_ward = By.xpath("//*[contains(@resource-id, 'item_list_region_name')]");
+    String el_lstCountry_cityProvice_district_ward ="//*[contains(@resource-id, 'item_list_region_name')]";
+    By loc_lstCountry_cityProvice_district_ward = By.xpath(el_lstCountry_cityProvice_district_ward);
     By loc_address_txtAddress2 = By.xpath("//*[contains(@resource-id, 'etAddress2')]");
     By loc_address_ddlState = By.xpath("//*[contains(@resource-id, 'etState')]");
     By loc_address_txtCity = By.xpath("//*[contains(@resource-id, 'etCityOutsideVietnam')]");
     By loc_address_txtZipCode = By.xpath("//*[contains(@resource-id, 'etZipCode')]");
+    By loc_address_btnSave = By.xpath("//*[ends-with(@resource-id,'btnSave')]");
+    By loc_address_ddlCountry = By.xpath("//*[contains(@resource-id, 'etCountry')]");
+
 }

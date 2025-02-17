@@ -625,10 +625,10 @@ public class ProductCollectionTest extends BaseTest {
         goToSellerCollectionPage()
                 .deleteCollectionAndVerify(collectioNameCheckBuyer);
     }
-//    @Test(dependsOnMethods = "MPC35_DeleteCollection_Seller",priority = 36)
-    @Test
+    @Test(dependsOnMethods = "MPC35_DeleteCollection_Seller",priority = 36)
+//    @Test
     public void MPC36_CheckDeletedCollection_Buyer(){
-        collectioNameCheckBuyer = "Collection product title equals keyword9266606654";
+//        collectioNameCheckBuyer = "Collection product title equals keyword9266606654";
         testCaseId = "MPC36";
         launchAppBuyer();
         new BuyerGeneral(driver).waitLoadingDisapear();

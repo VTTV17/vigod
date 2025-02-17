@@ -61,8 +61,8 @@ public class ServiceDetailTest extends BaseTest {
     @BeforeClass
     public void setUp() throws Exception {
         generator = new DataGenerator();
-        PropertiesUtil.setEnvironment("STAG");
-        PropertiesUtil.setSFLanguage("VIE");
+//        PropertiesUtil.setEnvironment("STAG");
+//        PropertiesUtil.setSFLanguage("VIE");
         userDb = AccountTest.ADMIN_SHOP_VI_USERNAME;
         passDb = AccountTest.ADMIN_SHOP_VI_PASSWORD;
         loginInformation = new Login().setLoginInformation("+84",userDb,passDb).getLoginInformation();
@@ -93,6 +93,8 @@ public class ServiceDetailTest extends BaseTest {
     public void restartApp(ITestResult result) throws IOException {
         super.writeResult(result);
         ((AndroidDriver) driver).removeApp(appPackage);
+        if (driver != null) driver.quit();
+
     }
     public ServiceInfo callAPICreateService(boolean enableListing){
         String serviceName = "Service automation "+ generator.generateString(6);

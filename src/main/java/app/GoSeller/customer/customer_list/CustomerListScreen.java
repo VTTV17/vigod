@@ -1,6 +1,7 @@
 package app.GoSeller.customer.customer_list;
 
 import app.GoSeller.customer.cru_customer.ViewCreateUpdateCustomer;
+import app.GoSeller.customer.cru_customer.ViewCreateUpdateCustomerElement;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
@@ -10,7 +11,7 @@ import utilities.data.DataGenerator;
 
 import java.time.Duration;
 
-public class CustomerListScreen extends CustomerListElement{
+public class CustomerListScreen extends CustomerListElement {
     final static Logger logger = LogManager.getLogger(CustomerListScreen.class);
 
     WebDriver driver;
@@ -26,6 +27,11 @@ public class CustomerListScreen extends CustomerListElement{
     }
     public ViewCreateUpdateCustomer clickOnCreateCustomer(){
         common.click(loc_icnCreateCustomer);
+        return new ViewCreateUpdateCustomer(driver);
+    }
+    public ViewCreateUpdateCustomer goToNewestCustomer(){
+        common.sleepInMiliSecond(2000);
+        common.click(loc_lstCustomerName);
         return new ViewCreateUpdateCustomer(driver);
     }
 }
