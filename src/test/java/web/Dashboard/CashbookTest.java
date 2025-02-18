@@ -4,9 +4,9 @@ import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Random;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang.math.RandomUtils;
 import org.testng.Assert; 
 import org.testng.ITestResult;
 import org.testng.annotations.AfterClass;
@@ -321,7 +321,7 @@ public class CashbookTest extends BaseTest {
 		
 		/* Create receipts with different revenue values */
 		for (String source : revenueSources(groupEnum)) {
-			boolean isAccountingChecked = new Random().nextBoolean();
+			boolean isAccountingChecked = RandomUtils.nextBoolean();
 			String sender = randomSender(groupEnum);
 			String branch = ListUtils.getRandomListElement(branchList);
 			String paymentMethod = randomPaymentMethod();
@@ -329,14 +329,14 @@ public class CashbookTest extends BaseTest {
 			String note = "%s %s".formatted(sender, paymentMethod);
 			
 			// Get summary before creating receipts
-			List<BigDecimal> originalSummary = cashbookPage.getCashbookSummaryBig();
+			List<BigDecimal> originalSummary = cashbookPage.getCashbookSummary();
 
 			// Create receipt
 			cashbookPage.createReceipt(group, source, branch, paymentMethod, sender, amount, note, isAccountingChecked);
 			homePage.getToastMessage();
 
 			// Get summary after creating receipts
-			List<BigDecimal> laterSummary = cashbookPage.getCashbookSummaryBig();
+			List<BigDecimal> laterSummary = cashbookPage.getCashbookSummary();
 			
 			// Check summary after creating receipts
 			verifySummaryDataAfterReceiptCreated(originalSummary, laterSummary, amount, isAccountingChecked);
@@ -361,7 +361,7 @@ public class CashbookTest extends BaseTest {
 		
 		/* Create payments with different expense sources */
 		for (String source : expenseSources(groupEnum)) {
-			boolean isAccountingChecked = new Random().nextBoolean();
+			boolean isAccountingChecked = RandomUtils.nextBoolean();
 			String sender = randomSender(groupEnum);
 			String branch = ListUtils.getRandomListElement(branchList);
 			String paymentMethod = randomPaymentMethod();
@@ -369,14 +369,14 @@ public class CashbookTest extends BaseTest {
 			String note = "%s %s".formatted(sender, paymentMethod);
 			
 			// Get cashbook summary before creating payments
-			List<BigDecimal> originalSummary = cashbookPage.getCashbookSummaryBig();
+			List<BigDecimal> originalSummary = cashbookPage.getCashbookSummary();
 			
 			// Create payments
 			cashbookPage.createPayment(group, source, branch, paymentMethod, sender, amount, note, isAccountingChecked);
 			homePage.getToastMessage();
 			
 			// Get cashbook summary after creating payments
-			List<BigDecimal> laterSummary = cashbookPage.getCashbookSummaryBig();
+			List<BigDecimal> laterSummary = cashbookPage.getCashbookSummary();
 			
 			// Check data summary after creating payments
 			verifySummaryDataAfterPaymentCreated(originalSummary, laterSummary, amount, isAccountingChecked);
