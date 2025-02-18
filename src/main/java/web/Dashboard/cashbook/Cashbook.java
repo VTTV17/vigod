@@ -6,8 +6,6 @@ import static utilities.links.Links.DOMAIN_BIZ;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
@@ -103,22 +101,8 @@ public class Cashbook {
 		return isPresent;
 	}
 	
-	public List<Long> getCashbookSummary() {
-		List<Long> summary = new ArrayList<>();
-		for (int i = 0; i < 4; i++) {
-			String rawAmount = commonAction.getText(elements.loc_lblCashbookSummary, i);
-			Matcher m = Pattern.compile("\\d+").matcher(rawAmount);
-			ArrayList<String> sub = new ArrayList<String>();
-			while (m.find()) {
-				sub.add(m.group());
-			}
-			summary.add(Long.parseLong(String.join("", sub)));
-		}
-		System.out.println(summary.toString());
-		return summary;
-	}
 	
-	public List<BigDecimal> getCashbookSummaryBig() {
+	public List<BigDecimal> getCashbookSummary() {
 		waitUntilSkeletonScreenGone();
 		
 		List<BigDecimal> summary = new ArrayList<>();
@@ -751,7 +735,7 @@ public class Cashbook {
     	}
     	
     	List<List<String>> records = getRecords();
-    	List<BigDecimal> originalSummary = getCashbookSummaryBig();
+    	List<BigDecimal> originalSummary = getCashbookSummary();
     	
     	for (int i=0; i<2; i++) {
     		boolean type = false;

@@ -30,7 +30,7 @@ public enum CashbookGroup {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-    	return null;
+    	return "";
     }
 
 }

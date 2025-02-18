@@ -11,7 +11,6 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.mifmif.common.regex.Generex;
 
 import app.GoSeller.home.HomePage;
 import app.GoSeller.login.LoginPage;
@@ -37,15 +36,6 @@ public class LoginSellerApp {
 	DataGenerator generate;
 
 	JsonNode data = jsonFileUtility.readJsonFile("LoginInfo.json").findValue("dashboard");
-	String MAIL_COUNTRY = data.findValue("seller").findValue("mail").findValue("country").asText();
-	String MAIL = data.findValue("seller").findValue("mail").findValue("username").asText();
-	String PASSWORD = data.findValue("seller").findValue("mail").findValue("password").asText();
-	String PHONE = data.findValue("seller").findValue("phone").findValue("username").asText();
-	String PHONE_PASSWORD = data.findValue("seller").findValue("phone").findValue("password").asText();
-	String PHONE_COUNTRY = data.findValue("seller").findValue("phone").findValue("country").asText();
-	String PHONE_COUNTRYCODE = data.findValue("seller").findValue("phone").findValue("countryCode").asText();
-	String STAFF = data.findValue("staff").findValue("mail").findValue("username").asText();
-	String STAFF_PASSWORD = data.findValue("staff").findValue("mail").findValue("password").asText();
 	String SELLER_FORGOT_MAIL_USERNAME = data.findValue("seller").findValue("forgotMail").findValue("username").asText();
 	String SELLER_FORGOT_MAIL_PASSWORD = data.findValue("seller").findValue("forgotMail").findValue("password").asText();
 	String SELLER_FORGOT_MAIL_COUNTRY = data.findValue("seller").findValue("forgotMail").findValue("country").asText();
@@ -98,94 +88,8 @@ public class LoginSellerApp {
 		if (driverWeb != null) driverWeb.quit();
 	}	  
     
-    @Test
-    public void LoginDB_01_LoginWithEmptyCredentials() {
-    	loginPage = new LoginPage(driver);
-    	
-    	//Empty username and password
-    	loginPage.inputUsername("").inputPassword("").clickAgreeTerm();
-    	Assert.assertFalse(loginPage.isLoginBtnEnabled());
-    	
-    	//Empty username
-    	loginPage.inputUsername("").inputPassword(DataGenerator.randomValidPassword()).clickAgreeTerm();
-    	Assert.assertFalse(loginPage.isLoginBtnEnabled());
-    	
-    	//Empty password
-    	loginPage.inputUsername(DataGenerator.randomCorrectFormatEmail()).inputPassword("").clickAgreeTerm();
-    	Assert.assertFalse(loginPage.isLoginBtnEnabled());
-    }
 
-	//TODO: From now on, GoSELLER won't validate phone length when logging
     
-    @Test
-    public void LoginDB_03_LoginWithInvalidMailFormat() throws InterruptedException {
-    	loginPage = new LoginPage(driver);
-    	
-    	loginPage.clickUsername(); //Workaround to simulate a tap on username field
-    	
-    	new UICommonMobile(driver).hideKeyboard("android");
-    	
-    	// Mail does not have symbol @
-    	loginPage.inputUsername(new Generex("[a-z]{5,8}\\d{5,8}\\.[a-z]{2}").random()).inputPassword(DataGenerator.randomValidPassword()).clickAgreeTerm();
-    	
-    	Assert.assertFalse(loginPage.isLoginBtnEnabled());
-    	Assert.assertEquals(loginPage.getUsernameError(), "Email không đúng");
-    	
-    	// Mail does not have suffix '.<>'. Eg. '.com'
-    	loginPage.inputUsername(new Generex("[a-z]{5,8}\\d{5,8}\\@").random()).inputPassword(DataGenerator.randomValidPassword()).clickAgreeTerm();
-    	Assert.assertEquals(loginPage.getUsernameError(), "Email không đúng");
-    	
-    	loginPage.inputUsername(new Generex("[a-z]{5,8}\\d{5,8}\\@[a-z]mail\\.").random()).inputPassword(DataGenerator.randomValidPassword()).clickAgreeTerm();
-    	Assert.assertEquals(loginPage.getUsernameError(), "Email không đúng");
-    }
-
-    @Test
-    public void LoginDB_04_LoginWithIncorrectCredentials() throws InterruptedException {
-    	loginPage = new LoginPage(driver);
-    	
-    	//On first attempt, the screen always gets refreshed
-    	loginPage.performLogin(SELLER_FORGOT_MAIL_COUNTRY, DataGenerator.randomValidPassword(), DataGenerator.randomValidPassword());
-    	Thread.sleep(2000);
-    	
-    	// Incorrect mail account
-    	loginPage.performLogin(SELLER_FORGOT_MAIL_COUNTRY, DataGenerator.randomValidPassword(), DataGenerator.randomValidPassword());
-    	Assert.assertEquals(loginPage.getPasswordError(), "Email/Số điện thoại hoặc mật khẩu không chính xác");
-    	
-    	// Incorrect phone account
-    	loginPage.performLogin(SELLER_FORGOT_MAIL_COUNTRY, DataGenerator.randomPhone(), DataGenerator.randomValidPassword());
-    	Assert.assertEquals(loginPage.getPasswordError(), "Email/Số điện thoại hoặc mật khẩu không chính xác");
-    }    
-    
-    @Test
-    public void LoginDB_05_LoginWithCorrectCredentials() throws InterruptedException {
-    	loginPage = new LoginPage(driver);
-    	homePage = new HomePage(driver);
-    	
-    	loginPage.performLogin(MAIL_COUNTRY, MAIL, PASSWORD);
-    	Assert.assertTrue(homePage.isAccountTabDisplayed());
-    	homePage.clickAccountTab().clickLogoutBtn().clickLogoutOKBtn();
-    	
-    	loginPage.performLogin(PHONE_COUNTRY, PHONE, PHONE_PASSWORD);
-    	Assert.assertTrue(homePage.isAccountTabDisplayed());
-    }
-    
-    @Test
-    public void LoginDB_06_StaffLogin() throws InterruptedException {
-    	loginPage = new LoginPage(driver);
-    	homePage = new HomePage(driver);
-    	
-    	//On first attempt, the screen always gets refreshed
-    	loginPage.clickStaffTab().inputUsername(STAFF).inputPassword(PASSWORD + "1").clickAgreeTerm().clickLoginBtn();
-    	Thread.sleep(2000);
-    	
-    	// Incorrect credentials
-    	loginPage.clickStaffTab().inputUsername(STAFF).inputPassword(PASSWORD + "1").clickAgreeTerm().clickLoginBtn();
-    	Assert.assertEquals(loginPage.getPasswordError(), "Email/Số điện thoại hoặc mật khẩu không chính xác");
-    	
-    	// Correct credentials
-    	loginPage.inputUsername(STAFF).inputPassword(PASSWORD).clickAgreeTerm().clickLoginBtn().clickAvailableShop();
-    	Assert.assertTrue(homePage.isAccountTabDisplayed());
-    }
     
     //Bug: After users input verification code and submit, they are logged out. The screen flashes a few times
     @Test

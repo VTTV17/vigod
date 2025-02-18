@@ -1,5 +1,6 @@
 package app.GoSeller.cashbook;
 
+import java.math.BigDecimal;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +16,7 @@ import org.openqa.selenium.support.pagefactory.ByChained;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import utilities.commons.UICommonMobile;
+import utilities.data.DataGenerator;
 
 public class Cashbook {
 
@@ -67,31 +69,26 @@ public class Cashbook {
 			By.xpath("//*[ends-with(@resource-id,'tvType')]"), By.xpath("//*[ends-with(@resource-id,'tvName')]"),
 			By.xpath("//*[ends-with(@resource-id,'tvOwner')]"), By.xpath("//*[ends-with(@resource-id,'tvPrice')]"), };
 
-	public List<Long> getCashbookSummary() {
-		commonAction.sleepInMiliSecond(3000); // Sometimes it takes longer for the element to change its data
+	public List<BigDecimal> getCashbookSummary() {
+		UICommonMobile.sleepInMiliSecond(500, "Wait in getCashbookSummary()"); // Sometimes it takes longer for the element to change its data
 		By[] CASHBOOKSUMMARY = { By.xpath("//*[ends-with(@resource-id,'tvOpening')]"),
 				By.xpath("//*[ends-with(@resource-id,'tvTotalRev')]"),
 				By.xpath("//*[ends-with(@resource-id,'tvExpenditure')]"),
 				By.xpath("//*[ends-with(@resource-id,'tvEnding')]"), };
-
-		List<Long> summary = new ArrayList<>();
+		
+		List<BigDecimal> summary = new ArrayList<>();
 		for (By bySelector : CASHBOOKSUMMARY) {
-
+			
 			// Sometimes element is present but the data it contains is not yet rendered
 			String text = "";
 			for (int i = 0; i < 5; i++) {
 				text = commonAction.getText(bySelector);
 				if (!text.isEmpty())
 					break;
-				commonAction.sleepInMiliSecond(1000);
+				UICommonMobile.sleepInMiliSecond(1000);
 			}
-
-			Matcher m = Pattern.compile("\\d+").matcher(text);
-			ArrayList<String> sub = new ArrayList<String>();
-			while (m.find()) {
-				sub.add(m.group());
-			}
-			summary.add(Long.parseLong(String.join("", sub)));
+			
+			summary.add(new BigDecimal(DataGenerator.extractDigits(text)));
 		}
 		return summary;
 	}
@@ -313,7 +310,7 @@ public class Cashbook {
 	public Cashbook clickRecord(String recordID) {
 		// More code needed
 		commonAction.clickElement(COLUMN[0]);
-		commonAction.sleepInMiliSecond(500); //Sometimes it takes longer for the detail screen to load. Temporary
+		UICommonMobile.sleepInMiliSecond(500, "In clickRecord()"); //Sometimes it takes longer for the detail screen to load. Temporary
 		logger.info("Clicked on cashbook record '%s'.".formatted(recordID));
 		return this;
 	}
@@ -348,7 +345,7 @@ public class Cashbook {
 //		commonAction.sleepInMiliSecond(1000); // Sometimes the element representing the search box gets stale
 		commonAction.inputText(SEARCH_BOX, name);
 		commonAction
-				.clickElement(By.xpath("//*[ends-with(@resource-id,'tvFilterText') and @text='%s']".formatted(name)));
+				.clickElement(By.xpath("//*[ends-with(@resource-id,'tvFilterText') and @text=\"%s\"]".formatted(name)));
 		logger.info("Selected Sender Name: %s.".formatted(name));
 		return this;
 	}
@@ -385,14 +382,14 @@ public class Cashbook {
 
 	public Cashbook selectRevenueExpense(String revenueExpense) {
 		commonAction.clickElement(REVENUE_SOURCE_DROPDOWN);
-		commonAction.clickElement(By.xpath(dropdownOption.formatted("and @text='%s'".formatted(revenueExpense))));
+		commonAction.clickElement(By.xpath(dropdownOption.formatted("and @text=\"%s\"".formatted(revenueExpense))));
 		logger.info("Selected Revenue Source/Expense Type: %s.".formatted(revenueExpense));
 		return this;
 	}
 
 	public Cashbook selectBranch(String branch) {
 		commonAction.clickElement(BRANCH_DROPDOWN);
-		commonAction.clickElement(By.xpath(dropdownOption.formatted("and @text='%s'".formatted(branch))));
+		commonAction.clickElement(By.xpath(dropdownOption.formatted("and @text=\"%s\"".formatted(branch))));
 		logger.info("Selected Branch: %s.".formatted(branch));
 		return this;
 	}
@@ -418,7 +415,7 @@ public class Cashbook {
 
 	public Cashbook selectPaymentMethod(String paymentMethod) {
 		commonAction.clickElement(PAYMENTMETHOD_DROPDOWN);
-		commonAction.clickElement(By.xpath(dropdownOption.formatted("and @text='%s'".formatted(paymentMethod))));
+		commonAction.clickElement(By.xpath(dropdownOption.formatted("and @text=\"%s\"".formatted(paymentMethod))));
 		logger.info("Selected Payment Method: %s.".formatted(paymentMethod));
 		return this;
 	}

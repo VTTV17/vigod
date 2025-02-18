@@ -40,7 +40,7 @@ public class LoginGoSeller extends BaseTest {
 	DisplayLanguage language;
 
 	@BeforeClass
-	public void getDisplayLanguage() {
+	public void getGoSELLERDefaultLanguage() {
 		language = APICatalog.getCurrentLocation().contentEquals("VN") ? DisplayLanguage.VIE : DisplayLanguage.ENG;
 	}
 	
