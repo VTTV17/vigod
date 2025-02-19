@@ -318,7 +318,7 @@ public class Cashbook {
 
 	//TODO: This function is temporary and will be deleted soon
 	public void waitUntilPlusIconAppears() {
-		commonAction.getElement(CREATE_BTN,5);
+		commonAction.getElement(CREATE_BTN, defaultTimeout);
 	}
 	
 	public Cashbook clickCreateBtn() {
