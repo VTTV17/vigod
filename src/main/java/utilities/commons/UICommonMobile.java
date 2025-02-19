@@ -191,6 +191,8 @@ public class UICommonMobile extends UICommonAction {
 		} else {
 			throw new IllegalArgumentException("Unknown platform: " + platformNameFromCapacity);
 		}
+		
+		logger.info("swipeByCoordinatesInPercent: (%s, %s) -> (%s, %s) in %s ms".formatted(startX, startY, endX, endY, delay));
 	}
 
 	public String getText(WebElement element) {

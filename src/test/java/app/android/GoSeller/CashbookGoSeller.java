@@ -67,7 +67,7 @@ public class CashbookGoSeller extends BaseTest {
 		
 		//Override display language based on IP location
 		if (APICatalog.getCurrentLocation().contentEquals("VN")) {
-			PropertiesUtil.setDBLanguage(DisplayLanguage.VIE.name());
+			if(Domain.valueOf(domain).equals(Domain.VN))PropertiesUtil.setDBLanguage(DisplayLanguage.VIE.name());
 		} else {
 			PropertiesUtil.setDBLanguage(DisplayLanguage.ENG.name());
 		}
@@ -238,30 +238,30 @@ public class CashbookGoSeller extends BaseTest {
 	
 	public void verifyRecordDataAfterReceiptCreated(List<String> record, String branch, String source,
 													String sender, String amount) {
-		Assert.assertEquals(record.get(web.Dashboard.cashbook.Cashbook.BRANCH_IDX), branch, "Branch");
-		Assert.assertTrue(record.get(web.Dashboard.cashbook.Cashbook.REVENUETYPE_IDX).contains(source), "Revenue type");
-		Assert.assertEquals(record.get(web.Dashboard.cashbook.Cashbook.NAME_IDX-1), sender, "Sender");
-		Assert.assertEquals(DataGenerator.extractDigits(record.get(web.Dashboard.cashbook.Cashbook.AMOUNT_IDX-1)), amount, "Amount");
+		Assert.assertEquals(record.get(web.Dashboard.cashbook.Cashbook.BRANCH_IDX), branch, "[Record] Branch");
+		Assert.assertTrue(record.get(web.Dashboard.cashbook.Cashbook.REVENUETYPE_IDX).contains(source), "[Record] Revenue type");
+		Assert.assertEquals(record.get(web.Dashboard.cashbook.Cashbook.NAME_IDX-1), sender, "[Record] Sender");
+		Assert.assertEquals(DataGenerator.extractDigits(record.get(web.Dashboard.cashbook.Cashbook.AMOUNT_IDX-1)), amount, "[Record] Amount");
 	}
 
 	public void verifyRecordDataAfterPaymentCreated(List<String> record, String branch, String source,
 													String sender, String amount) {
-		Assert.assertEquals(record.get(web.Dashboard.cashbook.Cashbook.BRANCH_IDX), branch, "Branch");
-		Assert.assertTrue(record.get(web.Dashboard.cashbook.Cashbook.REVENUETYPE_IDX).contains(source), "Expense type");
-		Assert.assertEquals(record.get(web.Dashboard.cashbook.Cashbook.NAME_IDX-1), sender, "Sender");
-		Assert.assertEquals(DataGenerator.extractDigits(record.get(web.Dashboard.cashbook.Cashbook.AMOUNT_IDX-1)), amount, "Amount");
+		Assert.assertEquals(record.get(web.Dashboard.cashbook.Cashbook.BRANCH_IDX), branch, "[Record] Branch");
+		Assert.assertTrue(record.get(web.Dashboard.cashbook.Cashbook.REVENUETYPE_IDX).contains(source), "[Record] Expense type");
+		Assert.assertEquals(record.get(web.Dashboard.cashbook.Cashbook.NAME_IDX-1), sender, "[Record] Sender");
+		Assert.assertEquals(DataGenerator.extractDigits(record.get(web.Dashboard.cashbook.Cashbook.AMOUNT_IDX-1)), amount, "[Record] Amount");
 	}
 
 	public void verifyDataInRecordDetail(String group, String sender, String source, String branch,
 										 String amount, String paymentMethod, String note, boolean isAccountingChecked) {
-		Assert.assertEquals(cashbookPage.getGroup(), group, "Sender/Recipient group");
-		Assert.assertEquals(cashbookPage.getName(), sender, "Sender/Recipient name");
-		Assert.assertEquals(cashbookPage.getSourceOrExpense(), source, "Revenue/Expense");
-		Assert.assertEquals(cashbookPage.getBranch(), branch, "Branch");
-		Assert.assertTrue(new BigDecimal(DataGenerator.extractDigits(cashbookPage.getAmount())).compareTo(new BigDecimal(amount))==0, "Amount");
-		Assert.assertEquals(cashbookPage.getPaymentMethod(), paymentMethod, "Payment method");
-		Assert.assertEquals(cashbookPage.getNote(), note, "Note");
-		Assert.assertEquals(cashbookPage.isAccountingChecked(), isAccountingChecked, "Accounting");
+		Assert.assertEquals(cashbookPage.getGroup(), group, "[Detail] Sender/Recipient group");
+		Assert.assertEquals(cashbookPage.getName(), sender, "[Detail] Sender/Recipient name");
+		Assert.assertEquals(cashbookPage.getSourceOrExpense(), source, "[Detail] Revenue/Expense");
+		Assert.assertEquals(cashbookPage.getBranch(), branch, "[Detail] Branch");
+		Assert.assertTrue(new BigDecimal(DataGenerator.extractDigits(cashbookPage.getAmount())).compareTo(new BigDecimal(amount))==0, "[Detail] Amount");
+		Assert.assertEquals(cashbookPage.getPaymentMethod(), paymentMethod, "[Detail] Payment method");
+		Assert.assertEquals(cashbookPage.getNote(), note, "[Detail] Note");
+		Assert.assertEquals(cashbookPage.isAccountingChecked(), isAccountingChecked, "[Detail] Accounting");
 	}
 
 	@DataProvider
@@ -290,7 +290,7 @@ public class CashbookGoSeller extends BaseTest {
 			List<BigDecimal> originalSummary = cashbookPage.getCashbookSummary();
 			
 			cashbookPage.createReceipt(group, source, branch, paymentMethod, sender, amount, note, isAccountingChecked);
-			
+			cashbookPage.waitUntilPlusIconAppears();
 			//Bug https://mediastep.atlassian.net/browse/BH-48658
 			//general.getToastMessage();
 			
@@ -325,7 +325,7 @@ public class CashbookGoSeller extends BaseTest {
 			List<BigDecimal> originalSummary = cashbookPage.getCashbookSummary();
 			
 			cashbookPage.createPayment(group, source, branch, paymentMethod, sender, amount, note, isAccountingChecked);
-			
+			cashbookPage.waitUntilPlusIconAppears();
 			//Bug https://mediastep.atlassian.net/browse/BH-48658
 			//general.getToastMessage();
 			

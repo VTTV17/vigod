@@ -13,6 +13,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.pagefactory.ByChained;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import utilities.commons.UICommonMobile;
@@ -315,6 +316,11 @@ public class Cashbook {
 		return this;
 	}
 
+	//TODO: This function is temporary and will be deleted soon
+	public void waitUntilPlusIconAppears() {
+		commonAction.getElement(CREATE_BTN,5);
+	}
+	
 	public Cashbook clickCreateBtn() {
 		commonAction.clickElement(CREATE_BTN, defaultTimeout);
 		logger.info("Clicked on 'Create' button.");
