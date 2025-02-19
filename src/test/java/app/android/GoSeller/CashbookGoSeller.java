@@ -63,7 +63,7 @@ public class CashbookGoSeller extends BaseTest {
 	CashbookAPI cashbookAPI;
 	
 	@BeforeClass
-	public void loadTestData() throws Exception {
+	public void loadTestData() {
 		
 		//Override display language based on IP location
 		if (APICatalog.getCurrentLocation().contentEquals("VN")) {
@@ -258,7 +258,7 @@ public class CashbookGoSeller extends BaseTest {
 		Assert.assertEquals(cashbookPage.getName(), sender, "Sender/Recipient name");
 		Assert.assertEquals(cashbookPage.getSourceOrExpense(), source, "Revenue/Expense");
 		Assert.assertEquals(cashbookPage.getBranch(), branch, "Branch");
-		Assert.assertEquals(new BigDecimal(DataGenerator.extractDigits(cashbookPage.getAmount())).compareTo(new BigDecimal(amount))==0, "Amount");
+		Assert.assertTrue(new BigDecimal(DataGenerator.extractDigits(cashbookPage.getAmount())).compareTo(new BigDecimal(amount))==0, "Amount");
 		Assert.assertEquals(cashbookPage.getPaymentMethod(), paymentMethod, "Payment method");
 		Assert.assertEquals(cashbookPage.getNote(), note, "Note");
 		Assert.assertEquals(cashbookPage.isAccountingChecked(), isAccountingChecked, "Accounting");
