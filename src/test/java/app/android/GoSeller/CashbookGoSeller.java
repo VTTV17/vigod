@@ -96,8 +96,7 @@ public class CashbookGoSeller extends BaseTest {
 	
 	@BeforeMethod
 	public void beforeMethod() {
-    	driver = new InitAndroidDriver().getSellerDriver("R5CW81WLFPT");
-//    	driver = new InitAndroidDriver().getSellerDriver(PropertiesUtil.getEnvironmentData("udidAndroidVi"));
+    	driver = new InitAndroidDriver().getSellerDriver(PropertiesUtil.getEnvironmentData("udidAndroidVi"));
     	new UICommonMobile(driver).waitSplashScreenLoaded();
     	
 		loginPage = new LoginPage(driver);
@@ -259,7 +258,7 @@ public class CashbookGoSeller extends BaseTest {
 		Assert.assertEquals(cashbookPage.getName(), sender, "Sender/Recipient name");
 		Assert.assertEquals(cashbookPage.getSourceOrExpense(), source, "Revenue/Expense");
 		Assert.assertEquals(cashbookPage.getBranch(), branch, "Branch");
-		Assert.assertEquals(DataGenerator.extractDigits(cashbookPage.getAmount()), amount, "Amount");
+		Assert.assertEquals(new BigDecimal(DataGenerator.extractDigits(cashbookPage.getAmount())).compareTo(new BigDecimal(amount))==0, "Amount");
 		Assert.assertEquals(cashbookPage.getPaymentMethod(), paymentMethod, "Payment method");
 		Assert.assertEquals(cashbookPage.getNote(), note, "Note");
 		Assert.assertEquals(cashbookPage.isAccountingChecked(), isAccountingChecked, "Accounting");
@@ -269,8 +268,8 @@ public class CashbookGoSeller extends BaseTest {
 	public Object[][] groups() {
 		return new Object[][] { 
 			{CashbookGroup.CUSTOMER},
-//			{CashbookGroup.SUPPLIER},
-//			{CashbookGroup.STAFF},
+			{CashbookGroup.SUPPLIER},
+			{CashbookGroup.STAFF},
 			{CashbookGroup.OTHERS},
 		};
 	}	
@@ -299,7 +298,7 @@ public class CashbookGoSeller extends BaseTest {
 			
 			verifySummaryDataAfterReceiptCreated(originalSummary, laterSummary, amount, isAccountingChecked);
 			
-			commonAction.swipeByCoordinatesInPercent(0.5, 0.5, 0.5, 0.7);
+			commonAction.swipeByCoordinatesInPercent(0.5, 0.5, 0.5, 0.8);
 			List<String> record = cashbookPage.getSpecificRecord(0);
 			verifyRecordDataAfterReceiptCreated(record, branch, source, sender, amount);
 			
@@ -334,7 +333,7 @@ public class CashbookGoSeller extends BaseTest {
 			
 			verifySummaryDataAfterPaymentCreated(originalSummary, laterSummary, amount, isAccountingChecked);
 			
-			commonAction.swipeByCoordinatesInPercent(0.5, 0.5, 0.5, 0.7);
+			commonAction.swipeByCoordinatesInPercent(0.5, 0.5, 0.5, 0.8);
 			List<String> record = cashbookPage.getSpecificRecord(0);
 			verifyRecordDataAfterPaymentCreated(record, branch, source, sender, amount);
 			
