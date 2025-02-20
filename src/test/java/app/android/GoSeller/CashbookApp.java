@@ -145,10 +145,6 @@ public class CashbookApp extends BaseTest {
 		return getRandomListElement(transactionIdList.subList(0, 200));
 	}
 
-	public String randomAmount() {
-		return String.valueOf(Math.round(generate.generatNumberInBound(1, 50))*1000);
-	}
-
 	/**
 	 * Extract numbers from a string
 	 * @param rawAmount
@@ -375,125 +371,6 @@ public class CashbookApp extends BaseTest {
 		Arrays.sort(expected);
 		Arrays.sort(actual);
 		Assert.assertTrue(Arrays.equals(expected, actual), "Payment method list");
-	}
-
-	@Test
-	public void CBA_10_SearchRecords() throws Exception {
-
-		cashbookPage.clickTimeRangeFilter();
-
-		String[] dateArray = cashbookPage.getCurrentTimeRangeFilter().split(" -")[0].split("/");
-		int currentDay = Integer.valueOf(dateArray[0]);
-		int currentMonth = Integer.valueOf(dateArray[1]);
-		int currentYear = Integer.valueOf(dateArray[2]);
-		/*Need more code here*/
-		cashbookPage.setDateFilter(currentDay, currentMonth, currentYear, currentDay, currentMonth-2, currentYear);
-		cashbookPage.setDateFilter(currentDay, currentMonth-2, currentYear, currentDay, currentMonth, currentYear);
-
-		cashbookPage.clickApplyDateBtn();
-
-		for (int i=0; i<3; i++) {
-			String transactionId = randomTransactionId();
-
-			cashbookPage.inputCashbookSearchTerm(transactionId);
-
-			List<String> searchedRecords = cashbookPage.getSpecificRecord(0);
-
-			/* Click on the searched record */
-			List<String> rec1 = cashbookPage.getSpecificRecord(0);
-			cashbookPage.swipeThroughRecords();
-			List<String> rec2 = cashbookPage.getSpecificRecord(0);
-			Assert.assertEquals(rec1, rec2);
-			Assert.assertEquals(searchedRecords.get(web.Dashboard.cashbook.Cashbook.ID_IDX), transactionId, "Transaction Code");
-		}
-	}
-
-	@Test
-	public void CBA_11_FilterRecords() throws Exception {
-
-		cashbookPage.clickTimeRangeFilter();
-		cashbookPage.setDateFilter(8, 9, 2023, 1, 7, 2023);
-		cashbookPage.setDateFilter(1, 7, 2023, 31, 8, 2023);
-
-		cashbookPage.clickApplyDateBtn();
-
-		int loop = 2;
-
-		boolean expectedAccounting = false;
-		String accounting = (expectedAccounting) ? allowAccounting("yes"):allowAccounting("no");
-		cashbookPage.clickFilterIcon().selectFilteredAccounting(accounting).clickApplyBtn();
-		for (int i=0; i<loop; i++) {
-			List<String> fv = cashbookPage.getSpecificRecord(0);
-			cashbookPage.clickRecord(fv.get(0));
-			Assert.assertEquals(cashbookPage.isAccountingChecked(), expectedAccounting);
-			commonAction.navigateBack();
-			cashbookPage.swipeThroughRecords();
-		}
-
-		String branch = randomBranch();
-		cashbookPage.clickFilterIcon().clickResetFilterBtn().selectFilteredBranch(branch).clickApplyBtn();
-		for (int i=0; i<loop; i++) {
-			List<String> fv = cashbookPage.getSpecificRecord(0);
-			Assert.assertEquals(fv.get(2), branch);
-			cashbookPage.swipeThroughRecords();
-		}
-
-		cashbookPage.clickFilterIcon().clickResetFilterBtn().selectFilteredTransaction(transactions("allExpenses")).clickApplyBtn();
-		for (int i=0; i<loop; i++) {
-			List<String> fv = cashbookPage.getSpecificRecord(0);
-			Assert.assertTrue(Arrays.asList(expenseTypeList()).contains(fv.get(3).split(": ")[1].trim()));
-			cashbookPage.swipeThroughRecords();
-		}
-
-		cashbookPage.clickFilterIcon().clickResetFilterBtn().selectFilteredTransaction(transactions("allRevenues")).clickApplyBtn();
-		for (int i=0; i<loop; i++) {
-			List<String> fv = cashbookPage.getSpecificRecord(0);
-			Assert.assertTrue(Arrays.asList(revenueSourceList()).contains(fv.get(3).split(": ")[1].trim()));
-			cashbookPage.swipeThroughRecords();
-		}
-
-		String filteredExpenseType = getRandomListElement(Arrays.asList(expenseTypeList()));
-		cashbookPage.clickFilterIcon().clickResetFilterBtn().selectFilteredExpenseType(filteredExpenseType).clickApplyBtn();
-		for (int i=0; i<loop; i++) {
-			List<String> fv = cashbookPage.getSpecificRecord(0);
-			Assert.assertTrue(fv.get(3).contains(filteredExpenseType));
-			cashbookPage.swipeThroughRecords();
-		}
-
-		String filteredRevenueType = getRandomListElement(Arrays.asList(revenueSourceList()));
-		cashbookPage.clickFilterIcon().clickResetFilterBtn().selectFilteredRevenueType(filteredRevenueType).clickApplyBtn();
-		for (int i=0; i<loop; i++) {
-			List<String> fv = cashbookPage.getSpecificRecord(0);
-			Assert.assertTrue(fv.get(3).contains(filteredRevenueType));
-			cashbookPage.swipeThroughRecords();
-		}
-
-		String filteredGroup = senderGroup("supplier");
-		String filteredName = randomSupplier();
-		cashbookPage.clickFilterIcon().clickResetFilterBtn().selectFilteredGroup(filteredGroup).clickApplyBtn();
-		for (int i=0; i<loop; i++) {
-			List<String> fv = cashbookPage.getSpecificRecord(0);
-			cashbookPage.clickRecord(fv.get(0));
-			Assert.assertEquals(cashbookPage.getGroup(), filteredGroup);
-			commonAction.navigateBack();
-			cashbookPage.swipeThroughRecords();
-		}
-		cashbookPage.clickFilterIcon().clickResetFilterBtn().selectFilteredGroup(filteredGroup).selectFilteredName(filteredName).clickApplyBtn();
-		for (int i=0; i<loop; i++) {
-			List<String> fv = cashbookPage.getSpecificRecord(0);
-			Assert.assertEquals(fv.get(4), filteredName);
-			cashbookPage.swipeThroughRecords();
-		}
-
-		String filteredPaymentMethod = randomPaymentMethod();
-		cashbookPage.clickFilterIcon().clickResetFilterBtn().selectFilteredPaymentMethod(filteredPaymentMethod).clickApplyBtn();
-		for (int i=0; i<loop; i++) {
-			List<String> fv = cashbookPage.getSpecificRecord(0);
-			cashbookPage.clickRecord(fv.get(0));
-			Assert.assertEquals(cashbookPage.getPaymentMethod(), filteredPaymentMethod);
-			commonAction.navigateBack();
-			cashbookPage.swipeThroughRecords();
-		}
 	}
 
 	@Test
