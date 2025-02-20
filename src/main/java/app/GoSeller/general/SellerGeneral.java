@@ -26,6 +26,12 @@ public class SellerGeneral {
     By HEADER_PAGE_TITLE = By.xpath("//*[ends-with(@resource-id,'tvActionBarTitle')]");
     By HEADER_RIGHT_ICON = By.xpath("//*[ends-with(@resource-id,'ivActionBarIconRight')]");
     By HEADER_LEFT_ICON = By.xpath("//*[ends-with(@resource-id,'ivActionBarIconLeft')]");
+    By loc_header_txtSearch = By.xpath("//*[ends-with(@resource-id,'search_src_text')]");
+    By loc_lstsearchResult = By.xpath("//*[ends-with(@resource-id,'item_list_region_name')]");
+    By loc_header_btnCancel = By.xpath("//*[ends-with(@resource-id,'btnCancel')]");
+    By loc_header_btnClose = By.xpath("//*[ends-with(@resource-id,'btnClose')]");
+    By loc_header_btnSearch = By.xpath("//*[ends-with(@resource-id,'btnSearch')]");
+
     By SELECT_IMAGE_BTN = By.xpath("//*[ends-with(@resource-id,'rlSelectImages')]");
     By SELECT_IMAGE_ICON = By.xpath("//*[ends-with(@resource-id,'tvSelectIndex')]");
     By SAVE_ICON_SELECT_IMAGE = By.xpath("//*[ends-with(@resource-id,'fragment_choose_photo_dialog_btn_choose')]");
@@ -76,5 +82,36 @@ public class SellerGeneral {
     }
     public void tapRightBtnOnPopup(){
         common.clickElement(POPUP_RIGHT_BTN);
+    }
+    public SellerGeneral searchOnHeader(String keyword, String valueSelectBefore){
+        common.click(loc_header_btnSearch);
+        common.inputText(loc_header_txtSearch,keyword);
+        common.sleepInMiliSecond(2000);
+        String searchResult = common.getText(common.getElements(loc_lstsearchResult).get(0)).split("\\)")[1];
+        if(searchResult.toLowerCase().contains(keyword.toLowerCase())){
+            if(searchResult.equals(valueSelectBefore)){
+                tapCancelOnHeader();
+                tapCloseOnHeader();
+                logger.info("No need search.");
+            }else {
+                common.click(common.getElements(loc_lstsearchResult).get(0));
+                logger.info("Select: "+keyword);
+            }
+        }else try {
+            throw new Exception("The first result not match keyword");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return this;
+    }
+    public SellerGeneral tapCancelOnHeader(){
+        common.click(loc_header_btnCancel);
+        logger.info("Click cancel button on header.");
+        return this;
+    }
+    public SellerGeneral tapCloseOnHeader(){
+        common.click(loc_header_btnClose);
+        logger.info("Click close button on header.");
+        return this;
     }
 }
