@@ -12,6 +12,7 @@ import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.support.pagefactory.ByChained;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -212,7 +213,13 @@ public class Cashbook {
 
 	public Cashbook clickApplyDateBtn() {
 		commonAction.clickElement(By.xpath("//*[ends-with(@resource-id,'tvCalendarApply')]"));
-		logger.info("Clicked on 'Apply' button to filter records according to time.");
+		logger.info("Clicked 'Apply' button to filter records according to time.");
+		return this;
+	}
+	
+	public Cashbook clickCancelDateBtn() {
+		commonAction.clickElement(By.xpath("//*[ends-with(@resource-id,'id/tvCalendarCancel')]"));
+		logger.info("Clicked 'Cancel' button to abort filtering according to time.");
 		return this;
 	}
 
@@ -315,6 +322,11 @@ public class Cashbook {
 		return this;
 	}
 
+	//TODO: This function is temporary and will be deleted soon
+	public void waitUntilPlusIconAppears() {
+		commonAction.getElement(CREATE_BTN, defaultTimeout);
+	}
+	
 	public Cashbook clickCreateBtn() {
 		commonAction.clickElement(CREATE_BTN, defaultTimeout);
 		logger.info("Clicked on 'Create' button.");
@@ -342,10 +354,15 @@ public class Cashbook {
 
 	public Cashbook selectName(String name) {
 		commonAction.clickElement(NAME_DROPDOWN);
-//		commonAction.sleepInMiliSecond(1000); // Sometimes the element representing the search box gets stale
-		commonAction.inputText(SEARCH_BOX, name);
-		commonAction
-				.clickElement(By.xpath("//*[ends-with(@resource-id,'tvFilterText') and @text=\"%s\"]".formatted(name)));
+		
+		//The search box element gets stale sometimes and more frequent on CI env. The exception is vague so it's hard to apply try catch mechanism in function inputText. See #issue1
+		try {
+			commonAction.inputText(SEARCH_BOX, name);
+		} catch (WebDriverException e) {
+			commonAction.inputText(SEARCH_BOX, name);
+		}
+		
+		commonAction.clickElement(By.xpath("//*[ends-with(@resource-id,'tvFilterText') and @text=\"%s\"]".formatted(name)));
 		logger.info("Selected Sender Name: %s.".formatted(name));
 		return this;
 	}
@@ -527,5 +544,8 @@ public class Cashbook {
 		logger.info("Retrieved Note value from record details: " + text);
 		return text;
 	}
-
+	
+	/**
+	 * #issue1: org.openqa.selenium.WebDriverException: An unknown server-side error occurred while processing the command. Original error: Cannot invoke method private android.view.accessibility.AccessibilityNodeInfo androidx.test.uiautomator.UiObject2.getAccessibilityNodeInfo() on object androidx.test.uiautomator.UiObject2@16193e with parameters []
+	 */
 }
