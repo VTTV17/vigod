@@ -105,6 +105,24 @@ public class ViewCreateUpdateCustomer extends ViewCreateUpdateCustomerElement {
         country = country.substring(country.indexOf(")") + 1).trim();
         return country;
     }
+    public String selectCountryInAddressScreen(boolean isVietNam){
+        String country = getCountryInAddressScreen();
+        boolean selectedVN = country.equals(Constant.VIETNAM);
+        if ((isVietNam && !selectedVN) ||(!isVietNam && selectedVN)) {
+            common.sleepInMiliSecond(1000);
+            common.clickElement(loc_address_ddlCountry);
+            if(isVietNam) {
+                new SellerGeneral(driver).searchOnHeader(Constant.VIETNAM, country);
+                country = Constant.VIETNAM;
+            }else {
+                country = randomSelectItemInAddressList();
+            }
+        }
+        if(country.equals("")) country = getCountry();
+        logger.info("Select country in address screen: "+country);
+        country = country.substring(country.indexOf(")") + 1).trim();
+        return country;
+    }
     public String selectCityProvince(){
         common.click(loc_address_ddlCityProvince);
         String cityProvince = randomSelectItemInAddressList();
@@ -196,7 +214,7 @@ public class ViewCreateUpdateCustomer extends ViewCreateUpdateCustomerElement {
     public String randomSelectItemInAddressList(){
         List<WebElement> list = common.getElements(loc_lstCountry_cityProvice_district_ward,7);
         if(list.isEmpty()) {
-            new BuyerGeneral(driver).tapCloseIconOnHeader();
+            new SellerGeneral(driver).tapCloseOnHeader();
             logger.info("List empty, so no need select"); //4.5 state = other, state list empty
             return "";
         }
@@ -237,7 +255,7 @@ public class ViewCreateUpdateCustomer extends ViewCreateUpdateCustomerElement {
         data.setName(inputFullName());
         data.setPhone(inputPhoneNumber());
         data.setEmail(inputEmail());
-        if(!isVietNam) data.setCountry(selectCountry(false));
+        data.setCountry(selectCountry(false));
         clickFullAddress();
         data.setAddress(inputAddress());
         if(!isVietNam){
@@ -262,8 +280,8 @@ public class ViewCreateUpdateCustomer extends ViewCreateUpdateCustomerElement {
         data.setEmail(getEmail());
         clickFullAddress();
         data.setAddress(getAddress());
+        data.setCountry(getCountryInAddressScreen());
         if(!isVietNam){
-            data.setCountry(getCountryInAddressScreen());
             data.setAddress2(getAddress2());
             data.setProvince(getStateRegion());
             data.setCity(getCity());
@@ -273,6 +291,29 @@ public class ViewCreateUpdateCustomer extends ViewCreateUpdateCustomerElement {
             data.setDistrict(getDistrict());
             data.setWard(getWard());
         }
+        return data;
+    }
+    public UICreateCustomerData editCustomer(boolean isVietNam) {
+        UICreateCustomerData data = new UICreateCustomerData();
+        data.setName(inputFullName());
+        data.setPhone(inputPhoneNumber());
+        scrollDown();
+        data.setEmail(inputEmail());
+        clickFullAddress();
+        data.setCountry(selectCountryInAddressScreen(isVietNam));
+        data.setAddress(inputAddress());
+        if(!isVietNam){
+            data.setAddress2(inputAddress2());
+            data.setProvince(selectStateRegion());
+            data.setCity(inputCity());
+            data.setZipCode(inputZipCode());
+        }else {
+            data.setProvince(selectCityProvince());
+            data.setDistrict(selectDistrict());
+            data.setWard(selectWard());
+        }
+        clickSaveOnAddressScreen();
+        new SellerGeneral(driver).tapHeaderRightIcon();
         return data;
     }
     public void verifyCustomerInfo(UICreateCustomerData customerInfoExpected, UICreateCustomerData customerInfoActual){
@@ -289,5 +330,19 @@ public class ViewCreateUpdateCustomer extends ViewCreateUpdateCustomerElement {
         common.swipeByCoordinatesInPercent(0.75,0.75,0.75,0.45);
         logger.info("Scroll down");
         return new ViewCreateUpdateCustomer(driver);
+    }
+    public ViewCreateUpdateCustomer scrollUp(){
+        common.swipeByCoordinatesInPercent(0.75,0.45,0.75,0.75);
+        logger.info("Scroll up");
+        return new ViewCreateUpdateCustomer(driver);
+    }
+    @SneakyThrows
+    public ViewCreateUpdateCustomer  verifyUpdateSuccessMessage(){
+        new SellerGeneral(driver).verifyToastMessage(PropertiesUtil.getPropertiesValueByDBLang("customers.update.successMessage"));
+        return this;
+    }
+    public CustomerListScreen tapBackIcon(){
+        new SellerGeneral(driver).tapHeaderLeftIcon();
+        return new CustomerListScreen(driver);
     }
 }

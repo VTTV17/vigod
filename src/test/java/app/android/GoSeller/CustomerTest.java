@@ -56,14 +56,46 @@ public class CustomerTest extends BaseTest{
         new HomePage(driver).navigateToPage("AddNewCustomer");
         return new ViewCreateUpdateCustomer(driver);
     }
+    public CustomerListScreen goToCustomerList(){
+        new HomePage(driver).navigateToPage("Customer");
+        return new CustomerListScreen(driver);
+    }
     public HomePage changeLaguage(){
         return new SellerAccount(driver).changeLanguage(language);
     }
     @Test
     public void createCustomerInVietNam(){
+        UICreateCustomerData customerInfoExpected = goToCreateCustomer().createCustomer(true);
+        UICreateCustomerData customerInfoAfterCreate = new ViewCreateUpdateCustomer(driver).
+                verifyCreateSuccessMessage().goToNewestCustomer()
+                .getCustomerInfo(true);
+        new ViewCreateUpdateCustomer(driver).verifyCustomerInfo(customerInfoExpected, customerInfoAfterCreate);
+    }
+    @Test
+    public void createCustomerNonVietNam(){
         UICreateCustomerData customerInfoExpected = goToCreateCustomer().createCustomer(false);
         UICreateCustomerData customerInfoAfterCreate = new ViewCreateUpdateCustomer(driver).
                 verifyCreateSuccessMessage().goToNewestCustomer()
+                .getCustomerInfo(false);
+        new ViewCreateUpdateCustomer(driver).verifyCustomerInfo(customerInfoExpected, customerInfoAfterCreate);
+    }
+    @Test
+    public void updateCustomerInVietNam(){
+        goToCustomerList();
+        UICreateCustomerData customerInfoExpected = new CustomerListScreen(driver).goToNewestCustomer().
+                editCustomer(true);
+        UICreateCustomerData customerInfoAfterCreate = new ViewCreateUpdateCustomer(driver).
+                verifyUpdateSuccessMessage().tapBackIcon().goToNewestCustomer()
+                .getCustomerInfo(true);
+        new ViewCreateUpdateCustomer(driver).verifyCustomerInfo(customerInfoExpected, customerInfoAfterCreate);
+    }
+    @Test
+    public void updateCustomerNonVietNam(){
+        goToCustomerList();
+        UICreateCustomerData customerInfoExpected = new CustomerListScreen(driver).goToNewestCustomer().
+                editCustomer(false);
+        UICreateCustomerData customerInfoAfterCreate = new ViewCreateUpdateCustomer(driver).
+                verifyUpdateSuccessMessage().tapBackIcon().goToNewestCustomer()
                 .getCustomerInfo(false);
         new ViewCreateUpdateCustomer(driver).verifyCustomerInfo(customerInfoExpected, customerInfoAfterCreate);
     }
