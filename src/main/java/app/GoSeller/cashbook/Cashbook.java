@@ -12,6 +12,7 @@ import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.support.pagefactory.ByChained;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -353,8 +354,14 @@ public class Cashbook {
 
 	public Cashbook selectName(String name) {
 		commonAction.clickElement(NAME_DROPDOWN);
-		commonAction.inputText(SEARCH_BOX, name);
-		UICommonMobile.sleepInMiliSecond(1000); //The matched result element gets stale sometimes and more frequent on CI env. The exception is vague so it's hard to apply try catch mechanism. See #issue1
+		
+		//The search box element gets stale sometimes and more frequent on CI env. The exception is vague so it's hard to apply try catch mechanism in function inputText. See #issue1
+		try {
+			commonAction.inputText(SEARCH_BOX, name);
+		} catch (WebDriverException e) {
+			commonAction.inputText(SEARCH_BOX, name);
+		}
+		
 		commonAction.clickElement(By.xpath("//*[ends-with(@resource-id,'tvFilterText') and @text=\"%s\"]".formatted(name)));
 		logger.info("Selected Sender Name: %s.".formatted(name));
 		return this;
