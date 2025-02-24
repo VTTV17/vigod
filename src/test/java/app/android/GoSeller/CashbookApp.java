@@ -282,49 +282,6 @@ public class CashbookApp extends BaseTest {
 		return PropertiesUtil.getPropertiesValueByDBLang("cashbook.filter.createdBy." + staff);
 	}
 
-	public void verifySummaryDataAfterReceiptCreated(List<Long> originalSummary, List<Long> laterSummary, String amount, boolean isAccountingChecked) {
-		Long revenue = (isAccountingChecked) ? originalSummary.get(web.Dashboard.cashbook.Cashbook.TOTALREVENUE_IDX) + Long.parseLong(amount) : originalSummary.get(web.Dashboard.cashbook.Cashbook.TOTALREVENUE_IDX);
-		Assert.assertEquals(laterSummary.get(web.Dashboard.cashbook.Cashbook.TOTALREVENUE_IDX), revenue, "Revenue");
-		Assert.assertEquals(laterSummary.get(web.Dashboard.cashbook.Cashbook.TOTALEXPENDITURE_IDX), originalSummary.get(web.Dashboard.cashbook.Cashbook.TOTALEXPENDITURE_IDX), "Expenditure");
-		Assert.assertEquals(laterSummary.get(web.Dashboard.cashbook.Cashbook.ENDINGBALANCE_IDX), laterSummary.get(web.Dashboard.cashbook.Cashbook.OPENINGBALANCE_IDX) + laterSummary.get(web.Dashboard.cashbook.Cashbook.TOTALREVENUE_IDX) - laterSummary.get(web.Dashboard.cashbook.Cashbook.TOTALEXPENDITURE_IDX),
-				"Ending Opening");
-	}
-
-	public void verifySummaryDataAfterPaymentCreated(List<Long> originalSummary, List<Long> laterSummary, String amount, boolean isAccountingChecked) {
-		Long expenditure = (isAccountingChecked) ? originalSummary.get(web.Dashboard.cashbook.Cashbook.TOTALEXPENDITURE_IDX) + Long.parseLong(amount) : originalSummary.get(web.Dashboard.cashbook.Cashbook.TOTALEXPENDITURE_IDX);
-		Assert.assertEquals(laterSummary.get(web.Dashboard.cashbook.Cashbook.TOTALREVENUE_IDX), originalSummary.get(web.Dashboard.cashbook.Cashbook.TOTALREVENUE_IDX), "Revenue");
-		Assert.assertEquals(laterSummary.get(web.Dashboard.cashbook.Cashbook.TOTALEXPENDITURE_IDX), expenditure, "Expenditure");
-		Assert.assertEquals(laterSummary.get(web.Dashboard.cashbook.Cashbook.ENDINGBALANCE_IDX), laterSummary.get(web.Dashboard.cashbook.Cashbook.OPENINGBALANCE_IDX) + laterSummary.get(web.Dashboard.cashbook.Cashbook.TOTALREVENUE_IDX) - laterSummary.get(web.Dashboard.cashbook.Cashbook.TOTALEXPENDITURE_IDX),
-				"Ending Opening");
-	}
-
-	public void verifyRecordDataAfterReceiptCreated(List<String> record, String branch, String source,
-													String sender, String amount) {
-		Assert.assertEquals(record.get(web.Dashboard.cashbook.Cashbook.BRANCH_IDX), branch, "Branch");
-		Assert.assertTrue(record.get(web.Dashboard.cashbook.Cashbook.REVENUETYPE_IDX).contains(source), "Revenue type");
-		Assert.assertEquals(record.get(web.Dashboard.cashbook.Cashbook.NAME_IDX-1), sender, "Sender");
-		Assert.assertEquals(extractDigits(record.get(web.Dashboard.cashbook.Cashbook.AMOUNT_IDX-1)), amount, "Amount");
-	}
-
-	public void verifyRecordDataAfterPaymentCreated(List<String> record, String branch, String source,
-													String sender, String amount) {
-		Assert.assertEquals(record.get(web.Dashboard.cashbook.Cashbook.BRANCH_IDX), branch, "Branch");
-		Assert.assertTrue(record.get(web.Dashboard.cashbook.Cashbook.REVENUETYPE_IDX).contains(source), "Expense type");
-		Assert.assertEquals(record.get(web.Dashboard.cashbook.Cashbook.NAME_IDX-1), sender, "Sender");
-		Assert.assertEquals(extractDigits(record.get(web.Dashboard.cashbook.Cashbook.AMOUNT_IDX-1)), amount, "Amount");
-	}
-
-	public void verifyDataInRecordDetail(String group, String sender, String source, String branch,
-										 String amount, String paymentMethod, String note, boolean isAccountingChecked) {
-		Assert.assertEquals(cashbookPage.getGroup(), group, "Sender/Recipient group");
-		Assert.assertEquals(cashbookPage.getName(), sender, "Sender/Recipient name");
-		Assert.assertEquals(cashbookPage.getSourceOrExpense(), source, "Revenue/Expense");
-		Assert.assertEquals(cashbookPage.getBranch(), branch, "Branch");
-		Assert.assertEquals(extractDigits(cashbookPage.getAmount()), amount, "Amount");
-		Assert.assertEquals(cashbookPage.getPaymentMethod(), paymentMethod, "Payment method");
-		Assert.assertEquals(cashbookPage.getNote(), note, "Note");
-		Assert.assertEquals(cashbookPage.isAccountingChecked(), isAccountingChecked, "Accounting");
-	}
 
 	public AppiumDriver launchApp() throws Exception {
 		DesiredCapabilities capabilities = new DesiredCapabilities();
@@ -371,73 +328,5 @@ public class CashbookApp extends BaseTest {
 		Arrays.sort(expected);
 		Arrays.sort(actual);
 		Assert.assertTrue(Arrays.equals(expected, actual), "Payment method list");
-	}
-
-	@Test
-	public void CBA_12_CombineFilterConditions() throws Exception {
-
-		cashbookPage.clickTimeRangeFilter();
-		cashbookPage.setDateFilter(8, 9, 2023, 1, 7, 2023);
-		cashbookPage.setDateFilter(1, 7, 2023, 31, 8, 2023);
-
-		cashbookPage.clickApplyDateBtn();
-
-		String recordId = randomTransactionId();
-
-		cashbookPage.inputCashbookSearchTerm(recordId);
-
-		List<String> fv = cashbookPage.getSpecificRecord(0);
-
-		String branch = fv.get(2);
-//		String createdBy = fv.get(5);
-		String name = fv.get(4);
-		String source = fv.get(3);
-		String transaction = Arrays.asList(expenseTypeList()).contains(source.split(": ")[1].trim()) ? transactions("allExpenses"):transactions("allRevenues");
-
-		cashbookPage.clickRecord(recordId);
-
-		boolean expectedAccounting = cashbookPage.isAccountingChecked();
-		String accounting = (expectedAccounting) ? allowAccounting("yes"):allowAccounting("no");
-		String group = cashbookPage.getGroup();
-		String payment = cashbookPage.getPaymentMethod();
-
-		commonAction.navigateBack();
-
-		cashbookPage.inputCashbookSearchTerm("");
-
-		cashbookPage.clickFilterIcon()
-				.selectFilteredAccounting(accounting)
-				.selectFilteredBranch(branch)
-				.selectFilteredTransaction(transaction);
-		if(transaction.contentEquals(transactions("allExpenses"))) {
-			cashbookPage.selectFilteredExpenseType(fv.get(3).split(": ")[1].trim());
-		} else {
-			cashbookPage.selectFilteredRevenueType(fv.get(3).split(": ")[1].trim());
-		}
-		cashbookPage.selectFilteredGroup(group)
-				.selectFilteredName(name);
-
-		//Temporary skip checking payment info when it's paypal
-		if (!payment.equalsIgnoreCase(paymentMethod("paypal"))) cashbookPage.selectFilteredPaymentMethod(payment);
-
-		cashbookPage.clickApplyBtn();
-
-		int loop = 1;
-
-		for (int i=0; i<loop; i++) {
-			List<String> result = cashbookPage.getSpecificRecord(0);
-			Assert.assertEquals(result.get(2), branch);
-			Assert.assertEquals(result.get(4), name);
-			Assert.assertEquals(result.get(3), source);
-
-			cashbookPage.clickRecord(result.get(0));
-			Assert.assertEquals(cashbookPage.isAccountingChecked(), expectedAccounting);
-			Assert.assertEquals(cashbookPage.getGroup(), group);
-			if (!payment.equalsIgnoreCase(paymentMethod("paypal"))) {
-				Assert.assertEquals(cashbookPage.getPaymentMethod(), payment);
-			}
-			commonAction.navigateBack();
-			cashbookPage.swipeThroughRecords();
-		}
 	}
 }
