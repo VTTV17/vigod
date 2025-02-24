@@ -37,17 +37,18 @@ public class Cashbook {
 		commonAction = new UICommonMobile(driver);
 	}
 
+	//TODO: Move these locators to a separate file
 	String dropdownOption = "//*[ends-with(@resource-id,'tvAction') %s]";
 
-	By CREATE_BTN = By.xpath("//*[ends-with(@resource-id,'ivActionBarIconRight')]");
-	By CREATE_RECEIPT_BTN = By.xpath(dropdownOption.formatted("and @index='0'"));
-	By CREATE_PAYMENT_BTN = By.xpath(dropdownOption.formatted("and @index='1'"));
+	By loc_btnPlusIcon = By.xpath("//*[ends-with(@resource-id,'ivActionBarIconRight')]");
+	By loc_btnCreateReceipt = By.xpath(dropdownOption.formatted("and @index='0'"));
+	By loc_BtnCreatePayment = By.xpath(dropdownOption.formatted("and @index='1'"));
 
-	By CASHBOOK_SEARCHBOX = By.xpath("//*[ends-with(@resource-id,'edtCashbookSearch')]");
+	By loc_txtRecordSearchBox = By.xpath("//*[ends-with(@resource-id,'edtCashbookSearch')]");
 
-	By DATEFILTER = By.xpath("//*[ends-with(@resource-id,'tvFilterFromDateToDate')]");
-	By MONTH_TITLE = By.xpath("//*[ends-with(@resource-id,'title') and @index='0']");
-	By WHOLE_MONTH = By.xpath("(//*[ends-with(@resource-id,'title')]/parent::*)[1]");
+	By loc_txtDateRange = By.xpath("//*[ends-with(@resource-id,'tvFilterFromDateToDate')]");
+	By loc_lblMonthTitle = By.xpath("//*[ends-with(@resource-id,'title') and @index='0']");
+	By loc_calWholeMonth = By.xpath("(//*[ends-with(@resource-id,'title')]/parent::*)[1]");
 
 	By GROUP_DROPDOWN = By.xpath("//*[ends-with(@resource-id,'tvSenderGroup')]");
 	By NAME_DROPDOWN = By.xpath("//*[ends-with(@resource-id,'tvSelectSenderName')]");
@@ -60,15 +61,15 @@ public class Cashbook {
 
 	By BRANCH_DROPDOWN = By.xpath("//*[ends-with(@resource-id,'tvSelectBranch')]");
 
-	By AMOUNT = By.xpath("//*[ends-with(@resource-id,'edtPriceCustom')]");
+	By loc_txtAmount = By.xpath("//*[ends-with(@resource-id,'edtPriceCustom')]");
 
 	By PAYMENTMETHOD_DROPDOWN = By.xpath("//*[ends-with(@resource-id,'tvSelectPaymentMethod')]");
 
-	By NOTE = By.xpath("//*[ends-with(@resource-id,'edtNote')]");
+	By loc_txtNote = By.xpath("//*[ends-with(@resource-id,'edtNote')]");
 
-	By ACCOUNTING_CHECKBOX = By.xpath("//*[ends-with(@resource-id,'cbxAccounting')]");
+	By loc_chkAccounting = By.xpath("//*[ends-with(@resource-id,'cbxAccounting')]");
 
-	By SAVE_BTN = By.xpath("//*[ends-with(@resource-id,'ivActionBarIconRight')]");
+	By loc_btnSaveRecord = By.xpath("//*[ends-with(@resource-id,'ivActionBarIconRight')]");
 
 	By loc_lblOpeningBalance = By.xpath("//*[ends-with(@resource-id,'tvOpening')]");
 	By loc_lblTotalRevenue = By.xpath("//*[ends-with(@resource-id,'tvTotalRev')]");
@@ -151,19 +152,19 @@ public class Cashbook {
 	}
 	
 	public Cashbook inputCashbookSearchTerm(String searchTerm) {
-		commonAction.inputText(CASHBOOK_SEARCHBOX, searchTerm);
+		commonAction.inputText(loc_txtRecordSearchBox, searchTerm);
 		logger.info("Input '" + searchTerm + "' into Search box.");
 		return this;
 	}
 
 	public Cashbook clickTimeRangeFilter() {
-		commonAction.clickElement(DATEFILTER);
+		commonAction.clickElement(loc_txtDateRange);
 		logger.info("Clicked on time range filter.");
 		return this;
 	}
 
 	public String getCurrentTimeRangeFilter() {
-		String timeRange = commonAction.getText(DATEFILTER);
+		String timeRange = commonAction.getText(loc_txtDateRange);
 		logger.info("Retrived current date range: " + timeRange);
 		return timeRange;
 	}
@@ -173,7 +174,7 @@ public class Cashbook {
 		travelTime(swipeCount[0], swipeCount[1]);
 
 		By DAY = By.xpath("//*[ends-with(@resource-id,'calendar_grid')]/*/*[@enabled='true']//*[@text='%s']".formatted(desiredDay));
-		commonAction.clickElement(new ByChained(WHOLE_MONTH, DAY));
+		commonAction.clickElement(new ByChained(loc_calWholeMonth, DAY));
 
 		return this;
 	}
@@ -215,10 +216,10 @@ public class Cashbook {
 		int swipeCount = (forwardSwipeCount>0) ? forwardSwipeCount : backwardSwipeCount;
 
 		for (int i=1; i<=swipeCount; i++) {
-			logger.debug("Month Title: " + commonAction.getText(MONTH_TITLE));
+			logger.debug("Month Title: " + commonAction.getText(loc_lblMonthTitle));
 
-			String monthTitleBounds = commonAction.getElement(MONTH_TITLE).getAttribute("bounds");
-			String monthBounds = commonAction.getElement(WHOLE_MONTH).getAttribute("bounds");
+			String monthTitleBounds = commonAction.getElement(loc_lblMonthTitle).getAttribute("bounds");
+			String monthBounds = commonAction.getElement(loc_calWholeMonth).getAttribute("bounds");
 
 			String rawBounds = (forwardSwipeCount>0) ? monthBounds : monthTitleBounds;
 
@@ -349,23 +350,23 @@ public class Cashbook {
 
 	//TODO: This function is temporary and will be deleted soon
 	public void waitUntilPlusIconAppears() {
-		commonAction.getElement(CREATE_BTN, defaultTimeout);
+		commonAction.getElement(loc_btnPlusIcon, defaultTimeout);
 	}
 	
 	public Cashbook clickCreateBtn() {
-		commonAction.clickElement(CREATE_BTN, defaultTimeout);
+		commonAction.clickElement(loc_btnPlusIcon, defaultTimeout);
 		logger.info("Clicked create (+) button.");
 		return this;
 	}
 
 	public Cashbook clickCreateReceiptBtn() {
-		commonAction.clickElement(CREATE_RECEIPT_BTN, defaultTimeout);
+		commonAction.clickElement(loc_btnCreateReceipt, defaultTimeout);
 		logger.info("Clicked 'Create Receipt'.");
 		return this;
 	}
 
 	public Cashbook clickCreatePaymentBtn() {
-		commonAction.clickElement(CREATE_PAYMENT_BTN, defaultTimeout);
+		commonAction.clickElement(loc_BtnCreatePayment, defaultTimeout);
 		logger.info("Clicked on 'Create Payment' button.");
 		return this;
 	}
@@ -444,7 +445,7 @@ public class Cashbook {
 	}
 
 	public Cashbook inputAmount(String amount) {
-		commonAction.inputText(AMOUNT, amount);
+		commonAction.inputText(loc_txtAmount, amount);
 		logger.info("Input amount: %s.".formatted(amount));
 		return this;
 	}
@@ -470,13 +471,13 @@ public class Cashbook {
 	}
 
 	public Cashbook inputNote(String note) {
-		commonAction.inputText(NOTE, note);
+		commonAction.inputText(loc_txtNote, note);
 		logger.info("Input note: %s.".formatted(note));
 		return this;
 	}
 
 	public boolean isAccountingChecked() {
-		boolean isChecked = commonAction.isElementChecked(ACCOUNTING_CHECKBOX);
+		boolean isChecked = commonAction.isElementChecked(loc_chkAccounting);
 		logger.info("Is accounting checked: " + isChecked);
 		return isChecked;
 	}
@@ -488,19 +489,19 @@ public class Cashbook {
 		if (isChecked) {
 			if (isAccountingChecked())
 				return this;
-			commonAction.clickElement(ACCOUNTING_CHECKBOX);
+			commonAction.clickElement(loc_chkAccounting);
 			logger.info("Checked Account checkbox");
 		} else {
 			if (!isAccountingChecked())
 				return this;
-			commonAction.clickElement(ACCOUNTING_CHECKBOX);
+			commonAction.clickElement(loc_chkAccounting);
 			logger.info("Un-checked Account checkbox");
 		}
 		return this;
 	}
 
 	public Cashbook clickSaveBtn() {
-		commonAction.clickElement(SAVE_BTN);
+		commonAction.clickElement(loc_btnSaveRecord);
 		logger.info("Clicked on Save button.");
 		return this;
 	}
@@ -574,13 +575,13 @@ public class Cashbook {
 	}
 
 	public String getAmount() {
-		String text = commonAction.getText(AMOUNT);
+		String text = commonAction.getText(loc_txtAmount);
 		logger.info("Retrieved Amount value from record details: " + text);
 		return text;
 	}
 
 	public String getNote() {
-		String text = commonAction.getText(NOTE);
+		String text = commonAction.getText(loc_txtNote);
 		logger.info("Retrieved Note value from record details: " + text);
 		return text;
 	}
