@@ -3,6 +3,7 @@ package app.GoSeller.cashbook;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -11,6 +12,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.support.pagefactory.ByChained;
@@ -49,7 +51,10 @@ public class Cashbook {
 
 	By GROUP_DROPDOWN = By.xpath("//*[ends-with(@resource-id,'tvSenderGroup')]");
 	By NAME_DROPDOWN = By.xpath("//*[ends-with(@resource-id,'tvSelectSenderName')]");
-	By SEARCH_BOX = By.xpath("//*[ends-with(@resource-id,'edtSearchSenderRecipient')]");
+	By loc_txtSenderSearchBox = By.xpath("//*[ends-with(@resource-id,'edtSearchSenderRecipient')]");
+	By loc_lblSenderSearchResult(String senderName) {
+		return By.xpath("//*[ends-with(@resource-id,'tvFilterText') and @text=\"%s\"]".formatted(senderName));
+	}
 
 	By REVENUE_SOURCE_DROPDOWN = By.xpath("//*[ends-with(@resource-id,'tvSelectRevenue')]");
 
@@ -65,65 +70,86 @@ public class Cashbook {
 
 	By SAVE_BTN = By.xpath("//*[ends-with(@resource-id,'ivActionBarIconRight')]");
 
-	By[] COLUMN = { By.xpath("//*[ends-with(@resource-id,'tvCashbookId')]"),
-			By.xpath("//*[ends-with(@resource-id,'tvDate')]"), By.xpath("//*[ends-with(@resource-id,'tvAddress')]"),
-			By.xpath("//*[ends-with(@resource-id,'tvType')]"), By.xpath("//*[ends-with(@resource-id,'tvName')]"),
-			By.xpath("//*[ends-with(@resource-id,'tvOwner')]"), By.xpath("//*[ends-with(@resource-id,'tvPrice')]"), };
+	By loc_lblOpeningBalance = By.xpath("//*[ends-with(@resource-id,'tvOpening')]");
+	By loc_lblTotalRevenue = By.xpath("//*[ends-with(@resource-id,'tvTotalRev')]");
+	By loc_lblTotalExpenditure = By.xpath("//*[ends-with(@resource-id,'tvExpenditure')]");
+	By loc_lblEndingBalance = By.xpath("//*[ends-with(@resource-id,'tvEnding')]");
+	
+	By loc_lblRecordId = By.xpath("//*[ends-with(@resource-id,'tvCashbookId')]");
+	By loc_lblRecordDate = By.xpath("//*[ends-with(@resource-id,'tvDate')]");
+	By loc_lblRecordBranch = By.xpath("//*[ends-with(@resource-id,'tvAddress')]");
+	By loc_lblRecordType = By.xpath("//*[ends-with(@resource-id,'tvType')]");
+	By loc_lblRecordSender = By.xpath("//*[ends-with(@resource-id,'tvName')]");
+	By loc_lblRecordCreatedBy = By.xpath("//*[ends-with(@resource-id,'tvOwner')]");
+	By loc_lblRecordAmount = By.xpath("//*[ends-with(@resource-id,'tvPrice')]");
 
 	public List<BigDecimal> getCashbookSummary() {
 		UICommonMobile.sleepInMiliSecond(500, "Wait in getCashbookSummary()"); // Sometimes it takes longer for the element to change its data
-		By[] CASHBOOKSUMMARY = { By.xpath("//*[ends-with(@resource-id,'tvOpening')]"),
-				By.xpath("//*[ends-with(@resource-id,'tvTotalRev')]"),
-				By.xpath("//*[ends-with(@resource-id,'tvExpenditure')]"),
-				By.xpath("//*[ends-with(@resource-id,'tvEnding')]"), };
+		By[] cashbookSummaryLocator = { loc_lblOpeningBalance, loc_lblTotalRevenue, loc_lblTotalExpenditure, loc_lblEndingBalance };
 		
 		List<BigDecimal> summary = new ArrayList<>();
-		for (By bySelector : CASHBOOKSUMMARY) {
-			
+		for (By bySelector : cashbookSummaryLocator) {
 			// Sometimes element is present but the data it contains is not yet rendered
 			String text = "";
 			for (int i = 0; i < 5; i++) {
 				text = commonAction.getText(bySelector);
-				if (!text.isEmpty())
-					break;
+				if (!text.isEmpty()) break;
 				UICommonMobile.sleepInMiliSecond(1000);
 			}
-			
 			summary.add(new BigDecimal(DataGenerator.extractDigits(text)));
 		}
+		
+		logger.info("Cashbook summary: {}", summary);
 		return summary;
 	}
 
 	public List<String> getSpecificRecord(int index) {
-		List<String> rowData = new ArrayList<>();
-		for (By column : COLUMN) {
-			rowData.add(commonAction.getText(column));
-		}
-		return rowData;
+		List<By> columns = Arrays.asList(loc_lblRecordId, loc_lblRecordDate, loc_lblRecordBranch, loc_lblRecordType, loc_lblRecordSender, loc_lblRecordCreatedBy, loc_lblRecordAmount);
+		
+		List<String> recordInfo = columns.stream().map(e -> commonAction.getText(e)).toList();
+		
+		logger.info("Record info: {}", recordInfo);
+		
+		return recordInfo;
 	}
 
 	public Cashbook swipeThroughRecords() {
 
-		if (commonAction.getElements(COLUMN[3]).size()<2) return this;
-
-		Dimension size = driver.manage().window().getSize();
-
-		String monthBounds = commonAction.getElement(COLUMN[3]).getAttribute("bounds");
-
-		List<Integer> bounds = new ArrayList<>();
-		Pattern p = Pattern.compile("\\d+");
-		Matcher m = p.matcher(monthBounds);
-		while (m.find()) {
-			bounds.add(Integer.valueOf(m.group()));
+		int recordCount = commonAction.getElements(loc_lblRecordType).size();
+		if (recordCount<2) {
+			logger.info("Record count is {}. Stopping swipeThroughRecords()", recordCount);
+			return this;
 		}
 
-		double startY = (double) bounds.get(3) / size.height;
-		double endY = 0.41;
+		Dimension deviceScreenSize = driver.manage().window().getSize();
 
+		String rawRecordTypeBounds = commonAction.getElement(loc_lblRecordType).getAttribute("bounds");
+		List<String> recordTypeBounds = new ArrayList<>();
+		Matcher matchedResult = Pattern.compile("\\d+").matcher(rawRecordTypeBounds);
+		while (matchedResult.find()) {
+			recordTypeBounds.add(matchedResult.group());
+		}
+
+		String rawExpenditureSummaryBounds = commonAction.getElement(loc_lblTotalExpenditure).getAttribute("bounds");
+		List<String> expenditureSummaryBounds = new ArrayList<>();
+		Matcher matchedResult1 = Pattern.compile("\\d+").matcher(rawExpenditureSummaryBounds);
+		while (matchedResult1.find()) {
+			expenditureSummaryBounds.add(matchedResult1.group());
+		}
+		
+		double startY = (double) Double.valueOf(recordTypeBounds.get(3)) / deviceScreenSize.height;
+		double endY = (double) Double.sum(Double.valueOf(expenditureSummaryBounds.get(1)), Double.valueOf(expenditureSummaryBounds.get(3))) /2 / deviceScreenSize.height;
+		double swipeDiff = Math.abs(startY-endY);
+		
+		if (String.valueOf(swipeDiff).matches("0\\.00\\d*")) {
+			logger.info("A swipe diff of {} is too small. This will act as a tap instead. Stopping swipeThroughRecords()", swipeDiff);
+			return this;
+		}
+		
 		commonAction.swipeByCoordinatesInPercent(0.5, startY, 0.5, endY, 1800);
 		return this;
 	}
-
+	
 	public Cashbook inputCashbookSearchTerm(String searchTerm) {
 		commonAction.inputText(CASHBOOK_SEARCHBOX, searchTerm);
 		logger.info("Input '" + searchTerm + "' into Search box.");
@@ -243,7 +269,7 @@ public class Cashbook {
 
 	public Cashbook selectFilteredBranch(String branch) {
 		clickSeeAllBranches();
-		commonAction.clickElement(By.xpath("//*[@text='%s']".formatted(branch)));
+		commonAction.clickElement(By.xpath("//*[@text=\"%s\"]".formatted(branch)));
 		logger.info("Selected filtered branch: %s.".formatted(branch));
 		return this;
 	}
@@ -281,7 +307,7 @@ public class Cashbook {
 	public Cashbook selectFilteredCreatedBy(String createdBy) {
 		By SEEALL = By.xpath("//*[ends-with(@resource-id,'btnSeeAllCreatedBy')]");
 		commonAction.clickElement(SEEALL);
-		commonAction.clickElement(By.xpath("//*[@text='%s']".formatted(createdBy)));
+		commonAction.clickElement(By.xpath("//*[@text=\"%\"]".formatted(createdBy)));
 		logger.info("Selected filtered Created by: %s.".formatted(createdBy));
 		return this;
 	}
@@ -315,10 +341,9 @@ public class Cashbook {
 	}
 
 	public Cashbook clickRecord(String recordID) {
-		// More code needed
-		commonAction.clickElement(COLUMN[0]);
+		commonAction.clickElement(loc_lblRecordId);
 		UICommonMobile.sleepInMiliSecond(500, "In clickRecord()"); //Sometimes it takes longer for the detail screen to load. Temporary
-		logger.info("Clicked on cashbook record '%s'.".formatted(recordID));
+		logger.info("Clicked record: {}", recordID);
 		return this;
 	}
 
@@ -329,13 +354,13 @@ public class Cashbook {
 	
 	public Cashbook clickCreateBtn() {
 		commonAction.clickElement(CREATE_BTN, defaultTimeout);
-		logger.info("Clicked on 'Create' button.");
+		logger.info("Clicked create (+) button.");
 		return this;
 	}
 
 	public Cashbook clickCreateReceiptBtn() {
 		commonAction.clickElement(CREATE_RECEIPT_BTN, defaultTimeout);
-		logger.info("Clicked on 'Create Receipt'.");
+		logger.info("Clicked 'Create Receipt'.");
 		return this;
 	}
 
@@ -357,12 +382,19 @@ public class Cashbook {
 		
 		//The search box element gets stale sometimes and more frequent on CI env. The exception is vague so it's hard to apply try catch mechanism in function inputText. See #issue1
 		try {
-			commonAction.inputText(SEARCH_BOX, name);
+			commonAction.inputText(loc_txtSenderSearchBox, name);
 		} catch (WebDriverException e) {
-			commonAction.inputText(SEARCH_BOX, name);
+			commonAction.inputText(loc_txtSenderSearchBox, name);
 		}
 		
-		commonAction.clickElement(By.xpath("//*[ends-with(@resource-id,'tvFilterText') and @text=\"%s\"]".formatted(name)));
+		try {
+			commonAction.clickElement(loc_lblSenderSearchResult(name));
+		} catch (TimeoutException exception) {
+			logger.info("Can't find sender '{}'. It's likely to be obstructed. Trying swiping down a little", name);
+			commonAction.swipeByCoordinatesInPercent(0.5, 0.2, 0.5, 0.8, 200); //Some times search results are obstructed
+			commonAction.clickElement(loc_lblSenderSearchResult(name));
+		}
+		
 		logger.info("Selected Sender Name: %s.".formatted(name));
 		return this;
 	}
@@ -502,7 +534,15 @@ public class Cashbook {
 		createReceiptPaymentOverlap(senderGroup, revenue, branch, payment, senderName, amount, note, isChecked);
 		return this;
 	}
-
+	
+	/**
+	 * Use this before interacting with any records
+	 */
+	public void waitUntilLoadingIconDisappear() {
+		commonAction.waitInvisibilityOfElementLocated(By.xpath("//*[ends-with(@resource-id, 'id/srlRefresh')]//*[ends-with(@class, 'widget.ImageView')]"));
+		logger.info("Loading Icon has disappeared.");
+	}
+	
 	public String getGroup() {
 		String text = commonAction.getText(GROUP_DROPDOWN);
 		logger.info("Retrieved Group value from record details: " + text);

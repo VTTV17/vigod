@@ -96,7 +96,7 @@ public class CashbookGoSeller extends BaseTest {
 	
 	@BeforeMethod
 	public void beforeMethod() {
-    	driver = new InitAndroidDriver().getSellerDriver(PropertiesUtil.getEnvironmentData("udidAndroidVi"));
+    	driver = new InitAndroidDriver().getSellerDriver(PropertiesUtil.getEnvironmentData("udidAndroidThang"));
     	new UICommonMobile(driver).waitSplashScreenLoaded();
     	
 		loginPage = new LoginPage(driver);
@@ -304,6 +304,7 @@ public class CashbookGoSeller extends BaseTest {
 			
 			verifySummaryDataAfterReceiptCreated(originalSummary, laterSummary, amount, isAccountingChecked);
 			
+			cashbookPage.waitUntilLoadingIconDisappear();
 			commonAction.swipeByCoordinatesInPercent(0.5, 0.5, 0.5, 0.8);
 			List<String> record = cashbookPage.getSpecificRecord(0);
 			verifyRecordDataAfterReceiptCreated(record, branch, source, sender, amount);
@@ -339,6 +340,7 @@ public class CashbookGoSeller extends BaseTest {
 			
 			verifySummaryDataAfterPaymentCreated(originalSummary, laterSummary, amount, isAccountingChecked);
 			
+			cashbookPage.waitUntilLoadingIconDisappear();
 			commonAction.swipeByCoordinatesInPercent(0.5, 0.5, 0.5, 0.8);
 			List<String> record = cashbookPage.getSpecificRecord(0);
 			verifyRecordDataAfterPaymentCreated(record, branch, source, sender, amount);
@@ -350,21 +352,21 @@ public class CashbookGoSeller extends BaseTest {
 		}
 	}
 
-//	@Test
+	@Test
 	public void CBA_03_SearchRecords() {
 
-		cashbookPage.clickTimeRangeFilter();
+		cashbookPage.clickTimeRangeFilter().clickCancelDateBtn();
 
+		/*
 		String[] dateArray = cashbookPage.getCurrentTimeRangeFilter().split(" -")[0].split("/");
 		int currentDay = Integer.valueOf(dateArray[0]);
 		int currentMonth = Integer.valueOf(dateArray[1]);
 		int currentYear = Integer.valueOf(dateArray[2]);
-		/*Need more code here*/
 		cashbookPage.setDateFilter(currentDay, currentMonth, currentYear, currentDay, currentMonth-2, currentYear);
 		cashbookPage.setDateFilter(currentDay, currentMonth-2, currentYear, currentDay, currentMonth, currentYear);
-
 		cashbookPage.clickApplyDateBtn();
-
+		*/
+		
 		for (int i=0; i<3; i++) {
 			String transactionId = ListUtils.getRandomListElement(transactionIdList);
 
@@ -381,16 +383,17 @@ public class CashbookGoSeller extends BaseTest {
 		}
 	}
 	
-//	@Test
+	@Test
 	public void CBA_04_FilterRecords() {
 
 		cashbookPage.clickTimeRangeFilter().clickCancelDateBtn();
 
 		int loop = 2;
 
-		boolean expectedAccounting = false;
+		boolean expectedAccounting = RandomUtils.nextBoolean();
 		String accounting = (expectedAccounting) ? allowAccounting("yes"):allowAccounting("no");
 		cashbookPage.clickFilterIcon().selectFilteredAccounting(accounting).clickApplyBtn();
+		
 		for (int i=0; i<loop; i++) {
 			List<String> fv = cashbookPage.getSpecificRecord(0);
 			cashbookPage.clickRecord(fv.get(0));
@@ -400,7 +403,11 @@ public class CashbookGoSeller extends BaseTest {
 		}
 
 		String branch = ListUtils.getRandomListElement(branchList);
-		cashbookPage.clickFilterIcon().clickResetFilterBtn().selectFilteredBranch(branch).clickApplyBtn();
+		cashbookPage.clickFilterIcon()
+			.clickResetFilterBtn()
+			.selectFilteredBranch(branch)
+			.clickApplyBtn()
+			.waitUntilLoadingIconDisappear();
 		for (int i=0; i<loop; i++) {
 			List<String> fv = cashbookPage.getSpecificRecord(0);
 			Assert.assertEquals(fv.get(2), branch);
@@ -464,6 +471,67 @@ public class CashbookGoSeller extends BaseTest {
 			cashbookPage.swipeThroughRecords();
 		}
 	}	
-	
+
+	@Test
+	public void CBA_05_CombineFilterConditions()  {
+
+		cashbookPage.clickTimeRangeFilter().clickCancelDateBtn();
+
+		String recordId = ListUtils.getRandomListElement(transactionIdList);
+
+		cashbookPage.inputCashbookSearchTerm(recordId);
+
+		List<String> fv = cashbookPage.getSpecificRecord(0);
+
+		String branch = fv.get(2);
+//		String createdBy = fv.get(5);
+		String name = fv.get(4);
+		String source = fv.get(3);
+		String transaction = expenseSources(CashbookGroup.CUSTOMER).contains(source.split(": ")[1].trim()) ? transactions("allExpenses"):transactions("allRevenues");
+
+		cashbookPage.clickRecord(recordId);
+
+		boolean expectedAccounting = cashbookPage.isAccountingChecked();
+		String accounting = (expectedAccounting) ? allowAccounting("yes"):allowAccounting("no");
+		String group = cashbookPage.getGroup();
+		String payment = cashbookPage.getPaymentMethod();
+
+		commonAction.navigateBack();
+
+		cashbookPage.inputCashbookSearchTerm("");
+
+		cashbookPage.clickFilterIcon()
+				.selectFilteredAccounting(accounting)
+				.selectFilteredBranch(branch)
+				.selectFilteredTransaction(transaction);
+		if(transaction.contentEquals(transactions("allExpenses"))) {
+			cashbookPage.selectFilteredExpenseType(fv.get(3).split(": ")[1].trim());
+		} else {
+			cashbookPage.selectFilteredRevenueType(fv.get(3).split(": ")[1].trim());
+		}
+		cashbookPage.selectFilteredGroup(group)
+				.selectFilteredName(name);
+
+		if (!payment.equalsIgnoreCase(localizePaymentMethod("paypal"))) cashbookPage.selectFilteredPaymentMethod(payment); //Temporary skip checking payment info when it's paypal
+
+		cashbookPage.clickApplyBtn();
+
+		int loop = 1;
+
+		for (int i=0; i<loop; i++) {
+			List<String> result = cashbookPage.getSpecificRecord(0);
+			Assert.assertEquals(result.get(2), branch);
+			Assert.assertEquals(result.get(4), name);
+			Assert.assertEquals(result.get(3), source);
+
+			cashbookPage.clickRecord(result.get(0));
+			Assert.assertEquals(cashbookPage.isAccountingChecked(), expectedAccounting);
+			Assert.assertEquals(cashbookPage.getGroup(), group);
+			
+			if (!payment.equalsIgnoreCase(localizePaymentMethod("paypal"))) Assert.assertEquals(cashbookPage.getPaymentMethod(), payment); //Temporary skip checking payment info when it's paypal
+			commonAction.navigateBack();
+			cashbookPage.swipeThroughRecords();
+		}
+	}	
 	
 }
