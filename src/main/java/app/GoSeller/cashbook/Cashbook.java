@@ -379,7 +379,7 @@ public class Cashbook {
 
 	public Cashbook selectName(String name) {
 		commonAction.clickElement(NAME_DROPDOWN);
-		
+
 		//The search box element gets stale sometimes and more frequent on CI env. The exception is vague so it's hard to apply try catch mechanism in function inputText. See #issue1
 		try {
 			commonAction.inputText(loc_txtSenderSearchBox, name);
