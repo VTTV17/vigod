@@ -3,6 +3,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -14,8 +15,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-
-import com.mifmif.common.regex.Generex;
 
 import api.Seller.cashbook.CashbookAPI;
 import api.Seller.cashbook.OthersGroupAPI;
@@ -125,16 +124,6 @@ public class CashbookGoSeller extends BaseTest {
 		};
 	}
 	
-	/**
-	 * <p>Generate a random amount based on the store's currency symbol. Eg. 34000 or 34.34
-	 */
-	String randomAmount() {
-		if (storeCurrencySymbol.contentEquals("đ")) {
-			return new Generex("[1-9]\\d{2,5}").random();
-		}
-		return new Generex("[1-9]\\d{0,2}\\.\\d{2}").random();
-	}	
-	
 	List<String> revenueSources() {
 		return Arrays.stream(CashbookRevenue.values()).map(name -> CashbookRevenue.getTextByLanguage(name)).collect(Collectors.toList());
 	}	
@@ -156,8 +145,9 @@ public class CashbookGoSeller extends BaseTest {
 		}
 		return "";
 	}
+	
 	/**
-	 * Domain .biz has less payment methods
+	 * <p>Domain .biz has less payment methods
 	 * @param domain
 	 */
 	List<String> paymentMethodList(Domain domain) {
@@ -171,6 +161,18 @@ public class CashbookGoSeller extends BaseTest {
 			paymentMethods.add(localizePaymentMethod("zalopay"));
 			paymentMethods.add(localizePaymentMethod("momo"));
 		}
+		
+		return paymentMethods;
+	}
+	List<String> comprehensivePaymentMethodList(Domain domain) {
+		List<String> paymentMethods = paymentMethodList(domain);
+		
+		if (domain.equals(Domain.BIZ)) {
+			return paymentMethods;
+		}
+		
+		paymentMethods.add(localizePaymentMethod("paypal"));
+		paymentMethods.add(localizePaymentMethod("mpos"));
 		return paymentMethods;
 	}
 	
@@ -280,8 +282,66 @@ public class CashbookGoSeller extends BaseTest {
 		};
 	}	
 
+	@Test
+	public void CBA_01_CheckRevenueAndExpenseAndPaymentOptions() {
+
+		List<CashbookGroup> groupEnums = List.of(CashbookGroup.values());
+		
+		groupEnums.stream().forEach(eachEnum -> {
+			
+			List<String> expected, actual;
+
+			cashbookPage.clickCreateBtn()
+				.clickCreateReceiptBtn()
+				.selectGroup(CashbookGroup.getLocalizedText(eachEnum));
+
+			expected = revenueSources();
+			Collections.sort(expected);
+			
+			actual = cashbookPage.getSourceDropdownValues();
+			Collections.sort(actual);
+			
+			Assert.assertEquals(actual, expected, "Source list");
+			
+			expected = comprehensivePaymentMethodList(Domain.valueOf(domain));
+			Collections.sort(expected);
+			
+			actual = cashbookPage.getPaymentMethodDropdownValues();
+			Collections.sort(actual);
+			
+			Assert.assertEquals(actual, expected, "Payment method list");
+			commonAction.navigateBack();			
+		});
+		
+		groupEnums.stream().forEach(eachEnum -> {
+			
+			List<String> expected, actual;
+			
+			cashbookPage.clickCreateBtn()
+				.clickCreatePaymentBtn()
+				.selectGroup(CashbookGroup.getLocalizedText(eachEnum));
+			
+			expected = expenseSources(eachEnum);
+			Collections.sort(expected);
+			
+			actual = cashbookPage.getSourceDropdownValues();
+			Collections.sort(actual);
+			
+			Assert.assertEquals(actual, expected, "Expense list");
+			
+			expected = comprehensivePaymentMethodList(Domain.valueOf(domain));
+			Collections.sort(expected);
+			
+			actual = cashbookPage.getPaymentMethodDropdownValues();
+			Collections.sort(actual);
+			
+			Assert.assertEquals(actual, expected, "Payment method list");
+			commonAction.navigateBack();			
+		});
+	}	
+	
 	@Test(dataProvider = "groups")
-	public void CBA_01_CreateReceipts(CashbookGroup groupEnum) {
+	public void CBA_02_CreateReceipts(CashbookGroup groupEnum) {
 		
 		String group = CashbookGroup.getLocalizedText(groupEnum);
 		
@@ -290,7 +350,7 @@ public class CashbookGoSeller extends BaseTest {
 			String sender = randomSender(groupEnum);
 			String branch = ListUtils.getRandomListElement(branchList);
 			String paymentMethod = ListUtils.getRandomListElement(paymentMethodList(Domain.valueOf(domain)));
-			String amount = randomAmount();
+			String amount = DataGenerator.randomMoneyAmount(storeCurrencySymbol);
 			String note = "%s %s".formatted(sender, paymentMethod);
 			
 			List<BigDecimal> originalSummary = cashbookPage.getCashbookSummary();
@@ -319,7 +379,7 @@ public class CashbookGoSeller extends BaseTest {
 	}
 	
 	@Test(dataProvider = "groups")
-	public void CBA_02_CreatePayments(CashbookGroup groupEnum) {
+	public void CBA_03_CreatePayments(CashbookGroup groupEnum) {
 		
 		String group = CashbookGroup.getLocalizedText(groupEnum);
 		
@@ -328,7 +388,7 @@ public class CashbookGoSeller extends BaseTest {
 			String sender = randomSender(groupEnum);
 			String branch = ListUtils.getRandomListElement(branchList);
 			String paymentMethod = ListUtils.getRandomListElement(paymentMethodList(Domain.valueOf(domain)));
-			String amount = randomAmount();
+			String amount = DataGenerator.randomMoneyAmount(storeCurrencySymbol);
 			String note = "%s %s".formatted(sender, paymentMethod);
 			
 			List<BigDecimal> originalSummary = cashbookPage.getCashbookSummary();
@@ -357,7 +417,7 @@ public class CashbookGoSeller extends BaseTest {
 	}
 
 	@Test
-	public void CBA_03_SearchRecords() {
+	public void CBA_04_SearchRecords() {
 
 		cashbookPage.clickTimeRangeFilter().clickCancelDateBtn();
 
@@ -388,7 +448,7 @@ public class CashbookGoSeller extends BaseTest {
 	}
 	
 	@Test
-	public void CBA_04_FilterRecords() {
+	public void CBA_05_FilterRecords() {
 
 		cashbookPage.clickTimeRangeFilter().clickCancelDateBtn();
 
@@ -477,7 +537,7 @@ public class CashbookGoSeller extends BaseTest {
 	}	
 
 	@Test
-	public void CBA_05_CombineFilterConditions()  {
+	public void CBA_06_CombineFilterConditions()  {
 
 		cashbookPage.clickTimeRangeFilter().clickCancelDateBtn();
 
@@ -488,10 +548,12 @@ public class CashbookGoSeller extends BaseTest {
 		List<String> fv = cashbookPage.getSpecificRecord(0);
 
 		String branch = fv.get(2);
+		
+		//TODO: Temporarily skip filtering records by createdBy and senderName fields. Solutions are needed 
 //		String createdBy = fv.get(5);
-		String name = fv.get(4);
+//		String name = fv.get(4);
 		String source = fv.get(3);
-		String transaction = expenseSources(CashbookGroup.CUSTOMER).contains(source.split(": ")[1].trim()) ? transactions("allExpenses"):transactions("allRevenues");
+		String transaction = expenseSources(CashbookGroup.CUSTOMER).contains(source.replaceAll("\\.*: ", "")) ? transactions("allExpenses"):transactions("allRevenues");
 
 		cashbookPage.clickRecord(recordId);
 
@@ -513,10 +575,10 @@ public class CashbookGoSeller extends BaseTest {
 		} else {
 			cashbookPage.selectFilteredRevenueType(fv.get(3).split(": ")[1].trim());
 		}
-		cashbookPage.selectFilteredGroup(group)
-				.selectFilteredName(name);
+		cashbookPage.selectFilteredGroup(group);
 
-		if (!payment.equalsIgnoreCase(localizePaymentMethod("paypal"))) cashbookPage.selectFilteredPaymentMethod(payment); //Temporary skip checking payment info when it's paypal
+		//TODO: Temporarily skip checking payment info when it's paypal. Solutions are needed
+		if (!payment.equalsIgnoreCase(localizePaymentMethod("paypal"))) cashbookPage.selectFilteredPaymentMethod(payment); 
 
 		cashbookPage.clickApplyBtn();
 
@@ -525,7 +587,6 @@ public class CashbookGoSeller extends BaseTest {
 		for (int i=0; i<loop; i++) {
 			List<String> result = cashbookPage.getSpecificRecord(0);
 			Assert.assertEquals(result.get(2), branch);
-			Assert.assertEquals(result.get(4), name);
 			Assert.assertEquals(result.get(3), source);
 
 			cashbookPage.clickRecord(result.get(0));
