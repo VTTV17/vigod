@@ -305,7 +305,9 @@ public class CashbookGoSeller extends BaseTest {
 			verifySummaryDataAfterReceiptCreated(originalSummary, laterSummary, amount, isAccountingChecked);
 			
 			cashbookPage.waitUntilLoadingIconDisappear();
-			commonAction.swipeByCoordinatesInPercent(0.5, 0.5, 0.5, 0.85, 100);
+			//TODO: Swipe action doesn't work on the first attempt, so we deliberately repeat it. Not sure why this happens
+			commonAction.swipeByCoordinatesInPercent(0.5, 0.5, 0.5, 0.85, 200);
+			commonAction.swipeByCoordinatesInPercent(0.5, 0.5, 0.5, 0.85, 200);
 			List<String> record = cashbookPage.getSpecificRecord(0);
 			verifyRecordDataAfterReceiptCreated(record, branch, source, sender, amount);
 			
@@ -341,7 +343,9 @@ public class CashbookGoSeller extends BaseTest {
 			verifySummaryDataAfterPaymentCreated(originalSummary, laterSummary, amount, isAccountingChecked);
 			
 			cashbookPage.waitUntilLoadingIconDisappear();
-			commonAction.swipeByCoordinatesInPercent(0.5, 0.5, 0.5, 0.85, 100);
+			//TODO: Swipe action doesn't work on the first attempt, so we deliberately repeat it. Not sure why this happens
+			commonAction.swipeByCoordinatesInPercent(0.5, 0.5, 0.5, 0.85, 200);
+			commonAction.swipeByCoordinatesInPercent(0.5, 0.5, 0.5, 0.85, 200);
 			List<String> record = cashbookPage.getSpecificRecord(0);
 			verifyRecordDataAfterPaymentCreated(record, branch, source, sender, amount);
 			

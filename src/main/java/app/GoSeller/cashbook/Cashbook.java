@@ -1,17 +1,24 @@
 package app.GoSeller.cashbook;
 
+import java.io.File;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.Duration;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebDriverException;
@@ -543,7 +550,7 @@ public class Cashbook {
 		commonAction.waitInvisibilityOfElementLocated(By.xpath("//*[ends-with(@resource-id, 'id/srlRefresh')]//*[ends-with(@class, 'widget.ImageView')]"));
 		logger.info("Loading Icon has disappeared.");
 	}
-	
+
 	public String getGroup() {
 		String text = commonAction.getText(GROUP_DROPDOWN);
 		logger.info("Retrieved Group value from record details: " + text);
