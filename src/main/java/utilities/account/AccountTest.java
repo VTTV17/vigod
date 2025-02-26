@@ -127,6 +127,8 @@ public class AccountTest {
     public static String SHOPEE_COUNTRY = "VN";
     public static String SHOPEE_USERNAME = "chicoseller.01@gmail.com";
     public static String SHOPEE_PASSWORD = "Medi@step01";
+    
+    //App name
     public static String ANDROID_GoSELLER_APP = PropertiesUtil.getEnvironmentData("AndroidGoSELLERAppName");
     public static String ANDROID_GoBUYER_APP = PropertiesUtil.getEnvironmentData("AndroidGoBUYERAppName");
     public static String IOS_GoSELLER_APP = PropertiesUtil.getEnvironmentData("IOSGoSELLERAppName");

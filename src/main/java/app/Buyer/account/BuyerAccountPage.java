@@ -14,6 +14,7 @@ import app.Buyer.account.membershipinfo.MembershipInfo;
 import app.Buyer.login.LoginPage;
 import app.Buyer.signup.SignupPage;
 import utilities.commons.UICommonMobile;
+import utilities.model.dashboard.setting.languages.AdditionalLanguages;
 
 public class BuyerAccountPage {
     final static Logger logger = LogManager.getLogger(BuyerAccountPage.class);
@@ -148,4 +149,9 @@ public class BuyerAccountPage {
                 .changeLanguage(lang);
         return new BuyerAccountPage(driver);
     }
+    
+    public BuyerAccountPage changeLanguageByLangName(AdditionalLanguages language){
+    	clickLanguageBtn().selectLanguageName(language);
+    	return this;
+    }    
 }
