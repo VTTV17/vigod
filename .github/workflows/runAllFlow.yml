@@ -25,21 +25,6 @@ on:
           options:
             - VIE
             - ENG
-        java_version:
-          description: 'The version of Java to install.'
-          required: false
-          default: '22'
-      
-        api_level:
-          description: 'The SDK level'
-          required: false
-          default: '35'
-      
-        node_version:
-          description: 'The version of NodeJS to install.'
-          required: false
-          default: '21'
-
 jobs:
   Run-on-web:
     strategy:
@@ -58,7 +43,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
             distribution: 'temurin'
-            java-version: ${{ inputs.java_version }}
+            java-version: 22
 
       - name: checkout
         uses: actions/checkout@v2
@@ -91,13 +76,10 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: Test Reports ${{ matrix.test_config_path }}
+          name: Test Reports Web - $(basename "${{ matrix.test_config_path }}" .xml)
           path: |
             **/ExtentReport.html
  
-      - name: Remove cloned repo
-        run: |
-          rm -r GoSELL-Automation
           
   Run-on-android:
     strategy:
@@ -118,12 +100,12 @@ jobs:
         uses: actions/setup-java@v4
         with:
             distribution: 'temurin'
-            java-version: ${{ inputs.java_version }}
+            java-version: 22
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: ${{ inputs.node_version }}
+          node-version: 21
   
       - name: Install Appium
         run: npm install -g appium > /dev/null 2>&1
@@ -199,7 +181,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: Test Reports - Android ${{ matrix.test_config_path }}
+          name: Test Reports - Android - $(basename "${{ matrix.test_config_path }}" .xml)
           path: |
             **/ExtentReport.html
             **/BufferLog.log
