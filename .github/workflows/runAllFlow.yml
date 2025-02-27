@@ -65,7 +65,6 @@ jobs:
 
       - name: Replace env variables
         run: |
-            cd GoSELL-Automation
             sed -i 's|environment=.*|environment=${{ inputs.environment }}|' src/main/resources/config.properties
             sed -i 's|languageSF=.*|languageSF=${{ inputs.languageSF }}|' src/main/resources/config.properties
             sed -i 's|languageDB=.*|languageDB=${{ inputs.languageDB }}|' src/main/resources/config.properties
@@ -134,7 +133,6 @@ jobs:
 
       - name: Replace env variables
         run: |
-          cd GoSELL-Automation
           sed -i 's|environment=.*|environment=${{ inputs.environment }}|' src/main/resources/config.properties
           sed -i 's|languageSF=.*|languageSF=${{ inputs.languageSF }}|' src/main/resources/config.properties
           sed -i 's|languageDB=.*|languageDB=${{ inputs.languageDB }}|' src/main/resources/config.properties
@@ -143,26 +141,22 @@ jobs:
           
       - name: Update STAG environment
         if: inputs.environment == 'STAG'
-        run: |
-          cd GoSELL-Automation
+        run: 
           sed -i "s|udidAndroidVi=.*|udidAndroidVi=emulator-5554|" src/main/resources/environment/stag.properties
       
       - name: Update CA environment
         if: inputs.environment == 'CA'
-        run: |
-          cd GoSELL-Automation
+        run: 
           sed -i "s|udidAndroidVi=.*|udidAndroidVi=emulator-5554|" src/main/resources/environment/ca.properties
       
       - name: Update PROD environment
         if: inputs.environment == 'PROD'
-        run: |
-          cd GoSELL-Automation
+        run: 
           sed -i "s|udidAndroidVi=.*|udidAndroidVi=emulator-5554|" src/main/resources/environment/prod.properties
       
       - name: Update PREPROD environment
         if: inputs.environment == 'PREPROD'
-        run: |
-          cd GoSELL-Automation
+        run: 
           sed -i "s|udidAndroidVi=.*|udidAndroidVi='emulator-5554'|" src/main/resources/environment/preprod.properties
 
       - name: Start Appium server
