@@ -1,0 +1,162 @@
+name: '[Android] Product Collection'
+on:
+  workflow_dispatch:
+      inputs:
+        environment:
+          description: 'Environment to run tests'
+          default: "STAG"
+          type: choice
+          options:
+            - CA
+            - STAG
+            - PROD
+            - PREPROD
+        languageSF:
+          description: 'Language on SSR to run tests'
+          default: "VIE"
+          type: choice
+          options:
+            - VIE
+            - ENG
+        languageDB:
+          description: 'Language on Dashboard to run tests'
+          default: "VIE"
+          type: choice
+          options:
+            - VIE
+            - ENG
+        java_version:
+          description: 'The version of Java to install.'
+          required: false
+          default: '22'
+      
+        api_level:
+          description: 'The SDK level'
+          required: false
+          default: '35'
+      
+        node_version:
+          description: 'The version of NodeJS to install.'
+          required: false
+          default: '21'
+jobs:
+  automation:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout the current repository
+        uses: actions/checkout@v2
+ 
+      - name: Install OpenVPN
+        run: |
+          sudo apt update -y
+          sudo apt install -y openvpn
+ 
+      - name: Create VPN Credentials File
+        run: |
+          echo "${{ secrets.VPN_USERNAME }}" > ${{ secrets.VPN_AUTHOR }}
+          echo "${{ secrets.VPN_PASSWORD }}" >> ${{ secrets.VPN_AUTHOR }}
+          chmod 600 ${{ secrets.VPN_AUTHOR }}
+ 
+      - name: Start OpenVPN
+        run: |
+          sudo nohup openvpn --verb 4 --config $(pwd)/${{ secrets.VPN_OVPN }} --auth-user-pass $(pwd)/${{ secrets.VPN_AUTHOR }} > $HOME/openvpn.log 2>&1 &
+ 
+      - name: Try connect to Gitlab by VPN
+        run: |
+          for i in {1..5}; do
+           echo "$(curl -Is ${{ secrets.GITLAB_HOST }} | head -1)"
+           if grep -q "Initialization Sequence Completed" $HOME/openvpn.log; then
+             echo "OpenVPN started successfully."
+             break
+           fi
+           echo "OpenVPN start failed, retrying..."
+          done
+          cat $HOME/openvpn.log
+ 
+      - name: Clone GitLab repository
+        run: |
+          git clone ${{ secrets.GITLAB_REPOSITORY }} GoSELL-Automation
+ 
+      - name: Stop OpenVPN
+        run: |
+          sudo pkill -f openvpn
+      - name: Switch to another branch
+        run: |
+          cd GoSELL-Automation
+          git checkout main
+      - name: Replace env variables
+        run: |
+          cd GoSELL-Automation
+          sed -i 's|environment=.*|environment=${{ inputs.environment }}|' src/main/resources/config.properties
+          sed -i 's|languageSF=.*|languageSF=${{ inputs.languageSF }}|' src/main/resources/config.properties
+          sed -i 's|languageDB=.*|languageDB=${{ inputs.languageDB }}|' src/main/resources/config.properties
+          sed -i 's|headless=.*|headless=true|' src/main/resources/config.properties
+          sed -i 's|enableProxy=.*|enableProxy=false|' src/main/resources/config.properties
+
+      - name: Confirm changes
+        run: |
+          cd GoSELL-Automation
+          cat src/main/resources/config.properties
+          
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: ${{ inputs.java_version }}
+
+      - name: Install FFmpeg
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update > /dev/null 2>&1
+          sudo apt-get install -y ffmpeg > /dev/null 2>&1
+        shell: bash
+
+      - name: Install FFmpeg
+        if: runner.os == 'macOS'
+        run: brew install ffmpeg > /dev/null 2>&1
+        shell: bash
+
+      - name: Create and start emulator
+        uses: ThangNguyen0495/create-android-emulator@main
+        with:
+          api-level: ${{ inputs.api_level }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ inputs.node_version }}
+  
+      - name: Install Appium
+        run: npm install -g appium > /dev/null 2>&1
+  
+      - name: Install UIAutomator2 driver
+        run: appium driver install uiautomator2 > /dev/null 2>&1
+  
+      - name: Start Appium server
+        run: nohup appium -a 0.0.0.0 -p 4723 -pa /wd/hub > appium_log.txt 2>&1 & > /dev/null 2>&1
+  
+      - name: Install dependencies
+        run: |
+          cd GoSELL-Automation
+          mvn install -DskipTests > /dev/null 2>&1
+  
+      - name: Run Appium tests with Maven
+        run: |
+          cd GoSELL-Automation
+          mvn test "-DsuiteFile=test_config/android/buyer/productCollectionTest.xml"
+          
+      - name: Upload Test Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Test Reports - Android Product Collection
+          path: |
+            **/html/index.html
+            **/reportng.css
+            **/reportng.js
+            **/suite*_test*_results.html
+            **/ExtentReport.html
+            
+      - name: Remove cloned repo
+        run: |
+            rm -r GoSELL-Automation

@@ -1,0 +1,238 @@
+name: 'Run all'
+on:  
+  workflow_dispatch:
+      inputs:
+        environment:
+          description: 'Environment to run tests'
+          default: "STAG"
+          type: choice
+          options:
+            - CA
+            - STAG
+            - PROD
+            - PREPROD
+        languageSF:
+          description: 'Language on SSR to run tests'
+          default: "VIE"
+          type: choice
+          options:
+            - VIE
+            - ENG
+        languageDB:
+          description: 'Language on Dashboard to run tests'
+          default: "VIE"
+          type: choice
+          options:
+            - VIE
+            - ENG
+        java_version:
+          description: 'The version of Java to install.'
+          required: false
+          default: '22'
+      
+        api_level:
+          description: 'The SDK level'
+          required: false
+          default: '35'
+      
+        node_version:
+          description: 'The version of NodeJS to install.'
+          required: false
+          default: '21'
+
+jobs:
+  Run-on-web:
+    strategy:
+      fail-fast: false
+      matrix:
+        test_config_path:
+          - test_config/web/BuyLinkTest.xml
+          - test_config/web/createServiceTest.xml
+          - test_config/web/productCollectionTest.xml
+          - test_config/web/UserProfileSFTes.xml
+          - test_config/web/serviceCollectionTest.xml
+    
+    runs-on: ubuntu-latest
+    steps:
+      - name: clone source
+        uses: VTTV17/clone-source-gitlab@main
+        with:
+          VPN_USERNAME: ${{ secrets.VPN_USERNAME }}
+          VPN_PASSWORD: ${{ secrets.VPN_PASSWORD }}
+          VPN_AUTHOR: ${{ secrets.VPN_AUTHOR }}
+          VPN_OVPN:  ${{ secrets.VPN_OVPN }}
+          GITLAB_HOST: ${{ secrets.GITLAB_HOST }}
+          GITLAB_REPOSITORY: ${{ secrets.GITLAB_REPOSITORY }}
+          
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+            distribution: 'temurin'
+            java-version: ${{ inputs.java_version }}
+
+      - name: Switch to another branch
+        run: |
+          cd GoSELL-Automation
+          git checkout main
+
+      - name: Replace env variables
+        run: |
+            cd GoSELL-Automation
+            sed -i 's|environment=.*|environment=${{ inputs.environment }}|' src/main/resources/config.properties
+            sed -i 's|languageSF=.*|languageSF=${{ inputs.languageSF }}|' src/main/resources/config.properties
+            sed -i 's|languageDB=.*|languageDB=${{ inputs.languageDB }}|' src/main/resources/config.properties
+            sed -i 's|headless=.*|headless=true|' src/main/resources/config.properties
+            sed -i 's|enableProxy=.*|enableProxy=false|' src/main/resources/config.properties
+            
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: '22'
+          distribution: 'adopt'
+ 
+      - name: Cache Maven packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-ubuntu
+          restore-keys: |
+            ${{ runner.os }}-maven-ubuntu
+ 
+      - name: Install dependencies
+        run: |
+          cd GoSELL-Automation
+          mvn install -DskipTests
+ 
+      - name: Run tests
+        run: |
+          cd GoSELL-Automation
+          mvn --batch-mode test "-DsuiteFile=${{ inputs.test_config_path }}"
+          
+      - name: Upload Test Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Test Reports ${{ inputs.test_config_path }}
+          path: |
+            **/ExtentReport.html
+ 
+      - name: Remove cloned repo
+        run: |
+          rm -r GoSELL-Automation
+          
+  Run-on-android:
+    strategy:
+      fail-fast: false
+      matrix:
+        test_config_path:
+          - test_config/android/buyer/BuyerMyProfile.xml
+          - test_config/android/buyer/BuyerServiceDetail.xml
+          - test_config/android/buyer/productCollectionTest.xml
+    needs: Run-on-web
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: clone source
+        uses: VTTV17/clone-source-gitlab@main
+        with:
+          VPN_USERNAME: ${{ secrets.VPN_USERNAME }}
+          VPN_PASSWORD: ${{ secrets.VPN_PASSWORD }}
+          VPN_AUTHOR: ${{ secrets.VPN_AUTHOR }}
+          VPN_OVPN:  ${{ secrets.VPN_OVPN }}
+          GITLAB_HOST: ${{ secrets.GITLAB_HOST }}
+          GITLAB_REPOSITORY: ${{ secrets.GITLAB_REPOSITORY }}
+      
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+            distribution: 'temurin'
+            java-version: ${{ inputs.java_version }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ inputs.node_version }}
+  
+      - name: Install Appium
+        run: npm install -g appium > /dev/null 2>&1
+  
+      - name: Install UIAutomator2 driver
+        run: appium driver install uiautomator2 > /dev/null 2>&1
+        
+      - name: Switch to another branch
+        run: |
+          cd GoSELL-Automation
+          git checkout main
+          
+      - name: Replace env variables
+        run: |
+          cd GoSELL-Automation
+          sed -i 's|environment=.*|environment=${{ inputs.environment }}|' src/main/resources/config.properties
+          sed -i 's|languageSF=.*|languageSF=${{ inputs.languageSF }}|' src/main/resources/config.properties
+          sed -i 's|languageDB=.*|languageDB=${{ inputs.languageDB }}|' src/main/resources/config.properties
+          sed -i 's|headless=.*|headless=true|' src/main/resources/config.properties
+          sed -i 's|enableProxy=.*|enableProxy=false|' src/main/resources/config.properties
+          
+      - name: Update STAG environment
+        if: inputs.environment == 'STAG'
+        run: |
+          cd GoSELL-Automation
+          sed -i "s|udidAndroidVi=.*|udidAndroidVi=emulator-5554|" src/main/resources/environment/stag.properties
+      
+      - name: Update CA environment
+        if: inputs.environment == 'CA'
+        run: |
+          cd GoSELL-Automation
+          sed -i "s|udidAndroidVi=.*|udidAndroidVi=emulator-5554|" src/main/resources/environment/ca.properties
+      
+      - name: Update PROD environment
+        if: inputs.environment == 'PROD'
+        run: |
+          cd GoSELL-Automation
+          sed -i "s|udidAndroidVi=.*|udidAndroidVi=emulator-5554|" src/main/resources/environment/prod.properties
+      
+      - name: Update PREPROD environment
+        if: inputs.environment == 'PREPROD'
+        run: |
+          cd GoSELL-Automation
+          sed -i "s|udidAndroidVi=.*|udidAndroidVi='emulator-5554'|" src/main/resources/environment/preprod.properties
+
+      - name: Create and start emulator
+        uses: ThangNguyen0495/create-android-emulator@main
+        with:
+          api-level: ${{ inputs.api_level }}
+
+      - name: Configure Screen DPI
+        run: |
+          adb shell wm density 450   # Đặt DPI về 320 (XHDPI)
+          adb shell settings put system font_scale 1.0  # Đặt font scale 120%
+          adb shell wm size 1080x2400  # Đặt độ phân giải màn hình
+
+      - name: Start Appium server
+        run: nohup appium -a 0.0.0.0 -p 4723 -pa /wd/hub > appium_log.txt 2>&1 & > /dev/null 2>&1
+  
+      - name: Install dependencies
+        run: |
+          cd GoSELL-Automation
+          sudo apt update
+          sudo apt install maven -y > /dev/null 2>&1
+          mvn -version
+          
+      - name: Run Appium tests with Maven
+        run: |
+          cd GoSELL-Automation
+          mvn --batch-mode test "-DsuiteFile=${{ inputs.test_config_path }}"
+          
+      - name: Upload Test Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Test Reports - Android ${{ inputs.test_config_path }}
+          path: |
+            **/ExtentReport.html
+            **/BufferLog.log
+            **/appium_log.txt
+            
+      - name: Remove cloned repo
+        run: |
+            rm -r GoSELL-Automation
