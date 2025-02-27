@@ -25,6 +25,13 @@ on:
           options:
             - VIE
             - ENG
+        domain:
+          description: 'Domain (VN/BIZ) to run tests'
+          default: "VN"
+          type: choice
+          options:
+             - VN
+             - BIZ
        
 jobs:
   automation:
@@ -40,7 +47,8 @@ jobs:
           sed -i 's|languageDB=.*|languageDB=${{ inputs.languageDB }}|' src/main/resources/config.properties
           sed -i 's|headless=.*|headless=true|' src/main/resources/config.properties
           sed -i 's|enableProxy=.*|enableProxy=false|' src/main/resources/config.properties
-          
+          sed -i 's|domain=.*|domain=false|' src/main/resources/config.properties
+
       - name: Update STAG environment
         if: inputs.environment == 'STAG'
         run: 
