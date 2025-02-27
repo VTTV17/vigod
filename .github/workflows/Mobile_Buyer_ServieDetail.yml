@@ -82,12 +82,12 @@ jobs:
       - name: Start Appium server
         run: nohup appium -a 0.0.0.0 -p 4723 -pa /wd/hub > appium_log.txt 2>&1 & > /dev/null 2>&1
   
-      - name: Install dependencies
-        run: |
-          # mvn install -DskipTests > /dev/null 2>&1
-          sudo apt update
-          sudo apt install maven -y > /dev/null 2>&1
-          mvn -version
+      # - name: Install dependencies
+      #   run: |
+      #     # mvn install -DskipTests > /dev/null 2>&1
+      #     sudo apt update
+      #     sudo apt install maven -y > /dev/null 2>&1
+      #     mvn -version
       - name: Start Android Emulator
         uses: reactivecircus/android-emulator-runner@v2
         with:
