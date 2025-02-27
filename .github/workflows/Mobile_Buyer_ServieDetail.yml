@@ -47,7 +47,7 @@ jobs:
           sed -i 's|languageDB=.*|languageDB=${{ inputs.languageDB }}|' src/main/resources/config.properties
           sed -i 's|headless=.*|headless=true|' src/main/resources/config.properties
           sed -i 's|enableProxy=.*|enableProxy=false|' src/main/resources/config.properties
-          sed -i 's|domain=.*|domain=false|' src/main/resources/config.properties
+          sed -i 's|domain=.*|domain=${{ inputs.domain }}|' src/main/resources/config.properties
 
       - name: Update STAG environment
         if: inputs.environment == 'STAG'
