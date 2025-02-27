@@ -25,6 +25,13 @@ on:
         options:
           - VIE
           - ENG
+      domain:
+        description: 'Domain to run tests'
+        default: "VN"
+        type: choice
+        options:
+          - VN
+          - BIZ
 jobs:
   clone-git-then-build-test:
     runs-on: ubuntu-20.04
@@ -32,75 +39,20 @@ jobs:
       - name: Checkout the current repository
         uses: actions/checkout@v2
  
-      - name: Install OpenVPN
-        run: |
-          sudo apt update -y
-          sudo apt install -y openvpn
- 
-      - name: Create VPN Credentials File
-        run: |
-          echo "${{ secrets.VPN_USERNAME }}" > ${{ secrets.VPN_AUTHOR }}
-          echo "${{ secrets.VPN_PASSWORD }}" >> ${{ secrets.VPN_AUTHOR }}
-          chmod 600 ${{ secrets.VPN_AUTHOR }}
- 
-      - name: Start OpenVPN
-        run: |
-          sudo nohup openvpn --verb 4 --config $(pwd)/${{ secrets.VPN_OVPN }} --auth-user-pass $(pwd)/${{ secrets.VPN_AUTHOR }} > $HOME/openvpn.log 2>&1 &
- 
-      - name: Try connect to Gitlab by VPN
-        run: |
-          for i in {1..5}; do
-           echo "$(curl -Is ${{ secrets.GITLAB_HOST }} | head -1)"
-           if grep -q "Initialization Sequence Completed" $HOME/openvpn.log; then
-             echo "OpenVPN started successfully."
-             break
-           fi
-           echo "OpenVPN start failed, retrying..."
-          done
-          cat $HOME/openvpn.log
- 
-      - name: Clone GitLab repository
-        run: |
-          git clone ${{ secrets.GITLAB_REPOSITORY }} GoSELL-Automation
- 
-      - name: Stop OpenVPN
-        run: |
-          sudo pkill -f openvpn
- 
-      - name: Switch to another branch
-        run: |
-          cd GoSELL-Automation
-          git checkout main
-          
       - name: Replace env variables
         run: |
-          cd GoSELL-Automation
           sed -i 's|environment=.*|environment=${{ inputs.environment }}|' src/main/resources/config.properties
           sed -i 's|languageSF=.*|languageSF=${{ inputs.languageSF }}|' src/main/resources/config.properties
           sed -i 's|languageDB=.*|languageDB=${{ inputs.languageDB }}|' src/main/resources/config.properties
           sed -i 's|headless=.*|headless=true|' src/main/resources/config.properties
           sed -i 's|enableProxy=.*|enableProxy=false|' src/main/resources/config.properties
-      - name: Confirm changes
-        run: |
-          cd GoSELL-Automation
-          cat src/main/resources/config.properties
+          sed -i 's|domain=.*|domain=${{ inputs.domain }}|' src/main/resources/config.properties
           
       - name: Set up Java
         uses: actions/setup-java@v3
         with:
           java-version: '22'
           distribution: 'adopt'
- 
-      - name: Install FFmpeg
-        run: sudo apt-get update && sudo apt-get install -y ffmpeg
- 
-      - name: Cache Maven packages
-        uses: actions/cache@v3
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-ubuntu
-          restore-keys: |
-            ${{ runner.os }}-maven-
  
       - name: Cache Maven packages
         uses: actions/cache@v3
@@ -111,35 +63,21 @@ jobs:
             ${{ runner.os }}-maven-ubuntu
  
       - name: Install dependencies
-        run: |
-          cd GoSELL-Automation
+        run: 
           mvn install -DskipTests
  
       - name: Run tests
-        run: |
-          cd GoSELL-Automation
+        run: 
           mvn --batch-mode test "-DsuiteFile=test_config/web/serviceCollectionTest.xml"
           
-      # - name: Upload all recording .mp4 files
-      #   if: always()
-      #   uses: actions/upload-artifact@v3
-      #   with:
-      #     name: MP4 Files
-      #     path: |
-      #       GoSELL-Automation/**/*.mp4
- 
       - name: Upload Test Report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: Test Reports
+          name: Test Reports - Service collection
           path: |
             **/html/index.html
             **/reportng.css
             **/reportng.js
             **/suite*_test*_results.html
             **/ExtentReport.html
-      
-      - name: Remove cloned repo
-        run: |
-          rm -r GoSELL-Automation
