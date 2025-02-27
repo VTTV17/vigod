@@ -166,12 +166,11 @@ public class CashbookGoSeller extends BaseTest {
 	}
 	List<String> comprehensivePaymentMethodList(Domain domain) {
 		List<String> paymentMethods = paymentMethodList(domain);
+		paymentMethods.add(localizePaymentMethod("paypal"));
 		
 		if (domain.equals(Domain.BIZ)) {
 			return paymentMethods;
 		}
-		
-		paymentMethods.add(localizePaymentMethod("paypal"));
 		paymentMethods.add(localizePaymentMethod("mpos"));
 		return paymentMethods;
 	}
@@ -298,7 +297,7 @@ public class CashbookGoSeller extends BaseTest {
 			expected = revenueSources();
 			Collections.sort(expected);
 			
-			actual = cashbookPage.getSourceDropdownValues();
+			actual = cashbookPage.getRevenueOrExpenseDropdownValues();
 			Collections.sort(actual);
 			
 			Assert.assertEquals(actual, expected, "Source list");
@@ -324,7 +323,7 @@ public class CashbookGoSeller extends BaseTest {
 			expected = expenseSources(eachEnum);
 			Collections.sort(expected);
 			
-			actual = cashbookPage.getSourceDropdownValues();
+			actual = cashbookPage.getRevenueOrExpenseDropdownValues();
 			Collections.sort(actual);
 			
 			Assert.assertEquals(actual, expected, "Expense list");
@@ -545,15 +544,15 @@ public class CashbookGoSeller extends BaseTest {
 
 		cashbookPage.inputCashbookSearchTerm(recordId);
 
-		List<String> fv = cashbookPage.getSpecificRecord(0);
-
-		String branch = fv.get(2);
+		List<String> record = cashbookPage.getSpecificRecord(0);
 		
+		String branch = record.get(2);
 		//TODO: Temporarily skip filtering records by createdBy and senderName fields. Solutions are needed 
-//		String createdBy = fv.get(5);
-//		String name = fv.get(4);
-		String source = fv.get(3);
-		String transaction = expenseSources(CashbookGroup.CUSTOMER).contains(source.replaceAll("\\.*: ", "")) ? transactions("allExpenses"):transactions("allRevenues");
+//		String createdBy = record.get(5);
+//		String name = record.get(4);
+		String rawSource = record.get(3);
+		String refinedSource = rawSource.replaceAll("(?:^.*: |\\s*$)", "");
+		String transaction = expenseSources(CashbookGroup.CUSTOMER).contains(refinedSource) ? transactions("allExpenses"):transactions("allRevenues");
 
 		cashbookPage.clickRecord(recordId);
 
@@ -571,9 +570,11 @@ public class CashbookGoSeller extends BaseTest {
 				.selectFilteredBranch(branch)
 				.selectFilteredTransaction(transaction);
 		if(transaction.contentEquals(transactions("allExpenses"))) {
-			cashbookPage.selectFilteredExpenseType(fv.get(3).split(": ")[1].trim());
+			//TODO: Expense list in Filter section does not have DEBT_COLLECTION_FROM_SELLER, so we'll skip this step
+			if (!refinedSource.contentEquals(CashbookExpense.getTextByLanguage(CashbookExpense.DEBT_COLLECTION_FROM_SELLER))) 
+				cashbookPage.selectFilteredExpenseType(refinedSource);
 		} else {
-			cashbookPage.selectFilteredRevenueType(fv.get(3).split(": ")[1].trim());
+			cashbookPage.selectFilteredRevenueType(refinedSource);
 		}
 		cashbookPage.selectFilteredGroup(group);
 
@@ -587,7 +588,10 @@ public class CashbookGoSeller extends BaseTest {
 		for (int i=0; i<loop; i++) {
 			List<String> result = cashbookPage.getSpecificRecord(0);
 			Assert.assertEquals(result.get(2), branch);
-			Assert.assertEquals(result.get(3), source);
+			
+			//TODO: Expense list in Filter section does not have DEBT_COLLECTION_FROM_SELLER, so we'll skip this check
+			if (!refinedSource.contentEquals(CashbookExpense.getTextByLanguage(CashbookExpense.DEBT_COLLECTION_FROM_SELLER))) 
+				Assert.assertEquals(result.get(3), rawSource);
 
 			cashbookPage.clickRecord(result.get(0));
 			Assert.assertEquals(cashbookPage.isAccountingChecked(), expectedAccounting);

@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.IntStream;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -397,28 +398,24 @@ public class Cashbook {
 	}
 
 	public List<String> getDropdownValues() {
-		// Sometimes it takes longer for the values to display
+		//Sometimes it takes longer for the values to display
 		int elementCount = 0;
 		for (int i = 0; i < 3; i++) {
 			elementCount = commonAction.getElements(By.xpath(dropdownOption.formatted(""))).size();
 			if (elementCount > 0) break;
 		}
 
-		// Store all option values into an array then return the array
 		List<String> values = new ArrayList<>();
-		for (int i = 0; i < elementCount; i++) {
-			values.add(commonAction.getText(By.xpath(dropdownOption.formatted("and @index='%s'".formatted(i)))));
-		}
+		IntStream.range(0, elementCount).forEach(e -> values.add(commonAction.getText(By.xpath(dropdownOption.formatted("and @index='%s'".formatted(e))))));
+		
+		logger.info("Retrieved dropdown options: {}", values);
 		return values;
 	}
 
 	/**
-	 * This method returns an array of strings representing the values of a dropdown
-	 * list for revenue source.
-	 *
-	 * @return An array of strings representing the dropdown values
+	 * Returns a list of revenue/expense dropdown options. Eg. ["Debt collection from supplier", "Payment for order"]
 	 */
-	public List<String> getSourceDropdownValues() {
+	public List<String> getRevenueOrExpenseDropdownValues() {
 		commonAction.clickElement(loc_ddlRevenue);
 		List<String> values = getDropdownValues();
 		commonAction.navigateBack();
@@ -532,7 +529,9 @@ public class Cashbook {
 	 * Use this before interacting with any records
 	 */
 	public void waitUntilLoadingIconDisappear() {
-		commonAction.waitInvisibilityOfElementLocated(By.xpath("//*[ends-with(@resource-id, 'id/srlRefresh')]//*[ends-with(@class, 'widget.ImageView')]"));
+		commonAction.waitInvisibilityOfElementLocated(By.xpath("//*[ends-with(@resource-id, 'id/vLoadingBackground')]")); //Grey background
+		commonAction.waitInvisibilityOfElementLocated(By.xpath("//*[ends-with(@resource-id, 'id/pbLoading')]")); //Blue loading ring 
+		commonAction.waitInvisibilityOfElementLocated(By.xpath("//*[ends-with(@resource-id, 'id/srlRefresh')]//*[ends-with(@class, 'widget.ImageView')]")); //Black loading ring in white circle
 		logger.info("Loading Icon has disappeared.");
 	}
 
