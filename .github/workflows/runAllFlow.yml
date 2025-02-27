@@ -192,7 +192,6 @@ jobs:
           target: google_apis
           arch: x86_64
           profile: pixel_4_xl
-          avd-name: test-emulator
           emulator-options: "-no-snapshot -noaudio -no-boot-anim -skin 1080x2400 -prop persist.sys.dpi=450"
           script: mvn --batch-mode test "-DsuiteFile=${{ matrix.test_config_path }}"
       
