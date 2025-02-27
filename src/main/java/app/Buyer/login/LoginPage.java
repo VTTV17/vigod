@@ -32,6 +32,12 @@ public class LoginPage {
     }       
     public static String localizedInvalidPhoneError(List<MobileAndroid> translation) {
     	return TranslateText.localizedText(translation, "social_phone_invalid");
+    }     
+    public static String localizedWrongEmailOrPasswordError(List<MobileAndroid> translation) {
+    	return TranslateText.localizedText(translation, "incorrect_email_pass");
+    }       
+    public static String localizedWrongPhoneOrPasswordError(List<MobileAndroid> translation) {
+    	return TranslateText.localizedText(translation, "incorrect_phone_pass");
     }       
     
     By USERNAME = By.xpath("//*[ends-with(@resource-id,'field') and not (contains(@resource-id,'password'))]//*[ends-with(@resource-id,'edittext')]");

@@ -3,14 +3,12 @@ package utilities.driver;
 import io.appium.java_client.AppiumDriver;
 import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.android.options.UiAutomator2Options;
-import utilities.commons.UICommonAndroid;
 
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
 import static utilities.account.AccountTest.ANDROID_GoSELLER_APP;
-import static utilities.environment.goSELLEREnvironment.goSELLERBundleId;
 
 
 public class InitAndroidDriver implements IAppiumDriverInitializer {
@@ -33,31 +31,22 @@ public class InitAndroidDriver implements IAppiumDriverInitializer {
     }    
     
 	@Override
-	public AppiumDriver getDriver(String udid, String appPath) throws MalformedURLException, URISyntaxException {
-		return getAndroidDriver(udid, appPath);
+	public AppiumDriver getDriver(String udid, String appPath) {
+		try {
+			return getAndroidDriver(udid, appPath);
+		} catch (MalformedURLException | URISyntaxException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
     @Override
     public AndroidDriver getSellerDriver(String udid) {
-		try {
-			AndroidDriver driver = getAndroidDriver(udid, System.getProperty("user.dir") + "/src/main/resources/app/" + ANDROID_GoSELLER_APP);
-			new UICommonAndroid(driver).relaunchApp(goSELLERBundleId);
-			return driver;
-		} catch (MalformedURLException | URISyntaxException e) {
-			throw new RuntimeException(e);
-		}
+    	return (AndroidDriver) getDriver(udid, System.getProperty("user.dir") + "/src/main/resources/app/" + ANDROID_GoSELLER_APP);
     }
 
     @Override
-    public AndroidDriver getBuyerDriver(String udid, String goBuyerBundleId) {
-        AndroidDriver driver = null;
-        try {
-            driver = getAndroidDriver(udid, System.getProperty("user.dir") + "/src/main/resources/app/" +  "GoBUYER_PREPROD.apk");
-        } catch (MalformedURLException | URISyntaxException e) {
-            throw new RuntimeException(e);
-        }
-        new UICommonAndroid(driver).relaunchApp(goBuyerBundleId);
-        return driver;
+    public AndroidDriver getBuyerDriver(String udid, String apkFileName) {
+        return (AndroidDriver) getDriver(udid, System.getProperty("user.dir") + "/src/main/resources/app/" + apkFileName);
     }
 
 }
