@@ -94,7 +94,7 @@ public class MyProfileTest extends BaseTest {
     @AfterMethod
     public void writeResult(ITestResult result) throws IOException {
         ((AndroidDriver) driver).removeApp(appPackage);
-        new APIEditProduct(loginInformation).deleteProduct(productIDToAddToCart);
+        if (driver != null) driver.quit();
     }
 
     public BuyerAccountPage login(String buyerAccount) {
