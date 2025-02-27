@@ -25,20 +25,13 @@ on:
           options:
             - VIE
             - ENG
-        java_version:
-          description: 'The version of Java to install.'
-          required: false
-          default: '22'
-      
-        api_level:
-          description: 'The API level for android'
-          required: false
-          default: '35'
-      
-        node_version:
-          description: 'The version of NodeJS to install.'
-          required: false
-          default: '21'
+        domain:
+          description: 'Domain to run tests'
+          default: "VN"
+          type: choice
+          options:
+            - VN
+            - BIZ
 jobs:
   automation:
     runs-on: ubuntu-20.04
@@ -50,128 +43,67 @@ jobs:
         uses: actions/setup-java@v4
         with:
             distribution: 'temurin'
-            java-version: ${{ inputs.java_version }}
+            java-version: 22
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: ${{ inputs.node_version }}
+          node-version: 21
   
       - name: Install Appium
         run: npm install -g appium > /dev/null 2>&1
   
       - name: Install UIAutomator2 driver
         run: appium driver install uiautomator2 > /dev/null 2>&1
-            
-      - name: Install OpenVPN
-        run: |
-          sudo apt update -y
-          sudo apt install -y openvpn
- 
-      - name: Create VPN Credentials File
-        run: |
-          echo "${{ secrets.VPN_USERNAME }}" > ${{ secrets.VPN_AUTHOR }}
-          echo "${{ secrets.VPN_PASSWORD }}" >> ${{ secrets.VPN_AUTHOR }}
-          chmod 600 ${{ secrets.VPN_AUTHOR }}
- 
-      - name: Start OpenVPN
-        run: |
-          sudo nohup openvpn --verb 4 --config $(pwd)/${{ secrets.VPN_OVPN }} --auth-user-pass $(pwd)/${{ secrets.VPN_AUTHOR }} > $HOME/openvpn.log 2>&1 &
- 
-      - name: Try connect to Gitlab by VPN
-        run: |
-          for i in {1..5}; do
-           echo "$(curl -Is ${{ secrets.GITLAB_HOST }} | head -1)"
-           if grep -q "Initialization Sequence Completed" $HOME/openvpn.log; then
-             echo "OpenVPN started successfully."
-             break
-           fi
-           echo "OpenVPN start failed, retrying..."
-          done
-          cat $HOME/openvpn.log
- 
-      - name: Clone GitLab repository
-        run: |
-          git clone ${{ secrets.GITLAB_REPOSITORY }} GoSELL-Automation
- 
-      - name: Switch to another branch
-        run: |
-          cd GoSELL-Automation
-          git checkout main
-          
-          
+             
       - name: Replace env variables
         run: |
-          cd GoSELL-Automation
           sed -i 's|environment=.*|environment=${{ inputs.environment }}|' src/main/resources/config.properties
           sed -i 's|languageSF=.*|languageSF=${{ inputs.languageSF }}|' src/main/resources/config.properties
           sed -i 's|languageDB=.*|languageDB=${{ inputs.languageDB }}|' src/main/resources/config.properties
           sed -i 's|headless=.*|headless=true|' src/main/resources/config.properties
           sed -i 's|enableProxy=.*|enableProxy=false|' src/main/resources/config.properties
-          
+          sed -i 's|domain=.*|domain=${{ inputs.domain }}|' src/main/resources/config.properties
+
       - name: Update STAG environment
         if: inputs.environment == 'STAG'
         run: |
-          cd GoSELL-Automation
           sed -i "s|udidAndroidVi=.*|udidAndroidVi=emulator-5554|" src/main/resources/environment/stag.properties
       
       - name: Update CA environment
         if: inputs.environment == 'CA'
         run: |
-          cd GoSELL-Automation
           sed -i "s|udidAndroidVi=.*|udidAndroidVi=emulator-5554|" src/main/resources/environment/ca.properties
       
       - name: Update PROD environment
         if: inputs.environment == 'PROD'
         run: |
-          cd GoSELL-Automation
           sed -i "s|udidAndroidVi=.*|udidAndroidVi=emulator-5554|" src/main/resources/environment/prod.properties
       
       - name: Update PREPROD environment
         if: inputs.environment == 'PREPROD'
         run: |
-          cd GoSELL-Automation
           sed -i "s|udidAndroidVi=.*|udidAndroidVi='emulator-5554'|" src/main/resources/environment/preprod.properties
-          
-      - name: Confirm changes
-        run: |
-          cd GoSELL-Automation
-          cat src/main/resources/config.properties
-          
-
     
-      - name: Create and start emulator
-        uses: ThangNguyen0495/create-android-emulator@main
-        with:
-          api-level: ${{ inputs.api_level }}
-
-     
-      - name: Configure Screen DPI
-        run: |
-          adb shell wm density 450   # Đặt DPI về 320 (XHDPI)
-          adb shell settings put system font_scale 1.0  # Đặt font scale 120%
-          adb shell wm size 1080x2400  # Đặt độ phân giải màn hình
-
-      
-  
       - name: Start Appium server
         run: nohup appium -a 0.0.0.0 -p 4723 -pa /wd/hub > appium_log.txt 2>&1 & > /dev/null 2>&1
   
-      - name: Install dependencies
+      - name: Enable KVM group perms
         run: |
-          cd GoSELL-Automation
-          sudo apt update
-          sudo apt install maven -y > /dev/null 2>&1
-          mvn -version
-          
-      - name: Run Appium tests with Maven
-        run: |
-          cd GoSELL-Automation
-          mvn test "-DsuiteFile=test_config/android/buyer/BuyerMyProfile.xml"
-      - name: Stop OpenVPN
-        run: |
-          sudo pkill -f openvpn
-          
+            echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+            sudo udevadm control --reload-rules
+            sudo udevadm trigger --name-match=kvm
+ 
+      - name: Run tests
+        uses: ReactiveCircus/android-emulator-runner@v2
+        with:
+          api-level: 30
+          target: google_apis
+          arch: x86_64
+          profile: pixel_4_xl
+          script: |
+            mvn --batch-mode test "-DsuiteFile=test_config/android/buyer/BuyerMyProfile.xml"          
+     
       - name: Upload Test Report
         if: always()
         uses: actions/upload-artifact@v4
@@ -181,7 +113,4 @@ jobs:
             **/ExtentReport.html
             **/BufferLog.log
             **/appium_log.txt
-            
-      - name: Remove cloned repo
-        run: |
-            rm -r GoSELL-Automation
+ 
