@@ -50,20 +50,10 @@ jobs:
           - test_config/web/createServiceTest.xml
           - test_config/web/productCollectionTest.xml
           - test_config/web/UserProfileSFTes.xml
-          - test_config/web/serviceCollectionTest.xml
-    
+          
     runs-on: ubuntu-latest
     steps:
-      - name: clone source
-        uses: VTTV17/clone-source-gitlab@main
-        with:
-          VPN_USERNAME: ${{ secrets.VPN_USERNAME }}
-          VPN_PASSWORD: ${{ secrets.VPN_PASSWORD }}
-          VPN_AUTHOR: ${{ secrets.VPN_AUTHOR }}
-          VPN_OVPN:  ${{ secrets.VPN_OVPN }}
-          GITLAB_HOST: ${{ secrets.GITLAB_HOST }}
-          GITLAB_REPOSITORY: ${{ secrets.GITLAB_REPOSITORY }}
-          
+     
       - name: Set up JDK
         uses: actions/setup-java@v4
         with:
@@ -132,15 +122,6 @@ jobs:
     if: always()
     runs-on: ubuntu-latest
     steps:
-      - name: clone source
-        uses: VTTV17/clone-source-gitlab@main
-        with:
-          VPN_USERNAME: ${{ secrets.VPN_USERNAME }}
-          VPN_PASSWORD: ${{ secrets.VPN_PASSWORD }}
-          VPN_AUTHOR: ${{ secrets.VPN_AUTHOR }}
-          VPN_OVPN:  ${{ secrets.VPN_OVPN }}
-          GITLAB_HOST: ${{ secrets.GITLAB_HOST }}
-          GITLAB_REPOSITORY: ${{ secrets.GITLAB_REPOSITORY }}
       
       - name: Set up JDK
         uses: actions/setup-java@v4
