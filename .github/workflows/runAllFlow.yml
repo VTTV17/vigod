@@ -87,11 +87,11 @@ jobs:
         run:
           mvn --batch-mode test "-DsuiteFile=${{ matrix.test_config_path }}"
           
-      - name: Upload Test Report
+      - name: Upload Test Report for web.
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: Test Reports ${{ inputs.test_config_path }}
+          name: Test Reports ${{ matrix.test_config_path }}
           path: |
             **/ExtentReport.html
  
@@ -195,11 +195,11 @@ jobs:
           emulator-options: "-no-snapshot -noaudio -no-boot-anim -skin 1080x2400 -prop persist.sys.dpi=450"
           script: mvn --batch-mode test "-DsuiteFile=${{ matrix.test_config_path }}"
       
-      - name: Upload Test Report
+      - name: Upload Test Report for android.
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: Test Reports - Android ${{ inputs.test_config_path }}
+          name: Test Reports - Android ${{ matrix.test_config_path }}
           path: |
             **/ExtentReport.html
             **/BufferLog.log
