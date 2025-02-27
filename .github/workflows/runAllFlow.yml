@@ -85,7 +85,7 @@ jobs:
  
       - name: Run tests
         run:
-          mvn --batch-mode test "-DsuiteFile=${{ inputs.test_config_path }}"
+          mvn --batch-mode test "-DsuiteFile=${{ matrix.test_config_path }}"
           
       - name: Upload Test Report
         if: always()
@@ -188,7 +188,7 @@ jobs:
           profile: pixel_4_xl
           avd-name: test-emulator
           emulator-options: "-no-snapshot -noaudio -no-boot-anim -skin 1080x2400 -prop persist.sys.dpi=450"
-          script: mvn --batch-mode test "-DsuiteFile=${{ inputs.test_config_path }}"
+          script: mvn --batch-mode test "-DsuiteFile=${{ matrix.test_config_path }}"
       
       - name: Upload Test Report
         if: always()
