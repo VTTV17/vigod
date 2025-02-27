@@ -149,17 +149,6 @@ jobs:
           sudo apt update
           sudo apt install maven -y > /dev/null 2>&1
           mvn -version
-          
-      # - name: Create and start emulator
-      #   uses: ThangNguyen0495/create-android-emulator@main
-      #   with:
-      #     api-level: ${{ inputs.api_level }}
-
-      # - name: Configure Screen DPI
-      #   run: |
-      #     adb shell wm density 450   # Đặt DPI về 320 (XHDPI)
-      #     adb shell settings put system font_scale 1.0  # Đặt font scale 120%
-      #     adb shell wm size 1080x2400  # Đặt độ phân giải màn hình
       
       - name: Enable KVM
         run: |
@@ -174,7 +163,6 @@ jobs:
           target: google_apis
           arch: x86_64
           profile: pixel_4_xl
-          emulator-options: "-no-snapshot -noaudio -no-boot-anim -skin 1080x2400 -prop persist.sys.dpi=450"
           script: mvn --batch-mode test "-DsuiteFile=${{ matrix.test_config_path }}"
       
       - name: Upload Test Report for android.
