@@ -60,9 +60,8 @@ jobs:
             distribution: 'temurin'
             java-version: ${{ inputs.java_version }}
 
-      - name: Switch to another branch
-        run: |
-          cd GoSELL-Automation
+      - name: checkout
+        run: 
           git checkout main
 
       - name: Replace env variables
@@ -73,13 +72,7 @@ jobs:
             sed -i 's|languageDB=.*|languageDB=${{ inputs.languageDB }}|' src/main/resources/config.properties
             sed -i 's|headless=.*|headless=true|' src/main/resources/config.properties
             sed -i 's|enableProxy=.*|enableProxy=false|' src/main/resources/config.properties
-            
-      - name: Set up Java
-        uses: actions/setup-java@v3
-        with:
-          java-version: '22'
-          distribution: 'adopt'
- 
+    
       - name: Cache Maven packages
         uses: actions/cache@v3
         with:
@@ -89,13 +82,11 @@ jobs:
             ${{ runner.os }}-maven-ubuntu
  
       - name: Install dependencies
-        run: |
-          cd GoSELL-Automation
+        run:
           mvn install -DskipTests
  
       - name: Run tests
-        run: |
-          cd GoSELL-Automation
+        run:
           mvn --batch-mode test "-DsuiteFile=${{ inputs.test_config_path }}"
           
       - name: Upload Test Report
@@ -140,9 +131,8 @@ jobs:
       - name: Install UIAutomator2 driver
         run: appium driver install uiautomator2 > /dev/null 2>&1
         
-      - name: Switch to another branch
-        run: |
-          cd GoSELL-Automation
+      - name: checkout
+        run:
           git checkout main
           
       - name: Replace env variables
@@ -178,32 +168,37 @@ jobs:
           cd GoSELL-Automation
           sed -i "s|udidAndroidVi=.*|udidAndroidVi='emulator-5554'|" src/main/resources/environment/preprod.properties
 
-      - name: Create and start emulator
-        uses: ThangNguyen0495/create-android-emulator@main
-        with:
-          api-level: ${{ inputs.api_level }}
-
-      - name: Configure Screen DPI
-        run: |
-          adb shell wm density 450   # Đặt DPI về 320 (XHDPI)
-          adb shell settings put system font_scale 1.0  # Đặt font scale 120%
-          adb shell wm size 1080x2400  # Đặt độ phân giải màn hình
-
       - name: Start Appium server
         run: nohup appium -a 0.0.0.0 -p 4723 -pa /wd/hub > appium_log.txt 2>&1 & > /dev/null 2>&1
   
       - name: Install dependencies
         run: |
-          cd GoSELL-Automation
           sudo apt update
           sudo apt install maven -y > /dev/null 2>&1
           mvn -version
           
-      - name: Run Appium tests with Maven
-        run: |
-          cd GoSELL-Automation
-          mvn --batch-mode test "-DsuiteFile=${{ inputs.test_config_path }}"
-          
+      # - name: Create and start emulator
+      #   uses: ThangNguyen0495/create-android-emulator@main
+      #   with:
+      #     api-level: ${{ inputs.api_level }}
+
+      # - name: Configure Screen DPI
+      #   run: |
+      #     adb shell wm density 450   # Đặt DPI về 320 (XHDPI)
+      #     adb shell settings put system font_scale 1.0  # Đặt font scale 120%
+      #     adb shell wm size 1080x2400  # Đặt độ phân giải màn hình
+
+      - name: Start Android Emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 30
+          target: google_apis
+          arch: x86_64
+          profile: pixel_4_xl
+          avd-name: test-emulator
+          emulator-options: "-no-snapshot -noaudio -no-boot-anim -skin 1080x2400 -prop persist.sys.dpi=450"
+          script: mvn --batch-mode test "-DsuiteFile=${{ inputs.test_config_path }}"
+      
       - name: Upload Test Report
         if: always()
         uses: actions/upload-artifact@v4
