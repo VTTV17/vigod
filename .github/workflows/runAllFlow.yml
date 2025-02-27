@@ -61,8 +61,7 @@ jobs:
             java-version: ${{ inputs.java_version }}
 
       - name: checkout
-        run: 
-          git checkout main
+        uses: actions/checkout@v2
 
       - name: Replace env variables
         run: |
@@ -113,7 +112,9 @@ jobs:
     if: always()
     runs-on: ubuntu-latest
     steps:
-      
+      - name: checkout
+        uses: actions/checkout@v2
+        
       - name: Set up JDK
         uses: actions/setup-java@v4
         with:
@@ -130,11 +131,7 @@ jobs:
   
       - name: Install UIAutomator2 driver
         run: appium driver install uiautomator2 > /dev/null 2>&1
-        
-      - name: checkout
-        run:
-          git checkout main
-          
+
       - name: Replace env variables
         run: |
           cd GoSELL-Automation
