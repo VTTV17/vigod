@@ -64,9 +64,9 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-ubuntu
  
-      - name: Install dependencies
-        run:
-          mvn install -DskipTests
+      # - name: Install dependencies
+      #   run:
+      #     mvn install -DskipTests
  
       - name: Run tests
         run:
