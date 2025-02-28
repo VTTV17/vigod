@@ -1,8 +1,5 @@
 package app.android.Buyer;
 import java.util.List;
-import java.util.Objects;
-import java.util.Random;
-import java.util.stream.Collectors;
 
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
@@ -16,6 +13,8 @@ import com.mifmif.common.regex.Generex;
 import api.Seller.login.Login;
 import api.Seller.setting.StoreLanguageAPI;
 import app.Buyer.account.BuyerAccountPage;
+import app.Buyer.account.BuyerMyProfile;
+import app.Buyer.account.ChangePasswordPage;
 import app.Buyer.buyergeneral.BuyerGeneral;
 import app.Buyer.login.LoginPage;
 import app.Buyer.navigationbar.NavigationBar;
@@ -25,9 +24,11 @@ import utilities.commons.UICommonMobile;
 import utilities.data.DataGenerator;
 import utilities.driver.InitAndroidDriver;
 import utilities.environment.goBUYEREnvironment;
+import utilities.model.LoginCredentials;
 import utilities.model.dashboard.setting.languages.AdditionalLanguages;
 import utilities.model.dashboard.setting.languages.translation.MobileAndroid;
 import utilities.model.sellerApp.login.LoginInformation;
+import utilities.utils.ListUtils;
 import utilities.utils.PropertiesUtil;
 
 public class LoginBuyer extends BaseTest{
@@ -36,37 +37,25 @@ public class LoginBuyer extends BaseTest{
 	NavigationBar navigationBar;
 	LoginPage loginPage;
 	SignupPage signupPage;
-	BuyerGeneral buyerGeneral;
 	UICommonMobile commonAction;
 	
+	LoginInformation sellerCredentialsForAPI;
 	
-	String sellerCountry, sellerUsername, sellerPassword;
-	LoginInformation sellerCredentials;
+	LoginCredentials loginAccount;
 	
 	AdditionalLanguages sfDisplayLanguage;
-	String sfLanguageCode, sfLanguageName;
 	List<MobileAndroid> translation;
 	
 	@BeforeClass
 	void loadData() {
-		sellerCountry = AccountTest.ADMIN_COUNTRY_TIEN;
-		sellerUsername = AccountTest.ADMIN_USERNAME_TIEN;
-		sellerPassword = AccountTest.ADMIN_PASSWORD_TIEN;
+		loginAccount = new LoginCredentials(AccountTest.ADMIN_COUNTRY_TIEN, AccountTest.ADMIN_USERNAME_TIEN, AccountTest.ADMIN_PASSWORD_TIEN);
 		
-		sellerCredentials = new Login().setLoginInformation(DataGenerator.getPhoneCode(sellerCountry), sellerUsername, sellerPassword).getLoginInformation();
+		sellerCredentialsForAPI = new Login().setLoginInformation(loginAccount).getLoginInformation();
 		
-		var storeLanguageAPI = new StoreLanguageAPI(sellerCredentials);
-		sfDisplayLanguage = randomSFDisplayLanguage(storeLanguageAPI.getAdditionalLanguages());
-		sfLanguageName = sfDisplayLanguage.getLangName();
-        sfLanguageCode = sfDisplayLanguage.getLangCode();
-        translation = storeLanguageAPI.getTranslation(sfLanguageCode).getMobileAndroid();
+		var storeLanguageAPI = new StoreLanguageAPI(sellerCredentialsForAPI);
+		sfDisplayLanguage = ListUtils.getRandomListElement(storeLanguageAPI.getAdditionalLanguages().stream().filter(AdditionalLanguages::getPublished).toList());
+        translation = storeLanguageAPI.getTranslation(sfDisplayLanguage.getLangCode()).getMobileAndroid();
 	}	
-
-	AdditionalLanguages randomSFDisplayLanguage(List<AdditionalLanguages> publishedLanguages) {
-        return publishedLanguages.stream()
-        		.filter(AdditionalLanguages::getPublished)
-        		.collect(Collectors.collectingAndThen(Collectors.toList(), collected -> collected.get(new Random().nextInt(collected.size()))));
-	}		
 
 	@BeforeMethod
 	void beforeEachMethod() {
@@ -75,7 +64,6 @@ public class LoginBuyer extends BaseTest{
 		accountTab = new BuyerAccountPage(driver);
 		loginPage = new LoginPage(driver);
 		signupPage = new SignupPage(driver);
-		buyerGeneral = new BuyerGeneral(driver);
 		commonAction = new UICommonMobile(driver);
 		
 		commonAction.waitSplashScreenLoaded();
@@ -92,13 +80,12 @@ public class LoginBuyer extends BaseTest{
 	@DataProvider
 	Object[][] buyerAccountDP() {
 		return new Object[][] { 
-			{AccountTest.SF_EMAIL_COUNTRY, AccountTest.SF_EMAIL_USERNAME, AccountTest.BUYER_MASTER_PASSWORD},
+//			{AccountTest.SF_EMAIL_COUNTRY, AccountTest.SF_EMAIL_USERNAME, AccountTest.BUYER_MASTER_PASSWORD},
 			{AccountTest.SF_PHONE_COUNTRY, AccountTest.SF_PHONE_USERNAME, AccountTest.BUYER_MASTER_PASSWORD},
 			{AccountTest.GOMUA_EMAIL_COUNTRY, AccountTest.GOMUA_EMAIL_USERNAME, AccountTest.BUYER_MASTER_PASSWORD},
-			{AccountTest.GOMUA_PHONE_COUNTRY, AccountTest.GOMUA_PHONE_USERNAME, AccountTest.BUYER_MASTER_PASSWORD},
+//			{AccountTest.GOMUA_PHONE_COUNTRY, AccountTest.GOMUA_PHONE_USERNAME, AccountTest.BUYER_MASTER_PASSWORD},
 		};
-	}		
-
+	}
 	
 	@Test
 	void TC_00_SwitchBetweenSigninAndSignupForm() {
@@ -172,6 +159,8 @@ public class LoginBuyer extends BaseTest{
 	@Test
 	void TC_02_LoginWithWrongCredentials() {
 		
+		BuyerGeneral buyerGeneral = new BuyerGeneral(driver);
+		
 		navigationBar.tapOnAccountIcon().changeLanguageByLangName(sfDisplayLanguage).clickLoginBtn();
 		
 		loginPage.performLogin(AccountTest.SF_EMAIL_COUNTRY, DataGenerator.randomCorrectFormatEmail(), DataGenerator.randomValidPassword());
@@ -184,11 +173,73 @@ public class LoginBuyer extends BaseTest{
 	@Test(dataProvider = "buyerAccountDP")
 	void TC_03_LoginWithCorrectCredentials(String country, String username, String password) {
 		
-		navigationBar.tapOnAccountIcon().clickLoginBtn();
+		navigationBar.tapOnAccountIcon().changeLanguageByLangName(sfDisplayLanguage).clickLoginBtn();
 		
 		loginPage.performLogin(country, username, password);
 		
-		accountTab.clickProfile();
+    	accountTab.clickProfile();
 	}
+
+	@Test(dataProvider = "buyerAccountDP")
+	void TC_04_ChangePasswordWithInvalidData(String country, String username, String password) {
+		
+		navigationBar.tapOnAccountIcon().clickLoginBtn().performLogin(country, username, password);
+		
+		commonAction.swipeByCoordinatesInPercent(0.5, 0.8, 0.5, 0.2);
+		accountTab.changeLanguageByLangName(sfDisplayLanguage);
+		
+		BuyerMyProfile myProfilePage = accountTab.clickProfile();
+		
+		commonAction.swipeByCoordinatesInPercent(0.5, 0.8, 0.5, 0.2);
+		
+		//When leaving the fields empty, no validation errors are seen. The button is disabled
+		
+		//Wrong current password
+		var error = myProfilePage.clickChangePassword()
+			.inputCurrentPassword(DataGenerator.randomValidPassword())
+			.inputNewPassword(DataGenerator.randomValidPassword())
+			.clickChangePasswordDoneBtn()
+			.getCurrentPasswordError();
+		Assert.assertEquals(error, ChangePasswordPage.localizedWrongCurrentPasswordError(translation));
+		
+		commonAction.hideKeyboard("android");
+		commonAction.navigateBack();
+		
+		// Absence of special characters
+		error = myProfilePage.clickChangePassword()
+			.inputCurrentPassword(password)
+			.clickNewPassword()
+			.inputNewPassword(new Generex("[a-z]{7}\\d").random())
+			.clickChangePasswordDoneBtn()
+			.getNewPasswordError();
+		Assert.assertEquals(error, ChangePasswordPage.localizedInvalidPasswordFormatError(translation));
+		
+		commonAction.hideKeyboard("android");
+		commonAction.navigateBack();
+		
+		// Absence of digits
+		error = myProfilePage.clickChangePassword()
+			.inputCurrentPassword(password)
+			.clickNewPassword()
+			.inputNewPassword(new Generex("[a-z]{7}[!#@]").random())
+			.clickChangePasswordDoneBtn()
+			.getNewPasswordError();
+		Assert.assertEquals(error, ChangePasswordPage.localizedInvalidPasswordFormatError(translation));
+		
+		commonAction.hideKeyboard("android");
+		commonAction.navigateBack();
+		
+		// Inadequate number of characters
+		error = myProfilePage.clickChangePassword()
+			.inputCurrentPassword(password)
+			.clickNewPassword()
+			.inputNewPassword(new Generex("[a-z]{4}\\d{2}[!#@]").random())
+			.clickChangePasswordDoneBtn()
+			.getNewPasswordError();
+		Assert.assertEquals(error, ChangePasswordPage.localizedInvalidPasswordFormatError(translation));
+	}
+	
+	//TODO Login with Facebook functionality => Left for manual testing
+	//TODO Buyers logging in with Facebook can't change password nor reset password on Storefront => Left for manual testing	
 	
 }

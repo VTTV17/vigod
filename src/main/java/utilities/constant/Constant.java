@@ -32,6 +32,8 @@ public class Constant {
     public static final String SERVICE_TYPE;
     public static final String SERVICE_TITLE;
     public static final String VND_SYMBOL = "đ";
+    public static final String VIETNAMESE_VIETNAM = "Việt Nam";
+    public static final String INTERNATIONAL_VIETNAM = "Vietnam";
     static {
         try {
             VIETNAM = PropertiesUtil.getPropertiesValueBySFLang("buyerApp.country.vietnam");
