@@ -74,46 +74,10 @@ public class BuyerMyProfile extends BuyerMyProfileElement{
     	return new BuyerAddress(driver);
     }    
     
-    public BuyerMyProfile clickChangePassword() {
+    public ChangePasswordPage clickChangePassword() {
     	common.clickElement(CHANGE_PASSWORD_LBl);
     	logger.info("Clicked on 'Change Password'.");
-    	return this;
-    }
-    
-    public BuyerMyProfile clickNewPassword() {
-    	common.clickElement(NEW_CHANGEPASSWORD);
-    	logger.info("Clicked on New Password field.");
-    	return this;
-    }
-
-    public BuyerMyProfile inputCurrentPassword(String password){
-        common.inputText(CURRENT_CHANGEPASSWORD, password);
-        logger.info("Input '" + password + "' into Current Password field to change password.");
-        return this;
-    }    
-    
-    public BuyerMyProfile inputNewPassword(String password){
-    	common.inputText(NEW_CHANGEPASSWORD, password);
-    	logger.info("Input '" + password + "' into New Password field to change password.");
-    	return this;
-    }
-    
-    public BuyerMyProfile clickChangePasswordDoneBtn() {
-    	common.clickElement(CHANGEPASSWORD_DONE_BTN);
-    	logger.info("Clicked on Done button to change password.");
-    	return this;
-    }     
-    
-    public String getCurrentPasswordError(){
-    	String text = common.getText(CURRENT_CHANGEPASSWORD_ERROR);
-    	logger.info("Retrieved error for Current Password field: " + text);
-    	return text;
-    }
-    
-    public String getNewPasswordError(){
-    	String text = common.getText(NEW_CHANGEPASSWORD_ERROR);
-    	logger.info("Retrieved error for New Password field: " + text);
-    	return text;
+    	return new ChangePasswordPage(driver);
     }
     
     public BuyerMyProfile verifyTextMyProfile() throws Exception {

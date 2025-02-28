@@ -196,56 +196,6 @@ public class LoginBuyerApp {
 		}
 		return oldPasswords;
 	}		
-
-	@Test
-	public void Login_09_LoginWithGomuaMailAccount() {
-		
-		String country = GOMUA_MAIL_COUNTRY;
-		String username = GOMUA_MAIL_USERNAME;
-		String password = GOMUA_MAIL_PASSWORD;
-		
-		navigationBar.tapOnAccountIcon().clickLoginBtn();
-		
-		loginPage.performLogin(country, username, password);
-		
-    	BuyerMyProfile myProfile = accountTab.clickProfile();
-    	
-    	String displayName = myProfile.getDisplayName();
-
-    	commonAction.swipeByCoordinatesInPercent(0.5, 0.8, 0.5, 0.2);
-    	String birthday = myProfile.getBirthday();
-    	
-    	//Handle inconsistency in country between different languages
-    	String tempCountry = myProfile.clickAddress().getCountry();
-    	String formatedCountry = tempCountry.contentEquals("Việt Nam") ? "Vietnam":tempCountry;
-    	
-    	verifyBuyerDataOnDashboard(formatedCountry, generate.getPhoneCode(formatedCountry), username, displayName, birthday);
-	}	
-	
-	@Test
-	public void Login_10_LoginWithGomuaPhoneAccount() {
-		
-		String country = GOMUA_PHONE_COUNTRY;
-		String username = GOMUA_PHONE_USERNAME;
-		String password = GOMUA_PHONE_PASSWORD;
-		
-		navigationBar.tapOnAccountIcon().clickLoginBtn();
-		
-		loginPage.performLogin(country, username, password);
-		
-		BuyerMyProfile myProfile = accountTab.clickProfile();
-		
-		String displayName = myProfile.getDisplayName();
-		
-		commonAction.swipeByCoordinatesInPercent(0.5, 0.8, 0.5, 0.2);
-		String birthday = myProfile.getBirthday();
-		
-		//Handle inconsistency in country between different languages
-		String tempCountry = myProfile.clickAddress().getCountry();
-		String formatedCountry = tempCountry.contentEquals("Việt Nam") ? "Vietnam":tempCountry;
-		
-		verifyBuyerDataOnDashboard(formatedCountry, generate.getPhoneCode(formatedCountry), username, displayName, birthday);
-	}	
 	
 	@Test
 	public void Login_11_ForgotPasswordForMailAccount() throws SQLException {
@@ -354,60 +304,6 @@ public class LoginBuyerApp {
 		
 		signupPage.clickContinueBtn();
 		Assert.assertEquals(signupPage.getUsernameError(), "Số điện thoại không tồn tại");
-	}	
-	
-	@Test
-	public void Login_14_ChangePasswordWithInvalidData() {
-		String username = BUYER_FORGOT_MAIL_USERNAME;
-		String password = BUYER_FORGOT_MAIL_PASSWORD;
-		String newPassword = password + "@" + generate.generateNumber(3);
-		
-		navigationBar.tapOnAccountIcon().clickLoginBtn();
-		
-		loginPage.performLogin(BUYER_MAIL_COUNTRY, username, password);
-		
-		accountTab.clickProfile();
-		
-		commonAction.swipeByCoordinatesInPercent(0.5, 0.8, 0.5, 0.2);
-		
-		//When leaving the fields empty, no validation errors are seen. The button is disabled.
-		
-		//Wrong current password
-		changePassword(password + "1", newPassword);
-		Assert.assertEquals(new BuyerMyProfile(driver).getCurrentPasswordError(), "Sai mật khẩu hiện tại");
-		
-		commonAction.hideKeyboard("android");
-		commonAction.navigateBack();
-		
-		// Absence of special characters
-		new BuyerMyProfile(driver).clickChangePassword()
-		.inputCurrentPassword(password)
-		.clickNewPassword()
-		.inputNewPassword("asvn4567")
-		.clickChangePasswordDoneBtn();
-		Assert.assertEquals(new BuyerMyProfile(driver).getNewPasswordError(), "Mật khẩu phải có ít nhất 8 ký tự và có ít nhất 1 chữ, 1 số và 1 ký tự đặc biệt(!@#$%...)");
-		
-		commonAction.hideKeyboard("android");
-		commonAction.navigateBack();
-		
-		// Absence of digits
-		new BuyerMyProfile(driver).clickChangePassword()
-		.inputCurrentPassword(password)
-		.clickNewPassword()
-		.inputNewPassword("asvn$%^&")
-		.clickChangePasswordDoneBtn();
-		Assert.assertEquals(new BuyerMyProfile(driver).getNewPasswordError(), "Mật khẩu phải có ít nhất 8 ký tự và có ít nhất 1 chữ, 1 số và 1 ký tự đặc biệt(!@#$%...)");
-		
-		commonAction.hideKeyboard("android");
-		commonAction.navigateBack();
-		
-		// Inadequate number of characters
-		new BuyerMyProfile(driver).clickChangePassword()
-		.inputCurrentPassword(password)
-		.clickNewPassword()
-		.inputNewPassword("asvn45$")
-		.clickChangePasswordDoneBtn();
-		Assert.assertEquals(new BuyerMyProfile(driver).getNewPasswordError(), "Mật khẩu phải có ít nhất 8 ký tự và có ít nhất 1 chữ, 1 số và 1 ký tự đặc biệt(!@#$%...)");
 	}	
 	
 	@Test

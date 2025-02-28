@@ -12,6 +12,8 @@ import org.slf4j.LoggerFactory;
 import utilities.api.API;
 import utilities.api.payloadbuilder.CapchaPayloadBuilder;
 import utilities.api.payloadbuilder.JsonObjectBuilder;
+import utilities.data.DataGenerator;
+import utilities.model.LoginCredentials;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.dashboard.setting.branchInformation.BranchInfo;
 import utilities.model.sellerApp.login.LoginInformation;
@@ -23,8 +25,9 @@ import java.util.Optional;
 
 public class Login {
     private static final Logger log = LoggerFactory.getLogger(Login.class);
-    String API_LOGIN_PATH = "/api/authenticate/store/email/gosell";
-    public String DASHBOARD_LOGIN_PHONE_PATH = "api/authenticate/store/phone/gosell";
+    
+    String loginWithEmailPath = "/api/authenticate/store/email/gosell";
+    String loginWithPhonePath = "api/authenticate/store/phone/gosell";
     String switchStaffPath = "/api/authenticate/store/%s/switch-staff";
     String storeStaff = "/storeservice/api/store-staffs/user/%s";
     API api = new API();
@@ -38,10 +41,10 @@ public class Login {
                 }""".formatted(account, password);
 
         try {
-            return api.login(API_LOGIN_PATH, body).then().statusCode(200).extract().response();
+            return api.login(loginWithEmailPath, body).then().statusCode(200).extract().response();
         } catch (AssertionError ex) {
             LogManager.getLogger().debug(ex);
-            return api.login(API_LOGIN_PATH, body).then().statusCode(200).extract().response();
+            return api.login(loginWithEmailPath, body).then().statusCode(200).extract().response();
         }
     }
 
@@ -72,6 +75,10 @@ public class Login {
         return this;
     }
 
+    public Login setLoginInformation(LoginCredentials account) {
+        return setLoginInformation(DataGenerator.getPhoneCode(account.getCountry()), account.getUsername(), account.getPassword());
+    }    
+    
     public LoginDashboardInfo getInfo(LoginInformation loginInformation) {
 
         // init login dashboard info model
@@ -205,7 +212,7 @@ public class Login {
                 "password":"%s",
                 "rememberMe":true
                 }""".formatted(phoneCode, phoneNumber, password);
-        Response loginResponse = api.login(DASHBOARD_LOGIN_PHONE_PATH, body);
+        Response loginResponse = api.login(loginWithPhonePath, body);
         loginResponse.then().log().ifValidationFails().statusCode(200);
         return loginResponse;
     }
