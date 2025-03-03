@@ -17,6 +17,7 @@ import org.testng.Assert;
 import utilities.assert_customize.AssertCustomize;
 import utilities.commons.UICommonAction;
 import utilities.data.DataGenerator;
+import utilities.enums.Domain;
 import utilities.model.dashboard.setting.Tax.TaxInfo;
 import utilities.model.dashboard.setting.branchInformation.BranchInfo;
 import utilities.model.dashboard.setting.storeInformation.StoreInfo;
@@ -40,7 +41,8 @@ import static org.apache.commons.lang.math.JVMRandom.nextLong;
 import static org.apache.commons.lang.math.RandomUtils.nextBoolean;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static utilities.character_limit.CharacterLimit.MAX_PRICE;
-import static utilities.links.Links.DOMAIN;
+import static utilities.links.Links.*;
+import static utilities.links.Links.BUY_LINK_PATH;
 
 public class ProductPage extends ProductPageElement {
     WebDriver driver;
@@ -64,6 +66,7 @@ public class ProductPage extends ProductPageElement {
     private static StoreInfo storeInfo;
     private static ProductInfoV2 productInfo;
     LoginInformation loginInformation;
+    Domain domain;
 
     public ProductPage(WebDriver driver) {
         this.driver = driver;
@@ -74,7 +77,16 @@ public class ProductPage extends ProductPageElement {
         // init assert customize function
         assertCustomize = new AssertCustomize(driver);
     }
+    public ProductPage(WebDriver driver, Domain domain) {
+        this.driver = driver;
 
+        // init common function
+        commonAction = new UICommonAction(driver);
+
+        // init assert customize function
+        assertCustomize = new AssertCustomize(driver);
+        this.domain = domain;
+    }
     public ProductPage getLoginInformation(LoginInformation loginInformation) {
         // get login information (username, password)
         this.loginInformation = loginInformation;
@@ -1307,7 +1319,12 @@ public class ProductPage extends ProductPageElement {
     }
     
     public void navigateToProductAndDeleteAllVariation(int productId) {
-        commonAction.navigateToURL(DOMAIN + updateProductPath(productId));
+        var url = switch (domain) {
+            case VN -> DOMAIN + updateProductPath(productId);
+            case BIZ -> DOMAIN_BIZ + updateProductPath(productId);
+            default -> throw new IllegalArgumentException("Unexpected value: " + domain);
+        };
+        commonAction.navigateToURL(url);
         new HomePage(driver).waitTillSpinnerDisappear();
         clickDeleteVariationBtn();
         completeUpdateProduct();

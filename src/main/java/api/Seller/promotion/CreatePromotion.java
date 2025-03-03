@@ -563,7 +563,7 @@ public class CreatePromotion {
         // coupon value
         int couponValue = (couponType == 0) ? (nextInt(MAX_PERCENT_DISCOUNT) + 1) : ((couponType == 1) ? (nextInt(MAX_FIXED_AMOUNT) + 1) : (nextInt(MAX_FREE_SHIPPING) + 1));
         // free shipping provided
-        String freeShippingProviders = (couponType == 2) ? "giaohangnhanh,giaohangtietkiem,ahamove_bike,selfdelivery,ahamove_truck" : "";
+        String freeShippingProviders = (couponType == 2) ? "selfdelivery" : "";
 
         // apply discount code as a reward
 //        boolean enabledRewards = nextBoolean();

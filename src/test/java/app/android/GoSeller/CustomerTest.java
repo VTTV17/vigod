@@ -64,7 +64,7 @@ public class CustomerTest extends BaseTest{
         return new SellerAccount(driver).changeLanguage(language);
     }
     @Test
-    public void createCustomerInVietNam(){
+    public void TC01_CreateCustomerInVietNam(){
         UICreateCustomerData customerInfoExpected = goToCreateCustomer().createCustomer(true);
         UICreateCustomerData customerInfoAfterCreate = new ViewCreateUpdateCustomer(driver).
                 verifyCreateSuccessMessage().goToNewestCustomer()
@@ -72,7 +72,7 @@ public class CustomerTest extends BaseTest{
         new ViewCreateUpdateCustomer(driver).verifyCustomerInfo(customerInfoExpected, customerInfoAfterCreate);
     }
     @Test
-    public void createCustomerNonVietNam(){
+    public void TC02_CreateCustomerNonVietNam(){
         UICreateCustomerData customerInfoExpected = goToCreateCustomer().createCustomer(false);
         UICreateCustomerData customerInfoAfterCreate = new ViewCreateUpdateCustomer(driver).
                 verifyCreateSuccessMessage().goToNewestCustomer()
@@ -80,7 +80,7 @@ public class CustomerTest extends BaseTest{
         new ViewCreateUpdateCustomer(driver).verifyCustomerInfo(customerInfoExpected, customerInfoAfterCreate);
     }
     @Test
-    public void updateCustomerInVietNam(){
+    public void TC03_UpdateCustomerInVietNam(){
         goToCustomerList();
         UICreateCustomerData customerInfoExpected = new CustomerListScreen(driver).goToNewestCustomer().
                 editCustomer(true);
@@ -90,7 +90,7 @@ public class CustomerTest extends BaseTest{
         new ViewCreateUpdateCustomer(driver).verifyCustomerInfo(customerInfoExpected, customerInfoAfterCreate);
     }
     @Test
-    public void updateCustomerNonVietNam(){
+    public void TC04_UpdateCustomerNonVietNam(){
         goToCustomerList();
         UICreateCustomerData customerInfoExpected = new CustomerListScreen(driver).goToNewestCustomer().
                 editCustomer(false);

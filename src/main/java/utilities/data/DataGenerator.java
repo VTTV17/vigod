@@ -8,6 +8,7 @@ import io.restassured.path.json.JsonPath;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.RandomStringUtils;
 
+import utilities.constant.Constant;
 import utilities.enums.newpackage.NewPackage;
 import utilities.model.dashboard.setting.plan.PlanNameAndPrice;
 import utilities.model.dashboard.setupstore.CountryData;
@@ -560,6 +561,18 @@ public class DataGenerator {
      */
     static public String randomPhone() {
     	return generatePhoneFromRegex("\\d{8,15}");
+    }
+    
+    /**
+     * <p>Generates a random money amount based on the provided currency symbol.
+     * @param currencySymbol  Eg. đ, $
+     * @return Eg. 34000 or 34.34
+     */
+    static public String randomMoneyAmount(String currencySymbol) {
+		if (currencySymbol.contentEquals(Constant.VND_SYMBOL)) {
+			return new Generex("[1-9]\\d{2,5}").random();
+		}
+		return new Generex("[1-9]\\d{0,2}\\.\\d{2}").random();
     }
     
 }

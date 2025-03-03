@@ -53,7 +53,7 @@ public class UICommonMobile extends UICommonAction {
 	}
 
 	public void inputText(By bySelector, String text) {
-		for (int i=0; i<10; i++) { //There are times when the element is still stale after re-locating it
+		for (int i=0; i<30; i++) { //Sometimes the element is still stale after re-locating it, especially when selecting Cashbook Sender
 			try {
 				WebElement el = getElement(bySelector,5);
 				el.clear();
@@ -191,6 +191,8 @@ public class UICommonMobile extends UICommonAction {
 		} else {
 			throw new IllegalArgumentException("Unknown platform: " + platformNameFromCapacity);
 		}
+		
+		logger.info("swipeByCoordinatesInPercent: (%s, %s) -> (%s, %s) in %s ms".formatted(startX, startY, endX, endY, delay));
 	}
 
 	public String getText(WebElement element) {

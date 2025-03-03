@@ -18,6 +18,7 @@ import org.testng.Assert;
 import org.testng.asserts.SoftAssert;
 
 import utilities.assert_customize.AssertCustomize;
+import utilities.enums.Domain;
 import utilities.links.Links;
 import utilities.model.sellerApp.login.LoginInformation;
 import utilities.model.staffPermission.AllPermissions;
@@ -29,6 +30,9 @@ import utilities.commons.UICommonAction;
 import web.Dashboard.marketing.landingpage.LandingPage;
 import web.Dashboard.promotion.discount.product_discount_campaign.ProductDiscountCampaignPage;
 
+import static utilities.links.Links.*;
+import static utilities.links.Links.LOGIN_PATH;
+
 public class BuyLinkManagement extends HomePage{
 
 	final static Logger logger = LogManager.getLogger(BuyLinkManagement.class);
@@ -36,7 +40,7 @@ public class BuyLinkManagement extends HomePage{
 	WebDriver driver;
 	WebDriverWait wait;
 	UICommonAction commonAction;
-
+	Domain domain;
 	SoftAssert soft = new SoftAssert();
 	AssertCustomize assertCustomize;
 	AllPermissions allPermissions;
@@ -49,7 +53,15 @@ public class BuyLinkManagement extends HomePage{
 		commonAction = new UICommonAction(driver);
 		assertCustomize = new AssertCustomize(driver);
 		createBuyLink = new CreateBuyLink(driver);
-		PageFactory.initElements(driver, this);
+	}
+	public BuyLinkManagement(WebDriver driver, Domain domain) {
+		super(driver);
+		this.driver = driver;
+		wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+		commonAction = new UICommonAction(driver);
+		assertCustomize = new AssertCustomize(driver);
+		createBuyLink = new CreateBuyLink(driver);
+		this.domain = domain;
 	}
 	By loc_btnExploreNow = By.cssSelector(".buylink-intro button");
 	By loc_btnCreateBuyLink = By.cssSelector(".buylink button");
@@ -186,7 +198,11 @@ public class BuyLinkManagement extends HomePage{
 	private boolean hasViewCreatedProductListPers() {
 		return allPermissions.getProduct().getProductManagement().isCreateProduct();
 	}	public BuyLinkManagement navigateUrl(){
-		String url = Links.DOMAIN + "/marketing/buy-link/list";
+		var url = switch (domain) {
+			case VN -> DOMAIN + BUY_LINK_PATH;
+			case BIZ -> DOMAIN_BIZ + BUY_LINK_PATH;
+			default -> throw new IllegalArgumentException("Unexpected value: " + domain);
+		};
 		commonAction.navigateToURL(url);
 		logger.info("Navigate to url: "+url);
 		commonAction.sleepInMiliSecond(500);

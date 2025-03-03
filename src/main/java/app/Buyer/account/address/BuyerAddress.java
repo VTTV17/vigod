@@ -1,6 +1,5 @@
 package app.Buyer.account.address;
 
-import java.time.Duration;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
@@ -8,9 +7,6 @@ import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.pagefactory.ByChained;
-import org.openqa.selenium.support.ui.WebDriverWait;
-
 import org.testng.Assert;
 
 import app.Buyer.account.BuyerMyProfile;
@@ -24,14 +20,12 @@ public class BuyerAddress {
 	final static Logger logger = LogManager.getLogger(BuyerAddress.class);
 
 	WebDriver driver;
-	WebDriverWait wait;
 	UICommonMobile commonAction;
 
 	int defaultTimeout = 5;
 
 	public BuyerAddress(WebDriver driver) {
 		this.driver = driver;
-		wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 		commonAction = new UICommonMobile(driver);
 	}
 
@@ -48,8 +42,9 @@ public class BuyerAddress {
 	By ZIP_CODE = By.xpath("//*[ends-with(@resource-id,'activity_edit_address_et_zipcode')]");
 	By BACK_ICON = By.xpath("//*[ends-with(@resource-id,'activity_edit_address_toolbar')]/android.widget.ImageButton");
 	By HEADER_SAVE_BTN = By.xpath("//*[ends-with(@resource-id,'activity_edit_address_btn_save')]");
-    public String getCountry() {
-		commonAction.sleepInMiliSecond(500);
+    
+	public String getCountry() {
+		UICommonMobile.sleepInMiliSecond(1000, "Before retrieving country");
         String value = commonAction.getText(COUNTRY_DROPDOWN);
         logger.info("Retrieved Country: " + value);
         return value;
@@ -152,7 +147,7 @@ public class BuyerAddress {
 		System.out.println("SIZE: "+list.size());
 		int index = list.size()>1 ? new DataGenerator().generatNumberInBound(1, list.size() - 1) : 0;
 		String selectIconEl ="("+el_lstCountry_cityProvice_district_ward+")[%s]".formatted(index)+"/following-sibling::*";
-		boolean selectedBefore = commonAction.getElements(By.xpath(selectIconEl),2).size()==1;
+		boolean selectedBefore = commonAction.getElements(By.xpath(selectIconEl),2).size()!=0;
 		if(selectedBefore)  {
 			new BuyerGeneral(driver).tapCloseIconOnHeader();
 			logger.info("Random value is selected before, so no need select.");
