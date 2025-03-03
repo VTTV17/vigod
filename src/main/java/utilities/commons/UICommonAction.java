@@ -553,6 +553,7 @@ public class UICommonAction {
 
     public void navigateBack() {
         driver.navigate().back();
+        logger.info("Navigate back");
     }
 
     public void waitElementVisible(WebElement element) {

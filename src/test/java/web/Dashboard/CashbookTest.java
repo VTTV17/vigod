@@ -16,8 +16,6 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import com.mifmif.common.regex.Generex;
-
 import api.Seller.cashbook.CashbookAPI;
 import api.Seller.cashbook.OthersGroupAPI;
 import api.Seller.customers.APIAllCustomers;
@@ -126,16 +124,6 @@ public class CashbookTest extends BaseTest {
 		};
 	}	
 
-	/**
-	 * <p>Generate a random amount based on the store's currency symbol. Eg. 34000 or 34.34
-	 */
-	public String randomAmount() {
-		if (storeCurrencySymbol.contentEquals("đ")) {
-			return new Generex("[1-9]\\d{2,5}").random();
-		}
-		return new Generex("[1-9]\\d{0,2}\\.\\d{2}").random();
-	}	
-	
 	public List<String> revenueSources(CashbookGroup group) {
 		if (group != CashbookGroup.SUPPLIER) {
 			return Arrays.stream(CashbookRevenue.values()).map(name -> CashbookRevenue.getTextByLanguage(name)).collect(Collectors.toList());
@@ -325,7 +313,7 @@ public class CashbookTest extends BaseTest {
 			String sender = randomSender(groupEnum);
 			String branch = ListUtils.getRandomListElement(branchList);
 			String paymentMethod = randomPaymentMethod();
-			String amount = randomAmount();
+			String amount = DataGenerator.randomMoneyAmount(storeCurrencySymbol);
 			String note = "%s %s".formatted(sender, paymentMethod);
 			
 			// Get summary before creating receipts
@@ -365,7 +353,7 @@ public class CashbookTest extends BaseTest {
 			String sender = randomSender(groupEnum);
 			String branch = ListUtils.getRandomListElement(branchList);
 			String paymentMethod = randomPaymentMethod();
-			String amount = randomAmount();
+			String amount = DataGenerator.randomMoneyAmount(storeCurrencySymbol);
 			String note = "%s %s".formatted(sender, paymentMethod);
 			
 			// Get cashbook summary before creating payments
