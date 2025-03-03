@@ -35,6 +35,10 @@ public class AccountTest {
     public static String ADMIN_SHOP_VI_USERNAME = PropertiesUtil.getEnvironmentData("adminShopViUserName");
     public static String SF_SHOP_VI_PASSWORD = PropertiesUtil.getEnvironmentData("sfShopViPass");
     public static String ADMIN_SHOP_VI_PASSWORD = PropertiesUtil.getEnvironmentData("adminShopViPass");
+    public static String ADMIN_SHOP_VI_USERNAME_BIZ = PropertiesUtil.getEnvironmentData("adminShopViUserNameBIZ");
+    public static String SF_SHOP_VI_PASSWORD_BIZ = PropertiesUtil.getEnvironmentData("sfShopViPassBIZ");
+    public static String ADMIN_SHOP_VI_PASSWORD_BIZ = PropertiesUtil.getEnvironmentData("adminShopViPassBIZ");
+    public static String COUNTRY_BIZ = PropertiesUtil.getEnvironmentData("countryBIZ");
 
     public static String USERNAME_RESELLER_SHOPVI = PropertiesUtil.getEnvironmentData("resellerUserNameShopVi");
     public static String PASSWORD_RESELLER_SHOPVI = PropertiesUtil.getEnvironmentData("resellerPassShopVi");

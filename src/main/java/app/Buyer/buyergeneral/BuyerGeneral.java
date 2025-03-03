@@ -47,8 +47,12 @@ public class BuyerGeneral extends UICommonMobile {
      */
     public BuyerGeneral waitLoadingDisapear(){
         logger.info("Start Wait loading...");
-        List<WebElement> loadingEls =  getElements(el_loading_icon,30);
-        if(loadingEls.size()>0) waitForElementInvisible(loadingEls.get(0), 30);
+        List<WebElement> loadingEls =  getElements(el_loading_icon,10);
+        if(loadingEls.size()>0) {
+            waitForElementInvisible(loadingEls.get(0), 30);
+            logger.info("Has loading.");
+
+        }
         logger.info("End wait loading.");
         return this;
     }

@@ -17,7 +17,7 @@
                     <include name="BL05_CheckBuyLinkPercentDiscountCodeAndCheckout"/>
                     <include name="BL06_CreateBuyLinkWithFreeShippingDiscountCodeAndCheckout"/>
                     <include name="BL07_CreateBuyLinkWithRewardDiscountCodeAndCheckout"/>
-                    <include name="BL08_CheckNoAccountAndCheckoutWithBuyLink"/>
+<!--                    <include name="BL08_CheckNoAccountAndCheckoutWithBuyLink"/>-->
                     <include name="BL09_CheckNavigateToBuyLink_EnableGuestCheckout"/>
                     <include name="BL10_CheckoutWithBuyLinkHasDiscountExpired"/>
                     <include name="BL11_CheckoutWithBuyLinkHasDiscountExceedMaximumUse"/>

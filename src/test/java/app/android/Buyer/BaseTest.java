@@ -22,7 +22,7 @@ public class BaseTest {
     public void getConfig() {
         this.browser = PropertiesUtil.browser;
         this.headless = PropertiesUtil.headless;
-        this.language = PropertiesUtil.sfLanguage;
+        this.language = PropertiesUtil. sfLanguage;
     }
 
     @BeforeMethod

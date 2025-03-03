@@ -14,6 +14,7 @@ import org.testng.Assert;
 
 import utilities.commons.UICommonAction;
 import utilities.data.DataGenerator;
+import utilities.enums.Domain;
 import utilities.model.dashboard.storefront.AddressInfo;
 import utilities.utils.PropertiesUtil;
 import web.StoreFront.GeneralSF;
@@ -24,10 +25,17 @@ public class Checkout extends CheckoutElement {
     WebDriver driver;
     WebDriverWait wait;
     UICommonAction commonAction;
+    Domain domain;
     public Checkout(WebDriver driver) {
         this.driver = driver;
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         commonAction = new UICommonAction(driver);
+    }
+    public Checkout(WebDriver driver, Domain domain) {
+        this.driver = driver;
+        wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        commonAction = new UICommonAction(driver);
+        this.domain = domain;
     }
     public Checkout clickOnEditIcon(){
         commonAction.sleepInMiliSecond(2000);
@@ -327,9 +335,22 @@ public class Checkout extends CheckoutElement {
         logger.info("Verify other email list.");
         return this;
     }
-    public Checkout verifyDicountAmount(String expected){
+    public Checkout verifyDicountAmount(double expected){
         System.out.println("Discount: "+commonAction.getText(loc_lblDiscountAmount));
-        Assert.assertEquals(commonAction.getText(loc_lblDiscountAmount).replaceAll("[^\\dđ]", ""),expected);
+        if(domain.equals(Domain.BIZ)){
+            Assert.assertEquals(commonAction.getText(loc_lblDiscountAmount).replaceAll("[^\\d.]", ""),String.format("%.2f",expected));
+        }else
+            Assert.assertEquals(commonAction.getText(loc_lblDiscountAmount).replaceAll("[^\\d.]", ""),String.format("%.0f",expected));
+        logger.info("Verify discount amount.");
+        return this;
+    }
+    public Checkout verifyDicountAmount(String expected){
+        if(domain.equals(Domain.BIZ)){
+                if (!expected.contains(".")) expected = expected+".00";
+                Assert.assertEquals(commonAction.getText(loc_lblDiscountAmount).replaceAll("[^\\d.]", ""),expected);
+
+        }else
+            Assert.assertEquals(commonAction.getText(loc_lblDiscountAmount).replaceAll("[^\\d]", ""),expected);
         logger.info("Verify discount amount.");
         return this;
     }
@@ -337,7 +358,7 @@ public class Checkout extends CheckoutElement {
         commonAction.click(loc_btnComplete);
         logger.info("Click on Complete button.");
         new GeneralSF(driver).waitTillLoaderDisappear();
-        return new OrderComplete(driver);
+        return new OrderComplete(driver, domain);
     }
     public Checkout verifyProductName(String...productNamesExpected){
         for (int i=0;i<productNamesExpected.length;i++) {
@@ -374,8 +395,8 @@ public class Checkout extends CheckoutElement {
         clickOnConfirmbuttonOnShippingAddressModal();
         return this;
     }
-    public int getShippingFee(){
-        int shippingFee = Integer.parseInt(commonAction.getText(loc_lblShippingFee).replaceAll("[^\\d]",""));
+    public double getShippingFee(){
+        double shippingFee = Double.parseDouble(commonAction.getText(loc_lblShippingFee).replaceAll("[^\\d.]",""));
         logger.info("Shipping free: "+shippingFee);
         return shippingFee;
     }

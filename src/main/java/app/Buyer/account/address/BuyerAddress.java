@@ -147,7 +147,7 @@ public class BuyerAddress {
 		System.out.println("SIZE: "+list.size());
 		int index = list.size()>1 ? new DataGenerator().generatNumberInBound(1, list.size() - 1) : 0;
 		String selectIconEl ="("+el_lstCountry_cityProvice_district_ward+")[%s]".formatted(index)+"/following-sibling::*";
-		boolean selectedBefore = commonAction.getElements(By.xpath(selectIconEl),2).size()==1;
+		boolean selectedBefore = commonAction.getElements(By.xpath(selectIconEl),2).size()!=0;
 		if(selectedBefore)  {
 			new BuyerGeneral(driver).tapCloseIconOnHeader();
 			logger.info("Random value is selected before, so no need select.");
