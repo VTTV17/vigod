@@ -138,6 +138,9 @@ public class LoyaltyProgram {
             detai = jsonDetail.getObject("find {[0]}",LoyaltyProgramInfo.class);
         }else {
             detai = LoyaltyProgramTDG.generateLoyaltyProgram();
+            if(new APISegment(loginInformation).getSegmentList().size()==0){
+                new APISegment(loginInformation).createSegment();
+            }
             int getSegmentId = new APISegment(loginInformation).getSegmentList().get(0).getId();
             detai.setSegmentId(getSegmentId);
             createMembership(detai);

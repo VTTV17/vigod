@@ -13,6 +13,7 @@ public class Links {
     //TODO retrieve SF_URL from API
     public static String SF_URL_TIEN = PropertiesUtil.getEnvironmentData("sfShopTien");
     public static String SF_ShopVi = PropertiesUtil.getEnvironmentData("sfShopVi");
+    public static String SF_ShopViBIZ = PropertiesUtil.getEnvironmentData("sfShopViBIZ");
 
     public static String SF_COFFEE = PropertiesUtil.getEnvironmentData("sfShopCoffee");
     public static String LOGIN_PATH = "/login";
@@ -40,6 +41,7 @@ public class Links {
     public static String EDIT_PAGE_PATH = "/channel/storefront/custom-page/edit/%s";
     public static String MENUS_PATH = "/channel/storefront/menu";
     public static String PREFERENCE_PATH = "/channel/storefront/preference";
+    public static String BUY_LINK_PATH = "/marketing/buy-link/list";
 
     // PROD config
 //    public final static String URI = "https://api.beecow.com";
