@@ -2,7 +2,6 @@ package app.android.Buyer;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.openqa.selenium.Dimension;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
@@ -23,7 +22,9 @@ import app.Buyer.login.ForgotPasswordPage;
 import app.Buyer.login.LoginPage;
 import app.Buyer.navigationbar.NavigationBar;
 import app.Buyer.signup.SignupPage;
+import app.Buyer.verificationcode.VerificationCodePage;
 import utilities.account.AccountTest;
+import utilities.api.thirdparty.KibanaAPI;
 import utilities.commons.UICommonMobile;
 import utilities.data.DataGenerator;
 import utilities.driver.InitAndroidDriver;
@@ -71,7 +72,6 @@ public class LoginBuyer extends BaseTest{
 		signupPage = new SignupPage(driver);
 		buyerGeneral = new BuyerGeneral(driver);
 		commonAction = new UICommonMobile(driver);
-		
 		commonAction.waitSplashScreenLoaded();
 	}	
 
@@ -329,6 +329,54 @@ public class LoginBuyer extends BaseTest{
 			.clickContinueBtn()
 			.getUsernameError();
 		Assert.assertEquals(error, ForgotPasswordPage.localizedPhoneNotExistError(translation));
+	}
+	
+	//Be cautious because this TC may fail due to bot detection mechanisms https://mediastep.atlassian.net/browse/BH-37703
+	//Temporarily commented out for CI env
+//	@Test(dataProvider = "buyerAccountDP")
+	void TC_07_ForgotPassword(String country, String username, String password) {
+		
+		navigationBar.tapOnAccountIcon().clickLoginBtn();
+
+		String newPassword = DataGenerator.randomValidPassword();
+		
+		if (username.matches("\\d+")) loginPage.clickPhoneTab();
+		
+		ForgotPasswordPage forgotPasswordPage = loginPage.clickForgotPasswordLink();
+		
+		if (username.matches("\\d+")) forgotPasswordPage.selectCountry(country);
+		
+		forgotPasswordPage.inputUsername(username).inputNewPassword(newPassword).clickContinueBtn();
+		
+		var code = new KibanaAPI().getKeyFromKibana(username.matches("\\d+") ? DataGenerator.getPhoneCode(country)+":"+username : username, "resetKey");
+		
+		new VerificationCodePage(driver).inputVerificationCode(code).clickVerifyBtn();
+		
+		accountTab.clickProfile().tapOnBackIcon().logOutOfApp();
+		
+		navigationBar.tapOnAccountIcon().changeLanguageByLangName(sfDisplayLanguage);
+		
+		//Trying signing in with old password
+		accountTab.clickLoginBtn().performLogin(country, username, password);
+		if (username.matches("\\d+")) {
+			Assert.assertEquals(buyerGeneral.getToastMessage(), LoginPage.localizedWrongPhoneOrPasswordError(translation));
+		} else {
+			Assert.assertEquals(buyerGeneral.getToastMessage(), LoginPage.localizedWrongEmailOrPasswordError(translation));
+		}
+		
+		//Trying signing in with new password
+		loginPage.inputPassword(newPassword).clickLoginBtn();
+		
+		accountTab.clickProfile();
+		
+		//Change password back to the original value
+		var loginSFAPI = new LoginSF(sellerCredentialsForAPI);
+		String currentPassword = "";
+		for (int i=0; i<4; i++) {
+			currentPassword = newPassword;
+			newPassword = (i==3) ? password : DataGenerator.randomValidPassword();
+			loginSFAPI.changePassword(username, currentPassword, DataGenerator.getPhoneCode(country), newPassword);
+		}
 	}
 
 	//TODO Login with Facebook functionality => Left for manual testing

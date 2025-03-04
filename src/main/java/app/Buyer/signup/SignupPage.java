@@ -47,10 +47,6 @@ public class SignupPage {
     
     public static By loc_lblUsernameError = By.xpath("//*[contains(@resource-id,'error')]");
     
-    By VERIFICATIONCODE = By.xpath("//*[ends-with(@resource-id,'verify_code_edittext')]");
-    By RESEND_BTN = By.xpath("//*[ends-with(@resource-id,'verify_code_resend_action')]");
-    By VERIFY_BTN = By.xpath("//*[ends-with(@resource-id,'verify_code_action')]");
-
     public SignupPage clickMailTab() {
     	commonAction.clickElement(MAIL_TAB);
     	logger.info("Clicked Mail tab.");
@@ -184,30 +180,4 @@ public class SignupPage {
     	logger.info("Retrieved error for username field: " + text);
     	return text;
     }    
-    
-    public SignupPage inputVerificationCode(String code) {
-    	commonAction.inputText(new ByChained(VERIFICATIONCODE, TEXTBOX), code);
-    	logger.info("Input '" + code + "' into Username field.");
-        return this;
-    }    
-
-    public SignupPage clickResendBtn() {
-    	commonAction.clickElement(RESEND_BTN);
-    	logger.info("Clicked on Resend button.");
-        return this;
-    }    
-    
-    public SignupPage clickVerifyBtn() {
-    	commonAction.clickElement(VERIFY_BTN);
-    	logger.info("Clicked on Verify button.");
-    	return this;
-    }    
-
-    public String getVerificationCodeError() {
-    	UICommonMobile.sleepInMiliSecond(1500); // Sometimes it takes longer for the error to appear
-    	String text = commonAction.getText(new ByChained(VERIFICATIONCODE, By.xpath("//*[contains(@class,'TextView')]")));
-    	logger.info("Retrieved error for verification field: " + text);
-    	return text;
-    }    
-    
 }
