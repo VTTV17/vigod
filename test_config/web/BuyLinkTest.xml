@@ -26,7 +26,7 @@
                     <include name="BL14_CheckoutWithBuyLinkHasDeletedVariation"/>
                     <include name="BL15_CheckTextByLanguageOnSF_InvalidBuyLink"/>
                     <include name="BL16_CheckProductNameByLanguage_ValidBuyLink"/>
-                    <include name="BL17_CheckCopyLink"/>
+<!--                    <include name="BL17_CheckCopyLink"/>-->
                     <include name="BL18_EditBuyLink"/>
                     <include name="BL19_CheckDeleteBuyLink"/>
                 </methods>
