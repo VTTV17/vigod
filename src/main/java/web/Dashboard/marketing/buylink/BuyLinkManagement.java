@@ -197,7 +197,8 @@ public class BuyLinkManagement extends HomePage{
 	}
 	private boolean hasViewCreatedProductListPers() {
 		return allPermissions.getProduct().getProductManagement().isCreateProduct();
-	}	public BuyLinkManagement navigateUrl(){
+	}
+	public BuyLinkManagement navigateUrl(){
 		var url = switch (domain) {
 			case VN -> DOMAIN + BUY_LINK_PATH;
 			case BIZ -> DOMAIN_BIZ + BUY_LINK_PATH;

@@ -91,7 +91,7 @@ public class BuyLinkTest extends BaseTest {
     }
     @BeforeMethod
     public void setUp(){
-        driver = new InitWebdriver().getDriver(browser,"false");
+        driver = new InitWebdriver().getDriver(browser,headless);
     }
     @AfterMethod
     public void writeResult(ITestResult result) throws Exception {
