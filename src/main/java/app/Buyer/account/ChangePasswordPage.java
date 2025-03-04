@@ -37,40 +37,43 @@ public class ChangePasswordPage {
     public static String localizedWrongCurrentPasswordError(List<MobileAndroid> translation) {
     	return TranslateText.localizedText(translation, "social_change_password_error_current_password");
     }    
+    public static String localizedNewPasswordMatchLastOld4PasswordError(List<MobileAndroid> translation) {
+    	return TranslateText.localizedText(translation, "error_user_password_sameLast");
+    }    
     
     public ChangePasswordPage inputCurrentPassword(String password){
         commonAction.inputText(loc_txtCurrentPassword, password);
-        logger.info("Input '" + password + "' into Current Password field to change password.");
+        logger.info("Input Current Password: {}", password);
         return this;
     }    
    
     public ChangePasswordPage clickNewPassword() {
     	commonAction.clickElement(loc_txtNewPassword);
-    	logger.info("Clicked on New Password field.");
+    	logger.info("Clicked New Password field.");
     	return this;
     }
     
     public ChangePasswordPage inputNewPassword(String password){
     	commonAction.inputText(loc_txtNewPassword, password);
-    	logger.info("Input '" + password + "' into New Password field to change password.");
+    	logger.info("Input New Password: {}", password);
     	return this;
     }
     
     public ChangePasswordPage clickChangePasswordDoneBtn() {
     	commonAction.clickElement(loc_btnDone);
-    	logger.info("Clicked on Done button to change password.");
+    	logger.info("Clicked Done button.");
     	return this;
     }     
     
     public String getCurrentPasswordError(){
     	String text = commonAction.getText(loc_lblCurrentPasswordError);
-    	logger.info("Retrieved error for Current Password field: " + text);
+    	logger.info("Retrieved Current Password error: " + text);
     	return text;
     }
     
     public String getNewPasswordError(){
     	String text = commonAction.getText(loc_lblNewPasswordError);
-    	logger.info("Retrieved error for New Password field: " + text);
+    	logger.info("Retrieved New Password error: " + text);
     	return text;
     }    
     

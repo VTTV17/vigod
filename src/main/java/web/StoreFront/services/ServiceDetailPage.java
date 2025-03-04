@@ -9,6 +9,7 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
+import utilities.enums.Domain;
 import utilities.utils.PropertiesUtil;
 import utilities.commons.UICommonAction;
 import utilities.assert_customize.AssertCustomize;
@@ -24,13 +25,19 @@ public class ServiceDetailPage {
     AssertCustomize assertCustomize;
     int countFalse = 0;
     final static Logger logger = LogManager.getLogger(ServiceDetailPage.class);
-
+    Domain domain;
     public ServiceDetailPage(WebDriver driver) throws Exception {
         this.driver = driver;
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         commons = new UICommonAction(driver);
         assertCustomize = new AssertCustomize(driver);
-        PageFactory.initElements(driver, this);
+    }
+    public ServiceDetailPage(WebDriver driver, Domain domain) throws Exception {
+        this.driver = driver;
+        wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        commons = new UICommonAction(driver);
+        assertCustomize = new AssertCustomize(driver);
+        this.domain = domain;
     }
     By loc_lblServiceName = By.xpath("//h1[@rv-text='models.serviceName']");
     By loc_lblListingPrice = By.cssSelector(".price-box .old-price");
@@ -58,16 +65,22 @@ public class ServiceDetailPage {
 
     public ServiceDetailPage verifyListingPrice(String listingPriceExpected) throws IOException {
         String listingPriceActual = commons.getText(loc_lblListingPrice,0);
-        listingPriceActual=String.join("", listingPriceActual.split(","));
-        Assert.assertEquals(listingPriceActual.subSequence(0,listingPriceActual.length()-1), listingPriceExpected);
+//        listingPriceActual=String.join("", listingPriceActual.split(","));
+        listingPriceActual = listingPriceActual.replaceAll("[^\\d.]", "");
+        listingPriceExpected = listingPriceExpected.replaceAll("[^\\d.]", "");
+        if(domain.equals(Domain.BIZ)) listingPriceExpected = listingPriceExpected + ".00";
+        Assert.assertEquals(listingPriceActual, listingPriceExpected);
         logger.info("Verify service listing price on detail page");
         return this;
     }
 
-    public ServiceDetailPage verifySellingPrice(String sellingPriceExpected) throws IOException {
+    public ServiceDetailPage verifySellingPrice(String sellingPriceExpected)  {
         String sellingPriceActual = commons.getText(loc_lblSellingPrice,0);
-        sellingPriceActual=String.join("", sellingPriceActual.split(","));
-        Assert.assertEquals(sellingPriceActual.subSequence(0,sellingPriceActual.length()-1), sellingPriceExpected);
+//        sellingPriceActual=String.join("", sellingPriceActual.split(","));
+        sellingPriceActual = sellingPriceActual.replaceAll("[^\\d.]", "");
+        sellingPriceExpected = sellingPriceExpected.replaceAll("[^\\d.]", "");
+        if(domain.equals(Domain.BIZ)) sellingPriceExpected = sellingPriceExpected + ".00";
+        Assert.assertEquals(sellingPriceActual, sellingPriceExpected);
         logger.info("Verify service selling price on detail page");
         return this;
     }

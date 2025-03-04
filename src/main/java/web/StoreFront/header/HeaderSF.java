@@ -11,6 +11,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import utilities.commons.UICommonAction;
+import utilities.enums.Domain;
 import web.StoreFront.GeneralSF;
 import web.StoreFront.productcollection.ProductCollectionSFElement;
 import web.StoreFront.userprofile.userprofileinfo.UserProfileInfo;
@@ -25,12 +26,20 @@ public class HeaderSF extends GeneralSF {
     WebDriver driver;
     WebDriverWait wait;
     UICommonAction commons;
-
+    Domain domain;
     public HeaderSF(WebDriver driver) {
         super(driver);
         this.driver = driver;
         wait = new WebDriverWait(driver, Duration.ofSeconds(30));
         commons = new UICommonAction(driver);
+        PageFactory.initElements(driver, this);
+    }
+    public HeaderSF(WebDriver driver, Domain domain) {
+        super(driver);
+        this.driver = driver;
+        wait = new WebDriverWait(driver, Duration.ofSeconds(30));
+        commons = new UICommonAction(driver);
+        this.domain = domain;
         PageFactory.initElements(driver, this);
     }
 
@@ -118,10 +127,13 @@ public class HeaderSF extends GeneralSF {
         logger.info("Verify name: %s display on search suggestion".formatted(fullName));
         String searchSuggestionItem1_Price = commons.getText(SEARCH_SUGGESTION_RESULT_PRICE.get(0));
         if (price != "") {
-            searchSuggestionItem1_Price = String.join("", searchSuggestionItem1_Price.split(",")).trim();
-            price = String.join("", price.split(",")).trim();
+//            searchSuggestionItem1_Price = String.join("", searchSuggestionItem1_Price.split(",")).trim();
+//            price = String.join("", price.split(",")).trim();
+            searchSuggestionItem1_Price = searchSuggestionItem1_Price.replaceAll("[^\\d.]", "");
+            price = price.replaceAll("[^\\d.]", "");
+            if(domain.equals(Domain.BIZ)) price = price+".00";
             System.out.println("searchSuggestionItem1_Price:" + searchSuggestionItem1_Price);
-            Assert.assertEquals(searchSuggestionItem1_Price.subSequence(0, searchSuggestionItem1_Price.length() - 1), price);
+            Assert.assertEquals(searchSuggestionItem1_Price, price);
         } else {
             Assert.assertEquals(searchSuggestionItem1_Price, price);
         }

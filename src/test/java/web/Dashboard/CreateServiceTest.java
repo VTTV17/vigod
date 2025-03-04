@@ -11,6 +11,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import utilities.enums.DisplayLanguage;
+import utilities.enums.Domain;
 import utilities.model.dashboard.onlineshop.ListingStoreInfo;
 import web.Dashboard.home.HomePage;
 import web.Dashboard.login.LoginPage;
@@ -36,6 +37,7 @@ import java.util.List;
 import static utilities.account.AccountTest.*;
 import static utilities.file.FileNameAndPath.*;
 import static utilities.links.Links.SF_ShopVi;
+import static utilities.links.Links.SF_ShopViBIZ;
 
 public class CreateServiceTest extends BaseTest {
     LoginPage login;
@@ -72,10 +74,20 @@ public class CreateServiceTest extends BaseTest {
     String serviceDelete;
     String serviceTestStatus;
     LoginInformation loginInformation;
+    String country;
     @BeforeClass
     public void beforeClass() throws Exception {
-        userName = ADMIN_SHOP_VI_USERNAME;
-        passWord = ADMIN_SHOP_VI_PASSWORD;
+        if(domain.equals(Domain.VN.name())){
+            userName = AccountTest.ADMIN_SHOP_VI_USERNAME;
+            passWord = AccountTest.ADMIN_SHOP_VI_PASSWORD;
+            country = "Vietnam";
+            SF_URL = SF_ShopVi;
+        }else {
+            userName = AccountTest.ADMIN_SHOP_VI_USERNAME_BIZ;
+            passWord = AccountTest.ADMIN_SHOP_VI_PASSWORD_BIZ;
+            country = COUNTRY_BIZ;
+            SF_URL = SF_ShopViBIZ;
+        }
         languageDB = language;
         languageSF = language;
         sfAllServicesTxt = PropertiesUtil.getPropertiesValueBySFLang("serviceCollection.allServicesPageTitle");
@@ -84,7 +96,6 @@ public class CreateServiceTest extends BaseTest {
         generate = new DataGenerator();
         passWordTestPermission = ADMIN_CREATE_NEW_SHOP_PASSWORD;
         loginInformation = new Login().setLoginInformation("+84",userName,passWord).getLoginInformation();
-        SF_URL = SF_ShopVi;
     }
     @BeforeMethod
     public void setUp(){
@@ -108,57 +119,32 @@ public class CreateServiceTest extends BaseTest {
         return serviceInfo;
     }
     public CreateServicePage loginDbAndGoToCreateServicePage() throws Exception {
-        login = new LoginPage(driver);
-        login.navigate().performValidLogin("Vietnam",userName, passWord);
-        home = new HomePage(driver);
-        home.waitTillSpinnerDisappear1().selectLanguage(languageDB).hideFacebookBubble();
-        serviceManagement = new ServiceManagementPage(driver);
+        login = new LoginPage(driver, Domain.valueOf(domain));
+        login.navigate().performValidLogin(country,userName, passWord);
+        changeLanguageDB();
+        serviceManagement = new ServiceManagementPage(driver, Domain.valueOf(domain));
         serviceManagement.navigateToServiceManagementUrl().goToCreateServicePage();
-        return new CreateServicePage(driver);
-    }
-
-    public void checkPermisionCreateSVByPackage(String userName, boolean isPermission) throws Exception {
-        login = new LoginPage(driver);
-        login.navigate().performValidLogin("Vietnam",userName, passWordTestPermission);
-        home = new HomePage(driver);
-        home.waitTillSpinnerDisappear1().selectLanguage(languageDB).hideFacebookBubble().navigateToPage(Constant.SERVICES_MENU_ITEM_NAME);
-        serviceManagement = new ServiceManagementPage(driver);
-        if (isPermission) {
-            serviceManagement.goToCreateServicePage();
-            createService = new CreateServicePage(driver);
-            createService.createServiceWhenHasPermission()
-                    .clickCloseBTNOnNotificationPopup();
-        } else {
-            serviceManagement.checkSalePitchWhenNoPermision();
-        }
-        home = new HomePage(driver);
-        home.clickLogout();
+        return new CreateServicePage(driver, Domain.valueOf(domain));
     }
 
     public ServiceManagementPage loginAndNavigateToServiceManagement() {
-        login = new LoginPage(driver);
-        login.navigate().performValidLogin("Vietnam",userName, passWord);
-        home = new HomePage(driver);
-        home.waitTillSpinnerDisappear1().selectLanguage(languageDB).hideFacebookBubble();
-        return new ServiceManagementPage(driver).navigateToServiceManagementUrl();
+        login = new LoginPage(driver, Domain.valueOf(domain));
+        login.navigate().performValidLogin(country,userName, passWord);
+        changeLanguageDB();
+        return new ServiceManagementPage(driver, Domain.valueOf(domain)).navigateToServiceManagementUrl();
     }
-    public void checkPermisionUpdateSVByPackage(String userName, boolean isPermission) throws Exception {
-        login = new LoginPage(driver);
-        login.navigate().performValidLogin("Vietnam",userName, passWordTestPermission);
+    public void changeLanguageDB(){
         home = new HomePage(driver);
-        home.waitTillSpinnerDisappear1().selectLanguage(languageDB).hideFacebookBubble().navigateToPage(Constant.SERVICES_MENU_ITEM_NAME);
-        serviceManagement = new ServiceManagementPage(driver);
-        if (isPermission) {
-            serviceManagement.goToEditService("");
-            createService = new CreateServicePage(driver);
-            createService.updateServiceWhenHasPermission().navigateToPageByURL();
-        } else {
-            serviceManagement.checkSalePitchWhenNoPermision();
-        }
-        commonAction = new UICommonAction(driver);
-        home = new HomePage(driver);
-        commonAction.sleepInMiliSecond(1000);
-        home.clickLogout();
+        home.waitTillSpinnerDisappear1();
+        if(domain.equals(Domain.VN.name())) home.selectLanguage(languageDB);
+        home.hideFacebookBubble();
+    }
+    public HeaderSF changeLanguageSF(){
+        headerSF = new HeaderSF(driver);
+        headerSF.clickUserInfoIcon();
+        if(domain.equals(Domain.VN.name()))
+            headerSF.changeLanguage(languageSF).waitTillLoaderDisappear();
+        return new HeaderSF(driver, Domain.valueOf(domain));
     }
     @Test()
     public void CS01_VerifyText() throws Exception {
@@ -199,12 +185,11 @@ public class CreateServiceTest extends BaseTest {
         //Check on SF
         loginSF = new web.StoreFront.login.LoginPage(driver);
         loginSF.navigate(SF_URL);
-        headerSF = new HeaderSF(driver);
-        headerSF.clickUserInfoIcon().changeLanguage(languageSF)
+        changeLanguageSF()
                 .searchWithFullName(serviceName)
                 .verifySearchSuggestion(serviceName, sellingPrice)
                 .clickSearchResult();
-        serviceDetailPage = new ServiceDetailPage(driver);
+        serviceDetailPage = new ServiceDetailPage(driver, Domain.valueOf(domain));
         serviceDetailPage.verifyServiceName(serviceName)
                 .verifyListingPrice(listingPrice)
                 .verifySellingPrice(sellingPrice)
@@ -216,7 +201,7 @@ public class CreateServiceTest extends BaseTest {
                 .verifyCollectionLink(selectedCollection.size(), selectedCollection)
                 .verifyServiceImagesDisplay()
                 .clickOnCollectionLink();
-        collectionSFPage = new CollectionSFPage(driver);
+        collectionSFPage = new CollectionSFPage(driver, Domain.valueOf(domain));
         collectionSFPage.verifyCollectionPageTitle(sfAllServicesTxt)
                 .verifyNewServiceDisplayInList(serviceName, sellingPrice, listingPrice);
     }
@@ -243,12 +228,11 @@ public class CreateServiceTest extends BaseTest {
         //Check on SF
         loginSF = new web.StoreFront.login.LoginPage(driver);
         loginSF.navigate(SF_URL);
-        headerSF = new HeaderSF(driver);
-        headerSF.clickUserInfoIcon().changeLanguage(languageSF)
+        changeLanguageSF()
                 .searchWithFullName(serviceName)
                 .verifySearchSuggestion(serviceName, sellingPrice)
                 .clickSearchResult();
-        serviceDetailPage = new ServiceDetailPage(driver);
+        serviceDetailPage = new ServiceDetailPage(driver, Domain.valueOf(domain));
         serviceDetailPage.verifyServiceName(serviceName)
                 .verifyListingPrice(listingPrice)
                 .verifySellingPrice(sellingPrice)
@@ -260,7 +244,7 @@ public class CreateServiceTest extends BaseTest {
                 .verifyServiceImagesDisplay()
                 .verifySEOInfo("", "", "", serviceName, description)
                 .clickOnCollectionLink();
-        collectionSFPage = new CollectionSFPage(driver);
+        collectionSFPage = new CollectionSFPage(driver , Domain.valueOf(domain));
         collectionSFPage.verifyNewServiceDisplayInList(serviceName, sellingPrice, listingPrice);
     }
 
@@ -286,11 +270,11 @@ public class CreateServiceTest extends BaseTest {
         loginSF = new web.StoreFront.login.LoginPage(driver);
         loginSF.navigate(SF_URL);
         headerSF = new HeaderSF(driver);
-        headerSF.clickUserInfoIcon().changeLanguage(languageSF)
+        changeLanguageSF()
                 .searchWithFullName(serviceName)
                 .verifySearchSuggestion(serviceName, sellingPrice)
                 .clickSearchResult();
-        serviceDetailPage = new ServiceDetailPage(driver);
+        serviceDetailPage = new ServiceDetailPage(driver, Domain.valueOf(domain));
         serviceDetailPage.verifyServiceName(serviceName)
                 .verifyListingPrice(listingPrice)
                 .verifySellingPrice(sellingPrice)
@@ -301,7 +285,7 @@ public class CreateServiceTest extends BaseTest {
                 .verifyServiceImagesDisplay()
                 .verifyCollectionLink(selectedCollection.size(), selectedCollection)
                 .clickOnCollectionLink();
-        collectionSFPage = new CollectionSFPage(driver);
+        collectionSFPage = new CollectionSFPage(driver, Domain.valueOf(domain));
         collectionSFPage.verifyCollectionPageTitle(sfAllServicesTxt)
                 .verifyNewServiceDisplayInList(serviceName, sellingPrice, listingPrice);
     }
@@ -332,19 +316,18 @@ public class CreateServiceTest extends BaseTest {
         //Check on SF
         loginSF = new web.StoreFront.login.LoginPage(driver);
         loginSF.navigate(SF_URL);
-        headerSF = new HeaderSF(driver);
-        headerSF.clickUserInfoIcon().changeLanguage(languageSF)
+        changeLanguageSF()
                 .searchWithFullName(serviceName)
                 .verifySearchSuggestion(serviceName, "")
                 .clickSearchResult();
-        serviceDetailPage = new ServiceDetailPage(driver);
+        serviceDetailPage = new ServiceDetailPage(driver, Domain.valueOf(domain));
         serviceDetailPage.verifyServiceName(serviceName)
                 .verifyBookNowAndAddToCartButtonNotDisplay()
                 .verifyPriceNotDisplay()
                 .verifyContactNowButtonDisplay()
                 .verifyServiceDescription(description)
                 .clickOnCollectionLink();
-        collectionSFPage = new CollectionSFPage(driver);
+        collectionSFPage = new CollectionSFPage(driver, Domain.valueOf(domain));
         collectionSFPage.verifyCollectionPageTitle(selectedCollection.get(0))
                 .verifyListingServiceDisplayInList(serviceName);
     }
@@ -374,12 +357,11 @@ public class CreateServiceTest extends BaseTest {
         //Check on SF
         loginSF = new web.StoreFront.login.LoginPage(driver);
         loginSF.navigate(SF_URL);
-        headerSF = new HeaderSF(driver);
-        headerSF.clickUserInfoIcon().changeLanguage(languageSF)
+        changeLanguageSF()
                 .searchWithFullName(serviceName)
                 .verifySearchSuggestion(serviceName, sellingPrice)
                 .clickSearchResult();
-        serviceDetailPage = new ServiceDetailPage(driver);
+        serviceDetailPage = new ServiceDetailPage(driver, Domain.valueOf(domain));
         serviceDetailPage.verifyServiceName(serviceName)
                 .verifyListingPrice(listingPrice)
                 .verifySellingPrice(sellingPrice)
@@ -392,7 +374,7 @@ public class CreateServiceTest extends BaseTest {
                 .verifySEOInfo(SEOTitle, SEODesctiption, SEOKeyword, serviceName, description)
                 .verifyNavigateToServiceDetailBySEOUrl(SF_URL, SEOUrl, serviceName)
                 .clickOnCollectionLink();
-        collectionSFPage = new CollectionSFPage(driver);
+        collectionSFPage = new CollectionSFPage(driver, Domain.valueOf(domain));
         collectionSFPage.verifyNewServiceDisplayInList(serviceName, sellingPrice, listingPrice);
     }
 
@@ -418,13 +400,14 @@ public class CreateServiceTest extends BaseTest {
         //check on SF
         loginSF = new web.StoreFront.login.LoginPage(driver);
         loginSF.navigate(SF_URL);
-        headerSF = new HeaderSF(driver);
+        headerSF = new HeaderSF(driver, Domain.valueOf(domain));
         headerSF.searchWithFullName(serviceName)
                 .verifySearchSuggestion(serviceName, sellingPrice)
                 .clickSearchResult();
-        serviceDetailPage = new ServiceDetailPage(driver);
+        serviceDetailPage = new ServiceDetailPage(driver, Domain.valueOf(domain));
         serviceDetailPage.verifyDescriptionAsHTMLFormat(htmlDescription);
     }
+    //Can't run on cloud
     @Test
     public void CS09_CheckServiceQuantity() throws Exception {
         testCaseId = "CS09";
@@ -470,16 +453,6 @@ public class CreateServiceTest extends BaseTest {
                 .clickSaveBtn()
                 .verifyCreateSeviceSuccessfulMessage();
     }
-//  out of date
-//    @Test
-    public void CS11_CheckCreateSVPermision() throws Exception {
-        testCaseId = "CS11";
-        checkPermisionCreateSVByPackage(AccountTest.ADMIN_USERNAME_GOWEB, true);
-        checkPermisionCreateSVByPackage(AccountTest.ADMIN_USERNAME_GOAPP, true);
-        checkPermisionCreateSVByPackage(AccountTest.ADMIN_USERNAME_GOLEAD, false);
-        checkPermisionCreateSVByPackage(AccountTest.ADMIN_USERNAME_GOPOS, false);
-        checkPermisionCreateSVByPackage(AccountTest.ADMIN_USERNAME_GOSOCIAL, false);
-    }
 
     @Test
     public void ES01_EditTranslation() throws Exception {
@@ -488,8 +461,10 @@ public class CreateServiceTest extends BaseTest {
         serviceEdit = serviceInfo.getServiceName();
         createService = loginAndNavigateToServiceManagement()
                 .goToEditService(serviceEdit)
-                .clickEditTranslation()
-                .selectLanguageTranslate(DisplayLanguage.ENG);
+                .clickEditTranslation();
+        if(domain.equals(Domain.BIZ.name()))
+            createService.selectLanguageTranslate(DisplayLanguage.RUS);
+        else createService.selectLanguageTranslate(DisplayLanguage.ENG);
         String keyword = createService.getNameTranslate();
         String name = createService.getNameTranslate() + " updated en";
         String description = createService.getDescriptionTranslate() + " updated en";
@@ -501,11 +476,13 @@ public class CreateServiceTest extends BaseTest {
         //Check on SF
         loginSF = new web.StoreFront.login.LoginPage(driver);
         loginSF.navigate(SF_URL);
-        headerSF = new HeaderSF(driver);
-        headerSF.clickUserInfoIcon().changeLanguage("ENG")
-                .searchWithFullName(keyword)
+        headerSF = new HeaderSF(driver, Domain.valueOf(domain));
+        if(domain.equals(Domain.VN.name()))
+            headerSF.clickUserInfoIcon().changeLanguageByLangCode("en");
+        else  headerSF.clickUserInfoIcon().changeLanguageByLangCode("ru");
+        headerSF.searchWithFullName(keyword)
                 .clickSearchResult();
-        serviceDetailPage = new ServiceDetailPage(driver);
+        serviceDetailPage = new ServiceDetailPage(driver, Domain.valueOf(domain));
         serviceDetailPage.verifyServiceName(name)
                 .verifyServiceDescription(description)
                 .verifyLocations(locations.toArray(new String[locations.size()]));
@@ -533,9 +510,11 @@ public class CreateServiceTest extends BaseTest {
                 .inputSEOUrl(SEOUrl)
                 .clickSaveBtn().verifyUpdateServiceSuccessfully()
                 .clickCloseBTNOnNotificationPopup();
-                new CreateServicePage(driver).clickEditTranslation()
-                        .selectLanguageTranslate(DisplayLanguage.ENG)
-                .inputSEOTitleTranslate(SEOTitleTranslate)
+        createService.clickEditTranslation();
+        if(domain.equals(Domain.BIZ.name()))
+            createService.selectLanguageTranslate(DisplayLanguage.RUS);
+        else createService.selectLanguageTranslate(DisplayLanguage.ENG);
+        createService.inputSEOTitleTranslate(SEOTitleTranslate)
                 .inputSEODescriptionTranslate(SEODesctiptionTranslate)
                 .inputSEOKeywordTranslate(SEOKeywordTranslate)
                 .inputSEOUrlTranslate(SEOUrlTranslate)
@@ -545,21 +524,25 @@ public class CreateServiceTest extends BaseTest {
         //Check on SF
         loginSF = new web.StoreFront.login.LoginPage(driver);
         loginSF.navigate(SF_URL);
-        headerSF = new HeaderSF(driver);
-        headerSF.clickUserInfoIcon().changeLanguage("VIE")
-                .searchWithFullName(serviceEdit)
+        headerSF = new HeaderSF(driver, Domain.valueOf(domain));
+        if(domain.equals(Domain.VN.name()))
+            headerSF.clickUserInfoIcon().changeLanguageByLangCode("vi");
+        else  headerSF.clickUserInfoIcon().changeLanguageByLangCode("en-us");
+        headerSF.searchWithFullName(serviceEdit)
                 .waitDotLoadingDisappear();
         new HeaderSF(driver).clickSearchResult();
         serviceDetailPage = new ServiceDetailPage(driver);
         serviceDetailPage.verifySEOInfo(SEOTitle, SEODesctiption, SEOKeyword, "", "")
                 .verifyNavigateToServiceDetailBySEOUrl(SF_URL, SEOUrl, serviceEdit);
-        headerSF = new HeaderSF(driver);
-        headerSF.clickUserInfoIcon().changeLanguage("ENG");
-        serviceDetailPage = new ServiceDetailPage(driver);
+        headerSF = new HeaderSF(driver, Domain.valueOf(domain));
+        if(domain.equals(Domain.VN.name()))
+            headerSF.clickUserInfoIcon().changeLanguageByLangCode("en");
+        else  headerSF.clickUserInfoIcon().changeLanguageByLangCode("ru");
+        serviceDetailPage = new ServiceDetailPage(driver, Domain.valueOf(domain));
         serviceDetailPage.verifySEOInfo(SEOTitleTranslate, SEODesctiptionTranslate, SEOKeywordTranslate, "", "")
                      .verifyNavigateToServiceDetailBySEOUrl(SF_URL, SEOUrlTranslate, serviceEdit);
         //edit seo
-        new ServiceManagementPage(driver).navigateToServiceManagementUrl().goToEditService(serviceEdit);
+        new ServiceManagementPage(driver, Domain.valueOf(domain)).navigateToServiceManagementUrl().goToEditService(serviceEdit);
         SEOTitle = "SEO title update " + generate.generateString(5);
         SEODesctiption = "SEO description update " + generate.generateString(5);
         SEOKeyword = "SEO keyword update " + generate.generateString(5);
@@ -574,8 +557,11 @@ public class CreateServiceTest extends BaseTest {
                 .inputSEOUrl(SEOUrl)
                 .clickSaveBtn().verifyUpdateServiceSuccessfully()
                 .clickCloseBTNOnNotificationPopup();
-                new CreateServicePage(driver).clickEditTranslation()
-                        .selectLanguageTranslate(DisplayLanguage.ENG)
+        createService.clickEditTranslation();
+        if(domain.equals(Domain.BIZ.name()))
+            createService.selectLanguageTranslate(DisplayLanguage.RUS);
+        else createService.selectLanguageTranslate(DisplayLanguage.ENG);
+        createService.selectLanguageTranslate(DisplayLanguage.ENG)
                 .inputSEOTitleTranslate(SEOTitleTranslate)
                 .inputSEODescriptionTranslate(SEODesctiptionTranslate)
                 .inputSEOKeywordTranslate(SEOKeywordTranslate)
@@ -586,23 +572,25 @@ public class CreateServiceTest extends BaseTest {
         //Check on SF
         loginSF = new web.StoreFront.login.LoginPage(driver);
         loginSF.navigate(SF_URL);
-        headerSF = new HeaderSF(driver);
-        headerSF.clickUserInfoIcon().changeLanguage("VIE")
-                .searchWithFullName(serviceEdit)
+        headerSF = new HeaderSF(driver, Domain.valueOf(domain));
+        if(domain.equals(Domain.VN.name()))
+            headerSF.clickUserInfoIcon().changeLanguageByLangCode("vi");
+        else  headerSF.clickUserInfoIcon().changeLanguageByLangCode("en-us");
+        headerSF .searchWithFullName(serviceEdit)
                 .clickSearchResult();
         serviceDetailPage = new ServiceDetailPage(driver);
         serviceDetailPage.verifySEOInfo(SEOTitle, SEODesctiption, SEOKeyword, "", "")
                 .verifyNavigateToServiceDetailBySEOUrl(SF_URL, SEOUrl, serviceEdit);
-        headerSF = new HeaderSF(driver);
-        headerSF.clickUserInfoIcon().changeLanguage("ENG");
-        serviceDetailPage = new ServiceDetailPage(driver);
+        headerSF = new HeaderSF(driver, Domain.valueOf(domain));
+        if(domain.equals(Domain.VN.name()))
+            headerSF.clickUserInfoIcon().changeLanguageByLangCode("en");
+        else  headerSF.clickUserInfoIcon().changeLanguageByLangCode("ru");
+        serviceDetailPage = new ServiceDetailPage(driver, Domain.valueOf(domain));
         serviceDetailPage.verifySEOInfo(SEOTitleTranslate, SEODesctiptionTranslate, SEOKeywordTranslate, "", "")
                 .verifyNavigateToServiceDetailBySEOUrl(SF_URL, SEOUrlTranslate, serviceEdit);
 
         //delete seo
-//        home = new HomePage(driver);
-//        home.navigateToPageByURL().waitTillSpinnerDisappear1().navigateToPage(Constant.SERVICES_MENU_ITEM_NAME);
-        new ServiceManagementPage(driver).navigateToServiceManagementUrl().goToEditService(serviceEdit);
+         new ServiceManagementPage(driver, Domain.valueOf(domain)).navigateToServiceManagementUrl().goToEditService(serviceEdit);
         String description = createService.getServiceDescription();
         createService.inputSEOTitle("")
                 .inputSEODescription("")
@@ -610,8 +598,10 @@ public class CreateServiceTest extends BaseTest {
                 .inputSEOUrl("")
                 .clickSaveBtn().verifyUpdateServiceSuccessfully()
                 .clickCloseBTNOnNotificationPopup();
-        new CreateServicePage(driver).clickEditTranslation()
-         .selectLanguageTranslate(DisplayLanguage.ENG);
+        createService.clickEditTranslation();
+        if(domain.equals(Domain.BIZ.name()))
+            createService.selectLanguageTranslate(DisplayLanguage.RUS);
+        else createService.selectLanguageTranslate(DisplayLanguage.ENG);
         String descriptionTranslate = createService.getDescriptionTranslate();
         String serviceNameTranslate = createService.getNameTranslate();
         createService.inputSEOTitleTranslate("")
@@ -623,14 +613,18 @@ public class CreateServiceTest extends BaseTest {
         //Check on SF
         loginSF = new web.StoreFront.login.LoginPage(driver);
         loginSF.navigate(SF_URL);
-        headerSF = new HeaderSF(driver);
-        headerSF.clickUserInfoIcon().changeLanguage("VIE")
-                .searchWithFullName(serviceEdit)
+        headerSF = new HeaderSF(driver, Domain.valueOf(domain));
+        if(domain.equals(Domain.VN.name()))
+            headerSF.clickUserInfoIcon().changeLanguageByLangCode("vi");
+        else  headerSF.clickUserInfoIcon().changeLanguageByLangCode("en-us");
+        headerSF.searchWithFullName(serviceEdit)
                 .clickSearchResult();
         serviceDetailPage = new ServiceDetailPage(driver);
         serviceDetailPage.verifySEOInfo("", "", "", serviceEdit, description);
-        headerSF = new HeaderSF(driver);
-        headerSF.clickUserInfoIcon().changeLanguage("ENG");
+        headerSF = new HeaderSF(driver, Domain.valueOf(domain));
+        if(domain.equals(Domain.VN.name()))
+            headerSF.clickUserInfoIcon().changeLanguageByLangCode("en");
+        else  headerSF.clickUserInfoIcon().changeLanguageByLangCode("ru");
         serviceDetailPage = new ServiceDetailPage(driver);
         serviceDetailPage.verifySEOInfo("", "", "", serviceNameTranslate, descriptionTranslate);
     }
@@ -654,13 +648,11 @@ public class CreateServiceTest extends BaseTest {
         generalSF.navigateToURL(url)
                 .checkPageNotFound(SF_URL)
                 .navigateToURL(SF_URL);
-        headerSF = new HeaderSF(driver);
+        headerSF = new HeaderSF(driver, Domain.valueOf(domain));
         headerSF.searchWithFullName(serviceTestStatus)
                 .verifySearchNotFound(serviceTestStatus);
         //update into active
-//        home = new HomePage(driver);
-//        home.navigateToPageByURL().waitTillSpinnerDisappear1().navigateToPage(Constant.SERVICES_MENU_ITEM_NAME);
-        new ServiceManagementPage(driver).navigateToServiceManagementUrl().goToEditService(serviceTestStatus)
+        new ServiceManagementPage(driver, Domain.valueOf(domain)).navigateToServiceManagementUrl().goToEditService(serviceTestStatus)
                 .updateServiceStatus("active")
                 .verifyUpdateServiceSuccessfully()
                 .clickCloseBTNOnNotificationPopup();
@@ -671,7 +663,7 @@ public class CreateServiceTest extends BaseTest {
         serviceDetailPage = new ServiceDetailPage(driver);
         serviceDetailPage.verifyServiceName(serviceTestStatus);
         new GeneralSF(driver).navigateToURL(SF_URL);
-        headerSF = new HeaderSF(driver);
+        headerSF = new HeaderSF(driver, Domain.valueOf(domain));
         headerSF.searchWithFullName(serviceTestStatus)
                 .verifySearchSuggestion(serviceTestStatus, sellingPrice);
     }
@@ -708,12 +700,12 @@ public class CreateServiceTest extends BaseTest {
         loginSF = new web.StoreFront.login.LoginPage(driver);
         loginSF.navigate(SF_URL);
         new GeneralSF(driver).waitTillLoaderDisappear();
-        headerSF = new HeaderSF(driver);
-        headerSF.clickUserInfoIcon().changeLanguage("VIE")
+        headerSF = new HeaderSF(driver, Domain.valueOf(domain));
+        headerSF
                 .searchWithFullName(serviceName)
                 .verifySearchSuggestion(serviceName, sellingPrice)
                 .clickSearchResult();
-        serviceDetailPage = new ServiceDetailPage(driver);
+        serviceDetailPage = new ServiceDetailPage(driver, Domain.valueOf(domain));
         serviceDetailPage.verifyServiceName(serviceName)
                 .verifyListingPrice(listingPrice)
                 .verifySellingPrice(sellingPrice)
@@ -736,7 +728,7 @@ public class CreateServiceTest extends BaseTest {
                 .verifyUpdateServiceSuccessfully();
         loginSF = new web.StoreFront.login.LoginPage(driver);
         loginSF.navigate(SF_URL);
-        headerSF = new HeaderSF(driver);
+        headerSF = new HeaderSF(driver, Domain.valueOf(domain));
         headerSF.clickUserInfoIcon()
                 .searchWithFullName(serviceEdit)
                 .verifySearchSuggestion(serviceEdit, sellingPrice)
@@ -744,19 +736,19 @@ public class CreateServiceTest extends BaseTest {
         serviceDetailPage = new ServiceDetailPage(driver);
         serviceDetailPage.verifyServiceListSize(imageSize);
         //delete image
-        new ServiceManagementPage(driver).navigateToServiceManagementUrl().goToEditService(serviceEdit)
+        new ServiceManagementPage(driver, Domain.valueOf(domain)).navigateToServiceManagementUrl().goToEditService(serviceEdit)
                 .removeAllImages()
                 .uploadImages(images)
                 .clickSaveBtn()
                 .verifyUpdateServiceSuccessfully();
         loginSF = new web.StoreFront.login.LoginPage(driver);
         loginSF.navigate(SF_URL);
-        headerSF = new HeaderSF(driver);
+        headerSF = new HeaderSF(driver, Domain.valueOf(domain));
         headerSF.clickUserInfoIcon()
                 .searchWithFullName(serviceEdit)
                 .verifySearchSuggestion(serviceEdit, sellingPrice)
                 .clickSearchResult();
-        serviceDetailPage = new ServiceDetailPage(driver);
+        serviceDetailPage = new ServiceDetailPage(driver, Domain.valueOf(domain));
         serviceDetailPage.verifyServiceListSize(images.length);
     }
 
@@ -771,16 +763,16 @@ public class CreateServiceTest extends BaseTest {
         selectedCollection = createService.getSelectedCollection();
         createService.clickSaveBtn().verifyUpdateServiceSuccessfully();
         for (String collectionName : selectedCollection) {
-            ServiceCollectionManagement serCollection = new ServiceCollectionManagement(driver);
+            ServiceCollectionManagement serCollection = new ServiceCollectionManagement(driver, Domain.valueOf(domain));
             serCollection.navigateToServiceCollectUrl().goToEditServiceCollection(collectionName)
                     .verifyServiceShowInServiceList(serviceEdit);
         }
-        serviceManagement = new ServiceManagementPage(driver);
+        serviceManagement = new ServiceManagementPage(driver, Domain.valueOf(domain));
         serviceManagement.navigateToServiceManagementUrl().goToEditService(serviceEdit)
                 .removeAllCollection()
                 .clickSaveBtn().verifyUpdateServiceSuccessfully();
         for (String collectionName : selectedCollection) {
-            ServiceCollectionManagement serCollection = new ServiceCollectionManagement(driver);
+            ServiceCollectionManagement serCollection = new ServiceCollectionManagement(driver, Domain.valueOf(domain));
             serCollection.navigateToServiceCollectUrl().goToEditServiceCollection(collectionName)
                     .verifyServiceNotShowInServiceList(serviceEdit);
         }
@@ -797,14 +789,5 @@ public class CreateServiceTest extends BaseTest {
                 .clickCloseBTNOnNotificationPopup()
                 .verifyServiceNotDisplayInList(serviceDelete);
     }
-    //out of date
-//    @Test
-    public void ES08_CheckEditSVPermision() throws Exception {
-        testCaseId = "ES08";
-        checkPermisionUpdateSVByPackage(AccountTest.ADMIN_USERNAME_GOWEB, true);
-        checkPermisionUpdateSVByPackage(AccountTest.ADMIN_USERNAME_GOAPP, true);
-        checkPermisionUpdateSVByPackage(AccountTest.ADMIN_USERNAME_GOLEAD, false);
-        checkPermisionUpdateSVByPackage(AccountTest.ADMIN_USERNAME_GOPOS, false);
-        checkPermisionUpdateSVByPackage(AccountTest.ADMIN_USERNAME_GOSOCIAL, false);
-    }
+
 }

@@ -21,6 +21,7 @@ import app.Buyer.buyergeneral.BuyerGeneral;
 import app.Buyer.navigationbar.NavigationBar;
 import app.Buyer.notificationpermission.NotificationPermission;
 import app.Buyer.signup.SignupPage;
+import app.Buyer.verificationcode.VerificationCodePage;
 import web.Dashboard.customers.allcustomers.AllCustomers;
 import web.Dashboard.customers.allcustomers.details.CustomerDetails;
 import web.Dashboard.home.HomePage;
@@ -151,7 +152,7 @@ public class SignupBuyerApp {
 		
 		fillOutRegistrationForm(country, username, password, displayName);
 		
-		signupPage.inputVerificationCode(getVerificationCode(phoneCode, username)).clickVerifyBtn();
+		new VerificationCodePage(driver).inputVerificationCode(getVerificationCode(phoneCode, username)).clickVerifyBtn();
 		commonAction.sleepInMiliSecond(3000);
 	}
 	
@@ -360,8 +361,10 @@ public class SignupBuyerApp {
     	
 		String code = getVerificationCode(phoneCode, username);
     	
-		signupPage.inputVerificationCode(String.valueOf(Integer.parseInt(code) + 1)).clickVerifyBtn();
-		Assert.assertEquals(signupPage.getVerificationCodeError(), "Mã không hợp lệ");
+		VerificationCodePage verificationCodePage = new VerificationCodePage(driver);
+		
+		verificationCodePage.inputVerificationCode(String.valueOf(Integer.parseInt(code) + 1)).clickVerifyBtn();
+		Assert.assertEquals(verificationCodePage.getVerificationCodeError(), "Mã không hợp lệ");
     	
     	/* Verify new activation code is sent to buyers */
     	commonAction.sleepInMiliSecond(10000);
@@ -379,8 +382,10 @@ public class SignupBuyerApp {
     	
     	String code = getVerificationCode(phoneCode, username);
     	
-    	signupPage.inputVerificationCode(String.valueOf(Integer.parseInt(code) + 1)).clickVerifyBtn();
-    	Assert.assertEquals(signupPage.getVerificationCodeError(), "Mã không hợp lệ");
+    	VerificationCodePage verificationCodePage = new VerificationCodePage(driver);
+    	
+    	verificationCodePage.inputVerificationCode(String.valueOf(Integer.parseInt(code) + 1)).clickVerifyBtn();
+    	Assert.assertEquals(verificationCodePage.getVerificationCodeError(), "Mã không hợp lệ");
     }
     
     @Test
@@ -393,7 +398,9 @@ public class SignupBuyerApp {
     	
     	String code = getVerificationCode(phoneCode, username);
     	
-    	signupPage.clickResendBtn();
+    	VerificationCodePage verificationCodePage = new VerificationCodePage(driver);
+    	
+    	verificationCodePage.clickResendBtn();
     	
     	Assert.assertEquals(buyerGeneral.getToastMessage(), "Đã gửi lại mã. Vui lòng kiểm tra email");
     	
@@ -401,8 +408,8 @@ public class SignupBuyerApp {
     	
     	Assert.assertNotEquals(newCode, code, "Resent code");
     	
-    	signupPage.inputVerificationCode(code).clickVerifyBtn();
-    	Assert.assertEquals(signupPage.getVerificationCodeError(), "Mã không hợp lệ");
+    	verificationCodePage.inputVerificationCode(code).clickVerifyBtn();
+    	Assert.assertEquals(verificationCodePage.getVerificationCodeError(), "Mã không hợp lệ");
     	
     	/* Verify new activation code is sent to buyers */
     	commonAction.sleepInMiliSecond(10000);
@@ -421,7 +428,9 @@ public class SignupBuyerApp {
     	
     	String code = getVerificationCode(phoneCode, username);
     	
-    	signupPage.clickResendBtn();
+    	VerificationCodePage verificationCodePage = new VerificationCodePage(driver);
+    	
+    	verificationCodePage.clickResendBtn();
     	
     	Assert.assertEquals(buyerGeneral.getToastMessage(), "Đã gửi lại mã. Vui lòng kiểm tra SMS");
     	
@@ -429,9 +438,9 @@ public class SignupBuyerApp {
     	
     	Assert.assertNotEquals(newCode, code, "Resent code");
     	
-    	signupPage.inputVerificationCode(code).clickVerifyBtn();
+    	verificationCodePage.inputVerificationCode(code).clickVerifyBtn();
     	
-    	Assert.assertEquals(signupPage.getVerificationCodeError(), "Mã không hợp lệ");
+    	Assert.assertEquals(verificationCodePage.getVerificationCodeError(), "Mã không hợp lệ");
     }
 
     @Test

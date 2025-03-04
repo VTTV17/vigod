@@ -2,15 +2,16 @@ package app.Buyer.account;
 
 import java.time.Duration;
 
-import app.Buyer.account.myorders.MyOrders;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
 import app.Buyer.account.membershipinfo.MembershipInfo;
+import app.Buyer.account.myorders.MyOrders;
 import app.Buyer.login.LoginPage;
 import app.Buyer.signup.SignupPage;
 import utilities.commons.UICommonMobile;
@@ -91,10 +92,24 @@ public class BuyerAccountPage {
     }    
     
     public BuyerChangeLanguage clickLanguageBtn(){
-        commonAction.sleepInMiliSecond(1000);
+//        commonAction.sleepInMiliSecond(1000);
         commonAction.clickElement(LANGUAGE_BTN);
         return new BuyerChangeLanguage(driver);
     }
+
+    /**
+     * Waits a little until the screen is ready before further actions by simply waiting for the customer name to be visible on the screen. 
+     * This implicitly means the page is ready for further actions
+     */
+    public BuyerAccountPage waitUntilScreenIsReady() {
+    	try {
+    		commonAction.getElement(accountEl.DISPLAY_NAME, defaultTimeout);
+    	} catch (TimeoutException exception) {
+    		logger.warn("The screen might not be ready for other actions\n" + exception);
+    	}
+    	return this;
+    }
+    
     public BuyerMyProfile clickProfile(){
         commonAction.clickElement(accountEl.DISPLAY_NAME);
         logger.info("Click on profile.");
