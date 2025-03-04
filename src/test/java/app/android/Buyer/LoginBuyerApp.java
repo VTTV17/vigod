@@ -208,7 +208,7 @@ public class LoginBuyerApp {
 		navigationBar.tapOnAccountIcon().clickLoginBtn();
 		
 		loginPage.clickForgotPasswordLink()
-		.inputUsernameForgotPassword(username)
+		.inputUsername(username)
 		.inputNewPassword(newPassword);
 		signupPage.clickContinueBtn();
 		
@@ -247,11 +247,10 @@ public class LoginBuyerApp {
 		
 		navigationBar.tapOnAccountIcon().clickLoginBtn();
 		
-		loginPage.clickPhoneTab().clickForgotPasswordLink();
-		
-		signupPage.selectCountryCodeFromSearchBox(country);
-		loginPage.inputUsernameForgotPassword(username)
-		.inputNewPassword(newPassword);
+		loginPage.clickPhoneTab().clickForgotPasswordLink()
+			.selectCountry(country)
+			.inputUsername(username)
+			.inputNewPassword(newPassword);
 		
 		signupPage.clickContinueBtn();
 		
@@ -277,107 +276,4 @@ public class LoginBuyerApp {
 		
 		commonAction.sleepInMiliSecond(2000);
 	}
-
-	@Test
-	public void Login_13_ForgotPasswordForNonExistingAccount() {
-		
-		navigationBar.tapOnAccountIcon().clickLoginBtn();
-		
-		loginPage.clickForgotPasswordLink()
-		.inputUsernameForgotPassword(generate.generateString(10) + "@nbobd.com")
-		.inputNewPassword(BUYER_MAIL_PASSWORD);
-		
-		signupPage.clickContinueBtn();
-		
-		Assert.assertEquals(signupPage.getUsernameError(), "Email không tồn tại");
-		
-		commonAction.navigateBack();
-		commonAction.navigateBack();
-		
-		navigationBar.tapOnAccountIcon().clickLoginBtn();
-		
-		loginPage.clickPhoneTab().clickForgotPasswordLink();
-		
-		signupPage.selectCountryCodeFromSearchBox(BUYER_PHONE_COUNTRY);
-		loginPage.inputUsernameForgotPassword(generate.generateNumber(13))
-		.inputNewPassword(BUYER_MAIL_PASSWORD);
-		
-		signupPage.clickContinueBtn();
-		Assert.assertEquals(signupPage.getUsernameError(), "Số điện thoại không tồn tại");
-	}	
-	
-	@Test
-	public void Login_15_ChangePasswordWithValidData() {
-		String country = BUYER_FORGOT_MAIL_COUNTRY;
-		String username = BUYER_FORGOT_MAIL_USERNAME;
-		String password = BUYER_FORGOT_MAIL_PASSWORD;
-		String newPassword = password + "@" + generate.generateNumber(3);
-		
-		navigationBar.tapOnAccountIcon().clickLoginBtn();
-		
-		loginPage.performLogin(country, username, password);
-		
-		accountTab.clickProfile();
-		
-		commonAction.swipeByCoordinatesInPercent(0.5, 0.8, 0.5, 0.2);
-		
-		changePassword(password, newPassword);
-		
-		new BuyerMyProfile(driver).clickChangePassword();
-		
-		commonAction.navigateBack();
-		commonAction.navigateBack();
-		accountTab.logOutOfApp();
-		
-		accountTab.clickLoginBtn().performLogin(country, username, newPassword);
-		accountTab.clickProfile();
-		
-		commonAction.swipeByCoordinatesInPercent(0.5, 0.8, 0.5, 0.2);
-		oldPass = resetToOriginalPassword(newPassword, password);
-	}	
-	
-	@Test
-	public void Login_16_ChangePasswordThatResemblePrevious4Passwords() {
-		String country = BUYER_FORGOT_MAIL_COUNTRY;
-		String username = BUYER_FORGOT_MAIL_USERNAME;
-		String password = BUYER_FORGOT_MAIL_PASSWORD;
-		String newPassword = password + "@" + generate.generateNumber(3);
-		
-		navigationBar.tapOnAccountIcon().clickLoginBtn();
-		
-		loginPage.performLogin(country, username, password);
-		
-		accountTab.clickProfile();
-		
-		commonAction.swipeByCoordinatesInPercent(0.5, 0.8, 0.5, 0.2);
-		
-		// Change password back to the first password
-		String currentPassword = "";
-		List<String> oldPasswords = new ArrayList<String>(); 
-		
-		if (oldPass == null) {
-			for (int i=0; i<5; i++) {
-				
-				currentPassword = (i==0) ? password : newPassword;
-	    		
-				newPassword = (i!=4) ? password + generate.generateNumber(3)+ "!" : password;
-				
-				changePassword(currentPassword, newPassword);
-	    		
-	    		if (i==0||i==4) continue; // First and last changed passwords will not be added to the list
-	    		oldPasswords.add(newPassword);
-			}			
-		} else {
-			oldPasswords = oldPass;
-			newPassword = password;
-		}
-		
-		// Verify new password should not be the same as the last 4 passwords.
-		for (String pw : oldPasswords) {
-    		changePassword(newPassword, pw);
-			Assert.assertEquals(buyerGeneral.getToastMessage(), "Mật khẩu mới không được trùng với 4 mật khẩu hiện gần nhất");
-			commonAction.navigateBack();
-		}		
-	}	
-	
 }

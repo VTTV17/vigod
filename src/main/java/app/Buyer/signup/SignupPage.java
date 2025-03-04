@@ -1,13 +1,10 @@
 package app.Buyer.signup;
 
-import java.time.Duration;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.pagefactory.ByChained;
-import org.openqa.selenium.support.ui.WebDriverWait;
 
 import utilities.commons.UICommonMobile;
 
@@ -16,21 +13,23 @@ public class SignupPage {
 	final static Logger logger = LogManager.getLogger(SignupPage.class);
 
     WebDriver driver;
-    WebDriverWait wait;
     UICommonMobile commonAction;
 
     int defaultTimeout = 5;
     
     public SignupPage (WebDriver driver) {
         this.driver = driver;
-        wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         commonAction = new UICommonMobile(driver);
     }
     
     By COUNTRYCODE = By.xpath("//*[ends-with(@resource-id,'country_code')]");
+    By loc_lblSelectedCountry = By.xpath("//*[ends-with(@resource-id,':id/fragment_social_login_phone_choose_country_name')]");
     By MAGNIFIER = By.xpath("//*[ends-with(@resource-id,'btn_search')]");
     By COUNTRY_SEARCHBOX = By.xpath("//*[ends-with(@resource-id,'search_src_text')]");
-    By COUNTRY_SEARCHRESULT = By.xpath("//*[ends-with(@resource-id,'country_code_list_tv_title')]");
+    
+    By countrySearchResultByName(String country) {
+    	return By.xpath("//*[ends-with(@resource-id,'country_code_list_tv_title') and @text=\"%s\"]".formatted(country));
+    }
     
     By MAIL_TAB = By.xpath("(//*[ends-with(@resource-id,'account_v2_tabs')]/android.widget.LinearLayout/android.widget.LinearLayout)[1]");
     By PHONE_TAB = By.xpath("(//*[ends-with(@resource-id,'account_v2_tabs')]/android.widget.LinearLayout/android.widget.LinearLayout)[2]");
@@ -44,73 +43,59 @@ public class SignupPage {
     By BIRTHDAY_OK_BTN = By.xpath("//*[ends-with(@resource-id,'ok')]");
     
     By TERM_CHK = By.xpath("//*[ends-with(@resource-id,'btn_check_term_and_policy')]");
-    By CONTINUE_BTN = By.xpath("//*[ends-with(@resource-id,'submit') or ends-with(@resource-id,'check_email')]");
+    public static By loc_btnContinue = By.xpath("//*[ends-with(@resource-id,'submit') or ends-with(@resource-id,'check_email')]");
     
-    By USERNAME_ERROR = By.xpath("//*[contains(@resource-id,'error')]");
+    public static By loc_lblUsernameError = By.xpath("//*[contains(@resource-id,'error')]");
     
     By VERIFICATIONCODE = By.xpath("//*[ends-with(@resource-id,'verify_code_edittext')]");
     By RESEND_BTN = By.xpath("//*[ends-with(@resource-id,'verify_code_resend_action')]");
     By VERIFY_BTN = By.xpath("//*[ends-with(@resource-id,'verify_code_action')]");
 
-    By TOASTMESSAGE = By.xpath("//*[ends-with(@class,'Toast')]");
-    
-
     public SignupPage clickMailTab() {
     	commonAction.clickElement(MAIL_TAB);
-    	logger.info("Clicked on Mail tab.");
+    	logger.info("Clicked Mail tab.");
     	return this;
     }
     
     public SignupPage clickPhoneTab() {
     	commonAction.clickElement(PHONE_TAB);
-    	logger.info("Clicked on Phone tab.");
+    	logger.info("Clicked Phone tab.");
     	return this;
     }
 
-    public SignupPage clickCountryCodeField() {
-    	commonAction.clickElement(COUNTRYCODE);
-    	logger.info("Clicked on Country code field.");
-        return this;
+    String getCurrentlySelectedCountry(){
+    	var country = commonAction.getText(loc_lblSelectedCountry);
+    	logger.info("Retrieved selected country: {}", country);
+    	return country;
     }    
     
+    public SignupPage clickCountryCodeField() {
+    	commonAction.clickElement(COUNTRYCODE);
+    	logger.info("Clicked Country code field.");
+        return this;
+    }    
     public SignupPage clickMagnifierIcon() {
     	commonAction.clickElement(MAGNIFIER);
     	logger.info("Clicked on Magnifier icon.");
     	return this;
     }    
-    
     public SignupPage inputCountryCodeToSearchBox(String country) {
-    	commonAction.getElement(COUNTRY_SEARCHBOX).sendKeys(country);
+    	commonAction.inputText(COUNTRY_SEARCHBOX, country);
     	logger.info("Input Country code: " + country);
+    	//TODO: There's a delay of approximately 2s after inputting country name. The devs deliberately made it. Will do something about it
+    	UICommonMobile.sleepInMiliSecond(2000, "after inputing country name just like a real user would");
     	return this;
     }    
-    
     public SignupPage selectCountryCodeFromSearchBox(String country) {
-    	clickCountryCodeField();
-    	clickMagnifierIcon();
-    	inputCountryCodeToSearchBox(country);
-    	
-    	for (int i=0; i<6; i++) {
-    		commonAction.sleepInMiliSecond(500);
-    		if (commonAction.getText(COUNTRY_SEARCHRESULT).contentEquals(country)) break;
-    	}
-    	
-    	commonAction.clickElement(COUNTRY_SEARCHRESULT);
-    	
-    	//Sometimes the element is still present. The code below helps handle this intermittent issue
-    	boolean isElementPresent = true;
-    	for (int i=0; i<3; i++) {
-    		if (commonAction.getElements(COUNTRY_SEARCHRESULT).size() == 0) {
-    			isElementPresent = false;
-    			break;
-    		}
-    		commonAction.sleepInMiliSecond(500);
-    	}
-    	if (isElementPresent) {
-    		commonAction.clickElement(COUNTRY_SEARCHRESULT);
-    	}
-    	
+    	commonAction.clickElement(countrySearchResultByName(country));
     	logger.info("Selected country: " + country);
+    	return this;
+    }        
+    public SignupPage selectCountry(String country) {
+    	if (getCurrentlySelectedCountry().contentEquals(country)) return this;
+    	
+    	clickCountryCodeField().clickMagnifierIcon().inputCountryCodeToSearchBox(country).selectCountryCodeFromSearchBox(country);
+    	commonAction.hideKeyboard();
     	return this;
     }        
     
@@ -183,19 +168,19 @@ public class SignupPage {
     }
     
     public boolean isContinueBtnEnabled() {
-    	boolean isEnabled = commonAction.isElementEnabled(CONTINUE_BTN);
+    	boolean isEnabled = commonAction.isElementEnabled(loc_btnContinue);
     	logger.info("Is 'Continue' button enabled: " + isEnabled);
     	return isEnabled;
     }
 
     public SignupPage clickContinueBtn() {
-    	commonAction.clickElement(CONTINUE_BTN);
+    	commonAction.clickElement(loc_btnContinue);
     	logger.info("Clicked on Continue button.");
         return this;
     }
 
     public String getUsernameError() {
-    	String text = commonAction.getText(USERNAME_ERROR);
+    	String text = commonAction.getText(loc_lblUsernameError);
     	logger.info("Retrieved error for username field: " + text);
     	return text;
     }    
@@ -219,7 +204,7 @@ public class SignupPage {
     }    
 
     public String getVerificationCodeError() {
-    	commonAction.sleepInMiliSecond(1500); // Sometimes it takes longer for the error to appear
+    	UICommonMobile.sleepInMiliSecond(1500); // Sometimes it takes longer for the error to appear
     	String text = commonAction.getText(new ByChained(VERIFICATIONCODE, By.xpath("//*[contains(@class,'TextView')]")));
     	logger.info("Retrieved error for verification field: " + text);
     	return text;
