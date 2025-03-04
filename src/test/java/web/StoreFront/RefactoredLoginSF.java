@@ -358,12 +358,7 @@ public class RefactoredLoginSF extends BaseTest {
 		Assert.assertEquals(error, ForgotPasswordDialog.localizedPhoneNotExistError(translation));
 	}	
 
-	/**
-	 * Be cautious because this TC may fail due to bot detection mechanisms https://mediastep.atlassian.net/browse/BH-37703
-	 * @param country
-	 * @param username
-	 * @param password
-	 */
+	//Be cautious because this TC may fail due to bot detection mechanisms https://mediastep.atlassian.net/browse/BH-37703
 	//Temporarily commented out for CI env
 //	@Test(dataProvider = "buyerAccountDP")
 	void TC_ForgotPasswordForEmailOrPhoneAccount(String country, String username, String password) {
