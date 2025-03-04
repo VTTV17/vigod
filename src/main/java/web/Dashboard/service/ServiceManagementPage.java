@@ -17,6 +17,7 @@ import org.testng.Assert;
 
 import utilities.api.API;
 import utilities.assert_customize.AssertCustomize;
+import utilities.enums.Domain;
 import utilities.links.Links;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.sellerApp.login.LoginInformation;
@@ -27,6 +28,9 @@ import web.Dashboard.confirmationdialog.ConfirmationDialog;
 import web.Dashboard.home.HomePage;
 import utilities.commons.UICommonAction;
 
+import static utilities.links.Links.*;
+import static utilities.links.Links.BUY_LINK_PATH;
+
 public class ServiceManagementPage extends ServiceManagementElement {
 	WebDriver driver;
 	WebDriverWait wait;
@@ -35,6 +39,7 @@ public class ServiceManagementPage extends ServiceManagementElement {
 	AllPermissions allPermissions;
 	AssertCustomize assertCustomize;
 	CreateServiceElement createServiceUI;
+	Domain domain;
 	final static Logger logger = LogManager.getLogger(ServiceManagementPage.class);
 	public ServiceManagementPage(WebDriver driver){
 		super(driver);
@@ -50,6 +55,13 @@ public class ServiceManagementPage extends ServiceManagementElement {
 		commons = new UICommonAction(driver);
 		createServiceUI = new CreateServiceElement(driver);
 		assertCustomize = new AssertCustomize(driver);
+	}
+	public ServiceManagementPage(WebDriver driver, Domain domain){
+		super(driver);
+		this.driver = driver;
+		wait = new WebDriverWait(driver, Duration.ofSeconds(20));
+		commons = new UICommonAction(driver);
+		this.domain = domain;
 	}
 	public ServiceManagementPage goToCreateServicePage(){
 		commons.click(loc_btnCreateService);
@@ -159,7 +171,12 @@ public class ServiceManagementPage extends ServiceManagementElement {
 		return this;
 	}
 	public ServiceManagementPage navigateToServiceManagementUrl(){
-		commons.navigateToURL(Links.DOMAIN+"/service/list");
+		var url = switch (domain) {
+			case VN -> DOMAIN + SERVICE_LIST_PATH;
+			case BIZ -> DOMAIN_BIZ + SERVICE_LIST_PATH;
+			default -> throw new IllegalArgumentException("Unexpected value: " + domain);
+		};
+		commons.navigateToURL(url);
 		commons.sleepInMiliSecond(500);
 		logger.info("Navigate to service list.");
 		return this;

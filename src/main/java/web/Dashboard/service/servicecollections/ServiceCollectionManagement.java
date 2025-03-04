@@ -14,6 +14,7 @@ import org.testng.asserts.SoftAssert;
 import utilities.assert_customize.AssertCustomize;
 import utilities.constant.Constant;
 import utilities.data.DataGenerator;
+import utilities.enums.Domain;
 import utilities.links.Links;
 import utilities.model.dashboard.services.ServiceCollectionsInfo;
 import utilities.model.sellerApp.login.LoginInformation;
@@ -24,6 +25,9 @@ import web.Dashboard.confirmationdialog.ConfirmationDialog;
 import web.Dashboard.home.HomePage;
 import utilities.commons.UICommonAction;
 import web.Dashboard.service.ServiceManagementPage;
+
+import static utilities.links.Links.*;
+import static utilities.links.Links.SERVICE_LIST_PATH;
 
 public class ServiceCollectionManagement {
 
@@ -38,6 +42,7 @@ public class ServiceCollectionManagement {
 	AssertCustomize assertCustomize;
 	CreateEditServiceCollectionElement createServiceCollectionUI;
 	LoginInformation loginInformation;
+	Domain domain;
 
 	public ServiceCollectionManagement(WebDriver driver) {
 		this.driver = driver;
@@ -51,6 +56,12 @@ public class ServiceCollectionManagement {
 		commonAction = new UICommonAction(driver);
 		assertCustomize = new AssertCustomize(driver);
 		createServiceCollectionUI = new CreateEditServiceCollectionElement(driver);
+	}
+	public ServiceCollectionManagement(WebDriver driver, Domain domain) {
+		this.driver = driver;
+		wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+		commonAction = new UICommonAction(driver);
+		this.domain = domain;
 	}
 	By loc_btnCreateServiceCollection = By.cssSelector(".collection-list-page button");
 	By loc_lst_lblServiceCollectionName = By.cssSelector(".collection-name b");
@@ -170,7 +181,12 @@ public class ServiceCollectionManagement {
 ////		return this;
 //	}
 	public ServiceCollectionManagement navigateToServiceCollectUrl(){
-		commonAction.navigateToURL(Links.DOMAIN+"/collection_service/list");
+		var url = switch (domain) {
+			case VN -> DOMAIN + "/collection_service/list";
+			case BIZ -> DOMAIN_BIZ + "/collection_service/list";
+			default -> throw new IllegalArgumentException("Unexpected value: " + domain);
+		};
+		commonAction.navigateToURL(url);
 		logger.info("Navigate to service list.");
 		commonAction.sleepInMiliSecond(200);
 		return this;

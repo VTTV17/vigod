@@ -42,6 +42,7 @@ public class Links {
     public static String MENUS_PATH = "/channel/storefront/menu";
     public static String PREFERENCE_PATH = "/channel/storefront/preference";
     public static String BUY_LINK_PATH = "/marketing/buy-link/list";
+    public static String SERVICE_LIST_PATH = "/service/list";
 
     // PROD config
 //    public final static String URI = "https://api.beecow.com";

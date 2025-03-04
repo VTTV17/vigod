@@ -11,6 +11,7 @@ import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import utilities.enums.DisplayLanguage;
+import utilities.enums.Domain;
 import utilities.model.dashboard.services.ServiceInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 import web.Dashboard.confirmationdialog.ConfirmationDialog;
@@ -43,16 +44,23 @@ public class CreateServicePage extends HomePage {
     CreateServiceElement createServiceUI;
     PropertiesUtil propertiesUtil;
     String createSuccessfullyMess;
-
-    public CreateServicePage(WebDriver driver) throws Exception {
+    Domain domain;
+    public CreateServicePage(WebDriver driver) {
         super(driver);
         this.driver = driver;
         wait = new WebDriverWait(driver, Duration.ofSeconds(30));
         commons = new UICommonAction(driver);
         generate = new DataGenerator();
         createServiceUI = new CreateServiceElement(driver);
-        PageFactory.initElements(driver, this);
-        createSuccessfullyMess = PropertiesUtil.getPropertiesValueByDBLang("services.create.successullyMessage");
+    }
+    public CreateServicePage(WebDriver driver, Domain domain) {
+        super(driver);
+        this.driver = driver;
+        wait = new WebDriverWait(driver, Duration.ofSeconds(30));
+        commons = new UICommonAction(driver);
+        generate = new DataGenerator();
+        createServiceUI = new CreateServiceElement(driver);
+        this.domain = domain;
     }
 
     public CreateServicePage inputServiceName(String serviceName) {
@@ -62,7 +70,7 @@ public class CreateServicePage extends HomePage {
     }
 
     public CreateServicePage inputListingPrice(String listingPrice) {
-        commons.sendKeys(createServiceUI.loc_txtListingPrice, listingPrice);
+        commons.inputText(createServiceUI.loc_txtListingPrice, listingPrice);
         logger.info("Input " + listingPrice + " into Listing price field");
         return this;
     }
@@ -70,13 +78,13 @@ public class CreateServicePage extends HomePage {
     public String inputSellingPrice(String listingPrice, String discountPercent) {
         int listingPricePars = Integer.parseInt(listingPrice);
         int sellingPrice = listingPricePars - listingPricePars * Integer.parseInt(discountPercent) / 100;
-        commons.sendKeys(createServiceUI.loc_txtSellingPrice, String.valueOf(sellingPrice));
+        commons.inputText(createServiceUI.loc_txtSellingPrice, String.valueOf(sellingPrice));
         logger.info("Input " + sellingPrice + " into Selling price field");
         return String.valueOf(sellingPrice);
     }
 
     public String inputSellingPrice(String sellingPrice) {
-        commons.sendKeys(createServiceUI.loc_txtSellingPrice, sellingPrice);
+        commons.inputText(createServiceUI.loc_txtSellingPrice, sellingPrice);
         logger.info("Input " + sellingPrice + " into Selling price field");
         return sellingPrice;
     }
@@ -182,9 +190,11 @@ public class CreateServicePage extends HomePage {
         return title;
     }
 
+    @SneakyThrows
     public CreateServicePage verifyCreateSeviceSuccessfulMessage() {
         commons.waitForElementVisible(commons.getElement(createServiceUI.loc_dlgNotification_lblMessage));
         String message = commons.getText(createServiceUI.loc_dlgNotification_lblMessage);
+        createSuccessfullyMess = PropertiesUtil.getPropertiesValueByDBLang("services.create.successullyMessage");
         Assert.assertEquals(message, createSuccessfullyMess);
         logger.info("Create service successfully popup is shown");
         return this;
@@ -256,8 +266,11 @@ public class CreateServicePage extends HomePage {
         Assert.assertEquals(commons.getText(createServiceUI.loc_lblErrorMessageSellingPrice), PropertiesUtil.getPropertiesValueByDBLang("services.create.sellingPrice.minimumRequiredError"));
         commons.sleepInMiliSecond(500);
         inputSellingPrice("1000000");
-        String sellingPriceActual = String.join("", commons.getText(createServiceUI.loc_lblErrorMessageSellingPrice).split(","));
-        Assert.assertEquals(sellingPriceActual, PropertiesUtil.getPropertiesValueByDBLang("services.create.sellingPrice.maximumRequiredError").formatted(listingPrice));
+        String sellingPriceActual = commons.getText(createServiceUI.loc_lblErrorMessageSellingPrice);
+        sellingPriceActual = String.join(": ",sellingPriceActual.split(":")[0], sellingPriceActual.split(":")[1].replaceAll("[^\\d.]",""));
+        String expectedError = PropertiesUtil.getPropertiesValueByDBLang("services.create.sellingPrice.maximumRequiredError").formatted(listingPrice);
+        if(domain.equals(Domain.BIZ)) expectedError = expectedError+".00";
+        Assert.assertEquals(sellingPriceActual, expectedError);
         return this;
     }
 
@@ -481,6 +494,7 @@ public class CreateServicePage extends HomePage {
                 commons.click(createServiceUI.loc_btnActiveDeactive);
             }
         }
+        commons.sleepInMiliSecond(1000);
         commons.click(createServiceUI.loc_btnSave);
         return this;
     }
@@ -598,6 +612,11 @@ public class CreateServicePage extends HomePage {
                 }
                 case VIE: {
                     if (commons.getText(languageOptions.get(i)).equals("Vietnamese") || commons.getText(languageOptions.get(i)).equals("Tiếng Việt"))
+                        commons.click(createServiceUI.loc_dlgTranslate_ddlLanguageOptions, i);
+                    break;
+                }
+                case RUS: {
+                    if (commons.getText(languageOptions.get(i)).equals("Russian") || commons.getText(languageOptions.get(i)).equals("Tiếng Nga"))
                         commons.click(createServiceUI.loc_dlgTranslate_ddlLanguageOptions, i);
                     break;
                 }
