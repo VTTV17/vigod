@@ -1,6 +1,8 @@
 package app.android.Buyer;
+import java.util.ArrayList;
 import java.util.List;
 
+import org.openqa.selenium.Dimension;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
@@ -10,12 +12,14 @@ import org.testng.annotations.Test;
 
 import com.mifmif.common.regex.Generex;
 
+import api.Buyer.login.LoginSF;
 import api.Seller.login.Login;
 import api.Seller.setting.StoreLanguageAPI;
 import app.Buyer.account.BuyerAccountPage;
 import app.Buyer.account.BuyerMyProfile;
 import app.Buyer.account.ChangePasswordPage;
 import app.Buyer.buyergeneral.BuyerGeneral;
+import app.Buyer.login.ForgotPasswordPage;
 import app.Buyer.login.LoginPage;
 import app.Buyer.navigationbar.NavigationBar;
 import app.Buyer.signup.SignupPage;
@@ -37,6 +41,7 @@ public class LoginBuyer extends BaseTest{
 	NavigationBar navigationBar;
 	LoginPage loginPage;
 	SignupPage signupPage;
+	BuyerGeneral buyerGeneral;
 	UICommonMobile commonAction;
 	
 	LoginInformation sellerCredentialsForAPI;
@@ -64,6 +69,7 @@ public class LoginBuyer extends BaseTest{
 		accountTab = new BuyerAccountPage(driver);
 		loginPage = new LoginPage(driver);
 		signupPage = new SignupPage(driver);
+		buyerGeneral = new BuyerGeneral(driver);
 		commonAction = new UICommonMobile(driver);
 		
 		commonAction.waitSplashScreenLoaded();
@@ -86,7 +92,7 @@ public class LoginBuyer extends BaseTest{
 //			{AccountTest.GOMUA_PHONE_COUNTRY, AccountTest.GOMUA_PHONE_USERNAME, AccountTest.BUYER_MASTER_PASSWORD},
 		};
 	}
-	
+
 	@Test
 	void TC_00_SwitchBetweenSigninAndSignupForm() {
 		
@@ -108,7 +114,7 @@ public class LoginBuyer extends BaseTest{
 		navigationBar.tapOnAccountIcon().changeLanguageByLangName(sfDisplayLanguage).clickLoginBtn();
 		
     	loginPage.clickUsername(); //Workaround to simulate a tap on username field
-    	commonAction.hideKeyboard("android");
+    	commonAction.hideKeyboard();
 		
     	/**Email account**/
 		//All fields left empty
@@ -185,12 +191,11 @@ public class LoginBuyer extends BaseTest{
 		
 		navigationBar.tapOnAccountIcon().clickLoginBtn().performLogin(country, username, password);
 		
-		commonAction.swipeByCoordinatesInPercent(0.5, 0.8, 0.5, 0.2);
-		accountTab.changeLanguageByLangName(sfDisplayLanguage);
+		accountTab.waitUntilScreenIsReady().changeLanguageByLangName(sfDisplayLanguage);
 		
-		BuyerMyProfile myProfilePage = accountTab.clickProfile();
+		BuyerMyProfile myProfilePage = accountTab.clickProfile().waitUntilScreenIsReady();
 		
-		commonAction.swipeByCoordinatesInPercent(0.5, 0.8, 0.5, 0.2);
+		commonAction.swipeByCoordinatesInPercent(0.5, 0.9, 0.5, 0.1);
 		
 		//When leaving the fields empty, no validation errors are seen. The button is disabled
 		
@@ -202,10 +207,9 @@ public class LoginBuyer extends BaseTest{
 			.getCurrentPasswordError();
 		Assert.assertEquals(error, ChangePasswordPage.localizedWrongCurrentPasswordError(translation));
 		
-		commonAction.hideKeyboard("android");
 		commonAction.navigateBack();
 		
-		// Absence of special characters
+		//New password lacks special characters
 		error = myProfilePage.clickChangePassword()
 			.inputCurrentPassword(password)
 			.clickNewPassword()
@@ -214,10 +218,10 @@ public class LoginBuyer extends BaseTest{
 			.getNewPasswordError();
 		Assert.assertEquals(error, ChangePasswordPage.localizedInvalidPasswordFormatError(translation));
 		
-		commonAction.hideKeyboard("android");
+		commonAction.hideKeyboard();
 		commonAction.navigateBack();
 		
-		// Absence of digits
+		//New password lacks digits
 		error = myProfilePage.clickChangePassword()
 			.inputCurrentPassword(password)
 			.clickNewPassword()
@@ -226,10 +230,10 @@ public class LoginBuyer extends BaseTest{
 			.getNewPasswordError();
 		Assert.assertEquals(error, ChangePasswordPage.localizedInvalidPasswordFormatError(translation));
 		
-		commonAction.hideKeyboard("android");
+		commonAction.hideKeyboard();
 		commonAction.navigateBack();
 		
-		// Inadequate number of characters
+		//New password doesn't meet minimum number of characters
 		error = myProfilePage.clickChangePassword()
 			.inputCurrentPassword(password)
 			.clickNewPassword()
@@ -237,8 +241,96 @@ public class LoginBuyer extends BaseTest{
 			.clickChangePasswordDoneBtn()
 			.getNewPasswordError();
 		Assert.assertEquals(error, ChangePasswordPage.localizedInvalidPasswordFormatError(translation));
+		
+		commonAction.hideKeyboard();
+		commonAction.navigateBack();
+		
+		//New password matches the last 4 old passwords
+		String newPassword = DataGenerator.randomValidPassword();
+		var loginSFAPI = new LoginSF(sellerCredentialsForAPI);
+		String currentPassword = "";
+		List<String> oldPasswords = new ArrayList<String>();
+		
+		for (int i=0; i<5; i++) {
+			currentPassword = (i==0) ? password : newPassword;
+			
+			newPassword = (i==4) ? password : DataGenerator.randomValidPassword();
+			
+			loginSFAPI.changePassword(username, currentPassword, DataGenerator.getPhoneCode(country), newPassword);
+			
+    		if (!List.of(0, 4).contains(i)) oldPasswords.add(newPassword); //First and last changed passwords aren't added to the list
+		}		
+		
+		for (String pw : oldPasswords) {
+			myProfilePage.clickChangePassword()
+				.inputCurrentPassword(password)
+				.inputNewPassword(pw)
+				.clickChangePasswordDoneBtn();
+			Assert.assertEquals(buyerGeneral.getToastMessage(), ChangePasswordPage.localizedNewPasswordMatchLastOld4PasswordError(translation));
+			commonAction.navigateBack();
+		}		
 	}
 	
+	@Test(dataProvider = "buyerAccountDP")
+	void TC_05_ChangePasswordWithValidData(String country, String username, String password) {
+		
+		String newPassword = DataGenerator.randomValidPassword();
+		
+		navigationBar.tapOnAccountIcon().clickLoginBtn();
+		
+		loginPage.performLogin(country, username, password);
+		
+		BuyerMyProfile myProfilePage = accountTab.clickProfile().waitUntilScreenIsReady();
+		
+		//Change password
+		commonAction.swipeByCoordinatesInPercent(0.5, 0.9, 0.5, 0.1);
+		myProfilePage.clickChangePassword()
+		.inputCurrentPassword(password)
+		.inputNewPassword(newPassword)
+		.clickChangePasswordDoneBtn();
+		
+		//Logout
+		myProfilePage.tapOnBackIcon();
+		accountTab.logOutOfApp();
+		
+		//Login with new password
+		accountTab.clickLoginBtn().performLogin(country, username, newPassword);
+		accountTab.clickProfile();
+
+		//Change password back to the first password
+		var loginSFAPI = new LoginSF(sellerCredentialsForAPI);
+		String currentPassword = "";
+		for (int i=0; i<4; i++) {
+			currentPassword = newPassword;
+			newPassword = (i==3) ? password : DataGenerator.randomValidPassword();
+			loginSFAPI.changePassword(username, currentPassword, DataGenerator.getPhoneCode(country), newPassword);
+		}
+	}
+	
+	@Test
+	void TC_06_ForgotPasswordForNonExistingAccount() {
+		navigationBar.tapOnAccountIcon().changeLanguageByLangName(sfDisplayLanguage).clickLoginBtn();
+		
+		//Email account
+		String error = loginPage.clickForgotPasswordLink()
+			.inputUsername(DataGenerator.randomCorrectFormatEmail())
+			.inputNewPassword(DataGenerator.randomValidPassword())
+			.clickContinueBtn()
+			.getUsernameError();
+		
+		Assert.assertEquals(error, ForgotPasswordPage.localizedEmailNotExistError(translation));
+		
+		commonAction.navigateBack();
+		
+		//Phone account
+		error = loginPage.clickPhoneTab().clickForgotPasswordLink()
+			.inputUsername(DataGenerator.randomPhone())
+			.inputNewPassword(DataGenerator.randomValidPassword())
+			.clickContinueBtn()
+			.getUsernameError();
+		Assert.assertEquals(error, ForgotPasswordPage.localizedPhoneNotExistError(translation));
+	}
+
 	//TODO Login with Facebook functionality => Left for manual testing
 	//TODO Buyers logging in with Facebook can't change password nor reset password on Storefront => Left for manual testing	
 	

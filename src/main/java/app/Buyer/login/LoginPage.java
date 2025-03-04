@@ -40,50 +40,59 @@ public class LoginPage {
     	return TranslateText.localizedText(translation, "incorrect_phone_pass");
     }       
     
-    By USERNAME = By.xpath("//*[ends-with(@resource-id,'field') and not (contains(@resource-id,'password'))]//*[ends-with(@resource-id,'edittext')]");
-    By PASSWORD = By.xpath("//*[ends-with(@resource-id,'field') and contains(@resource-id,'password')]//*[ends-with(@resource-id,'edittext')]");
-    By LOGIN_BTN = By.xpath("//*[ends-with(@resource-id,'submit') or ends-with(@resource-id,'check_email')]");
-    By SIGNUP_LINKTEXT = By.xpath("//*[ends-with(@resource-id,'txt_sign_up')]");
-    By PHONE_TAB = By.xpath("(//*[ends-with(@resource-id,'account_v2_tabs')]/android.widget.LinearLayout/android.widget.LinearLayout)[2]");
-    By FORGOTPASSWORD = By.xpath("//*[ends-with(@resource-id,'forgot_pass')]");
-    By USERNAME_FORGOTPASSWORD = By.xpath("(//*[ends-with(@resource-id,'social_layout_limit_edittext')])[1]");
-    By PASSWORD_FORGOTPASSWORD = By.xpath("(//*[ends-with(@resource-id,'social_layout_limit_edittext')])[2]");
-
+    By loc_txtUsername = By.xpath("//*[ends-with(@resource-id,'field') and not (contains(@resource-id,'password'))]//*[ends-with(@resource-id,'edittext')]");
+    By loc_txtPassword = By.xpath("//*[ends-with(@resource-id,'field') and contains(@resource-id,'password')]//*[ends-with(@resource-id,'edittext')]");
+    By loc_btnLogin = By.xpath("//*[ends-with(@resource-id,'submit') or ends-with(@resource-id,'check_email')]");
+    By loc_lnkSignup = By.xpath("//*[ends-with(@resource-id,'txt_sign_up')]");
+    By loc_tabPhone = By.xpath("(//*[ends-with(@resource-id,'account_v2_tabs')]/android.widget.LinearLayout/android.widget.LinearLayout)[2]");
+    By loc_lnkForgotPassword = By.xpath("//*[ends-with(@resource-id,'forgot_pass')]");
+    
+    public LoginPage clickPhoneTab() {
+        commonAction.clickElement(loc_tabPhone);
+        logger.info("Clicked Phone tab.");
+        return this;
+    }    
+    
     public LoginPage clickUsername() {
-    	commonAction.clickElement(USERNAME, defaultTimeout);
+    	commonAction.clickElement(loc_txtUsername, defaultTimeout);
     	logger.info("Clicked on Username field.");
     	return this;
     }    
     
     public LoginPage inputUsername(String username) {
-    	commonAction.inputText(USERNAME, username);
+    	commonAction.inputText(loc_txtUsername, username);
     	logger.info("Input '" + username + "' into Username field.");
         return this;
     }
 
     public LoginPage inputPassword(String password) {
-    	commonAction.inputText(PASSWORD, password);
+    	commonAction.inputText(loc_txtPassword, password);
     	logger.info("Input '" + password + "' into Password field.");
         return this;
     }
 
     public boolean isLoginBtnEnabled() {
-    	boolean isEnabled = commonAction.isElementEnabled(LOGIN_BTN);
+    	boolean isEnabled = commonAction.isElementEnabled(loc_btnLogin);
     	logger.info("Is 'Login' button enabled: " + isEnabled);
     	return isEnabled;
     }    
     
     public LoginPage clickLoginBtn() {
-    	commonAction.clickElement(LOGIN_BTN, defaultTimeout);
+    	commonAction.clickElement(loc_btnLogin, defaultTimeout);
     	logger.info("Clicked on Login button.");
         return this;
     }
 
     public LoginPage clickSignupLinkText() {
-    	commonAction.clickElement(SIGNUP_LINKTEXT, defaultTimeout);
+    	commonAction.clickElement(loc_lnkSignup, defaultTimeout);
     	logger.info("Clicked on 'Signup' link text.");
         return this;
     }
+
+    public LoginPage selectCountry(String country) {
+    	new SignupPage(driver).selectCountry(country);
+    	return this;
+    }    
     
     public LoginPage performLogin(String userName, String pass){
         // Logger
@@ -101,54 +110,36 @@ public class LoginPage {
 
         return this;
     }
-    
+
     public LoginPage performLogin(String country, String username, String password){
     	if (username.matches("\\d+")) {
     		clickPhoneTab();
-    		new SignupPage(driver).selectCountryCodeFromSearchBox(country);
+    		new SignupPage(driver).selectCountry(country);
     	}
-    	inputUsername(username);
-    	inputPassword(password);
-    	clickLoginBtn();
+    	inputUsername(username).inputPassword(password).clickLoginBtn();
     	return this;
     }
-    public LoginPage clickPhoneTab() {
-        commonAction.clickElement(PHONE_TAB);
-        logger.info("Clicked Phone tab.");
-        UICommonMobile.sleepInMiliSecond(1000, "Wait after tapping Phone tab"); //Click on Phone tab => Username field is not properly located
-        return this;
-    }
-    public LoginPage clickForgotPasswordLink() {
-    	commonAction.clickElement(FORGOTPASSWORD, defaultTimeout);
+
+    public ForgotPasswordPage clickForgotPasswordLink() {
+    	commonAction.clickElement(loc_lnkForgotPassword, defaultTimeout);
     	
     	//Sometimes the element is still present. The code below helps handle this intermittent issue
     	boolean isElementPresent = true;
     	for (int i=0; i<3; i++) {
-    		if (commonAction.getElements(FORGOTPASSWORD).size() == 0) {
+    		if (commonAction.getElements(loc_lnkForgotPassword).size() == 0) {
     			isElementPresent = false;
     			break;
     		}
     		UICommonMobile.sleepInMiliSecond(500);
     	}
     	if (isElementPresent) {
-    		commonAction.clickElement(FORGOTPASSWORD);
+    		commonAction.clickElement(loc_lnkForgotPassword);
     	}
     	
     	logger.info("Clicked on 'Forgot Password' link text.");
-        return this;
+        return new ForgotPasswordPage(driver);
     }    
     
-    public LoginPage inputUsernameForgotPassword(String username) {
-    	commonAction.inputText(USERNAME_FORGOTPASSWORD, username);
-    	logger.info("Input '" + username + "' into Username field.");
-        return this;
-    }
-
-    public LoginPage inputNewPassword(String password) {
-        commonAction.inputText(PASSWORD_FORGOTPASSWORD, password);
-        logger.info("Input '" + password + "' into New Password field.");
-        return this;
-    }
     public LoginPage verifyToastMessage(String expected){
         new BuyerGeneral(driver).verifyToastMessage(expected);
         return this;

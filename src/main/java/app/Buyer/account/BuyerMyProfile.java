@@ -1,39 +1,53 @@
 package app.Buyer.account;
 
-import api.Seller.login.Login;
-import app.Buyer.account.address.BuyerAddress;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.WebDriverWait;
-import org.testng.Assert;
-
-import app.Buyer.buyergeneral.BuyerGeneral;
-import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
-import utilities.model.sellerApp.login.LoginInformation;
-import utilities.utils.PropertiesUtil;
-import utilities.commons.UICommonMobile;
-import utilities.data.DataGenerator;
-
-import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.openqa.selenium.TimeoutException;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.testng.Assert;
+
+import api.Seller.login.Login;
+import app.Buyer.account.address.BuyerAddress;
+import app.Buyer.buyergeneral.BuyerGeneral;
+import utilities.commons.UICommonMobile;
+import utilities.data.DataGenerator;
+import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
+import utilities.model.sellerApp.login.LoginInformation;
+import utilities.utils.PropertiesUtil;
 
 public class BuyerMyProfile extends BuyerMyProfileElement{
     final static Logger logger = LogManager.getLogger(BuyerMyProfile.class);
 
     WebDriver driver;
-    WebDriverWait wait;
     UICommonMobile common;
     LoginDashboardInfo loginDashboardInfo;
     LoginInformation sellerLoginInfo;
+    
+    int defaultTimeout = 5;
+    
     public BuyerMyProfile(WebDriver driver) {
         this.driver = driver;
-        wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         common = new UICommonMobile(driver);
     }
+    
+    /**
+     * Waits a little until the screen is ready before further actions by simply waiting for the customer name to be visible on the screen. 
+     * This implicitly means the page is ready for further actions
+     */
+    public BuyerMyProfile waitUntilScreenIsReady() {
+    	try {
+    		common.getElement(YOUR_NAME_INPUT, defaultTimeout);
+    	} catch (TimeoutException exception) {
+    		logger.warn("The screen might not be ready for other actions\n" + exception);
+    	}
+    	return this;
+    }
+    
     public BuyerMyProfile getLoginInfo(LoginInformation sellerLoginInfo){
         this.sellerLoginInfo = sellerLoginInfo;
         return this;

@@ -5,8 +5,6 @@ import static utilities.links.Links.SF_DOMAIN_BIZ;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
-import java.util.stream.Collectors;
 
 import org.testng.Assert;
 import org.testng.ITestResult;
@@ -31,6 +29,7 @@ import utilities.enums.Domain;
 import utilities.model.dashboard.setting.languages.AdditionalLanguages;
 import utilities.model.dashboard.setting.languages.translation.StorefrontCSR;
 import utilities.model.sellerApp.login.LoginInformation;
+import utilities.utils.ListUtils;
 import web.Dashboard.customers.allcustomers.AllCustomers;
 import web.Dashboard.customers.allcustomers.details.CustomerDetails;
 import web.StoreFront.header.ChangePasswordDialog;
@@ -70,7 +69,7 @@ public class RefactoredLoginSF extends BaseTest {
 		sellerCredentials = new Login().setLoginInformation(DataGenerator.getPhoneCode(sellerCountry), sellerUsername, sellerPassword).getLoginInformation();
 		
 		var storeLanguageAPI = new StoreLanguageAPI(sellerCredentials);
-        sfDisplayLanguage = randomSFDisplayLanguage(storeLanguageAPI.getAdditionalLanguages());
+        sfDisplayLanguage = ListUtils.getRandomListElement(storeLanguageAPI.getAdditionalLanguages().stream().filter(AdditionalLanguages::getPublished).map(AdditionalLanguages::getLangCode).toList());
         
         translation = storeLanguageAPI.getTranslation(sfDisplayLanguage).getStorefrontCSR();
         
@@ -97,13 +96,6 @@ public class RefactoredLoginSF extends BaseTest {
 		headerSection = new HeaderSF(driver);
 		loginPage = new LoginPage(driver);
 		commonAction = new UICommonAction(driver);
-	}	
-
-	String randomSFDisplayLanguage(List<AdditionalLanguages> publishedLanguages) {
-        return publishedLanguages.stream()
-        		.filter(AdditionalLanguages::getPublished)
-        		.map(AdditionalLanguages::getLangCode)
-        		.collect(Collectors.collectingAndThen(Collectors.toList(), collected -> collected.get(new Random().nextInt(collected.size()))));
 	}	
 	
 	@Test
